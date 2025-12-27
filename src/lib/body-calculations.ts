@@ -118,3 +118,4 @@ export function formatarNumero(valor: number, casas: number = 1): string {
   return valor.toFixed(casas);
 }
 
+

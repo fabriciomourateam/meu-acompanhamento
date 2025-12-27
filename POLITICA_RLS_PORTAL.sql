@@ -24,3 +24,4 @@ USING (true);
 -- Para verificar se a política foi criada:
 -- SELECT * FROM pg_policies WHERE tablename = 'patients';
 
+

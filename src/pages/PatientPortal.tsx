@@ -42,7 +42,8 @@ import {
   Scale,
   MoreVertical,
   Eye,
-  FileImage
+  FileImage,
+  LogOut
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -700,6 +701,17 @@ export default function PatientPortal() {
     }
   }
 
+  const handleLogout = () => {
+    // Limpar token do localStorage
+    localStorage.removeItem('portal_access_token');
+    // Redirecionar para página de login
+    navigate('/portal', { replace: true });
+    toast({
+      title: 'Logout realizado',
+      description: 'Você saiu do portal com sucesso'
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
@@ -786,6 +798,15 @@ export default function PatientPortal() {
               <Scale className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Registrar Peso</span>
               <span className="sm:hidden">Peso</span>
+            </Button>
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="border-red-500/50 hover:bg-red-500/20 hover:border-red-500 text-red-400 hover:text-red-300 transition-all whitespace-nowrap flex-1 sm:flex-none min-h-[44px] text-sm sm:text-base"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Sair</span>
+              <span className="sm:hidden">Sair</span>
             </Button>
             
             {/* Menu de ações: Dieta, Evolução e Atualizar */}
