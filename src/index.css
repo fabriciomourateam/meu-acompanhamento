@@ -1,0 +1,531 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Utility para esconder scrollbar mantendo funcionalidade */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari and Opera */
+}
+
+/* Modern Personal Trainer Dashboard Design System */
+@layer base {
+  :root {
+    /* Premium Dark Theme - Cinzas Escuros e Dourados */
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --surface: 240 5.9% 10%;
+    --surface-hover: 240 5.9% 15%;
+    
+    /* Brand Colors - Dourado Premium */
+    --primary: 45 93% 47%;
+    --primary-foreground: 240 10% 3.9%;
+    --primary-hover: 45 93% 42%;
+    
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 3.9%;
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 98%;
+    
+    /* Semantic UI Colors */
+    --card: 240 5.9% 10%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 5.9% 10%;
+    --popover-foreground: 0 0% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 45 93% 47%;
+    --accent-foreground: 240 10% 3.9%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 45 93% 47%;
+    
+    /* Premium Effects & Gradients */
+    --glass-bg: 240 5.9% 10% / 0.8;
+    --glass-border: 45 93% 47% / 0.2;
+    --shadow-glow: 45 93% 47% / 0.25;
+    --gradient-primary: linear-gradient(135deg, hsl(45 93% 47%), hsl(45 93% 35%));
+    --gradient-card: linear-gradient(145deg, hsl(240 5.9% 10%), hsl(240 5.9% 15%));
+    --gradient-gold: linear-gradient(135deg, hsl(45 93% 47%), hsl(45 93% 60%), hsl(45 93% 35%));
+    --gradient-dark: linear-gradient(145deg, hsl(240 10% 3.9%), hsl(240 5.9% 10%));
+    
+    /* Layout */
+    --radius: 0.75rem;
+    --sidebar-width: 240px;
+    --sidebar-width-collapsed: 70px;
+    
+    /* Sidebar */
+    --sidebar-background: 240 5.9% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 45 93% 47%;
+    --sidebar-primary-foreground: 240 10% 3.9%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 45 93% 47%;
+    
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+/* Light Theme Variables */
+.theme-light {
+  /* Premium Light Theme - Cinza Claro Elegante e Dourados */
+  --background: 0 0% 100%;
+  --foreground: 240 10% 3.9%;
+  --surface: 240 5% 96%;
+  --surface-hover: 240 4.8% 92%;
+  
+  /* Brand Colors - Dourado Premium */
+  --primary: 45 93% 47%;
+  --primary-foreground: 0 0% 98%;
+  --primary-hover: 45 93% 42%;
+    
+    /* Status Colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 98%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 240 10% 3.9%;
+    --danger: 0 84% 60%;
+    --danger-foreground: 0 0% 98%;
+    
+  /* Semantic UI Colors */
+  --card: 0 0% 100%;
+  --card-foreground: 240 10% 3.9%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 240 10% 3.9%;
+  --secondary: 240 4.8% 95.9%;
+  --secondary-foreground: 240 5.9% 10%;
+  --muted: 240 4.8% 95.9%;
+  --muted-foreground: 240 3.8% 46.1%;
+  --accent: 45 93% 47%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 98%;
+  --border: 240 5.9% 90%;
+  --input: 240 5.9% 90%;
+  --ring: 45 93% 47%;
+    
+  /* Premium Effects & Gradients */
+  --glass-bg: 0 0% 100% / 0.8;
+  --glass-border: 45 93% 47% / 0.2;
+  --shadow-glow: 45 93% 47% / 0.15;
+  --gradient-primary: linear-gradient(135deg, hsl(45 93% 47%), hsl(45 93% 35%));
+  --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(240 4.8% 95.9%));
+  --gradient-gold: linear-gradient(135deg, hsl(45 93% 47%), hsl(45 93% 60%), hsl(45 93% 35%));
+  --gradient-surface: linear-gradient(145deg, hsl(0 0% 100%), hsl(240 4.8% 95.9%));
+  --gradient-nav: linear-gradient(135deg, hsl(0 0% 100%), hsl(240 4.8% 95.9%));
+    
+    /* Premium Shadows & Effects */
+    --shadow-sm: 0 1px 2px 0 hsl(240 10% 3.9% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(240 10% 3.9% / 0.1), 0 2px 4px -2px hsl(240 10% 3.9% / 0.1);
+    --shadow-lg: 0 10px 15px -3px hsl(240 10% 3.9% / 0.1), 0 4px 6px -4px hsl(240 10% 3.9% / 0.1);
+    --shadow-xl: 0 20px 25px -5px hsl(240 10% 3.9% / 0.1), 0 8px 10px -6px hsl(240 10% 3.9% / 0.1);
+    --shadow-glow: 0 0 20px hsl(45 93% 47% / 0.15);
+    --shadow-card: 0 4px 6px -1px hsl(240 10% 3.9% / 0.1), 0 2px 4px -2px hsl(240 10% 3.9% / 0.1);
+    
+    /* Premium Borders */
+    --border-premium: 240 5.9% 85%;
+    --border-accent: 45 93% 47% / 0.3;
+    --border-glow: 45 93% 47% / 0.4;
+    
+    /* Premium Text Effects */
+    --text-glow: 0 0 10px hsl(45 93% 47% / 0.3);
+    --text-shadow: 0 1px 2px hsl(240 10% 3.9% / 0.1);
+    
+  /* Sidebar Light Theme */
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 10% 3.9%;
+  --sidebar-primary: 45 93% 47%;
+  --sidebar-primary-foreground: 0 0% 98%;
+  --sidebar-accent: 240 4.8% 95.9%;
+  --sidebar-accent-foreground: 240 10% 3.9%;
+  --sidebar-border: 240 5.9% 90%;
+  --sidebar-ring: 45 93% 47%;
+    
+    /* Animation */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body, #root {
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #0f172a !important;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    margin: 0;
+    padding: 0;
+  }
+  
+  #root {
+    width: 100%;
+    min-height: 100vh;
+  }
+  
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2;
+  }
+  
+  ::-webkit-scrollbar-track {
+    @apply bg-surface;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    @apply bg-muted rounded-full;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-muted-foreground;
+  }
+}
+
+@layer components {
+  /* Premium Glass morphism effect */
+  .glass {
+    background: hsla(var(--glass-bg));
+    backdrop-filter: blur(16px);
+    border: 1px solid hsla(var(--glass-border));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  }
+  
+  /* Premium Gold Glass */
+  .glass-gold {
+    background: linear-gradient(135deg, hsla(45 93% 47% / 0.1), hsla(45 93% 35% / 0.05));
+    backdrop-filter: blur(20px);
+    border: 1px solid hsla(45 93% 47% / 0.3);
+    box-shadow: 0 8px 32px hsla(45 93% 47% / 0.1);
+  }
+  
+  /* Status indicators */
+  .status-active {
+    @apply bg-success/20 text-success border border-success/30;
+  }
+  
+  .status-warning {
+    @apply bg-warning/20 text-warning border border-warning/30;
+  }
+  
+  .status-danger {
+    @apply bg-danger/20 text-danger border border-danger/30;
+  }
+  
+  /* Premium Gold Status */
+  .status-premium {
+    @apply bg-primary/20 text-primary border border-primary/30;
+    background: linear-gradient(135deg, hsla(45 93% 47% / 0.2), hsla(45 93% 35% / 0.1));
+  }
+  
+  /* Custom animations */
+  .animate-fadeIn {
+    animation: fadeIn 0.5s ease-out;
+  }
+  
+  .animate-slideUp {
+    animation: slideUp 0.5s ease-out;
+  }
+  
+  .animate-glow {
+    animation: glow 2s ease-in-out infinite alternate;
+  }
+  
+  .hover-lift {
+    @apply transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-primary/25;
+  }
+  
+  /* Stagger animation para cards */
+  @keyframes staggerFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-stagger {
+    animation: staggerFadeIn 0.6s ease-out forwards;
+    opacity: 0;
+  }
+
+  /* Fade in up animation */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(15px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .fadeInUp {
+    animation: fadeInUp 0.5s ease-out forwards;
+  }
+  
+  /* Premium hover effects */
+  .hover-gold {
+    @apply transition-all duration-300 hover:scale-105;
+    box-shadow: 0 4px 20px hsla(45 93% 47% / 0.2);
+  }
+  
+  .hover-gold:hover {
+    box-shadow: 0 8px 30px hsla(45 93% 47% / 0.4);
+    background: linear-gradient(135deg, hsla(45 93% 47% / 0.1), hsla(45 93% 35% / 0.05));
+  }
+  
+  /* Premium gradients */
+  .gradient-gold {
+    background: var(--gradient-gold);
+  }
+  
+  .gradient-dark {
+    background: var(--gradient-dark);
+  }
+  
+  .gradient-card {
+    background: var(--gradient-card);
+  }
+  
+  /* Premium text effects */
+  .text-gold {
+    background: var(--gradient-gold);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 10px hsla(45 93% 47% / 0.5);
+  }
+  
+  /* Premium borders */
+  .border-gold {
+    border: 1px solid hsla(45 93% 47% / 0.3);
+  }
+  
+  .border-gold-glow {
+    border: 1px solid hsla(45 93% 47% / 0.5);
+    box-shadow: 0 0 20px hsla(45 93% 47% / 0.2);
+  }
+  
+  /* Premium cards - Modernizado */
+  .card-premium {
+    background: var(--gradient-card);
+    border: 1px solid hsla(45 93% 47% / 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px);
+  }
+  
+  .card-premium:hover {
+    box-shadow: 0 12px 40px hsla(45 93% 47% / 0.15), 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border-color: hsla(45 93% 47% / 0.4);
+    transform: translateY(-2px);
+  }
+  
+  /* Premium animations */
+  .animate-shimmer {
+    background: linear-gradient(90deg, transparent, hsla(45 93% 47% / 0.2), transparent);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite;
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  /* Premium buttons */
+  .btn-premium {
+    background: var(--gradient-gold);
+    border: 1px solid hsla(45 93% 47% / 0.3);
+    color: hsl(var(--primary-foreground));
+    box-shadow: 0 4px 15px hsla(45 93% 47% / 0.2);
+    transition: all 0.3s ease;
+  }
+  
+  .btn-premium:hover {
+    box-shadow: 0 8px 25px hsla(45 93% 47% / 0.4);
+    transform: translateY(-2px);
+  }
+  
+  /* Premium inputs */
+  .input-premium {
+    background: hsla(240 5.9% 10% / 0.8);
+    border: 1px solid hsla(45 93% 47% / 0.3);
+    backdrop-filter: blur(10px);
+  }
+  
+  .input-premium:focus {
+    border-color: hsla(45 93% 47% / 0.6);
+    box-shadow: 0 0 20px hsla(45 93% 47% / 0.2);
+  }
+  
+  /* Premium sidebar */
+  .sidebar-premium {
+    background: var(--gradient-dark);
+    border-right: 1px solid hsla(45 93% 47% / 0.2);
+  }
+  
+  /* Premium navigation */
+  .nav-premium {
+    background: hsla(240 5.9% 10% / 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid hsla(45 93% 47% / 0.2);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow {
+  from {
+    box-shadow: 0 0 20px hsla(45 93% 47% / 0.2);
+  }
+  to {
+    box-shadow: 0 0 30px hsla(45 93% 47% / 0.4), 0 0 40px hsla(45 93% 47% / 0.2);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Correção específica para botão selecionado da sidebar no tema claro */
+.theme-light [data-sidebar] button[data-state="active"],
+.theme-light [data-sidebar] button[aria-selected="true"],
+.theme-light [data-sidebar] button.selected,
+.theme-light [data-sidebar] a[aria-current="page"],
+.theme-light [data-sidebar] button[data-active="true"] {
+  background-color: #fbbf24 !important;
+  color: #1f2937 !important;
+  font-weight: 700 !important;
+}
+
+.theme-light [data-sidebar] button[data-state="active"] *,
+.theme-light [data-sidebar] button[aria-selected="true"] *,
+.theme-light [data-sidebar] button.selected *,
+.theme-light [data-sidebar] a[aria-current="page"] *,
+.theme-light [data-sidebar] button[data-active="true"] * {
+  color: #1f2937 !important;
+}
+
+/* Animação de gradiente para landing page */
+@keyframes gradient {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+.animate-gradient {
+  background-size: 200% 200%;
+  animation: gradient 3s ease infinite;
+}
+/* Garantir que imagens do Google Drive sejam exibidas corretamente em modais */
+[role="dialog"] img[src*="drive.google.com"],
+[role="dialog"] iframe[src*="drive.google.com"] {
+  display: block !important;
+}
+
+/* Estilos para Exportação de Evolução */
+.export-container {
+  /* Garantir renderização consistente */
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  
+  /* Melhorar qualidade de texto */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  
+  /* Forçar renderização de gradientes */
+  background-attachment: fixed;
+}
+
+/* Ocultar elementos interativos na exportação */
+.hide-in-export {
+  display: block;
+}
+
+/* Garantir que canvas sejam renderizados com qualidade */
+canvas {
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+}
+
+/* Melhorar qualidade de gradientes para exportação */
+.gradient-export {
+  background-attachment: fixed;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Estilos específicos para impressão/exportação */
+@media print {
+  .hide-in-export {
+    display: none !important;
+  }
+  
+  .export-container {
+    background: -webkit-print-color-adjust !important;
+  }
+}
