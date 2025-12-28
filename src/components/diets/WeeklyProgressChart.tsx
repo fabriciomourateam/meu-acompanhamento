@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { dietConsumptionService } from '@/lib/diet-consumption-service';
-import type { DailyConsumption } from '@/lib/diet-consumption-service';
+import { dietConsumptionService, DailyConsumption } from '@/lib/diet-consumption-service';
 import { WeeklyHabitsGrid } from './WeeklyHabitsGrid';
 import { Calendar, Target } from 'lucide-react';
 import {

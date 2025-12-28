@@ -16,8 +16,6 @@ interface PromptTemplate {
   ai_model: string;
   max_tokens: number;
   temperature: number;
-  is_active?: boolean;
-  is_default?: boolean;
 }
 
 // Cache para economizar tokens - Versão híbrida (memória + localStorage)

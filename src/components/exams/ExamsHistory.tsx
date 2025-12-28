@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { laboratoryExamsService } from '@/lib/laboratory-exams-service';
-import type { LaboratoryExam } from '@/lib/laboratory-exams-service';
+import { laboratoryExamsService, LaboratoryExam } from '@/lib/laboratory-exams-service';
 import { FlaskConical, Clock, CheckCircle, XCircle, Calendar, Download, Upload, Trash2, Loader2, ChevronUp, ChevronDown } from 'lucide-react';
 import {
   Dialog,

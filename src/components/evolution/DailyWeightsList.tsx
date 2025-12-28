@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { weightTrackingService } from '@/lib/weight-tracking-service';
-import type { WeightEntry } from '@/lib/weight-tracking-service';
+import { weightTrackingService, WeightEntry } from '@/lib/weight-tracking-service';
 import { Scale, Trash2, Calendar, Sunrise, AlertCircle, ChevronUp, ChevronDown } from 'lucide-react';
 import {
   AlertDialog,

@@ -3,8 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
-import { dietConsumptionService } from '@/lib/diet-consumption-service';
-import type { DailyConsumption } from '@/lib/diet-consumption-service';
+import { dietConsumptionService, DailyConsumption } from '@/lib/diet-consumption-service';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TrendingDown, TrendingUp, AlertTriangle, Target } from 'lucide-react';
 

@@ -12,8 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { laboratoryExamsService } from '@/lib/laboratory-exams-service';
-import type { ExamType } from '@/lib/laboratory-exams-service';
+import { laboratoryExamsService, ExamType } from '@/lib/laboratory-exams-service';
 import { FlaskConical, Loader2, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 

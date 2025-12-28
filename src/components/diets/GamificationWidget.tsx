@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
-import { dietConsumptionService } from '@/lib/diet-consumption-service';
-import type { PatientPoints, Achievement } from '@/lib/diet-consumption-service';
+import { dietConsumptionService, PatientPoints, Achievement } from '@/lib/diet-consumption-service';
 import { Trophy, Star, Flame, Award, TrendingUp, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
 
