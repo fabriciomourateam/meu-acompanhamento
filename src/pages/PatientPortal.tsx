@@ -145,19 +145,9 @@ export default function PatientPortal() {
     }
   }, [token]);
 
-  // Trocar manifest para o portal do paciente (PWA abre direto no portal)
+  // Atualizar título da página quando entrar no portal
   useEffect(() => {
-    // Salvar referência do manifest original
-    const originalManifest = document.querySelector('link[rel="manifest"]');
-    const originalHref = originalManifest?.getAttribute('href');
-    
-    // Trocar para o manifest do portal
-    if (originalManifest) {
-      originalManifest.setAttribute('href', '/manifest-portal.json');
-    }
-    
-    // Atualizar meta tags para o portal
-    document.title = 'Meu Portal - Grow Nutri';
+    document.title = 'Meu Acompanhamento';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -166,10 +156,7 @@ export default function PatientPortal() {
     
     // Restaurar ao sair da página
     return () => {
-      if (originalManifest && originalHref) {
-        originalManifest.setAttribute('href', originalHref);
-      }
-      document.title = 'Grow Nutri - Controle da sua Empresa';
+      document.title = 'Meu Acompanhamento';
     };
   }, []);
 

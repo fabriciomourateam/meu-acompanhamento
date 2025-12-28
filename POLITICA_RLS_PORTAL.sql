@@ -25,3 +25,4 @@ USING (true);
 -- SELECT * FROM pg_policies WHERE tablename = 'patients';
 
 
+
