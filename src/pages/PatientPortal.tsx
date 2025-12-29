@@ -42,7 +42,8 @@ import {
   Scale,
   MoreVertical,
   Eye,
-  FileImage
+  FileImage,
+  LogOut
 } from 'lucide-react';
 import {
   DropdownMenu,
@@ -144,19 +145,23 @@ export default function PatientPortal() {
     }
   }, [token]);
 
-  // Trocar manifest para o portal do paciente (PWA abre direto no portal)
+  // Função de logout
+  const handleLogout = () => {
+    // Limpar token do localStorage
+    localStorage.removeItem('portal_access_token');
+    localStorage.removeItem('portal_token');
+    localStorage.removeItem('portal_phone');
+    // Redirecionar para página de login
+    navigate('/portal', { replace: true });
+    toast({
+      title: 'Logout realizado',
+      description: 'Você saiu do portal com sucesso'
+    });
+  };
+
+  // Atualizar título da página quando entrar no portal
   useEffect(() => {
-    // Salvar referência do manifest original
-    const originalManifest = document.querySelector('link[rel="manifest"]');
-    const originalHref = originalManifest?.getAttribute('href');
-    
-    // Trocar para o manifest do portal
-    if (originalManifest) {
-      originalManifest.setAttribute('href', '/manifest-portal.json');
-    }
-    
-    // Atualizar meta tags para o portal
-    document.title = 'Meu Portal - Grow Nutri';
+    document.title = 'Meu Acompanhamento - Portal do Paciente';
     
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
@@ -165,10 +170,7 @@ export default function PatientPortal() {
     
     // Restaurar ao sair da página
     return () => {
-      if (originalManifest && originalHref) {
-        originalManifest.setAttribute('href', originalHref);
-      }
-      document.title = 'Grow Nutri - Controle da sua Empresa';
+      document.title = 'Meu Acompanhamento';
     };
   }, []);
 
@@ -786,6 +788,16 @@ export default function PatientPortal() {
               <Scale className="w-4 h-4 mr-2" />
               <span className="hidden sm:inline">Registrar Peso</span>
               <span className="sm:hidden">Peso</span>
+            </Button>
+            
+            <Button
+              onClick={handleLogout}
+              variant="outline"
+              className="border-red-500/50 hover:bg-red-500/20 hover:border-red-500 text-red-400 hover:text-red-300 transition-all whitespace-nowrap flex-1 sm:flex-none min-h-[44px] text-sm sm:text-base"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              <span className="hidden sm:inline">Sair</span>
+              <span className="sm:hidden">Sair</span>
             </Button>
             
             {/* Menu de ações: Dieta, Evolução e Atualizar */}
