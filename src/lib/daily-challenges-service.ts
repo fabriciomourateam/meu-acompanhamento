@@ -51,7 +51,7 @@ export const dailyChallengesService = {
       .eq('patient_id', patientId)
       .eq('challenge_key', challengeKey)
       .eq('completion_date', today)
-      .single();
+      .maybeSingle();
     
     if (existing) {
       // Já está completo, retornar existente

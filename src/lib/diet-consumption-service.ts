@@ -89,7 +89,7 @@ export const dietConsumptionService = {
       .select('*')
       .eq('patient_id', patientId)
       .eq('consumption_date', today)
-      .single();
+      .maybeSingle();
     
     const consumptionData = {
       patient_id: patientId,
@@ -195,7 +195,7 @@ export const dietConsumptionService = {
       .from('patient_points')
       .select('*')
       .eq('patient_id', patientId)
-      .single();
+      .maybeSingle();
     
     if (!pointsData) {
       // Criar novo registro
@@ -425,20 +425,31 @@ export const dietConsumptionService = {
    */
   async getPatientPoints(patientId: string): Promise<PatientPoints | null> {
     try {
+      // Usar maybeSingle() em vez de single() para evitar erro 406 quando não há dados
+      // maybeSingle() retorna null se não houver registro, sem gerar erro
       const { data, error } = await supabase
         .from('patient_points')
         .select('*')
         .eq('patient_id', patientId)
-        .single();
+        .maybeSingle();
       
-      // PGRST116 = nenhum resultado encontrado (não é erro)
-      if (error && error.code !== 'PGRST116') {
-        console.warn('Erro ao buscar pontos do paciente (não crítico):', error);
+      if (error) {
+        // Se for erro 406, pode ser problema de RLS - logar mas não quebrar
+        if (error.code === 'PGRST301' || error.message?.includes('406')) {
+          console.warn('Erro de permissão ao buscar pontos do paciente. Verifique se as políticas RLS estão configuradas.');
+          return null;
+        }
+        console.warn('Erro ao buscar pontos do paciente:', error);
         return null;
       }
       return data || null;
-    } catch (error) {
-      console.warn('Erro ao buscar pontos do paciente (não crítico):', error);
+    } catch (error: any) {
+      // Erros de permissão não são críticos
+      if (error?.code === 'PGRST301' || error?.message?.includes('406')) {
+        console.warn('Erro de permissão ao buscar pontos do paciente. Verifique se as políticas RLS estão configuradas.');
+        return null;
+      }
+      console.warn('Erro ao buscar pontos do paciente:', error);
       return null;
     }
   },
@@ -447,14 +458,30 @@ export const dietConsumptionService = {
    * Buscar conquistas do paciente
    */
   async getPatientAchievements(patientId: string): Promise<Achievement[]> {
-    const { data, error } = await supabase
-      .from('patient_achievements')
-      .select('*')
-      .eq('patient_id', patientId)
-      .order('unlocked_at', { ascending: false });
-    
-    if (error) throw error;
-    return data || [];
+    try {
+      const { data, error } = await supabase
+        .from('patient_achievements')
+        .select('*')
+        .eq('patient_id', patientId)
+        .order('unlocked_at', { ascending: false });
+      
+      // Ignorar erros de permissão/RLS (não é crítico)
+      if (error) {
+        if (error.code === 'PGRST301' || error.message?.includes('406') || error.message?.includes('permission')) {
+          return [];
+        }
+        console.warn('Erro ao buscar conquistas do paciente (não crítico):', error);
+        return [];
+      }
+      return data || [];
+    } catch (error: any) {
+      // Ignorar erros de permissão/RLS
+      if (error?.code === 'PGRST301' || error?.message?.includes('406') || error?.message?.includes('permission')) {
+        return [];
+      }
+      console.warn('Erro ao buscar conquistas do paciente (não crítico):', error);
+      return [];
+    }
   },
 };
 

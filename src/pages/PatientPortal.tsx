@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense, useMemo, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import html2canvas from 'html2canvas';
 import * as domtoimage from 'dom-to-image-more';
@@ -11,22 +11,25 @@ import { useToast } from '@/hooks/use-toast';
 import { checkinService } from '@/lib/checkin-service';
 import { supabase } from '@/integrations/supabase/client';
 import { validateToken } from '@/lib/patient-portal-service';
-import { EvolutionCharts } from '@/components/evolution/EvolutionCharts';
-import { PhotoComparison } from '@/components/evolution/PhotoComparison';
-import { Timeline } from '@/components/evolution/Timeline';
-import { AchievementBadges } from '@/components/evolution/AchievementBadges';
-import { TrendsAnalysis } from '@/components/evolution/TrendsAnalysis';
-import { BodyFatChart } from '@/components/evolution/BodyFatChart';
-import { BodyCompositionMetrics } from '@/components/evolution/BodyCompositionMetrics';
 import { detectAchievements } from '@/lib/achievement-system';
 import { analyzeTrends } from '@/lib/trends-analysis';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
 import { PatientDietPortal } from '@/components/patient-portal/PatientDietPortal';
-import { EvolutionExportPage } from '@/components/evolution/EvolutionExportPage';
 import { dietService } from '@/lib/diet-service';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { DietPDFGenerator } from '@/lib/diet-pdf-generator';
 import { DietPremiumPDFGenerator } from '@/lib/diet-pdf-premium-generator';
+import { classificarIMC } from '@/lib/body-calculations';
+
+// Lazy load componentes pesados
+const EvolutionCharts = lazy(() => import('@/components/evolution/EvolutionCharts').then(m => ({ default: m.EvolutionCharts })));
+const PhotoComparison = lazy(() => import('@/components/evolution/PhotoComparison').then(m => ({ default: m.PhotoComparison })));
+const Timeline = lazy(() => import('@/components/evolution/Timeline').then(m => ({ default: m.Timeline })));
+const AchievementBadges = lazy(() => import('@/components/evolution/AchievementBadges').then(m => ({ default: m.AchievementBadges })));
+const TrendsAnalysis = lazy(() => import('@/components/evolution/TrendsAnalysis').then(m => ({ default: m.TrendsAnalysis })));
+const BodyFatChart = lazy(() => import('@/components/evolution/BodyFatChart').then(m => ({ default: m.BodyFatChart })));
+const BodyCompositionMetrics = lazy(() => import('@/components/evolution/BodyCompositionMetrics').then(m => ({ default: m.BodyCompositionMetrics })));
+const EvolutionExportPage = lazy(() => import('@/components/evolution/EvolutionExportPage').then(m => ({ default: m.EvolutionExportPage })));
 import { 
   Activity, 
   Calendar,
@@ -117,8 +120,10 @@ export default function PatientPortal() {
   const [showEvolutionExport, setShowEvolutionExport] = useState(false);
   const [evolutionExportMode, setEvolutionExportMode] = useState<'png' | 'pdf' | null>(null);
 
-  // Calcular dados
-  const achievements = checkins.length > 0 ? detectAchievements(checkins, bodyCompositions) : [];
+  // Memoizar cálculos pesados
+  const achievements = useMemo(() => {
+    return checkins.length > 0 ? detectAchievements(checkins, bodyCompositions) : [];
+  }, [checkins, bodyCompositions]);
 
   // Calcular idade do paciente
   const calcularIdade = (dataNascimento: string | null) => {
@@ -145,8 +150,8 @@ export default function PatientPortal() {
     }
   }, [token]);
 
-  // Função de logout
-  const handleLogout = () => {
+  // Memoizar função de logout
+  const handleLogout = useCallback(() => {
     // Limpar token do localStorage
     localStorage.removeItem('portal_access_token');
     localStorage.removeItem('portal_token');
@@ -157,7 +162,7 @@ export default function PatientPortal() {
       title: 'Logout realizado',
       description: 'Você saiu do portal com sucesso'
     });
-  };
+  }, [navigate, toast]);
 
   // Atualizar título da página quando entrar no portal
   useEffect(() => {
@@ -241,20 +246,24 @@ export default function PatientPortal() {
         }
       }
 
-      // Buscar todos os dados em paralelo para melhor performance
-      const [checkinsData, patientResult, bioResult] = await Promise.all([
+      // Buscar dados críticos primeiro (paciente e check-ins) em paralelo
+      const [checkinsData, patientResult] = await Promise.all([
         checkinService.getByPhone(telefone),
         supabase
           .from('patients')
-          .select('*')
+          .select('id, nome, telefone, data_nascimento, user_id, created_at')
           .eq('telefone', telefone)
-          .single(),
-        (supabase as any)
-          .from('body_composition')
-          .select('*')
-          .eq('telefone', telefone)
-          .order('data_avaliacao', { ascending: false })
+          .maybeSingle()
       ]);
+      
+      // Dados secundários carregam em paralelo após dados críticos
+      // Usar select('*') pois a estrutura da tabela pode variar
+      const bioResult = await supabase
+        .from('body_composition')
+        .select('*')
+        .eq('telefone', telefone)
+        .order('data_avaliacao', { ascending: false })
+        .limit(50); // Limitar resultados para melhor performance
       
       if (checkinsData.length === 0) {
         toast({
@@ -272,8 +281,29 @@ export default function PatientPortal() {
         setPatientId(patientResult.data.id);
       }
 
-      if (bioResult.data) {
-        setBodyCompositions(bioResult.data);
+      // Processar dados de composição corporal - usar dados reais da tabela
+      if (bioResult.error) {
+        console.error('Erro ao buscar composição corporal:', bioResult.error);
+        setBodyCompositions([]);
+      } else if (bioResult.data && bioResult.data.length > 0) {
+        // Usar os dados diretamente da tabela, apenas garantir que classificacao exista
+        const processedData = bioResult.data.map((item: any) => {
+          // Calcular classificacao se não existir e tiver IMC
+          let classificacao = item.classificacao || '';
+          if (!classificacao && item.imc) {
+            classificacao = classificarIMC(item.imc);
+          }
+          
+          // Retornar todos os campos originais + classificacao calculada se necessário
+          return {
+            ...item,
+            classificacao: classificacao
+          };
+        });
+        setBodyCompositions(processedData);
+      } else {
+        // Se não houver dados, definir como array vazio
+        setBodyCompositions([]);
       }
 
     } catch (error) {
@@ -950,14 +980,16 @@ export default function PatientPortal() {
 
       {/* Modal de Exportação da Evolução */}
       {showEvolutionExport && patient && (
-        <EvolutionExportPage
-          patient={patient}
-          checkins={checkins}
-          bodyCompositions={bodyCompositions}
-          onClose={() => { setShowEvolutionExport(false); setEvolutionExportMode(null); }}
-          directExportMode={evolutionExportMode || undefined}
-          onDirectExport={handleDirectEvolutionExport}
-        />
+        <Suspense fallback={<Skeleton className="h-96 w-full" />}>
+          <EvolutionExportPage
+            patient={patient}
+            checkins={checkins}
+            bodyCompositions={bodyCompositions}
+            onClose={() => { setShowEvolutionExport(false); setEvolutionExportMode(null); }}
+            directExportMode={evolutionExportMode || undefined}
+            onDirectExport={handleDirectEvolutionExport}
+          />
+        </Suspense>
       )}
     </div>
   );

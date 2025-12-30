@@ -114,9 +114,48 @@ export function PatientDietPortal({
       if (selectedPlan) {
         setActivePlan(selectedPlan);
         
-        // Buscar detalhes completos do plano
-        const details = await dietService.getById(selectedPlan.id);
-        setPlanDetails(details);
+        // Se os dados já vêm completos do getByPatientId, usar diretamente
+        if (selectedPlan.diet_meals && Array.isArray(selectedPlan.diet_meals) && selectedPlan.diet_meals.length > 0) {
+          // Garantir que cada refeição tenha diet_foods como array
+          selectedPlan.diet_meals = selectedPlan.diet_meals.map((meal: any) => {
+            if (!Array.isArray(meal.diet_foods)) {
+              meal.diet_foods = [];
+            }
+            return meal;
+          });
+          
+          setPlanDetails(selectedPlan);
+        } else {
+          // Caso contrário, buscar detalhes completos do plano usando getById
+          // O getById agora tem fallback para buscar dados separadamente se necessário
+          try {
+            const details = await dietService.getById(selectedPlan.id);
+            
+            // Garantir que diet_meals seja sempre um array
+            if (details && !Array.isArray(details.diet_meals)) {
+              details.diet_meals = [];
+            }
+            
+            // Garantir que cada refeição tenha diet_foods como array
+            if (details && Array.isArray(details.diet_meals)) {
+              details.diet_meals = details.diet_meals.map((meal: any) => {
+                if (!Array.isArray(meal.diet_foods)) {
+                  meal.diet_foods = [];
+                }
+                return meal;
+              });
+            }
+            
+            setPlanDetails(details);
+          } catch (error) {
+            console.error('Erro ao buscar detalhes do plano:', error);
+            toast({
+              title: 'Erro',
+              description: 'Não foi possível carregar os detalhes do plano alimentar',
+              variant: 'destructive'
+            });
+          }
+        }
       }
     } catch (error) {
       console.error('Erro ao carregar dados da dieta:', error);
@@ -137,6 +176,22 @@ export function PatientDietPortal({
       if (plan) {
         setActivePlan(plan);
         const details = await dietService.getById(plan.id);
+        
+        // Garantir que diet_meals seja sempre um array
+        if (details && !Array.isArray(details.diet_meals)) {
+          details.diet_meals = [];
+        }
+        
+        // Garantir que cada refeição tenha diet_foods como array
+        if (details && Array.isArray(details.diet_meals)) {
+          details.diet_meals = details.diet_meals.map((meal: any) => {
+            if (!Array.isArray(meal.diet_foods)) {
+              meal.diet_foods = [];
+            }
+            return meal;
+          });
+        }
+        
         setPlanDetails(details);
         
         // Limpar refeições consumidas ao trocar de plano
@@ -676,6 +731,23 @@ export function PatientDietPortal({
                       );
                     })}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Mensagem quando não há refeições */}
+          {hasActivePlan && planDetails && (!planDetails.diet_meals || planDetails.diet_meals.length === 0) && (
+            <Card className="bg-white rounded-2xl shadow-sm border border-amber-200">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Refeições não disponíveis</h3>
+                <p className="text-sm sm:text-base text-[#777777] mb-4">
+                  Não foi possível carregar as refeições deste plano alimentar.
+                </p>
+                <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg">
+                  <strong>Possível causa:</strong> As políticas de segurança (RLS) do Supabase podem estar bloqueando o acesso. 
+                  Verifique se as políticas RLS para as tabelas <code>diet_meals</code> e <code>diet_foods</code> permitem leitura para usuários anônimos ou autenticados.
+                </p>
               </CardContent>
             </Card>
           )}
