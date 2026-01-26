@@ -32,53 +32,53 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
   const loadWeeklyHabits = async () => {
     try {
       setLoading(true);
-      
+
       // Calcular início e fim da semana atual (domingo a sábado)
       const now = new Date();
       const dayOfWeek = now.getDay(); // 0 = domingo, 6 = sábado
       const startOfWeek = new Date(now);
       startOfWeek.setDate(now.getDate() - dayOfWeek);
       startOfWeek.setHours(0, 0, 0, 0);
-      
+
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
       endOfWeek.setHours(23, 59, 59, 999);
-      
+
       const startDate = startOfWeek.toISOString().split('T')[0];
       const endDate = endOfWeek.toISOString().split('T')[0];
-      
+
       // Buscar desafios completados na semana
       const challenges = await dailyChallengesService.getChallengesHistory(
         patientId,
         startDate,
         endDate
       );
-      
+
       // Agrupar por tipo de desafio e data
       const aguaDays = new Set(
         challenges
           .filter(c => c.challenge_key === 'hidratacao')
           .map(c => c.completion_date)
       );
-      
+
       const atividadeDays = new Set(
         challenges
           .filter(c => c.challenge_key === 'atividade_fisica')
           .map(c => c.completion_date)
       );
-      
+
       const sonoDays = new Set(
         challenges
           .filter(c => c.challenge_key === 'sono_qualidade')
           .map(c => c.completion_date)
       );
-      
+
       setWeeklyData({
         agua: aguaDays,
         atividade: atividadeDays,
         sono: sonoDays
       });
-      
+
       // Definir dia atual como selecionado
       setSelectedDay(dayOfWeek);
     } catch (error) {
@@ -148,18 +148,70 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
+        {/* Layout mobile - empilhado verticalmente */}
+        <div className="block md:hidden space-y-4">
+          {habits.map((habit, habitIndex) => {
+            const Icon = habit.icon;
+            const iconColorClass =
+              habit.color === 'blue' ? 'text-blue-600' :
+                habit.color === 'purple' ? 'text-purple-600' :
+                  'text-indigo-600';
+
+            return (
+              <motion.div
+                key={habit.key}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: habitIndex * 0.1 }}
+                className="border border-gray-100 rounded-lg p-3"
+              >
+                <div className="flex items-center gap-2 mb-3">
+                  <Icon className={`w-5 h-5 flex-shrink-0 ${iconColorClass}`} />
+                  <span className="text-sm font-semibold text-[#222222]">{habit.label}</span>
+                </div>
+                <div className="grid grid-cols-7 gap-2">
+                  {daysOfWeek.map((day, dayIndex) => {
+                    const completed = isCompleted(habit.key, dayIndex);
+                    const today = isToday(dayIndex);
+
+                    return (
+                      <div key={dayIndex} className="flex flex-col items-center gap-1">
+                        <div className={`text-xs font-medium ${today ? 'text-[#00C98A] font-bold' : 'text-[#777777]'}`}>
+                          {day}
+                        </div>
+                        <div
+                          className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${completed
+                            ? today
+                              ? 'bg-[#00C98A] text-white'
+                              : 'bg-gray-300 text-white'
+                            : 'bg-gray-100 border-2 border-gray-200'
+                            }`}
+                        >
+                          {completed && (
+                            <Check className="w-4 h-4" />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+
+        {/* Layout desktop - grid horizontal */}
+        <div className="hidden md:block space-y-4">
           {/* Header com dias da semana */}
           <div className="grid grid-cols-8 gap-2 items-center">
             <div className="text-sm font-semibold text-[#222222]">Meta</div>
             {daysOfWeek.map((day, index) => (
               <div
                 key={index}
-                className={`text-center text-sm font-medium cursor-pointer transition-colors ${
-                  isToday(index)
-                    ? 'text-[#00C98A] font-bold'
-                    : 'text-[#777777]'
-                }`}
+                className={`text-center text-sm font-medium cursor-pointer transition-colors ${isToday(index)
+                  ? 'text-[#00C98A] font-bold'
+                  : 'text-[#777777]'
+                  }`}
                 onClick={() => setSelectedDay(index)}
               >
                 {day}
@@ -170,11 +222,11 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
           {/* Grid de hábitos */}
           {habits.map((habit, habitIndex) => {
             const Icon = habit.icon;
-            const iconColorClass = 
+            const iconColorClass =
               habit.color === 'blue' ? 'text-blue-600' :
-              habit.color === 'purple' ? 'text-purple-600' :
-              'text-indigo-600';
-            
+                habit.color === 'purple' ? 'text-purple-600' :
+                  'text-indigo-600';
+
             return (
               <motion.div
                 key={habit.key}
@@ -184,26 +236,25 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
                 className="grid grid-cols-8 gap-2 items-center"
               >
                 <div className="flex items-center gap-2 text-sm text-[#222222] font-medium">
-                  <Icon className={`w-4 h-4 ${iconColorClass}`} />
-                  <span className="truncate">{habit.label}</span>
+                  <Icon className={`w-4 h-4 flex-shrink-0 ${iconColorClass}`} />
+                  <span>{habit.label}</span>
                 </div>
                 {daysOfWeek.map((_, dayIndex) => {
                   const completed = isCompleted(habit.key, dayIndex);
                   const today = isToday(dayIndex);
-                  
+
                   return (
                     <div
                       key={dayIndex}
                       className="flex items-center justify-center"
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                          completed
-                            ? today
-                              ? 'bg-[#00C98A] text-white'
-                              : 'bg-gray-300 text-white'
-                            : 'bg-gray-100 border-2 border-gray-200'
-                        }`}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${completed
+                          ? today
+                            ? 'bg-[#00C98A] text-white'
+                            : 'bg-gray-300 text-white'
+                          : 'bg-gray-100 border-2 border-gray-200'
+                          }`}
                       >
                         {completed && (
                           <Check className="w-4 h-4" />
@@ -220,4 +271,3 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
     </Card>
   );
 }
-

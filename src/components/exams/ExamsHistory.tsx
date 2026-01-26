@@ -38,7 +38,7 @@ interface ExamsHistoryProps {
 export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, allowDelete = false, variant = 'light' }: ExamsHistoryProps) {
   // Log sempre que o componente renderiza (ANTES de qualquer hook)
   console.log('📋 ExamsHistory RENDERIZADO - patientId:', patientId, 'telefone:', telefone, 'refreshTrigger:', refreshTrigger);
-  
+
   const { toast } = useToast();
   const [exams, setExams] = useState<LaboratoryExam[]>([]);
   const [loading, setLoading] = useState(true);
@@ -87,7 +87,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
     try {
       setDeletingExamId(examToDelete.id);
       await laboratoryExamsService.delete(examToDelete.id);
-      
+
       toast({
         title: 'Exame deletado',
         description: 'O exame foi removido com sucesso',
@@ -95,7 +95,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
 
       // Recarregar lista
       loadExams();
-      
+
       // Chamar callback se fornecido
       if (onUpdate) {
         onUpdate();
@@ -228,6 +228,11 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
     );
   }
 
+  // Se não houver exames, não exibir nada
+  if (exams.length === 0) {
+    return null;
+  }
+
   return (
     <>
       <Card className={isDark ? "bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50" : "bg-white rounded-2xl shadow-lg border border-gray-100"}>
@@ -249,94 +254,94 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
         </CardHeader>
         {!isMinimized && (
           <CardContent>
-          {exams.length === 0 ? (
-            <div className="text-center py-8">
-              <FlaskConical className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-slate-600" : "text-gray-300"}`} />
-              <p className={isDark ? "text-slate-400" : "text-[#777777]"}>Nenhum exame solicitado ainda</p>
-              <p className={`text-sm mt-1 ${isDark ? "text-slate-500" : "text-[#777777]"}`}>Os exames solicitados aparecerão aqui</p>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {exams.map((exam) => (
-                <div
-                  key={exam.id}
-                  className={isDark ? "bg-slate-700/30 rounded-lg p-4 border border-slate-600/30 hover:border-slate-500/50 transition-colors" : "bg-gradient-to-br from-[#00C98A]/10 to-[#00A875]/10 rounded-xl p-4 border border-[#00C98A]/20"}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1">
-                      <h3 className={`font-semibold text-lg mb-1 ${isDark ? "text-white" : "text-[#222222]"}`}>{exam.exam_name}</h3>
-                      <p className={`text-sm ${isDark ? "text-slate-400" : "text-[#777777]"}`}>
-                        Solicitado em {new Date(exam.requested_at).toLocaleDateString('pt-BR')}
-                      </p>
+            {exams.length === 0 ? (
+              <div className="text-center py-8">
+                <FlaskConical className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-slate-600" : "text-gray-300"}`} />
+                <p className={isDark ? "text-slate-400" : "text-[#777777]"}>Nenhum exame solicitado ainda</p>
+                <p className={`text-sm mt-1 ${isDark ? "text-slate-500" : "text-[#777777]"}`}>Os exames solicitados aparecerão aqui</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {exams.map((exam) => (
+                  <div
+                    key={exam.id}
+                    className={isDark ? "bg-slate-700/30 rounded-lg p-4 border border-slate-600/30 hover:border-slate-500/50 transition-colors" : "bg-gradient-to-br from-[#00C98A]/10 to-[#00A875]/10 rounded-xl p-4 border border-[#00C98A]/20"}
+                  >
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex-1">
+                        <h3 className={`font-semibold text-lg mb-1 ${isDark ? "text-white" : "text-[#222222]"}`}>{exam.exam_name}</h3>
+                        <p className={`text-sm ${isDark ? "text-slate-400" : "text-[#777777]"}`}>
+                          Solicitado em {new Date(exam.requested_at).toLocaleDateString('pt-BR')}
+                        </p>
+                      </div>
+                      {getStatusBadge(exam.status)}
                     </div>
-                    {getStatusBadge(exam.status)}
-                  </div>
 
-                  {exam.instructions && (
-                    <div className={`mb-3 p-3 rounded-lg ${isDark ? "bg-blue-500/10 border border-blue-500/30" : "bg-green-500/10 border border-green-500/30"}`}>
-                      <p className={`text-sm ${isDark ? "text-slate-300" : "text-slate-300"}`}>
-                        <strong className={isDark ? "text-white" : "text-white"}>Instruções:</strong> {exam.instructions}
-                      </p>
-                    </div>
-                  )}
-
-                  {exam.result_file_url && (
-                    <div className="mb-3">
-                      <a
-                        href={exam.result_file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 text-sm font-medium"
-                      >
-                        <Download className="w-4 h-4" />
-                        Ver resultado
-                      </a>
-                    </div>
-                  )}
-
-                  <div className="flex gap-2">
-                    {exam.status !== 'completed' && exam.status !== 'cancelled' && (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setSelectedExam(exam);
-                          setUploadModalOpen(true);
-                        }}
-                        className="bg-green-600 text-white hover:bg-green-700 border-0"
-                      >
-                        <Upload className="w-4 h-4 mr-2" />
-                        Adicionar Resultado
-                      </Button>
+                    {exam.instructions && (
+                      <div className={`mb-3 p-3 rounded-lg ${isDark ? "bg-blue-500/10 border border-blue-500/30" : "bg-green-500/10 border border-green-500/30"}`}>
+                        <p className={`text-sm ${isDark ? "text-slate-300" : "text-slate-300"}`}>
+                          <strong className={isDark ? "text-white" : "text-white"}>Instruções:</strong> {exam.instructions}
+                        </p>
+                      </div>
                     )}
-                    
-                    {allowDelete && (
-                      <Button
-                        size="sm"
-                        onClick={() => {
-                          setExamToDelete(exam);
-                          setDeleteConfirmOpen(true);
-                        }}
-                        disabled={deletingExamId === exam.id}
-                        className="bg-red-600 text-white hover:bg-red-700 border-0"
-                      >
-                        {deletingExamId === exam.id ? (
-                          <>
-                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                            Deletando...
-                          </>
-                        ) : (
-                          <>
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Deletar
-                          </>
-                        )}
-                      </Button>
+
+                    {exam.result_file_url && (
+                      <div className="mb-3">
+                        <a
+                          href={exam.result_file_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-green-400 hover:text-green-300 text-sm font-medium"
+                        >
+                          <Download className="w-4 h-4" />
+                          Ver resultado
+                        </a>
+                      </div>
                     )}
+
+                    <div className="flex gap-2">
+                      {exam.status !== 'completed' && exam.status !== 'cancelled' && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedExam(exam);
+                            setUploadModalOpen(true);
+                          }}
+                          className="bg-green-600 text-white hover:bg-green-700 border-0"
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Adicionar Resultado
+                        </Button>
+                      )}
+
+                      {allowDelete && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setExamToDelete(exam);
+                            setDeleteConfirmOpen(true);
+                          }}
+                          disabled={deletingExamId === exam.id}
+                          className="bg-red-600 text-white hover:bg-red-700 border-0"
+                        >
+                          {deletingExamId === exam.id ? (
+                            <>
+                              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              Deletando...
+                            </>
+                          ) : (
+                            <>
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Deletar
+                            </>
+                          )}
+                        </Button>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
+                ))}
+              </div>
+            )}
           </CardContent>
         )}
       </Card>
@@ -409,41 +414,41 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
               </Button>
             </div>
           </div>
-          </DialogContent>
-        </Dialog>
+        </DialogContent>
+      </Dialog>
 
-        {/* Dialog de Confirmação de Deleção */}
-        <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
-          <AlertDialogContent className="bg-slate-800 border-slate-700 text-white">
-            <AlertDialogHeader>
-              <AlertDialogTitle className="text-white">Confirmar exclusão</AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-300">
-                Tem certeza que deseja deletar o exame <strong>{examToDelete?.exam_name}</strong>? 
-                Esta ação não pode ser desfeita.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-700">
-                Cancelar
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={handleDeleteExam}
-                disabled={deletingExamId !== null}
-                className="bg-red-600 hover:bg-red-700 text-white"
-              >
-                {deletingExamId ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Deletando...
-                  </>
-                ) : (
-                  'Deletar'
-                )}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </>
-    );
-  }
-  
+      {/* Dialog de Confirmação de Deleção */}
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="bg-slate-800 border-slate-700 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-300">
+              Tem certeza que deseja deletar o exame <strong>{examToDelete?.exam_name}</strong>?
+              Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="border-slate-600 text-slate-300 hover:bg-slate-700">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteExam}
+              disabled={deletingExamId !== null}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deletingExamId ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Deletando...
+                </>
+              ) : (
+                'Deletar'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
+  );
+}
+

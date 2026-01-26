@@ -30,8 +30,8 @@ const TrendsAnalysis = lazy(() => import('@/components/evolution/TrendsAnalysis'
 const BodyFatChart = lazy(() => import('@/components/evolution/BodyFatChart').then(m => ({ default: m.BodyFatChart })));
 const BodyCompositionMetrics = lazy(() => import('@/components/evolution/BodyCompositionMetrics').then(m => ({ default: m.BodyCompositionMetrics })));
 const EvolutionExportPage = lazy(() => import('@/components/evolution/EvolutionExportPage').then(m => ({ default: m.EvolutionExportPage })));
-import { 
-  Activity, 
+import {
+  Activity,
   Calendar,
   AlertCircle,
   RefreshCw,
@@ -55,6 +55,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { WeightInput } from '@/components/evolution/WeightInput';
+import { StreakHeader } from '@/components/patient-portal/StreakHeader';
 import { motion } from 'framer-motion';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -99,7 +100,7 @@ const getDailyMotivationalPhrase = () => {
   const today = new Date();
   const startOfYear = new Date(today.getFullYear(), 0, 1);
   const dayOfYear = Math.floor((today.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
-  
+
   return phrases[dayOfYear % phrases.length];
 };
 
@@ -167,12 +168,12 @@ export default function PatientPortal() {
   // Atualizar título da página quando entrar no portal
   useEffect(() => {
     document.title = 'Meu Acompanhamento - Portal do Paciente';
-    
+
     const metaDescription = document.querySelector('meta[name="description"]');
     if (metaDescription) {
       metaDescription.setAttribute('content', 'Acompanhe sua dieta, progresso e conquistas com seu nutricionista.');
     }
-    
+
     // Restaurar ao sair da página
     return () => {
       document.title = 'Meu Acompanhamento';
@@ -184,22 +185,22 @@ export default function PatientPortal() {
     if (!loading && patient && portalRef.current) {
       const urlParams = new URLSearchParams(window.location.search);
       const autoDownloadFormat = urlParams.get('autoDownload'); // 'png', 'pdf', ou 'jpeg'
-      
+
       if (autoDownloadFormat) {
         console.log(`🎯 Auto-download ${autoDownloadFormat.toUpperCase()} detectado! Iniciando captura...`);
-        
+
         // Aguardar renderização completa dos gráficos
         setTimeout(async () => {
           console.log(`📸 Capturando portal como ${autoDownloadFormat.toUpperCase()}...`);
-          
+
           if (autoDownloadFormat === 'png' || autoDownloadFormat === 'jpeg') {
             await handleExportEvolutionImage();
           } else if (autoDownloadFormat === 'pdf') {
             await handleExportEvolutionPDF();
           }
-          
+
           console.log('✅ Download iniciado! Fechando aba em 3 segundos...');
-          
+
           // Fechar aba automaticamente após download
           setTimeout(() => {
             window.close();
@@ -218,16 +219,16 @@ export default function PatientPortal() {
 
     try {
       setLoading(true);
-      
+
       // MODO TESTE: Usar telefone fixo para demonstração
       let telefone;
-      
+
       if (token === 'teste123') {
         telefone = '11999999999'; // Telefone de teste
       } else {
         // Validar token real
         telefone = await validateToken(token);
-        
+
         if (!telefone) {
           // Token inválido ou expirado - limpar localStorage e redirecionar para login
           localStorage.removeItem('portal_access_token');
@@ -255,7 +256,7 @@ export default function PatientPortal() {
           .eq('telefone', telefone)
           .maybeSingle()
       ]);
-      
+
       // Dados secundários carregam em paralelo após dados críticos
       // Usar select('*') pois a estrutura da tabela pode variar
       const bioResult = await supabase
@@ -264,7 +265,7 @@ export default function PatientPortal() {
         .eq('telefone', telefone)
         .order('data_avaliacao', { ascending: false })
         .limit(50); // Limitar resultados para melhor performance
-      
+
       if (checkinsData.length === 0) {
         toast({
           title: 'Nenhum check-in encontrado',
@@ -272,10 +273,10 @@ export default function PatientPortal() {
           variant: 'destructive'
         });
       }
-      
+
       setCheckins(checkinsData);
       setPatient(patientResult.data);
-      
+
       // Salvar patient_id para usar nos componentes de dieta
       if (patientResult.data?.id) {
         setPatientId(patientResult.data.id);
@@ -293,7 +294,7 @@ export default function PatientPortal() {
           if (!classificacao && item.imc) {
             classificacao = classificarIMC(item.imc);
           }
-          
+
           // Retornar todos os campos originais + classificacao calculada se necessário
           return {
             ...item,
@@ -331,7 +332,7 @@ export default function PatientPortal() {
 
   async function handleExportEvolutionImage() {
     console.log('🎯 Função handleExportEvolutionImage chamada');
-    
+
     if (!patient) {
       console.error('❌ Paciente não encontrado');
       toast({
@@ -357,7 +358,7 @@ export default function PatientPortal() {
       console.log('🚀 Iniciando captura de imagem...');
       console.log('👤 Paciente:', patient.nome);
       console.log('📱 Portal ref:', portalRef.current);
-      
+
       toast({
         title: 'Gerando imagem...',
         description: 'Aguarde enquanto criamos seu relatório'
@@ -387,7 +388,7 @@ export default function PatientPortal() {
       });
 
       let dataURL;
-      
+
       try {
         // Tentar com dom-to-image com máxima qualidade
         console.log('🎯 Tentativa 1: dom-to-image alta qualidade...');
@@ -409,7 +410,7 @@ export default function PatientPortal() {
       } catch (error1) {
         console.log('❌ dom-to-image falhou, tentando html2canvas...');
         console.log('🎯 Tentativa 2: html2canvas básico...');
-        
+
         try {
           // Tentar html2canvas com alta qualidade
           const canvas = await html2canvas(portalRef.current, {
@@ -430,13 +431,13 @@ export default function PatientPortal() {
         } catch (error2) {
           console.log('❌ html2canvas também falhou, tentando captura simples...');
           console.log('🎯 Tentativa 3: captura sem elementos complexos...');
-          
+
           // Última tentativa: usar API nativa de screenshot se disponível
           if ('getDisplayMedia' in navigator.mediaDevices) {
             console.log('🎯 Tentando API nativa de screenshot...');
             // Implementar captura nativa aqui se necessário
           }
-          
+
           // Fallback: html2canvas com configuração básica mas boa qualidade
           const canvas = await html2canvas(portalRef.current, {
             scale: 1.5, // Boa qualidade
@@ -447,7 +448,7 @@ export default function PatientPortal() {
             ignoreElements: (element) => {
               // Ignorar apenas elementos realmente problemáticos
               return element.classList.contains('hide-in-pdf') ||
-                     (element.tagName === 'CANVAS' && (element as HTMLCanvasElement).width === 0);
+                (element.tagName === 'CANVAS' && (element as HTMLCanvasElement).width === 0);
             }
           });
           dataURL = canvas.toDataURL('image/png', 1.0); // Máxima qualidade
@@ -471,7 +472,7 @@ export default function PatientPortal() {
       document.body.removeChild(link);
 
       console.log('✅ Download iniciado com sucesso!');
-      
+
       toast({
         title: 'Imagem gerada! 🎉',
         description: 'Seu relatório foi baixado com sucesso'
@@ -480,13 +481,13 @@ export default function PatientPortal() {
     } catch (error) {
       console.error('❌ Erro detalhado:', error);
       console.error('❌ Stack trace:', error instanceof Error ? error.stack : 'N/A');
-      
+
       let errorMessage = 'Erro desconhecido';
       if (error instanceof Error) {
         errorMessage = error.message;
         console.error('❌ Mensagem do erro:', error.message);
       }
-      
+
       toast({
         title: 'Erro ao gerar imagem',
         description: `Detalhes: ${errorMessage}`,
@@ -517,7 +518,7 @@ export default function PatientPortal() {
       // Ocultar apenas botões interativos
       const elementsToHide = portalRef.current.querySelectorAll('.hide-in-pdf');
       const originalDisplay: string[] = [];
-      
+
       elementsToHide.forEach((el, index) => {
         originalDisplay[index] = (el as HTMLElement).style.display;
         (el as HTMLElement).style.display = 'none';
@@ -548,10 +549,10 @@ export default function PatientPortal() {
       const imgData = canvas.toDataURL('image/png', 0.9);
       const imgWidth = canvas.width;
       const imgHeight = canvas.height;
-      
+
       const pdfWidth = 210; // A4 width in mm
       const imgHeightMM = (imgHeight * pdfWidth) / imgWidth;
-      
+
       const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
@@ -591,7 +592,7 @@ export default function PatientPortal() {
       // Buscar dados do plano alimentar
       const plans = await dietService.getByPatientId(patientId);
       const activePlan = plans.find((p: any) => p.status === 'active' || p.active);
-      
+
       if (!activePlan) {
         toast({
           title: 'Erro',
@@ -643,7 +644,7 @@ export default function PatientPortal() {
       // Buscar dados do plano alimentar
       const plans = await dietService.getByPatientId(patientId);
       const activePlan = plans.find((p: any) => p.status === 'active' || p.active);
-      
+
       if (!activePlan) {
         toast({
           title: 'Erro',
@@ -769,9 +770,9 @@ export default function PatientPortal() {
         {/* Gradiente radial para profundidade */}
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.12),transparent_50%)]" />
-        
+
         {/* Padrão de grade sutil */}
-        <div 
+        <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
             backgroundImage: `
@@ -781,186 +782,148 @@ export default function PatientPortal() {
             backgroundSize: '50px 50px'
           }}
         />
-        
+
         {/* Efeito de brilho animado */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
         <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        
+
         {/* Linhas de gradiente decorativas */}
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
         <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
       </div>
-      
+
       {/* Conteúdo com z-index */}
       <div className="relative z-10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
-        {/* Header do Portal */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
-        >
-          <div className="flex-1">
-            <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
-              📊 Meu Acompanhamento
-            </h1>
-            <p className="text-sm sm:text-base text-slate-400 mt-1">
-              Acompanhe seu progresso e conquistas
-            </p>
-          </div>
-          <div className="flex gap-2 flex-wrap items-center w-full sm:w-auto hide-in-pdf">
-            <InstallPWAButton />
-            <Button
-              onClick={() => setWeightInputOpen(true)}
-              className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white shadow-lg shadow-green-500/30 hover:shadow-green-500/50 transition-all whitespace-nowrap flex-1 sm:flex-none min-h-[44px] text-sm sm:text-base"
-            >
-              <Scale className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Registrar Peso</span>
-              <span className="sm:hidden">Peso</span>
-            </Button>
-            
-            <Button
-              onClick={handleLogout}
-              variant="outline"
-              className="border-red-500/50 hover:bg-red-500/20 hover:border-red-500 text-red-400 hover:text-red-300 transition-all whitespace-nowrap flex-1 sm:flex-none min-h-[44px] text-sm sm:text-base"
-            >
-              <LogOut className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Sair</span>
-              <span className="sm:hidden">Sair</span>
-            </Button>
-            
-            {/* Menu de ações: Dieta, Evolução e Atualizar */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="border-slate-600 hover:bg-slate-800 text-white min-h-[44px] min-w-[44px] px-3"
-                >
-                  <MoreVertical className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700 text-white w-56">
-                <DropdownMenuItem
-                  onClick={handleExportDietPremiumPDF}
-                  disabled={exporting}
-                  className="text-white hover:bg-slate-700 cursor-pointer py-3"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {exporting ? 'Gerando...' : 'Baixar Dieta PDF'}
-                </DropdownMenuItem>
-                
-                <DropdownMenuItem
-                  onClick={handleExportDietPDF}
-                  disabled={exporting}
-                  className="text-white hover:bg-slate-700 cursor-pointer py-3"
-                >
-                  <FileText className="w-4 h-4 mr-2" />
-                  {exporting ? 'Gerando...' : 'Baixar Dieta (Impressão)'}
-                </DropdownMenuItem>
-                
-                {/* Opções de Evolução */}
-                {patient && (
-                  <>
-                    <DropdownMenuItem
-                      onClick={() => setShowEvolutionExport(true)}
-                      className="text-white hover:bg-blue-700/50 cursor-pointer py-3"
-                    >
-                      <Eye className="w-4 h-4 mr-2 text-blue-400" />
-                      Visualizar Evolução
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleExportEvolution('png')}
-                      className="text-white hover:bg-green-700/50 cursor-pointer py-3"
-                    >
-                      <FileImage className="w-4 h-4 mr-2 text-green-400" />
-                      Baixar Evolução PNG
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleExportEvolution('pdf')}
-                      className="text-white hover:bg-purple-700/50 cursor-pointer py-3"
-                    >
-                      <FileText className="w-4 h-4 mr-2 text-purple-400" />
-                      Baixar Evolução PDF
-                    </DropdownMenuItem>
-                  </>
-                )}
-                
-                <DropdownMenuItem
-                  onClick={loadPortalData}
-                  className="text-white hover:bg-slate-700 cursor-pointer py-3"
-                >
-                  <RefreshCw className="w-4 h-4 mr-2" />
-                  Atualizar Dados
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        </motion.div>
-
-        {/* Card de Informações do Paciente */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <Card className="bg-slate-800/60 backdrop-blur-sm border-slate-700/50 shadow-xl">
-            <CardContent className="p-4 sm:p-6">
-              <div className="flex items-start gap-3 sm:gap-4">
-                <Avatar className="w-14 h-14 sm:w-20 sm:h-20 border-4 border-blue-500/30 flex-shrink-0">
-                  <AvatarFallback className="bg-blue-500/20 text-blue-300 text-lg sm:text-2xl font-bold">
-                    {patient?.nome?.charAt(0) || 'P'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h2 className="text-lg sm:text-2xl font-bold text-white truncate">{patient?.nome || 'Seu Nome'}</h2>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 mt-2 sm:mt-3">
-                    <div className="flex items-center gap-2 text-slate-300">
-                      <Activity className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-                      <span className="text-xs sm:text-sm">{checkins.length} check-ins</span>
-                    </div>
-                    {checkins.length > 0 && (
-                      <div className="flex items-center gap-2 text-slate-300">
-                        <Calendar className="w-4 h-4 text-purple-400 flex-shrink-0" />
-                        <span className="text-xs sm:text-sm truncate">
-                          Desde {new Date(checkins[checkins.length - 1]?.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </motion.div>
-
-
-        {/* Plano Alimentar, Metas e Progresso */}
-        {patientId && (
+          {/* Header do Portal */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
           >
-            <PatientDietPortal 
-              patientId={patientId} 
-              patientName={patient?.nome || 'Paciente'}
-              checkins={checkins}
-              patient={patient}
-              bodyCompositions={bodyCompositions}
-              achievements={achievements}
-              refreshTrigger={chartsRefreshTrigger}
-            />
-          </motion.div>
-        )}
+            <div className="flex-1 min-w-0">
+              {patientId ? (
+                <StreakHeader
+                  patientId={patientId}
+                  patientName={patient?.nome || 'Meu Acompanhamento'}
+                />
+              ) : (
+                <div>
+                  <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
+                    📊 Meu Acompanhamento
+                  </h1>
+                  <p className="text-sm sm:text-base text-slate-400 mt-1">
+                    Acompanhe seu progresso e conquistas
+                  </p>
+                </div>
+              )}
+            </div>
+            <div className="flex gap-2 items-center hide-in-pdf">
+              <InstallPWAButton />
 
-        {/* Footer */}
-        <div className="text-center text-xs sm:text-sm text-white py-4 sm:py-6 px-4">
-          {getDailyMotivationalPhrase()}
-        </div>
+              {/* Botão de Peso removido a pedido */}
+
+              {/* Menu de ações simplificado */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-slate-600 hover:bg-slate-800 text-white min-w-[40px] px-0"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700 text-white w-56">
+                  <DropdownMenuItem
+                    onClick={handleExportDietPremiumPDF}
+                    disabled={exporting}
+                    className="text-white hover:bg-slate-700 cursor-pointer py-3"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    {exporting ? 'Gerando...' : 'Baixar Dieta PDF'}
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={handleExportDietPDF}
+                    disabled={exporting}
+                    className="text-white hover:bg-slate-700 cursor-pointer py-3"
+                  >
+                    <FileText className="w-4 h-4 mr-2" />
+                    {exporting ? 'Gerando...' : 'Baixar Dieta (Impressão)'}
+                  </DropdownMenuItem>
+
+                  {patient && (
+                    <>
+                      <DropdownMenuItem
+                        onClick={() => setShowEvolutionExport(true)}
+                        className="text-white hover:bg-blue-700/50 cursor-pointer py-3"
+                      >
+                        <Eye className="w-4 h-4 mr-2 text-blue-400" />
+                        Visualizar Evolução
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExportEvolution('png')}
+                        className="text-white hover:bg-green-700/50 cursor-pointer py-3"
+                      >
+                        <FileImage className="w-4 h-4 mr-2 text-green-400" />
+                        Baixar Evolução PNG
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => handleExportEvolution('pdf')}
+                        className="text-white hover:bg-purple-700/50 cursor-pointer py-3"
+                      >
+                        <FileText className="w-4 h-4 mr-2 text-purple-400" />
+                        Baixar Evolução PDF
+                      </DropdownMenuItem>
+                    </>
+                  )}
+
+                  <DropdownMenuItem
+                    onClick={loadPortalData}
+                    className="text-white hover:bg-slate-700 cursor-pointer py-3"
+                  >
+                    <RefreshCw className="w-4 h-4 mr-2" />
+                    Atualizar Dados
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-red-400 hover:bg-red-500/10 cursor-pointer py-3 border-t border-slate-700 mt-1"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sair do Portal
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </motion.div>
+
+
+          {/* Plano Alimentar, Metas e Progresso */}
+          {patientId && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.15 }}
+            >
+              <PatientDietPortal
+                patientId={patientId}
+                patientName={patient?.nome || 'Paciente'}
+                checkins={checkins}
+                patient={patient}
+                bodyCompositions={bodyCompositions}
+                achievements={achievements}
+                refreshTrigger={chartsRefreshTrigger}
+              />
+            </motion.div>
+          )}
+
+          {/* Footer */}
+          <div className="text-center text-xs sm:text-sm text-white py-4 sm:py-6 px-4">
+            {getDailyMotivationalPhrase()}
+          </div>
         </div>
       </div>
 

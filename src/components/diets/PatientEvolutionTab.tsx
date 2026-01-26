@@ -15,8 +15,8 @@ import { BodyCompositionMetrics } from '@/components/evolution/BodyCompositionMe
 import { AIInsights } from '@/components/evolution/AIInsights';
 import { DailyWeightsList } from '@/components/evolution/DailyWeightsList';
 import { detectAchievements } from '@/lib/achievement-system';
-import { 
-  Activity, 
+import {
+  Activity,
   Calendar,
   TrendingUp,
   Weight,
@@ -38,8 +38,8 @@ interface PatientEvolutionTabProps {
   refreshTrigger?: number; // Trigger para forçar atualização dos gráficos
 }
 
-export function PatientEvolutionTab({ 
-  patientId, 
+export function PatientEvolutionTab({
+  patientId,
   checkins: propsCheckins,
   patient: propsPatient,
   bodyCompositions: propsBodyCompositions,
@@ -52,7 +52,7 @@ export function PatientEvolutionTab({
   const [bodyCompositions, setBodyCompositions] = useState<any[]>(propsBodyCompositions || []);
   const [loading, setLoading] = useState(!propsCheckins);
   const [localRefreshTrigger, setLocalRefreshTrigger] = useState(0);
-  
+
   // Ref para exportação
   const evolutionContainerRef = useRef<HTMLDivElement>(null);
 
@@ -85,7 +85,7 @@ export function PatientEvolutionTab({
     if (propsBodyCompositions) {
       setBodyCompositions(propsBodyCompositions);
     }
-    
+
     // Se não foram passados, buscar
     if (!propsCheckins && patientId) {
       loadPortalData();
@@ -190,7 +190,7 @@ export function PatientEvolutionTab({
     }
   });
 
-  const weightChange = weightData.length >= 2 
+  const weightChange = weightData.length >= 2
     ? (weightData[weightData.length - 1].peso - weightData[0].peso).toFixed(1)
     : '0.0';
   const isNegative = parseFloat(weightChange) < 0;
@@ -322,13 +322,12 @@ export function PatientEvolutionTab({
 
             {/* Variação */}
             {weightData.length >= 2 && (
-              <Card className={`relative overflow-hidden border-0 shadow-lg hover:scale-[1.02] transition-all duration-300 ${
-                isNeutral 
-                  ? 'bg-gradient-to-br from-slate-600/30 via-slate-500/20 to-gray-600/30 shadow-slate-500/10 hover:shadow-slate-500/20' 
-                  : isNegative 
-                    ? 'bg-gradient-to-br from-emerald-600/30 via-green-500/20 to-teal-600/30 shadow-emerald-500/10 hover:shadow-emerald-500/20' 
-                    : 'bg-gradient-to-br from-amber-600/30 via-orange-500/20 to-red-600/30 shadow-orange-500/10 hover:shadow-orange-500/20'
-              }`}>
+              <Card className={`relative overflow-hidden border-0 shadow-lg hover:scale-[1.02] transition-all duration-300 ${isNeutral
+                ? 'bg-gradient-to-br from-slate-600/30 via-slate-500/20 to-gray-600/30 shadow-slate-500/10 hover:shadow-slate-500/20'
+                : isNegative
+                  ? 'bg-gradient-to-br from-emerald-600/30 via-green-500/20 to-teal-600/30 shadow-emerald-500/10 hover:shadow-emerald-500/20'
+                  : 'bg-gradient-to-br from-amber-600/30 via-orange-500/20 to-red-600/30 shadow-orange-500/10 hover:shadow-orange-500/20'
+                }`}>
                 <div className={`absolute inset-0 bg-gradient-to-br ${isNeutral ? 'from-slate-400/10' : isNegative ? 'from-emerald-400/10' : 'from-orange-400/10'} to-transparent`} />
                 <div className={`absolute -top-4 -right-4 w-20 h-20 ${isNeutral ? 'bg-slate-400/20' : isNegative ? 'bg-emerald-400/20' : 'bg-orange-400/20'} rounded-full blur-2xl`} />
                 <CardHeader className="pb-1 relative">
@@ -351,17 +350,6 @@ export function PatientEvolutionTab({
               </Card>
             )}
           </div>
-        </motion.div>
-      )}
-
-      {/* 1. Análise Inteligente com IA (minimizado) */}
-      {checkins.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-        >
-          <AIInsights checkins={checkins} />
         </motion.div>
       )}
 
@@ -394,59 +382,12 @@ export function PatientEvolutionTab({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.25 }}
         >
-          <EvolutionCharts 
-            checkins={checkins} 
+          <EvolutionCharts
+            checkins={checkins}
             patient={patient}
             refreshTrigger={refreshTrigger || localRefreshTrigger}
           />
         </motion.div>
-      )}
-
-      {/* 5. Timeline */}
-      {checkins.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-        >
-          <Timeline checkins={checkins} showEditButton={false} />
-        </motion.div>
-      )}
-
-      {/* 6. Lista de Pesos Diários Registrados */}
-      {patient?.telefone && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.35 }}
-        >
-          <DailyWeightsList
-            telefone={patient.telefone}
-            onUpdate={() => {
-              // Recarregar dados quando um peso for deletado
-              loadPortalData();
-              // Forçar atualização local dos gráficos
-              setLocalRefreshTrigger(prev => prev + 1);
-            }}
-          />
-        </motion.div>
-      )}
-
-      {/* 7. Aviso se houver poucos check-ins */}
-      {checkins.length < 3 && checkins.length > 0 && (
-        <Card className="bg-amber-50 border-amber-200">
-          <CardContent className="p-4">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-              <div>
-                <p className="text-amber-900 font-semibold">Continue Firme!</p>
-                <p className="text-amber-800 text-sm mt-1">
-                  Você possui {checkins.length} check-in{checkins.length > 1 ? 's' : ''}. Continue registrando para ver análises mais detalhadas!
-                </p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
       )}
 
       {/* Comparação de Fotos */}
@@ -454,7 +395,7 @@ export function PatientEvolutionTab({
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.4 }}
+          transition={{ duration: 0.5, delay: 0.3 }}
         >
           <PhotoComparison checkins={checkins} />
         </motion.div>

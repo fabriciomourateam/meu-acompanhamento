@@ -52,13 +52,13 @@ export const dietConsumptionService = {
     planDetails: any
   ): Promise<DailyConsumption> {
     const today = new Date().toISOString().split('T')[0];
-    
+
     // Calcular totais consumidos
     let totalCalories = 0;
     let totalProtein = 0;
     let totalCarbs = 0;
     let totalFats = 0;
-    
+
     if (planDetails.diet_meals) {
       planDetails.diet_meals.forEach((meal: any) => {
         if (consumedMealIds.includes(meal.id)) {
@@ -70,19 +70,19 @@ export const dietConsumptionService = {
         }
       });
     }
-    
+
     // Calcular metas (totais do plano)
     const planTotals = calcularTotaisPlano(planDetails);
     const targetCalories = planTotals.calorias;
     const targetProtein = planTotals.proteinas;
     const targetCarbs = planTotals.carboidratos;
     const targetFats = planTotals.gorduras;
-    
+
     // Calcular percentual de conclusão
-    const completionPercentage = targetCalories > 0 
+    const completionPercentage = targetCalories > 0
       ? Math.min(100, (totalCalories / targetCalories) * 100)
       : 0;
-    
+
     // Verificar se já existe registro para hoje
     const { data: existing } = await supabase
       .from('diet_daily_consumption')
@@ -90,7 +90,7 @@ export const dietConsumptionService = {
       .eq('patient_id', patientId)
       .eq('consumption_date', today)
       .maybeSingle();
-    
+
     const consumptionData = {
       patient_id: patientId,
       diet_plan_id: planId,
@@ -106,7 +106,7 @@ export const dietConsumptionService = {
       completion_percentage: completionPercentage,
       consumed_meals: consumedMealIds,
     };
-    
+
     if (existing) {
       // Atualizar
       const { data, error } = await supabase
@@ -115,7 +115,7 @@ export const dietConsumptionService = {
         .eq('id', existing.id)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     } else {
@@ -125,7 +125,7 @@ export const dietConsumptionService = {
         .insert(consumptionData)
         .select()
         .single();
-      
+
       if (error) throw error;
       return data;
     }
@@ -146,7 +146,7 @@ export const dietConsumptionService = {
       .gte('consumption_date', startDate)
       .lte('consumption_date', endDate)
       .order('consumption_date', { ascending: true });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -158,7 +158,7 @@ export const dietConsumptionService = {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 6); // Últimos 7 dias
-    
+
     return this.getConsumptionHistory(
       patientId,
       startDate.toISOString().split('T')[0],
@@ -173,7 +173,7 @@ export const dietConsumptionService = {
     const endDate = new Date();
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - 29); // Últimos 30 dias
-    
+
     return this.getConsumptionHistory(
       patientId,
       startDate.toISOString().split('T')[0],
@@ -196,7 +196,7 @@ export const dietConsumptionService = {
       .select('*')
       .eq('patient_id', patientId)
       .maybeSingle();
-    
+
     if (!pointsData) {
       // Criar novo registro
       const { data: newPoints, error: createError } = await supabase
@@ -211,7 +211,7 @@ export const dietConsumptionService = {
         })
         .select()
         .single();
-      
+
       if (createError) throw createError;
       pointsData = newPoints;
     } else {
@@ -221,7 +221,7 @@ export const dietConsumptionService = {
         total_points: newTotalPoints,
         current_level: this.calculateLevel(newTotalPoints),
       };
-      
+
       // Atualizar categoria específica
       if (actionType === 'meal_consumed' || actionType === 'daily_complete') {
         updateData.points_diet = pointsData.points_diet + points;
@@ -230,18 +230,18 @@ export const dietConsumptionService = {
       } else if (actionType === 'achievement') {
         updateData.points_achievements = pointsData.points_achievements + points;
       }
-      
+
       const { data: updated, error: updateError } = await supabase
         .from('patient_points')
         .update(updateData)
         .eq('id', pointsData.id)
         .select()
         .single();
-      
+
       if (updateError) throw updateError;
       pointsData = updated;
     }
-    
+
     // Registrar no histórico
     await supabase
       .from('patient_points_history')
@@ -253,7 +253,7 @@ export const dietConsumptionService = {
         action_description: actionDescription,
         action_date: new Date().toISOString().split('T')[0],
       });
-    
+
     return pointsData;
   },
 
@@ -279,55 +279,77 @@ export const dietConsumptionService = {
    * Verificar e desbloquear conquistas
    */
   async checkAndUnlockAchievements(patientId: string): Promise<Achievement[]> {
+    console.log('🔍 Iniciando verificação de conquistas para:', patientId);
     const unlocked: Achievement[] = [];
-    
+
     // Buscar consumo do paciente
     const todayDate = new Date().toISOString().split('T')[0];
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 30); // Buscar últimos 30 dias para streaks
-    
-    const { data: consumption } = await supabase
+
+    const { data: consumption, error: consumptionError } = await supabase
       .from('diet_daily_consumption')
       .select('*')
       .eq('patient_id', patientId)
       .gte('consumption_date', weekAgo.toISOString().split('T')[0])
       .order('consumption_date', { ascending: true });
-    
-    if (!consumption || consumption.length === 0) return unlocked;
-    
+
+    if (consumptionError) {
+      console.error('❌ Erro ao buscar consumo:', consumptionError);
+    }
+
+    if (!consumption || consumption.length === 0) {
+      console.log('⚠️ Nenhum consumo encontrado para verificar conquistas');
+      return unlocked;
+    }
+
     // Buscar conquistas já desbloqueadas
-    const { data: existingAchievements } = await supabase
+    const { data: existingAchievements, error: achievementsError } = await supabase
       .from('patient_achievements')
       .select('achievement_type')
       .eq('patient_id', patientId);
-    
+
+    if (achievementsError) {
+      console.error('❌ Erro ao buscar conquistas existentes:', achievementsError);
+    }
+
     const unlockedTypes = new Set(existingAchievements?.map(a => a.achievement_type) || []);
-    
+    console.log('🏆 Conquistas já desbloqueadas:', unlockedTypes.size);
+
     // Buscar templates de conquistas
-    const { data: templates } = await supabase
+    const { data: templates, error: templatesError } = await supabase
       .from('achievement_templates')
       .select('*');
-    
-    if (!templates) return unlocked;
-    
+
+    if (templatesError) {
+      console.error('❌ Erro ao buscar templates:', templatesError);
+    }
+
+    if (!templates || templates.length === 0) {
+      console.warn('⚠️ Nenhum template de conquista encontrado no sistema!');
+      return unlocked;
+    }
+
+    console.log('📋 Templates disponíveis:', templates.length);
+
     // Verificar cada template
     for (const template of templates) {
       if (unlockedTypes.has(template.achievement_type)) continue;
-      
+
       let shouldUnlock = false;
-      
+
       switch (template.achievement_type) {
         case 'first_meal':
           // Verificar se tem pelo menos uma refeição consumida
           shouldUnlock = consumption.some(c => (c.consumed_meals as string[]).length > 0);
           break;
-          
+
         case 'day_complete':
           // Verificar se completou 100% hoje
           const todayConsumption = consumption.find(c => c.consumption_date === todayDate);
           shouldUnlock = todayConsumption?.completion_percentage === 100;
           break;
-          
+
         case 'week_complete':
           // Verificar se completou todos os 7 dias da última semana
           const last7Days = consumption.filter(c => {
@@ -337,10 +359,10 @@ export const dietConsumptionService = {
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             return diffDays <= 7;
           });
-          shouldUnlock = last7Days.length >= 7 && 
+          shouldUnlock = last7Days.length >= 7 &&
             last7Days.every(c => c.completion_percentage === 100);
           break;
-          
+
         case 'streak_3':
         case 'streak_7':
         case 'streak_30':
@@ -348,7 +370,7 @@ export const dietConsumptionService = {
           const streakDays = parseInt(template.achievement_type.split('_')[1]);
           shouldUnlock = this.checkStreak(consumption, streakDays);
           break;
-          
+
         case 'perfect_day':
           // Verificar se atingiu 100% de calorias e macros hoje
           const todayPerfect = consumption.find(c => c.consumption_date === todayDate);
@@ -358,8 +380,9 @@ export const dietConsumptionService = {
             (todayPerfect.total_fats_consumed || 0) >= ((todayPerfect.target_fats || 0) * 0.95);
           break;
       }
-      
+
       if (shouldUnlock) {
+        console.log('🔓 Desbloqueando conquista:', template.achievement_name);
         // Desbloquear conquista
         const { data: achievement, error } = await supabase
           .from('patient_achievements')
@@ -372,8 +395,10 @@ export const dietConsumptionService = {
           })
           .select()
           .single();
-        
-        if (!error && achievement) {
+
+        if (error) {
+          console.error('❌ Erro ao salvar desbloqueio:', error);
+        } else if (achievement) {
           unlocked.push(achievement);
           // Adicionar pontos
           await this.addPoints(
@@ -385,7 +410,7 @@ export const dietConsumptionService = {
         }
       }
     }
-    
+
     return unlocked;
   },
 
@@ -394,29 +419,45 @@ export const dietConsumptionService = {
    */
   checkStreak(consumption: DailyConsumption[], requiredDays: number): boolean {
     if (consumption.length < requiredDays) return false;
-    
+
     // Ordenar por data (mais recente primeiro)
-    const sorted = [...consumption].sort((a, b) => 
+    const sorted = [...consumption].sort((a, b) =>
       new Date(b.consumption_date).getTime() - new Date(a.consumption_date).getTime()
     );
-    
+
     // Verificar se os últimos N dias estão completos
     let streak = 0;
     const today = new Date();
-    
-    for (let i = 0; i < requiredDays; i++) {
-      const checkDate = new Date(today);
-      checkDate.setDate(checkDate.getDate() - i);
-      const dateStr = checkDate.toISOString().split('T')[0];
-      
-      const dayConsumption = sorted.find(c => c.consumption_date === dateStr);
-      if (dayConsumption && dayConsumption.completion_percentage === 100) {
+    today.setHours(0, 0, 0, 0);
+
+    // Verificar dia atual ou anterior (para não quebrar streak se hoje ainda não acabou)
+    let lastDate = new Date(sorted[0].consumption_date);
+    lastDate.setHours(0, 0, 0, 0);
+
+    // Se o último registro for muito antigo, streak quebrou
+    const diffTime = Math.abs(today.getTime() - lastDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    if (diffDays > 1) return false;
+
+    for (let i = 0; i < sorted.length; i++) {
+      const item = sorted[i];
+      if (item.completion_percentage === 100) {
         streak++;
+
+        // Verificar continuidade das datas
+        if (i < sorted.length - 1) {
+          const currentDate = new Date(item.consumption_date);
+          const nextDate = new Date(sorted[i + 1].consumption_date);
+          const dayDiff = Math.abs(currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24);
+
+          if (dayDiff > 1.1) break; // Gap maior que 1 dia
+        }
       } else {
         break;
       }
     }
-    
+
     return streak >= requiredDays;
   },
 
@@ -432,24 +473,14 @@ export const dietConsumptionService = {
         .select('*')
         .eq('patient_id', patientId)
         .maybeSingle();
-      
+
       if (error) {
-        // Se for erro 406, pode ser problema de RLS - logar mas não quebrar
-        if (error.code === 'PGRST301' || error.message?.includes('406')) {
-          console.warn('Erro de permissão ao buscar pontos do paciente. Verifique se as políticas RLS estão configuradas.');
-          return null;
-        }
-        console.warn('Erro ao buscar pontos do paciente:', error);
+        console.error('❌ Erro real ao buscar pontos:', error);
         return null;
       }
       return data || null;
     } catch (error: any) {
-      // Erros de permissão não são críticos
-      if (error?.code === 'PGRST301' || error?.message?.includes('406')) {
-        console.warn('Erro de permissão ao buscar pontos do paciente. Verifique se as políticas RLS estão configuradas.');
-        return null;
-      }
-      console.warn('Erro ao buscar pontos do paciente:', error);
+      console.error('❌ Exceção ao buscar pontos:', error);
       return null;
     }
   },
@@ -464,22 +495,14 @@ export const dietConsumptionService = {
         .select('*')
         .eq('patient_id', patientId)
         .order('unlocked_at', { ascending: false });
-      
-      // Ignorar erros de permissão/RLS (não é crítico)
+
       if (error) {
-        if (error.code === 'PGRST301' || error.message?.includes('406') || error.message?.includes('permission')) {
-          return [];
-        }
-        console.warn('Erro ao buscar conquistas do paciente (não crítico):', error);
+        console.error('❌ Erro real ao buscar conquistas:', error);
         return [];
       }
       return data || [];
     } catch (error: any) {
-      // Ignorar erros de permissão/RLS
-      if (error?.code === 'PGRST301' || error?.message?.includes('406') || error?.message?.includes('permission')) {
-        return [];
-      }
-      console.warn('Erro ao buscar conquistas do paciente (não crítico):', error);
+      console.error('❌ Exceção ao buscar conquistas:', error);
       return [];
     }
   },
