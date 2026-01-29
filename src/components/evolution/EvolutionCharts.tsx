@@ -37,7 +37,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
   const [selectedCheckinIndex, setSelectedCheckinIndex] = useState(0);
   const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
   const [dailyWeights, setDailyWeights] = useState<any[]>([]);
-  
+
   // IMPORTANTE: checkins vem ordenado DESC (mais recente primeiro)
   // Precisamos reverter para ordem cronológica (mais antigo primeiro)
   const checkinsOrdenados = [...checkins].reverse();
@@ -56,7 +56,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
     };
     loadDailyWeights();
   }, [patient?.telefone, refreshTrigger]); // Adicionar refreshTrigger como dependência
-  
+
   // Para o radar, queremos mostrar do mais recente (índice 0 do array original)
   const checkinsForRadar = checkins; // Array original já está do mais recente ao mais antigo
 
@@ -101,7 +101,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
 
   // Preparar dados para gráfico de peso - incluindo peso inicial, diários e check-ins
   const weightData = [];
-  
+
   // Adicionar peso inicial se existir (pacientes cadastrados manualmente)
   const patientWithInitialData = patient as any;
   if (patientWithInitialData?.peso_inicial) {
@@ -117,7 +117,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
     };
     weightData.push(dataInicialPoint);
   }
-  
+
   // Adicionar pesos diários (weight_tracking)
   dailyWeights.forEach((weight) => {
     const pesoValue = weight.peso_jejum || weight.peso_dia;
@@ -134,13 +134,13 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
       weightData.push(dataPoint);
     }
   });
-  
+
   // Adicionar dados dos check-ins mensais
   checkinsOrdenados.forEach((c, index) => {
     // Priorizar peso_jejum se existir, senão usar peso
     const pesoCheckin = (c as any).peso_jejum || c.peso;
     if (pesoCheckin) {
-      const pesoValue = typeof pesoCheckin === 'string' 
+      const pesoValue = typeof pesoCheckin === 'string'
         ? parseFloat(pesoCheckin.replace(',', '.'))
         : parseFloat(pesoCheckin.toString());
       const dataPoint = {
@@ -183,32 +183,32 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
     // Função para extrair número de um texto, tratando "ou mais" e decimais
     const extractQuantity = (text: string | null): number => {
       if (!text || text.trim() === '') return 0;
-      
+
       const textLower = text.toLowerCase().trim();
-      
+
       // Verifica se indica ausência/negativo
       if (isNegative(textLower)) {
         return 0;
       }
-      
+
       // Verifica se tem "ou mais" e extrai o número antes (incluindo decimais)
       const ouMaisMatch = textLower.match(/(\d+[.,]?\d*)\s*ou\s*mais/);
       if (ouMaisMatch) {
         return parseFloat(ouMaisMatch[1].replace(',', '.'));
       }
-      
+
       // Tenta extrair número decimal (aceita vírgula ou ponto como separador)
       const decimalMatch = text.match(/(\d+[.,]\d+)/);
       if (decimalMatch) {
         return parseFloat(decimalMatch[1].replace(',', '.'));
       }
-      
+
       // Tenta extrair qualquer número inteiro do texto
       const numMatch = text.match(/(\d+)/);
       if (numMatch) {
         return parseFloat(numMatch[1]);
       }
-      
+
       // Se não tem número mas tem conteúdo e não é negativo, retorna 1
       return 1;
     };
@@ -216,32 +216,32 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
     // Função para extrair número de texto (para sono, treino, cardio, etc)
     const extractNumberFromText = (text: string | null): number => {
       if (!text || text.trim() === '') return 0;
-      
+
       const textLower = text.toLowerCase().trim();
-      
+
       // Verifica se indica ausência/negativo
       if (isNegative(textLower)) {
         return 0;
       }
-      
+
       // Verifica se tem "ou mais" e extrai o número antes (incluindo decimais)
       const ouMaisMatch = textLower.match(/(\d+[.,]?\d*)\s*ou\s*mais/);
       if (ouMaisMatch) {
         return parseFloat(ouMaisMatch[1].replace(',', '.'));
       }
-      
+
       // Tenta extrair número decimal (aceita vírgula ou ponto como separador)
       const decimalMatch = text.match(/(\d+[.,]\d+)/);
       if (decimalMatch) {
         return parseFloat(decimalMatch[1].replace(',', '.'));
       }
-      
+
       // Tenta extrair qualquer número inteiro do texto
       const numMatch = text.match(/(\d+)/);
       if (numMatch) {
         return parseFloat(numMatch[1]);
       }
-      
+
       // Se não tem número mas tem conteúdo e não é negativo, retorna 1
       return 1;
     };
@@ -285,7 +285,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
 
 
   // Combinar todos os dados de peso em ordem cronológica
-  const allWeightData = [...weightData].sort((a, b) => 
+  const allWeightData = [...weightData].sort((a, b) =>
     new Date(a.dataCompleta).getTime() - new Date(b.dataCompleta).getTime()
   );
 
@@ -318,140 +318,142 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
             </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={allWeightData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                <XAxis 
-                  dataKey="dataCompleta"
-                  stroke="#94a3b8"
-                  style={{ fontSize: '12px' }}
-                  tickFormatter={(value) => {
-                    const date = new Date(value);
-                    return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
-                  }}
-                />
-                <YAxis 
-                  stroke="#94a3b8"
-                  style={{ fontSize: '12px' }}
-                  domain={['dataMin - 2', 'dataMax + 2']}
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1e293b', 
-                    border: '1px solid #334155',
-                    borderRadius: '8px',
-                    color: '#fff'
-                  }}
-                  content={({ active, payload }) => {
-                    if (active && payload && payload.length) {
-                      const data = payload[0].payload;
-                      let tipoLabel = 'Peso';
-                      if (data.tipoVisual === 'inicial') tipoLabel = 'Peso Inicial';
-                      else if (data.tipoVisual === 'checkin') tipoLabel = 'Peso Check-in';
-                      else if (data.tipoVisual === 'diario') tipoLabel = `Peso Diário (${data.tipo.includes('Jejum') ? 'Jejum' : 'Dia'})`;
-                      else tipoLabel = data.tipo || 'Peso';
+            <div className="h-[300px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={allWeightData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <XAxis
+                    dataKey="dataCompleta"
+                    stroke="#94a3b8"
+                    style={{ fontSize: '12px' }}
+                    tickFormatter={(value) => {
+                      const date = new Date(value);
+                      return date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                    }}
+                  />
+                  <YAxis
+                    stroke="#94a3b8"
+                    style={{ fontSize: '12px' }}
+                    domain={['dataMin - 2', 'dataMax + 2']}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1e293b',
+                      border: '1px solid #334155',
+                      borderRadius: '8px',
+                      color: '#fff'
+                    }}
+                    content={({ active, payload }) => {
+                      if (active && payload && payload.length) {
+                        const data = payload[0].payload;
+                        let tipoLabel = 'Peso';
+                        if (data.tipoVisual === 'inicial') tipoLabel = 'Peso Inicial';
+                        else if (data.tipoVisual === 'checkin') tipoLabel = 'Peso Check-in';
+                        else if (data.tipoVisual === 'diario') tipoLabel = `Peso Diário (${data.tipo.includes('Jejum') ? 'Jejum' : 'Dia'})`;
+                        else tipoLabel = data.tipo || 'Peso';
+
+                        return (
+                          <div className="bg-slate-800 p-3 rounded-lg border border-slate-600">
+                            <p className="text-slate-300 text-sm mb-1">Data: {data.data}</p>
+                            <p className="text-white font-semibold">{tipoLabel}: {data.peso} kg</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                    }}
+                  />
+                  <Legend />
+                  <Line
+                    type="monotone"
+                    dataKey="peso"
+                    stroke="#94a3b8"
+                    strokeWidth={2}
+                    name="Peso (kg)"
+                    dot={(props) => {
+                      const { cx, cy, payload, index } = props;
+                      if (!cx || !cy) return null;
+
+                      const tipoVisual = payload?.tipoVisual || 'checkin';
+                      const key = `dot-${payload?.id || index || cx}-${cy}-${tipoVisual}`;
+
+                      // Peso Inicial: ponto grande verde
+                      if (tipoVisual === 'inicial') {
+                        return (
+                          <circle
+                            key={key}
+                            cx={cx}
+                            cy={cy}
+                            r={6}
+                            fill="#22c55e"
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        );
+                      }
+
+                      // Check-in Mensal: ponto grande azul
+                      if (tipoVisual === 'checkin') {
+                        return (
+                          <circle
+                            key={key}
+                            cx={cx}
+                            cy={cy}
+                            r={5}
+                            fill="#3b82f6"
+                            stroke="#fff"
+                            strokeWidth={2}
+                          />
+                        );
+                      }
+
+                      // Peso Diário: ponto pequeno cinza
+                      if (tipoVisual === 'diario') {
+                        return (
+                          <circle
+                            key={key}
+                            cx={cx}
+                            cy={cy}
+                            r={3}
+                            fill="#64748b"
+                          />
+                        );
+                      }
+
+                      // Fallback
+                      return (
+                        <circle
+                          key={key}
+                          cx={cx}
+                          cy={cy}
+                          r={4}
+                          fill="#94a3b8"
+                        />
+                      );
+                    }}
+                    activeDot={(props) => {
+                      const { cx, cy, payload, index } = props;
+                      if (!cx || !cy) return null;
+
+                      const tipoVisual = payload?.tipoVisual || 'checkin';
+                      const radius = tipoVisual === 'inicial' ? 8 : tipoVisual === 'checkin' ? 7 : 5;
+                      const key = `active-${payload?.id || index || cx}-${cy}-${tipoVisual}`;
 
                       return (
-                        <div className="bg-slate-800 p-3 rounded-lg border border-slate-600">
-                          <p className="text-slate-300 text-sm mb-1">Data: {data.data}</p>
-                          <p className="text-white font-semibold">{tipoLabel}: {data.peso} kg</p>
-                        </div>
-                      );
-                    }
-                    return null;
-                  }}
-                />
-                <Legend />
-                <Line 
-                  type="monotone" 
-                  dataKey="peso" 
-                  stroke="#94a3b8" 
-                  strokeWidth={2}
-                  name="Peso (kg)"
-                  dot={(props) => {
-                    const { cx, cy, payload, index } = props;
-                    if (!cx || !cy) return null;
-                    
-                    const tipoVisual = payload?.tipoVisual || 'checkin';
-                    const key = `dot-${payload?.id || index || cx}-${cy}-${tipoVisual}`;
-                    
-                    // Peso Inicial: ponto grande verde
-                    if (tipoVisual === 'inicial') {
-                      return (
                         <circle
                           key={key}
                           cx={cx}
                           cy={cy}
-                          r={6}
-                          fill="#22c55e"
+                          r={radius}
+                          fill={tipoVisual === 'inicial' ? '#22c55e' : tipoVisual === 'checkin' ? '#3b82f6' : '#64748b'}
                           stroke="#fff"
                           strokeWidth={2}
                         />
                       );
-                    }
-                    
-                    // Check-in Mensal: ponto grande azul
-                    if (tipoVisual === 'checkin') {
-                      return (
-                        <circle
-                          key={key}
-                          cx={cx}
-                          cy={cy}
-                          r={5}
-                          fill="#3b82f6"
-                          stroke="#fff"
-                          strokeWidth={2}
-                        />
-                      );
-                    }
-                    
-                    // Peso Diário: ponto pequeno cinza
-                    if (tipoVisual === 'diario') {
-                      return (
-                        <circle
-                          key={key}
-                          cx={cx}
-                          cy={cy}
-                          r={3}
-                          fill="#64748b"
-                        />
-                      );
-                    }
-                    
-                    // Fallback
-                    return (
-                      <circle
-                        key={key}
-                        cx={cx}
-                        cy={cy}
-                        r={4}
-                        fill="#94a3b8"
-                      />
-                    );
-                  }}
-                  activeDot={(props) => {
-                    const { cx, cy, payload, index } = props;
-                    if (!cx || !cy) return null;
-                    
-                    const tipoVisual = payload?.tipoVisual || 'checkin';
-                    const radius = tipoVisual === 'inicial' ? 8 : tipoVisual === 'checkin' ? 7 : 5;
-                    const key = `active-${payload?.id || index || cx}-${cy}-${tipoVisual}`;
-                    
-                    return (
-                      <circle
-                        key={key}
-                        cx={cx}
-                        cy={cy}
-                        r={radius}
-                        fill={tipoVisual === 'inicial' ? '#22c55e' : tipoVisual === 'checkin' ? '#3b82f6' : '#64748b'}
-                        stroke="#fff"
-                        strokeWidth={2}
-                      />
-                    );
-                  }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+                    }}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -478,213 +480,217 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
                   Quantidades
                 </TabsTrigger>
               </TabsList>
-              
+
               <TabsContent value="pontuacoes" className="mt-0">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={scoresData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis 
-                      dataKey="data" 
-                      stroke="#94a3b8"
-                      style={{ fontSize: '12px' }}
-                    />
-                    <YAxis 
-                      stroke="#94a3b8"
-                      style={{ fontSize: '12px' }}
-                      domain={[0, 10]}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1e293b', 
-                        border: '1px solid #334155',
-                        borderRadius: '8px',
-                        color: '#fff'
-                      }}
-                    />
-                    <Legend content={<CustomLegend />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="treino" 
-                      stroke="#f59e0b" 
-                      strokeWidth={1} 
-                      name="Treino" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('treino')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="cardio" 
-                      stroke="#ef4444" 
-                      strokeWidth={1} 
-                      name="Cardio" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('cardio')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="sono" 
-                      stroke="#8b5cf6" 
-                      strokeWidth={1} 
-                      name="Sono" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('sono')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="agua" 
-                      stroke="#3b82f6" 
-                      strokeWidth={1} 
-                      name="Água" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('agua')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="stress" 
-                      stroke="#10b981" 
-                      strokeWidth={1} 
-                      name="Stress" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('stress')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="refeicoesLivres" 
-                      stroke="#ec4899" 
-                      strokeWidth={1} 
-                      name="Refeições Livres" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('refeicoesLivres')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="beliscadas" 
-                      stroke="#f97316" 
-                      strokeWidth={1} 
-                      name="Beliscadas" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('beliscadas')}
-                      legendType="line"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={scoresData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis
+                        dataKey="data"
+                        stroke="#94a3b8"
+                        style={{ fontSize: '12px' }}
+                      />
+                      <YAxis
+                        stroke="#94a3b8"
+                        style={{ fontSize: '12px' }}
+                        domain={[0, 10]}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1e293b',
+                          border: '1px solid #334155',
+                          borderRadius: '8px',
+                          color: '#fff'
+                        }}
+                      />
+                      <Legend content={<CustomLegend />} />
+                      <Line
+                        type="monotone"
+                        dataKey="treino"
+                        stroke="#f59e0b"
+                        strokeWidth={1}
+                        name="Treino"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('treino')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="cardio"
+                        stroke="#ef4444"
+                        strokeWidth={1}
+                        name="Cardio"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('cardio')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="sono"
+                        stroke="#8b5cf6"
+                        strokeWidth={1}
+                        name="Sono"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('sono')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="agua"
+                        stroke="#3b82f6"
+                        strokeWidth={1}
+                        name="Água"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('agua')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="stress"
+                        stroke="#10b981"
+                        strokeWidth={1}
+                        name="Stress"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('stress')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="refeicoesLivres"
+                        stroke="#ec4899"
+                        strokeWidth={1}
+                        name="Refeições Livres"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('refeicoesLivres')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="beliscadas"
+                        stroke="#f97316"
+                        strokeWidth={1}
+                        name="Beliscadas"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('beliscadas')}
+                        legendType="line"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </TabsContent>
 
               <TabsContent value="quantidades" className="mt-0">
-                <ResponsiveContainer width="100%" height={300}>
-                  <LineChart data={quantitiesData}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
-                    <XAxis 
-                      dataKey="data" 
-                      stroke="#94a3b8"
-                      style={{ fontSize: '12px' }}
-                    />
-                    <YAxis 
-                      stroke="#94a3b8"
-                      style={{ fontSize: '12px' }}
-                      domain={[0, 'dataMax + 1']}
-                    />
-                    <Tooltip 
-                      contentStyle={{ 
-                        backgroundColor: '#1e293b', 
-                        border: '1px solid #334155',
-                        borderRadius: '8px',
-                        color: '#fff'
-                      }}
-                    />
-                    <Legend content={<CustomLegend />} />
-                    <Line 
-                      type="monotone" 
-                      dataKey="treino" 
-                      stroke="#f59e0b" 
-                      strokeWidth={1} 
-                      name="Treino" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('treino')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="cardio" 
-                      stroke="#ef4444" 
-                      strokeWidth={1} 
-                      name="Cardio" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('cardio')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="sono" 
-                      stroke="#8b5cf6" 
-                      strokeWidth={1} 
-                      name="Sono" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('sono')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="agua" 
-                      stroke="#3b82f6" 
-                      strokeWidth={1} 
-                      name="Água" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('agua')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="stress" 
-                      stroke="#10b981" 
-                      strokeWidth={1} 
-                      name="Stress" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('stress')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="refeicoesLivres" 
-                      stroke="#ec4899" 
-                      strokeWidth={1} 
-                      name="Refeições Livres" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('refeicoesLivres')}
-                      legendType="line"
-                    />
-                    <Line 
-                      type="monotone" 
-                      dataKey="beliscadas" 
-                      stroke="#f97316" 
-                      strokeWidth={1} 
-                      name="Beliscadas" 
-                      dot={{ r: 3 }} 
-                      activeDot={{ r: 4 }}
-                      hide={hiddenSeries.has('beliscadas')}
-                      legendType="line"
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
+                <div className="h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={quantitiesData}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <XAxis
+                        dataKey="data"
+                        stroke="#94a3b8"
+                        style={{ fontSize: '12px' }}
+                      />
+                      <YAxis
+                        stroke="#94a3b8"
+                        style={{ fontSize: '12px' }}
+                        domain={[0, 'dataMax + 1']}
+                      />
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: '#1e293b',
+                          border: '1px solid #334155',
+                          borderRadius: '8px',
+                          color: '#fff'
+                        }}
+                      />
+                      <Legend content={<CustomLegend />} />
+                      <Line
+                        type="monotone"
+                        dataKey="treino"
+                        stroke="#f59e0b"
+                        strokeWidth={1}
+                        name="Treino"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('treino')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="cardio"
+                        stroke="#ef4444"
+                        strokeWidth={1}
+                        name="Cardio"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('cardio')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="sono"
+                        stroke="#8b5cf6"
+                        strokeWidth={1}
+                        name="Sono"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('sono')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="agua"
+                        stroke="#3b82f6"
+                        strokeWidth={1}
+                        name="Água"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('agua')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="stress"
+                        stroke="#10b981"
+                        strokeWidth={1}
+                        name="Stress"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('stress')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="refeicoesLivres"
+                        stroke="#ec4899"
+                        strokeWidth={1}
+                        name="Refeições Livres"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('refeicoesLivres')}
+                        legendType="line"
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="beliscadas"
+                        stroke="#f97316"
+                        strokeWidth={1}
+                        name="Beliscadas"
+                        dot={{ r: 3 }}
+                        activeDot={{ r: 4 }}
+                        hide={hiddenSeries.has('beliscadas')}
+                        legendType="line"
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>
@@ -705,10 +711,10 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
                   Análise multidimensional do check-in
                   {selectedCheckin && (
                     <span className="ml-2">
-                      - {new Date(selectedCheckin.data_checkin).toLocaleDateString('pt-BR', { 
-                        day: '2-digit', 
-                        month: 'long', 
-                        year: 'numeric' 
+                      - {new Date(selectedCheckin.data_checkin).toLocaleDateString('pt-BR', {
+                        day: '2-digit',
+                        month: 'long',
+                        year: 'numeric'
                       })}
                     </span>
                   )}
@@ -746,37 +752,39 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
             </div>
           </CardHeader>
           <CardContent className="flex justify-center">
-            <ResponsiveContainer width="100%" height={400}>
-              <RadarChart data={radarData}>
-                <PolarGrid stroke="#334155" />
-                <PolarAngleAxis 
-                  dataKey="categoria" 
-                  stroke="#94a3b8"
-                  style={{ fontSize: '12px' }}
-                />
-                <PolarRadiusAxis 
-                  angle={90} 
-                  domain={[0, 10]} 
-                  stroke="#94a3b8"
-                  style={{ fontSize: '12px' }}
-                />
-                <Radar 
-                  name="Pontuação" 
-                  dataKey="pontos" 
-                  stroke="#10b981" 
-                  fill="#10b981" 
-                  fillOpacity={0.6} 
-                />
-                <Tooltip 
-                  contentStyle={{ 
-                    backgroundColor: '#1e293b', 
-                    border: '1px solid #334155',
-                    borderRadius: '8px',
-                    color: '#fff'
-                  }}
-                />
-              </RadarChart>
-            </ResponsiveContainer>
+            <div className="h-[400px] w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarData}>
+                  <PolarGrid stroke="#334155" />
+                  <PolarAngleAxis
+                    dataKey="categoria"
+                    stroke="#94a3b8"
+                    style={{ fontSize: '12px' }}
+                  />
+                  <PolarRadiusAxis
+                    angle={90}
+                    domain={[0, 10]}
+                    stroke="#94a3b8"
+                    style={{ fontSize: '12px' }}
+                  />
+                  <Radar
+                    name="Pontuação"
+                    dataKey="pontos"
+                    stroke="#10b981"
+                    fill="#10b981"
+                    fillOpacity={0.6}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: '#1e293b',
+                      border: '1px solid #334155',
+                      borderRadius: '8px',
+                      color: '#fff'
+                    }}
+                  />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
       )}

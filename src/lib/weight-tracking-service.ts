@@ -70,13 +70,45 @@ export const weightTrackingService = {
   },
 
   /**
-   * Buscar pesos de um paciente
+   * Buscar pesos de um paciente (robusto com variações)
    */
   async getByTelefone(telefone: string, limit?: number): Promise<WeightEntry[]> {
+    if (!telefone) return [];
+
+    const numericPhone = telefone.replace(/\D/g, '');
+    const variations = new Set<string>();
+
+    // 1. Adicionar versões numéricas básicas
+    variations.add(telefone);
+    variations.add(numericPhone);
+
+    const phoneWithoutCountry = numericPhone.startsWith('55') ? numericPhone.slice(2) : numericPhone;
+    const phoneWithCountry = numericPhone.startsWith('55') ? numericPhone : `55${numericPhone}`;
+
+    variations.add(phoneWithoutCountry);
+    variations.add(phoneWithCountry);
+
+    // 2. Adicionar versões formatadas comuns
+    if (phoneWithoutCountry.length === 11) {
+      const ddd = phoneWithoutCountry.substring(0, 2);
+      const part1 = phoneWithoutCountry.substring(2, 7);
+      const part2 = phoneWithoutCountry.substring(7);
+
+      variations.add(`(${ddd}) ${part1}-${part2}`);
+      variations.add(`(${ddd})${part1}-${part2}`);
+      variations.add(`${ddd} ${part1}-${part2}`);
+      variations.add(`${ddd} ${part1}${part2}`);
+      variations.add(`+55 (${ddd}) ${part1}-${part2}`);
+      variations.add(`+55 ${ddd} ${part1}-${part2}`);
+    }
+
+    const uniquePhones = Array.from(variations).filter(v => !!v && v.length > 5);
+    const orFilter = uniquePhones.map(v => `telefone.eq."${v}"`).join(',');
+
     let query = supabase
       .from('weight_tracking')
       .select('*')
-      .eq('telefone', telefone)
+      .or(orFilter)
       .order('data_pesagem', { ascending: false });
 
     if (limit) {

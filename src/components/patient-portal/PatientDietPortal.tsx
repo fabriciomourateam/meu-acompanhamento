@@ -34,6 +34,7 @@ import {
   Calendar,
   Check,
   Plus,
+  X,
   ChevronRight,
   CheckCircle,
   Package,
@@ -343,28 +344,28 @@ export function PatientDietPortal({
   const percentualConsumido = metaCalorias > 0 ? Math.min(100, (caloriasConsumidas / metaCalorias) * 100) : 0;
 
   return (
-    <div className="space-y-6 bg-white rounded-2xl p-6 shadow-lg border border-gray-100">
+    <div className="space-y-6 bg-slate-900/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-700/50">
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
       {releasedPlans.length > 1 && (
-        <Card className="bg-gradient-to-r from-green-50 to-emerald-50 border-green-200/50 shadow-sm">
+        <Card className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/20 shadow-lg">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-[#222222] mb-1">Plano Alimentar Ativo</p>
-                <p className="text-xs text-[#777777]">Você tem {releasedPlans.length} planos disponíveis</p>
+                <p className="text-sm font-semibold text-emerald-100 mb-1">Plano Alimentar Ativo</p>
+                <p className="text-xs text-slate-400">Você tem {releasedPlans.length} planos disponíveis</p>
               </div>
               <Select value={activePlan?.id} onValueChange={handleChangePlan}>
-                <SelectTrigger className="w-full sm:w-[280px] bg-white border-green-300 text-[#222222] min-h-[44px]">
+                <SelectTrigger className="w-full sm:w-[280px] bg-slate-800/80 border-slate-700 text-white min-h-[44px]">
                   <SelectValue placeholder="Selecione um plano" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-slate-800 border-slate-700 text-white">
                   {releasedPlans.map((plan: any) => (
-                    <SelectItem key={plan.id} value={plan.id} className="py-3">
+                    <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-700 focus:bg-slate-700 cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <Utensils className="w-4 h-4 text-[#00C98A] flex-shrink-0" />
+                        <Utensils className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                         <span className="truncate">{plan.name}</span>
                         {(plan.status === 'active' || plan.active) && (
-                          <Badge className="ml-2 bg-[#00C98A]/20 text-[#00C98A] border-[#00C98A]/30 flex-shrink-0">
+                          <Badge className="ml-2 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 flex-shrink-0">
                             Ativo
                           </Badge>
                         )}
@@ -381,37 +382,37 @@ export function PatientDietPortal({
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
       <Tabs defaultValue="diet" className="w-full">
         {/* Desktop: abas em linha */}
-        <TabsList className="sticky top-0 z-50 hidden sm:grid w-full grid-cols-4 bg-gray-100 p-1 border-b border-gray-200 shadow-sm rounded-t-lg">
-          <TabsTrigger value="diet" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm text-[#777777] text-sm py-2.5 rounded-md">
-            Plano & Orientações
+        <TabsList className="sticky top-0 z-50 hidden sm:grid w-full grid-cols-4 bg-slate-800/80 backdrop-blur-md p-1 border-b border-slate-700/50 shadow-lg rounded-t-lg">
+          <TabsTrigger value="diet" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
+            Plano Alimentar
           </TabsTrigger>
-          <TabsTrigger value="challenges" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm text-[#777777] text-sm py-2.5 rounded-md">
+          <TabsTrigger value="challenges" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
             Metas
           </TabsTrigger>
-          <TabsTrigger value="results" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm text-[#777777] text-sm py-2.5 rounded-md">
+          <TabsTrigger value="results" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
             Meus Resultados
           </TabsTrigger>
-          <TabsTrigger value="ranking" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm text-[#777777] text-sm py-2.5 rounded-md">
+          <TabsTrigger value="ranking" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
             Ranking & Conquistas
           </TabsTrigger>
         </TabsList>
 
         {/* Mobile: grid 4 colunas com ícones */}
-        <div className="sticky top-0 z-50 sm:hidden bg-gray-100 p-2 border-b border-gray-200 shadow-sm rounded-t-lg">
+        <div className="sticky top-0 z-50 sm:hidden bg-slate-800/90 backdrop-blur-md p-2 border-b border-slate-700/50 shadow-lg rounded-t-lg">
           <TabsList className="grid grid-cols-4 gap-2 bg-transparent h-auto">
-            <TabsTrigger value="diet" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm bg-white/50 text-[#777777] text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto">
+            <TabsTrigger value="diet" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
               <span className="text-lg">🍽️</span>
               <span>Plano</span>
             </TabsTrigger>
-            <TabsTrigger value="challenges" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm bg-white/50 text-[#777777] text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto">
+            <TabsTrigger value="challenges" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
               <span className="text-lg">🎯</span>
               <span>Metas</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm bg-white/50 text-[#777777] text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto">
+            <TabsTrigger value="results" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
               <span className="text-lg">📊</span>
               <span>Resultados</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] data-[state=active]:shadow-sm bg-white/50 text-[#777777] text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto">
+            <TabsTrigger value="ranking" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
               <span className="text-lg">🏆</span>
               <span>Ranking</span>
             </TabsTrigger>
@@ -421,11 +422,11 @@ export function PatientDietPortal({
         {/* Aba: Plano Alimentar + Orientações + Exames */}
         <TabsContent value="diet" className="mt-6 space-y-6">
           {!hasActivePlan ? (
-            <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+            <Card className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50">
               <CardContent className="p-6 sm:p-8 text-center">
-                <Utensils className="w-12 h-12 sm:w-16 sm:h-16 text-[#777777] mx-auto mb-3 sm:mb-4 opacity-50" />
-                <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Nenhum Plano Alimentar Ativo</h3>
-                <p className="text-sm sm:text-base text-[#777777]">
+                <Utensils className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500 mx-auto mb-3 sm:mb-4 opacity-50" />
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Nenhum Plano Alimentar Ativo</h3>
+                <p className="text-sm sm:text-base text-slate-400">
                   Seu nutricionista ainda não liberou um plano alimentar para você.
                 </p>
               </CardContent>
@@ -433,7 +434,7 @@ export function PatientDietPortal({
           ) : (
             <>
               {/* Resumo de Calorias e Macros */}
-              <Card className="bg-green-50/30 rounded-2xl shadow-sm border border-green-100/50 hover:shadow-md transition-all duration-300">
+              <Card className="bg-emerald-500/5 rounded-2xl shadow-lg border border-emerald-500/10 hover:shadow-emerald-500/5 transition-all duration-300">
                 <CardContent className="p-4 sm:p-6">
                   <div className="flex flex-col items-center justify-center mb-4 sm:mb-6">
                     {/* Círculo de Progresso de Calorias */}
@@ -443,7 +444,7 @@ export function PatientDietPortal({
                           cx="80"
                           cy="80"
                           r="70"
-                          stroke="#E5E7EB"
+                          stroke="rgba(255,255,255,0.05)"
                           strokeWidth="10"
                           fill="none"
                           className="sm:hidden"
@@ -452,7 +453,7 @@ export function PatientDietPortal({
                           cx="80"
                           cy="80"
                           r="70"
-                          stroke="#00C98A"
+                          stroke="url(#emerald-gradient)"
                           strokeWidth="10"
                           fill="none"
                           strokeDasharray={`${2 * Math.PI * 70}`}
@@ -464,7 +465,7 @@ export function PatientDietPortal({
                           cx="96"
                           cy="96"
                           r="84"
-                          stroke="#E5E7EB"
+                          stroke="rgba(255,255,255,0.05)"
                           strokeWidth="12"
                           fill="none"
                           className="hidden sm:block"
@@ -473,7 +474,7 @@ export function PatientDietPortal({
                           cx="96"
                           cy="96"
                           r="84"
-                          stroke="#00C98A"
+                          stroke="url(#emerald-gradient)"
                           strokeWidth="12"
                           fill="none"
                           strokeDasharray={`${2 * Math.PI * 84}`}
@@ -481,61 +482,67 @@ export function PatientDietPortal({
                           strokeLinecap="round"
                           className="transition-all duration-500 hidden sm:block"
                         />
+                        <defs>
+                          <linearGradient id="emerald-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#06b6d4" />
+                          </linearGradient>
+                        </defs>
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-3xl sm:text-4xl font-bold text-[#222222]">{Math.round(caloriasRestantes)}</p>
-                        <p className="text-xs sm:text-sm text-[#777777] mt-1">Kcal restantes</p>
+                        <p className="text-3xl sm:text-4xl font-bold text-white drop-shadow-glow-sm">{Math.round(caloriasRestantes)}</p>
+                        <p className="text-xs sm:text-sm text-slate-400 mt-1 font-medium">Kcal restantes</p>
                       </div>
                     </div>
 
                     {/* Informações de Consumo */}
                     <div className="flex gap-4 sm:gap-6 text-center">
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-[#222222]">{Math.round(caloriasConsumidas)}</p>
-                        <p className="text-xs text-[#777777] mt-1">Consumidas</p>
+                        <p className="text-xl sm:text-2xl font-bold text-white">{Math.round(caloriasConsumidas)}</p>
+                        <p className="text-xs text-slate-400 mt-1 font-medium text-emerald-400/80">Consumidas</p>
                       </div>
-                      <div className="w-px bg-gray-200"></div>
+                      <div className="w-px bg-slate-700/50"></div>
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-[#222222]">{Math.round(metaCalorias)}</p>
-                        <p className="text-xs text-[#777777] mt-1">Meta do dia</p>
+                        <p className="text-xl sm:text-2xl font-bold text-slate-400">{Math.round(metaCalorias)}</p>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Meta do dia</p>
                       </div>
                     </div>
                   </div>
 
                   {/* Macros */}
-                  <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-gray-100">
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-slate-700/50">
                     <div className="text-center px-1">
-                      <p className="text-sm sm:text-lg font-semibold text-[#222222] whitespace-nowrap">
-                        {carboidratosConsumidos.toFixed(0)} / {metaCarboidratos.toFixed(0)}g
+                      <p className="text-sm sm:text-lg font-semibold text-white whitespace-nowrap">
+                        {carboidratosConsumidos.toFixed(0)} <span className="text-xs text-slate-500 font-normal">/ {metaCarboidratos.toFixed(0)}g</span>
                       </p>
-                      <p className="text-xs text-[#777777] mt-1">Carboidratos</p>
-                      <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <p className="text-xs text-slate-400 mt-1">Carboidratos</p>
+                      <div className="mt-2 bg-slate-700/50 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-purple-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out"
+                          className="bg-gradient-to-r from-purple-500 to-purple-600 h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(168,85,247,0.4)]"
                           style={{ width: `${Math.min((carboidratosConsumidos / metaCarboidratos) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
                     <div className="text-center px-1">
-                      <p className="text-sm sm:text-lg font-semibold text-[#222222] whitespace-nowrap">
-                        {proteinasConsumidas.toFixed(0)} / {metaProteinas.toFixed(0)}g
+                      <p className="text-sm sm:text-lg font-semibold text-white whitespace-nowrap">
+                        {proteinasConsumidas.toFixed(0)} <span className="text-xs text-slate-500 font-normal">/ {metaProteinas.toFixed(0)}g</span>
                       </p>
-                      <p className="text-xs text-[#777777] mt-1">Proteínas</p>
-                      <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <p className="text-xs text-slate-400 mt-1">Proteínas</p>
+                      <div className="mt-2 bg-slate-700/50 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500 ease-out"
+                          className="bg-gradient-to-r from-blue-500 to-blue-600 h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(59,130,246,0.4)]"
                           style={{ width: `${Math.min((proteinasConsumidas / metaProteinas) * 100, 100)}%` }}
                         />
                       </div>
                     </div>
                     <div className="text-center px-1">
-                      <p className="text-sm sm:text-lg font-semibold text-[#222222] whitespace-nowrap">
-                        {gordurasConsumidas.toFixed(0)} / {metaGorduras.toFixed(0)}g
+                      <p className="text-sm sm:text-lg font-semibold text-white whitespace-nowrap">
+                        {gordurasConsumidas.toFixed(0)} <span className="text-xs text-slate-500 font-normal">/ {metaGorduras.toFixed(0)}g</span>
                       </p>
-                      <p className="text-xs text-[#777777] mt-1">Gorduras</p>
-                      <div className="mt-2 bg-gray-200 rounded-full h-2 overflow-hidden">
+                      <p className="text-xs text-slate-400 mt-1">Gorduras</p>
+                      <div className="mt-2 bg-slate-700/50 rounded-full h-2 overflow-hidden">
                         <div
-                          className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-full rounded-full transition-all duration-500 ease-out"
+                          className="bg-gradient-to-r from-emerald-500 to-emerald-600 h-full rounded-full transition-all duration-500 ease-out shadow-[0_0_8px_rgba(16,185,129,0.4)]"
                           style={{ width: `${Math.min((gordurasConsumidas / metaGorduras) * 100, 100)}%` }}
                         />
                       </div>
@@ -599,8 +606,8 @@ export function PatientDietPortal({
                             >
                               <div
                                 className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
-                                  ? 'bg-green-50/30 border-[#00C98A]/50 shadow-sm'
-                                  : 'bg-green-50/20 border-green-100/50 hover:border-green-200 hover:shadow-md'
+                                  ? 'bg-emerald-500/10 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.1)]'
+                                  : 'bg-slate-800/40 border-slate-700/50 hover:border-slate-600 hover:shadow-xl'
                                   }`}
                               >
                                 <CollapsibleTrigger asChild>
@@ -608,19 +615,19 @@ export function PatientDietPortal({
                                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                                       <div
                                         className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
-                                          ? 'bg-gradient-to-br from-[#00C98A] to-[#00A875]'
-                                          : 'bg-gray-200'
+                                          ? 'bg-gradient-to-br from-emerald-500 to-cyan-500 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
+                                          : 'bg-slate-700/50 text-slate-400'
                                           }`}
                                       >
                                         {isConsumed ? (
                                           <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                                         ) : (
-                                          <Utensils className="w-4 h-4 sm:w-5 sm:h-5 text-[#777777]" />
+                                          <Utensils className="w-4 h-4 sm:w-5 sm:h-5 text-slate-400" />
                                         )}
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors truncate ${isConsumed ? 'text-[#00C98A]' : 'text-[#222222]'
+                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors truncate ${isConsumed ? 'text-emerald-400' : 'text-white'
                                             }`}>
                                             {meal.meal_name}
                                           </h4>
@@ -646,8 +653,8 @@ export function PatientDietPortal({
                                           handleToggleMealConsumed(meal.id);
                                         }}
                                         className={`w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${isConsumed
-                                          ? 'bg-gradient-to-br from-[#00C98A] to-[#00A875] hover:from-[#00A875] hover:to-[#00C98A] text-white shadow-md'
-                                          : 'bg-gray-200 hover:bg-gray-300 text-[#777777] border border-gray-300'
+                                          ? 'bg-gradient-to-br from-emerald-500 to-cyan-500 hover:brightness-110 text-white shadow-lg'
+                                          : 'bg-slate-700/50 hover:bg-slate-600 text-slate-400 border border-slate-600'
                                           }`}
                                       >
                                         {isConsumed ? (
@@ -657,7 +664,7 @@ export function PatientDietPortal({
                                         )}
                                       </Button>
                                       <ChevronRight
-                                        className={`w-4 h-4 sm:w-5 sm:h-5 text-[#777777] transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''
+                                        className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''
                                           }`}
                                       />
                                     </div>
@@ -684,9 +691,9 @@ export function PatientDietPortal({
                                           return (
                                             <div
                                               key={food.id || foodIndex}
-                                              className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 bg-white gap-2 ${isConsumed
-                                                ? 'border-[#00C98A]/30 opacity-75'
-                                                : 'border-gray-200 hover:border-blue-300 hover:shadow-sm'
+                                              className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 bg-slate-800/40 gap-2 ${isConsumed
+                                                ? 'border-emerald-500/30 opacity-75'
+                                                : 'border-slate-700/50 hover:border-emerald-500/40 hover:shadow-lg'
                                                 }`}
                                             >
                                               <div className="flex items-start sm:items-center justify-between gap-2">
@@ -729,8 +736,8 @@ export function PatientDietPortal({
                                                   )}
                                                   {food.calories && (
                                                     <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${isConsumed
-                                                      ? 'bg-[#00C98A]/20 text-[#00C98A] border-[#00C98A]/30'
-                                                      : 'bg-blue-50 text-blue-600 border-blue-200'
+                                                      ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                                                      : 'bg-blue-500/10 text-cyan-400 border-cyan-500/20'
                                                       } border`}>
                                                       {food.calories} kcal
                                                     </Badge>
@@ -832,8 +839,8 @@ export function PatientDietPortal({
         <TabsContent value="results" className="mt-6 space-y-8">
           {/* Seção 1: Evolução Corporal (o mais importante para o aluno) */}
           <section>
-            <h3 className="text-xl font-bold text-[#222222] mb-4 flex items-center gap-2">
-              <span className="text-2xl">⚖️</span> Evolução Corporal
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="text-2xl drop-shadow-glow-sm">⚖️</span> Evolução Corporal
             </h3>
             <PatientEvolutionTab
               patientId={patientId}
@@ -846,13 +853,17 @@ export function PatientDietPortal({
           </section>
 
           {/* Seção 2: Adesão à Dieta */}
-          <section>
-            <h3 className="text-xl font-bold text-[#222222] mb-4 flex items-center gap-2">
-              <span className="text-2xl">📊</span> Adesão ao Plano
+          <section className="mt-8">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="text-2xl drop-shadow-glow-sm">📊</span> Adesão ao Plano
             </h3>
             <div className="space-y-6">
-              <WeeklyProgressChart patientId={patientId} />
-              <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
+                <WeeklyProgressChart patientId={patientId} />
+              </div>
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
+                <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
+              </div>
             </div>
           </section>
         </TabsContent>
@@ -865,69 +876,55 @@ export function PatientDietPortal({
 
       {/* Modal de Substituições */}
       <Dialog open={substitutionsModalOpen} onOpenChange={setSubstitutionsModalOpen}>
-        <DialogContent className="max-w-2xl bg-white max-h-[90vh] overflow-y-auto">
-          <DialogHeader className="relative pb-4">
+        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto shadow-2xl">
+          <DialogHeader className="relative pb-4 border-b border-slate-800">
             <button
               onClick={() => setSubstitutionsModalOpen(false)}
-              className="absolute right-0 top-0 rounded-full p-2 hover:bg-gray-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Fechar"
             >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
+              <X className="w-5 h-5 text-slate-400 hover:text-white" />
             </button>
-            <DialogTitle className="text-[#222222] text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
-              <RefreshCw className="w-5 h-5 text-[#00C98A] flex-shrink-0" />
+            <DialogTitle className="text-white text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
+              <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
               <span className="truncate">Opções de Substituição</span>
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-[#777777] pr-8">
-              Você pode substituir <strong className="text-[#222222]">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
+            <DialogDescription className="text-xs sm:text-sm text-slate-400 pr-8">
+              Você pode substituir <strong className="text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-3 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto pr-2">
+          <div className="space-y-3 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto pr-2 mt-4 custom-scrollbar">
             {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-lg border border-[#00C98A]/30 bg-[#00C98A]/5 hover:bg-[#00C98A]/10 transition-all"
+                className="p-3 sm:p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-[#222222] text-sm sm:text-base truncate">
+                    <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
                       {sub.food_name}
                     </h4>
-                    <p className="text-xs sm:text-sm text-[#777777] mt-1">
-                      Quantidade: <span className="font-medium text-[#00C98A]">{sub.quantity} {sub.unit}</span>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Quantidade: <span className="font-medium text-emerald-400">{sub.quantity} {sub.unit}</span>
                       {sub.custom_unit_name && (
-                        <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0">
+                        <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
                           ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
                         </span>
                       )}
                     </p>
                   </div>
-                  <CheckCircle className="w-5 h-5 text-[#00C98A] flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-700 flex items-center gap-2">
+          <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+            <p className="text-xs text-cyan-400 flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
-                Essas são opções equivalentes que você pode usar no lugar do alimento original, escolha a que preferir.
+                Essas são opções equivalentes que você pode usar no lugar do alimento original.
               </span>
             </p>
           </div>

@@ -20,7 +20,7 @@ export const checkinService = {
       .from('checkin')
       .select('*')
       .order('data_checkin', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -40,21 +40,41 @@ export const checkinService = {
         )
       `)
       .order('data_checkin', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
 
-  // Buscar checkins por telefone do paciente
+  // Buscar checkins por telefone do paciente (robusto com variações e telefone_checkin)
   async getByPhone(telefone: string): Promise<Checkin[]> {
-    const { data, error } = await supabase
-      .from('checkin')
-      .select('*')
-      .eq('telefone', telefone)
-      .order('data_checkin', { ascending: false });
-    
-    if (error) throw error;
-    return data || [];
+    if (!telefone) return [];
+
+    try {
+      const cleanPhone = telefone.replace(/\D/g, '');
+      const variations = Array.from(new Set([
+        telefone,
+        cleanPhone,
+        cleanPhone.startsWith('55') ? cleanPhone.slice(2) : `55${cleanPhone}`
+      ])).filter(v => !!v && v.length > 5);
+
+      // Usar .or() para buscar em telefone ou telefone_checkin com todas as variações
+      const orFilter = variations.flatMap(v => [
+        `telefone.eq."${v}"`,
+        `telefone_checkin.eq."${v}"`
+      ]).join(',');
+
+      const { data, error } = await supabase
+        .from('checkin')
+        .select('*')
+        .or(orFilter)
+        .order('data_checkin', { ascending: false });
+
+      if (error) throw error;
+      return data || [];
+    } catch (error) {
+      console.error('❌ Erro ao buscar checkins por telefone:', error);
+      return [];
+    }
   },
 
   // Buscar checkin específico por telefone e mês/ano
@@ -65,7 +85,7 @@ export const checkinService = {
       .eq('telefone', telefone)
       .eq('mes_ano', mesAno)
       .single();
-    
+
     if (error && error.code !== 'PGRST116') throw error;
     return data;
   },
@@ -83,13 +103,13 @@ export const checkinService = {
       user_id: user.id, // Garantir que user_id seja definido (trigger também faz isso, mas é bom garantir)
       data_preenchimento: checkin.data_preenchimento || new Date().toISOString()
     };
-    
+
     const { data, error } = await supabase
       .from('checkin')
       .insert(checkinData)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -102,7 +122,7 @@ export const checkinService = {
       .eq('id', id)
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -113,16 +133,16 @@ export const checkinService = {
       ...checkin,
       data_preenchimento: checkin.data_preenchimento || new Date().toISOString()
     };
-    
+
     const { data, error } = await supabase
       .from('checkin')
-      .upsert(checkinData, { 
+      .upsert(checkinData, {
         onConflict: 'telefone,mes_ano',
-        ignoreDuplicates: false 
+        ignoreDuplicates: false
       })
       .select()
       .single();
-    
+
     if (error) throw error;
     return data;
   },
@@ -133,7 +153,7 @@ export const checkinService = {
       .from('checkin')
       .delete()
       .eq('id', id);
-    
+
     if (error) throw error;
   },
 
@@ -145,7 +165,7 @@ export const checkinService = {
       .gte('data_checkin', startDate)
       .lte('data_checkin', endDate)
       .order('data_checkin', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -156,13 +176,13 @@ export const checkinService = {
     const year = currentDate.getFullYear();
     const month = String(currentDate.getMonth() + 1).padStart(2, '0');
     const mesAno = `${year}-${month}`;
-    
+
     const { data, error } = await supabase
       .from('checkin')
       .select('*')
       .eq('mes_ano', mesAno)
       .order('data_checkin', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -191,7 +211,7 @@ export const checkinService = {
       .from('checkin')
       .select('telefone')
       .not('telefone', 'is', null);
-    
+
     const patientsWithCheckin = new Set(uniquePatients?.map(p => p.telefone)).size;
 
     // Score médio
@@ -199,8 +219,8 @@ export const checkinService = {
       .from('checkin')
       .select('total_pontuacao')
       .not('total_pontuacao', 'is', null);
-    
-    const averageScore = scores?.length 
+
+    const averageScore = scores?.length
       ? scores.reduce((acc, curr) => acc + (curr.total_pontuacao || 0), 0) / scores.length
       : 0;
 
@@ -220,7 +240,7 @@ export const checkinService = {
       .eq('telefone', telefone)
       .order('data_checkin', { ascending: true })
       .limit(months);
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -233,7 +253,7 @@ export const checkinService = {
       .gte('data_preenchimento', startDate)
       .lte('data_preenchimento', endDate)
       .order('data_preenchimento', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -247,7 +267,7 @@ export const checkinService = {
       .gte('data_preenchimento', `${today}T00:00:00`)
       .lte('data_preenchimento', `${today}T23:59:59`)
       .order('data_preenchimento', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   },
@@ -256,13 +276,13 @@ export const checkinService = {
   async getFilledLastWeek(): Promise<Checkin[]> {
     const oneWeekAgo = new Date();
     oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    
+
     const { data, error } = await supabase
       .from('checkin')
       .select('*')
       .gte('data_preenchimento', oneWeekAgo.toISOString())
       .order('data_preenchimento', { ascending: false });
-    
+
     if (error) throw error;
     return data || [];
   }

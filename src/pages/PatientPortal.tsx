@@ -21,15 +21,15 @@ import { DietPDFGenerator } from '@/lib/diet-pdf-generator';
 import { DietPremiumPDFGenerator } from '@/lib/diet-pdf-premium-generator';
 import { classificarIMC } from '@/lib/body-calculations';
 
-// Lazy load componentes pesados
-const EvolutionCharts = lazy(() => import('@/components/evolution/EvolutionCharts').then(m => ({ default: m.EvolutionCharts })));
-const PhotoComparison = lazy(() => import('@/components/evolution/PhotoComparison').then(m => ({ default: m.PhotoComparison })));
-const Timeline = lazy(() => import('@/components/evolution/Timeline').then(m => ({ default: m.Timeline })));
-const AchievementBadges = lazy(() => import('@/components/evolution/AchievementBadges').then(m => ({ default: m.AchievementBadges })));
-const TrendsAnalysis = lazy(() => import('@/components/evolution/TrendsAnalysis').then(m => ({ default: m.TrendsAnalysis })));
-const BodyFatChart = lazy(() => import('@/components/evolution/BodyFatChart').then(m => ({ default: m.BodyFatChart })));
-const BodyCompositionMetrics = lazy(() => import('@/components/evolution/BodyCompositionMetrics').then(m => ({ default: m.BodyCompositionMetrics })));
-const EvolutionExportPage = lazy(() => import('@/components/evolution/EvolutionExportPage').then(m => ({ default: m.EvolutionExportPage })));
+// Lazy load componentes pesados com tipagem
+const EvolutionCharts = lazy(() => import('@/components/evolution/EvolutionCharts').then(m => ({ default: m.EvolutionCharts }))) as any;
+const PhotoComparison = lazy(() => import('@/components/evolution/PhotoComparison').then(m => ({ default: m.PhotoComparison }))) as any;
+const Timeline = lazy(() => import('@/components/evolution/Timeline').then(m => ({ default: m.Timeline }))) as any;
+const AchievementBadges = lazy(() => import('@/components/evolution/AchievementBadges').then(m => ({ default: m.AchievementBadges }))) as any;
+const TrendsAnalysis = lazy(() => import('@/components/evolution/TrendsAnalysis').then(m => ({ default: m.TrendsAnalysis }))) as any;
+const BodyFatChart = lazy(() => import('@/components/evolution/BodyFatChart').then(m => ({ default: m.BodyFatChart }))) as any;
+const BodyCompositionMetrics = lazy(() => import('@/components/evolution/BodyCompositionMetrics').then(m => ({ default: m.BodyCompositionMetrics }))) as any;
+const EvolutionExportPage = lazy(() => import('@/components/evolution/EvolutionExportPage').then(m => ({ default: m.EvolutionExportPage }))) as any;
 import {
   Activity,
   Calendar,
@@ -148,6 +148,7 @@ export default function PatientPortal() {
   useEffect(() => {
     if (token) {
       localStorage.setItem('portal_access_token', token);
+      localStorage.setItem('portal_token', token); // Garantir consistência
     }
   }, [token]);
 
@@ -221,97 +222,119 @@ export default function PatientPortal() {
       setLoading(true);
 
       // MODO TESTE: Usar telefone fixo para demonstração
-      let telefone;
+      let telefone: string | null;
 
       if (token === 'teste123') {
-        telefone = '11999999999'; // Telefone de teste
+        telefone = '11999999999';
       } else {
-        // Validar token real
         telefone = await validateToken(token);
-
         if (!telefone) {
-          // Token inválido ou expirado - limpar localStorage e redirecionar para login
           localStorage.removeItem('portal_access_token');
           setUnauthorized(true);
           setLoading(false);
           toast({
             title: 'Sessão expirada',
-            description: 'Por favor, faça login novamente com seu telefone',
+            description: 'Por favor, faça login novamente',
             variant: 'destructive'
           });
-          // Redirecionar para login após 2 segundos
-          setTimeout(() => {
-            navigate('/portal', { replace: true });
-          }, 2000);
+          setTimeout(() => navigate('/portal', { replace: true }), 2000);
           return;
         }
       }
 
-      // Buscar dados críticos primeiro (paciente e check-ins) em paralelo
-      const [checkinsData, patientResult] = await Promise.all([
-        checkinService.getByPhone(telefone),
-        supabase
+      console.log('📱 Telefone validado:', telefone);
+
+      // 1. Buscar Paciente PRIMEIRO para ter o ID e o telefone OFICIAL do banco
+      const numericTokenPhone = telefone.replace(/\D/g, '');
+      const patientVariations = [telefone, numericTokenPhone];
+      if (numericTokenPhone.startsWith('55')) patientVariations.push(numericTokenPhone.slice(2));
+      else patientVariations.push('55' + numericTokenPhone);
+
+      let { data: patientData, error: patientError } = await supabase
+        .from('patients')
+        .select('*')
+        .in('telefone', patientVariations)
+        .maybeSingle();
+
+      if (!patientData) {
+        console.log('🔍 Paciente não encontrado com telefone exato, tentando LIKE...');
+        const { data: altPatient } = await supabase
           .from('patients')
-          .select('id, nome, telefone, data_nascimento, user_id, created_at')
-          .eq('telefone', telefone)
-          .maybeSingle()
+          .select('*')
+          .ilike('telefone', `%${numericTokenPhone.slice(-8)}%`)
+          .maybeSingle();
+        patientData = altPatient;
+      }
+
+      setPatient(patientData || null);
+
+      // 2. Definir os telefones para busca de check-ins
+      // Se achou o paciente, o telefone DELE é o mestre. Se não, usamos as variações do token.
+      const basePhone = patientData?.telefone || telefone;
+      const cleanBasePhone = basePhone.replace(/\D/g, '');
+
+      const searchPhones = new Set<string>([basePhone, cleanBasePhone]);
+      if (cleanBasePhone.startsWith('55')) {
+        searchPhones.add(cleanBasePhone.slice(2));
+        searchPhones.add('+' + cleanBasePhone);
+      } else {
+        searchPhones.add('55' + cleanBasePhone);
+        searchPhones.add('+55' + cleanBasePhone);
+      }
+
+      const uniquePhones = Array.from(searchPhones);
+      console.log('📊 Buscando Check-ins e Bio para:', uniquePhones);
+
+      if (patientData?.id) {
+        setPatientId(patientData.id);
+        console.log('🆔 ID do Paciente:', patientData.id);
+      }
+
+      // 3. Buscar dados usando os telefones identificados
+      const searchFilter = uniquePhones.map(p => `telefone.eq."${p}"`).join(',');
+
+      const [checkinsResult, bioResult] = await Promise.all([
+        supabase
+          .from('checkin')
+          .select('*')
+          .or(searchFilter)
+          .order('data_checkin', { ascending: false }),
+        supabase
+          .from('body_composition')
+          .select('*')
+          .or(searchFilter)
+          .order('data_avaliacao', { ascending: false })
+          .limit(50)
       ]);
 
-      // Dados secundários carregam em paralelo após dados críticos
-      // Usar select('*') pois a estrutura da tabela pode variar
-      const bioResult = await supabase
-        .from('body_composition')
-        .select('*')
-        .eq('telefone', telefone)
-        .order('data_avaliacao', { ascending: false })
-        .limit(50); // Limitar resultados para melhor performance
+      if (checkinsResult.error) console.error('❌ Erro Checkins:', checkinsResult.error);
+      if (bioResult.error) console.error('❌ Erro Bioimpedância:', bioResult.error);
 
-      if (checkinsData.length === 0) {
-        toast({
-          title: 'Nenhum check-in encontrado',
-          description: 'Este paciente ainda não possui check-ins registrados',
-          variant: 'destructive'
-        });
-      }
+      const checkinsData = checkinsResult.data || [];
+      console.log(`✅ ${checkinsData.length} Check-ins encontrados`);
+      setCheckins(checkinsData);
+
+      let bioData = bioResult.data || [];
+      console.log(`✅ ${bioData.length} Registros de Bioimpedância encontrados`);
 
       setCheckins(checkinsData);
-      setPatient(patientResult.data);
 
-      // Salvar patient_id para usar nos componentes de dieta
-      if (patientResult.data?.id) {
-        setPatientId(patientResult.data.id);
-      }
-
-      // Processar dados de composição corporal - usar dados reais da tabela
-      if (bioResult.error) {
-        console.error('Erro ao buscar composição corporal:', bioResult.error);
-        setBodyCompositions([]);
-      } else if (bioResult.data && bioResult.data.length > 0) {
-        // Usar os dados diretamente da tabela, apenas garantir que classificacao exista
-        const processedData = bioResult.data.map((item: any) => {
-          // Calcular classificacao se não existir e tiver IMC
-          let classificacao = item.classificacao || '';
-          if (!classificacao && item.imc) {
-            classificacao = classificarIMC(item.imc);
-          }
-
-          // Retornar todos os campos originais + classificacao calculada se necessário
-          return {
-            ...item,
-            classificacao: classificacao
-          };
-        });
+      // Processar dados de composição corporal
+      if (bioData.length > 0) {
+        const processedData = bioData.map((item: any) => ({
+          ...item,
+          classificacao: item.classificacao || (item.imc ? classificarIMC(item.imc) : '')
+        }));
         setBodyCompositions(processedData);
       } else {
-        // Se não houver dados, definir como array vazio
         setBodyCompositions([]);
       }
 
     } catch (error) {
-      console.error('Erro ao carregar dados do portal:', error);
+      console.error('❌ Erro ao carregar dados do portal:', error);
       toast({
         title: 'Erro',
-        description: 'Não foi possível carregar seus dados',
+        description: 'Não foi possível carregar seus dados completamente',
         variant: 'destructive'
       });
     } finally {
