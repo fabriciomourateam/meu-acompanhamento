@@ -244,26 +244,17 @@ export default function PatientPortal() {
 
       console.log('📱 Telefone validado:', telefone);
 
-      // 1. Buscar Paciente PRIMEIRO para ter o ID e o telefone OFICIAL do banco
-      const numericTokenPhone = telefone.replace(/\D/g, '');
-      const patientVariations = [telefone, numericTokenPhone];
-      if (numericTokenPhone.startsWith('55')) patientVariations.push(numericTokenPhone.slice(2));
-      else patientVariations.push('55' + numericTokenPhone);
+      // 1. Buscar Paciente PRIMEIRO para ter o ID e o telefone OFICIAL do banco via RPC
+      // Esse RPC burla o RLS para leitura anônima estrita do próprio perfil
+      const { data: profileResult, error: patientError } = await supabase.rpc('get_patient_profile', {
+        phone_number: telefone
+      });
 
-      let { data: patientData, error: patientError } = await supabase
-        .from('patients')
-        .select('*')
-        .in('telefone', patientVariations)
-        .maybeSingle();
-
-      if (!patientData) {
-        console.log('🔍 Paciente não encontrado com telefone exato, tentando LIKE...');
-        const { data: altPatient } = await supabase
-          .from('patients')
-          .select('*')
-          .ilike('telefone', `%${numericTokenPhone.slice(-8)}%`)
-          .maybeSingle();
-        patientData = altPatient;
+      let patientData = null;
+      if (profileResult && profileResult.length > 0) {
+        patientData = profileResult[0];
+      } else {
+        console.error('❌ Falha ao buscar perfil do paciente via RPC:', patientError);
       }
 
       setPatient(patientData || null);

@@ -36,34 +36,29 @@ export default function PortalLogin() {
     );
   }
 
-  // Normalizar telefone (remove código do país e formatação)
+  // Normalizar telefone (preparar para busca)
   const normalizePhone = (phone: string): string => {
     // Remove tudo que não é número
     const numbersOnly = phone.replace(/\D/g, '');
-    
-    // Remove código do país (55) se presente
-    let cleaned = numbersOnly;
-    if (cleaned.startsWith('55') && cleaned.length > 11) {
-      cleaned = cleaned.slice(2);
+    return numbersOnly;
+  };
+
+  // Obter apenas o número sem código do país (para formatação visual e busca flexível)
+  const getNationalNumber = (phone: string): string => {
+    const numbersOnly = phone.replace(/\D/g, '');
+
+    // Remove código do país (55) se presente no início e tiver tamanho suficiente
+    if (numbersOnly.startsWith('55') && numbersOnly.length > 11) {
+      return numbersOnly.slice(2);
     }
-    
-    // Remove o 9 extra se houver (formato antigo)
-    if (cleaned.length === 11 && cleaned[2] === '9') {
-      // Mantém o formato com 9
-    }
-    
-    return cleaned;
+    return numbersOnly;
   };
 
   // Formatar telefone enquanto digita
   const formatPhone = (value: string) => {
-    // Remove tudo que não é número
     const numbers = value.replace(/\D/g, '');
-    
-    // Aceita até 13 dígitos (55 + 11 dígitos)
     const limited = numbers.slice(0, 13);
-    
-    // Se começar com 55, formata com código do país
+
     if (limited.startsWith('55') && limited.length > 2) {
       const phonePart = limited.slice(2);
       if (phonePart.length <= 2) {
@@ -74,8 +69,7 @@ export default function PortalLogin() {
         return `+55 (${phonePart.slice(0, 2)}) ${phonePart.slice(2, 7)}-${phonePart.slice(7)}`;
       }
     }
-    
-    // Formatação normal sem código do país
+
     if (limited.length <= 2) {
       return limited;
     } else if (limited.length <= 7) {
@@ -83,7 +77,7 @@ export default function PortalLogin() {
     } else if (limited.length <= 11) {
       return `(${limited.slice(0, 2)}) ${limited.slice(2, 7)}-${limited.slice(7)}`;
     }
-    
+
     return limited;
   };
 
@@ -94,14 +88,16 @@ export default function PortalLogin() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    // Normalizar telefone (remove código do país, formatação, etc)
+
+    // Normalizar telefone (apenas números, incluindo 55 se digitado)
     const normalizedPhone = normalizePhone(telefone);
-    
-    if (normalizedPhone.length < 10) {
+    // Agarrar apenas o número nacional para buscas flexíveis
+    const nationalNumber = getNationalNumber(telefone);
+
+    if (nationalNumber.length < 10) {
       toast({
         title: 'Telefone inválido',
-        description: 'Digite um número de telefone válido',
+        description: 'Digite um número de telefone válido com DDD',
         variant: 'destructive'
       });
       return;
@@ -110,72 +106,53 @@ export default function PortalLogin() {
     setLoading(true);
 
     try {
-      console.log('🔍 Buscando paciente com telefone normalizado:', normalizedPhone);
+      console.log('🔍 Buscando paciente com telefone:', normalizedPhone, ' / Nacional:', nationalNumber);
 
-      // Tentar buscar com diferentes formatos
       let patient = null;
-      let error = null;
 
-      // Formato 1: Apenas números (11999999999)
-      const result1 = await supabase
-        .from('patients')
-        .select('telefone, nome')
-        .eq('telefone', normalizedPhone)
-        .maybeSingle();
+      // Formato 1: Busca exata combinada com curingas
+      // Garante que mesmo que haja um espaço oculto no banco (ex: "556799108131 "), ele encontre
+      // Formato Único Absoluto: Busca com wildcards entre TODOS os dígitos
+      // Ex: se o normalizedPhone for 556799108131,
+      // a pattern será: %5%5%6%7%9%9%1%0%8%1%3%1%
+      // Isso ignora espaços, traços, parênteses e quaisquer caracteres soltos espalhados.
+      const absolutePattern = '%' + normalizedPhone.split('').join('%') + '%';
 
-      if (result1.data) {
-        patient = result1.data;
-        console.log('✅ Encontrado com formato numérico:', normalizedPhone);
+      console.log('🔍 Tentando busca absoluta com pattern via RPC:', absolutePattern);
+
+      const { data: dbResult, error: rpcError } = await supabase.rpc('check_patient_login', {
+        phone_search: absolutePattern
+      });
+
+      if (dbResult && dbResult.length > 0) {
+        patient = dbResult[0];
+        console.log('✅ Encontrado com padrão absoluto via RPC:', absolutePattern);
+      } else if (rpcError) {
+        console.error('❌ Erro no RPC check_patient_login:', rpcError);
       }
 
-      // Formato 2: Com formatação (11) 99999-9999
-      if (!patient && normalizedPhone.length === 11) {
-        const formatted = `(${normalizedPhone.slice(0, 2)}) ${normalizedPhone.slice(2, 7)}-${normalizedPhone.slice(7)}`;
-        const result2 = await supabase
-          .from('patients')
-          .select('telefone, nome')
-          .eq('telefone', formatted)
-          .maybeSingle();
+      // Se ainda assim não encontrar e for um telefone longo (tem o 55),
+      // Tentar sem o country code (mesma estratégia)
+      if (!patient && normalizedPhone.length > 10 && normalizedPhone.startsWith('55')) {
+        const withoutCountryCode = normalizedPhone.slice(2);
+        const patternWithout55 = '%' + withoutCountryCode.split('').join('%') + '%';
 
-        if (result2.data) {
-          patient = result2.data;
-          console.log('✅ Encontrado com formato formatado:', formatted);
-        }
-      }
+        console.log('🔍 Tentando busca absoluta sem 55 via RPC:', patternWithout55);
 
-      // Formato 3: Busca pelos últimos 8 dígitos
-      if (!patient && normalizedPhone.length >= 8) {
-        const last8 = normalizedPhone.slice(-8);
-        const result3 = await supabase
-          .from('patients')
-          .select('telefone, nome')
-          .ilike('telefone', `%${last8}`)
-          .limit(1)
-          .maybeSingle();
+        const { data: dbResultFallback, error: rpcErrorFallback } = await supabase.rpc('check_patient_login', {
+          phone_search: patternWithout55
+        });
 
-        if (result3.data) {
-          patient = result3.data;
-          console.log('✅ Encontrado com últimos 8 dígitos');
-        }
-      }
-
-      // Formato 4: Busca parcial (LIKE)
-      if (!patient) {
-        const result4 = await supabase
-          .from('patients')
-          .select('telefone, nome')
-          .ilike('telefone', `%${normalizedPhone}%`)
-          .limit(1)
-          .maybeSingle();
-
-        if (result4.data) {
-          patient = result4.data;
-          console.log('✅ Encontrado com busca parcial');
+        if (dbResultFallback && dbResultFallback.length > 0) {
+          patient = dbResultFallback[0];
+          console.log('✅ Encontrado com padrão sem 55 via RPC:', patternWithout55);
+        } else if (rpcErrorFallback) {
+          console.error('❌ Erro no RPC fallback:', rpcErrorFallback);
         }
       }
 
       if (!patient) {
-        console.log('❌ Paciente não encontrado com telefone normalizado:', normalizedPhone);
+        console.log('❌ Paciente não encontrado para:', telefone);
         toast({
           title: 'Paciente não encontrado',
           description: 'Não encontramos nenhum cadastro com este telefone. Verifique se digitou corretamente.',
@@ -186,16 +163,16 @@ export default function PortalLogin() {
 
       // Usar o telefone exato do banco de dados
       const patientPhone = patient.telefone;
-      
+
       // Gerar token temporário (válido por 24h)
       const token = btoa(`${patientPhone}:${Date.now()}`);
-      
+
       // Salvar token no localStorage para validação
       localStorage.setItem('portal_token', token);
       localStorage.setItem('portal_phone', patientPhone);
-      
+
       console.log('✅ Token gerado para telefone:', patientPhone);
-      
+
       toast({
         title: 'Acesso liberado! 🎉',
         description: `Bem-vindo(a), ${patient.nome}!`
@@ -203,7 +180,7 @@ export default function PortalLogin() {
 
       // Redirecionar para o portal com o token
       navigate(`/portal/${token}`);
-      
+
     } catch (error) {
       console.error('Erro ao fazer login:', error);
       toast({
@@ -217,7 +194,7 @@ export default function PortalLogin() {
   };
 
   return (
-    <div 
+    <div
       className="min-h-screen relative overflow-hidden flex items-center justify-center p-6 animate-gradient"
       style={{
         minHeight: '100vh',
@@ -245,7 +222,7 @@ export default function PortalLogin() {
         transition={{ duration: 0.5 }}
         className="w-full max-w-md relative z-10"
       >
-        <Card 
+        <Card
           className="bg-slate-800/70 backdrop-blur-xl border-slate-700/50 shadow-2xl relative overflow-hidden"
           style={{
             backgroundColor: 'rgba(30, 41, 59, 0.7)',
@@ -303,7 +280,7 @@ export default function PortalLogin() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.6 }}
-              onSubmit={handleSubmit} 
+              onSubmit={handleSubmit}
               className="space-y-6"
             >
               <motion.div

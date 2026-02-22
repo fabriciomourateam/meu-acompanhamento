@@ -29,13 +29,13 @@ export async function getOrCreatePatientToken(telefone: string): Promise<{ token
 
     if (fetchError && fetchError.code !== 'PGRST116') { // PGRST116 = nenhum resultado
       console.error('Erro ao buscar token:', fetchError);
-      
+
       // Se a tabela não existe, mostrar erro específico
       if (fetchError.code === '42P01') {
         console.error('❌ TABELA patient_portal_tokens NÃO EXISTE!');
         console.error('Execute o SQL: sql/create_patient_portal_tokens.sql no Supabase');
       }
-      
+
       return null;
     }
 
@@ -57,7 +57,7 @@ export async function getOrCreatePatientToken(telefone: string): Promise<{ token
 
     // Criar novo token
     const newToken = generateToken();
-    
+
     const { data: createdToken, error: createError } = await supabase
       .from('patient_portal_tokens')
       .insert({
@@ -89,22 +89,20 @@ export async function validateToken(token: string): Promise<string | null> {
     try {
       const decoded = atob(token);
       const [phone, timestamp] = decoded.split(':');
-      
+
       if (phone && timestamp) {
         const tokenTime = parseInt(timestamp);
         const now = Date.now();
         const daysDiff = (now - tokenTime) / (1000 * 60 * 60 * 24);
-        
+
         // Token válido por 30 dias (para PWA funcionar bem)
         if (daysDiff < 30) {
-          // Verificar se o paciente existe
-          const { data: patient } = await supabase
-            .from('patients')
-            .select('telefone')
-            .eq('telefone', phone)
-            .single();
-          
-          if (patient) {
+          // Verificar se o paciente existe burlando o RLS com o RPC
+          const { data: dbResult } = await supabase.rpc('check_patient_login', {
+            phone_search: phone
+          });
+
+          if (dbResult && dbResult.length > 0) {
             return phone;
           }
         }
@@ -144,7 +142,7 @@ export async function validateToken(token: string): Promise<string | null> {
         .select('access_count')
         .eq('token', token)
         .single();
-      
+
       await supabase
         .from('patient_portal_tokens')
         .update({
@@ -210,12 +208,12 @@ export async function listPatientTokens(telefone: string): Promise<PortalToken[]
 function generateToken(): string {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
   let token = '';
-  
+
   // Gerar token de 32 caracteres
   for (let i = 0; i < 32; i++) {
     token += chars.charAt(Math.floor(Math.random() * chars.length));
   }
-  
+
   return token;
 }
 
