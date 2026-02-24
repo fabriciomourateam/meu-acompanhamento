@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
+import { getLocalISODate, parseLocalISODate } from '@/lib/utils';
 
 export interface DailyConsumption {
   id?: string;
@@ -51,7 +52,7 @@ export const dietConsumptionService = {
     consumedMealIds: string[],
     planDetails: any
   ): Promise<DailyConsumption> {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getLocalISODate();
 
     // Calcular totais consumidos
     let totalCalories = 0;
@@ -161,8 +162,8 @@ export const dietConsumptionService = {
 
     return this.getConsumptionHistory(
       patientId,
-      startDate.toISOString().split('T')[0],
-      endDate.toISOString().split('T')[0]
+      getLocalISODate(startDate),
+      getLocalISODate(endDate)
     );
   },
 
@@ -176,8 +177,8 @@ export const dietConsumptionService = {
 
     return this.getConsumptionHistory(
       patientId,
-      startDate.toISOString().split('T')[0],
-      endDate.toISOString().split('T')[0]
+      getLocalISODate(startDate),
+      getLocalISODate(endDate)
     );
   },
 
@@ -251,7 +252,7 @@ export const dietConsumptionService = {
         points_earned: points,
         action_type: actionType,
         action_description: actionDescription,
-        action_date: new Date().toISOString().split('T')[0],
+        action_date: getLocalISODate(),
       });
 
     return pointsData;
@@ -283,7 +284,7 @@ export const dietConsumptionService = {
     const unlocked: Achievement[] = [];
 
     // Buscar consumo do paciente
-    const todayDate = new Date().toISOString().split('T')[0];
+    const todayDate = getLocalISODate();
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 30); // Buscar últimos 30 dias para streaks
 
@@ -291,7 +292,7 @@ export const dietConsumptionService = {
       .from('diet_daily_consumption')
       .select('*')
       .eq('patient_id', patientId)
-      .gte('consumption_date', weekAgo.toISOString().split('T')[0])
+      .gte('consumption_date', getLocalISODate(weekAgo))
       .order('consumption_date', { ascending: true });
 
     if (consumptionError) {
@@ -353,7 +354,7 @@ export const dietConsumptionService = {
         case 'week_complete':
           // Verificar se completou todos os 7 dias da última semana
           const last7Days = consumption.filter(c => {
-            const date = new Date(c.consumption_date);
+            const date = parseLocalISODate(c.consumption_date);
             const today = new Date();
             const diffTime = today.getTime() - date.getTime();
             const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -422,7 +423,7 @@ export const dietConsumptionService = {
 
     // Ordenar por data (mais recente primeiro)
     const sorted = [...consumption].sort((a, b) =>
-      new Date(b.consumption_date).getTime() - new Date(a.consumption_date).getTime()
+      parseLocalISODate(b.consumption_date).getTime() - parseLocalISODate(a.consumption_date).getTime()
     );
 
     // Verificar se os últimos N dias estão completos
@@ -431,7 +432,7 @@ export const dietConsumptionService = {
     today.setHours(0, 0, 0, 0);
 
     // Verificar dia atual ou anterior (para não quebrar streak se hoje ainda não acabou)
-    let lastDate = new Date(sorted[0].consumption_date);
+    let lastDate = parseLocalISODate(sorted[0].consumption_date);
     lastDate.setHours(0, 0, 0, 0);
 
     // Se o último registro for muito antigo, streak quebrou
@@ -447,8 +448,8 @@ export const dietConsumptionService = {
 
         // Verificar continuidade das datas
         if (i < sorted.length - 1) {
-          const currentDate = new Date(item.consumption_date);
-          const nextDate = new Date(sorted[i + 1].consumption_date);
+          const currentDate = parseLocalISODate(item.consumption_date);
+          const nextDate = parseLocalISODate(sorted[i + 1].consumption_date);
           const dayDiff = Math.abs(currentDate.getTime() - nextDate.getTime()) / (1000 * 60 * 60 * 24);
 
           if (dayDiff > 1.1) break; // Gap maior que 1 dia

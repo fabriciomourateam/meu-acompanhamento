@@ -36,6 +36,7 @@ interface PatientEvolutionTabProps {
   bodyCompositions?: any[];
   achievements?: any[];
   refreshTrigger?: number; // Trigger para forçar atualização dos gráficos
+  isPatientView?: boolean;
 }
 
 export function PatientEvolutionTab({
@@ -44,7 +45,8 @@ export function PatientEvolutionTab({
   patient: propsPatient,
   bodyCompositions: propsBodyCompositions,
   achievements: propsAchievements,
-  refreshTrigger
+  refreshTrigger,
+  isPatientView
 }: PatientEvolutionTabProps) {
   const { toast } = useToast();
   const [checkins, setCheckins] = useState<Checkin[]>(propsCheckins || []);
@@ -205,31 +207,33 @@ export function PatientEvolutionTab({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
         >
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {/* Check-ins Realizados */}
-            <Card className="relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-              <CardHeader className="pb-1 relative">
-                <CardTitle className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 font-medium">
-                  <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <Activity className="w-3.5 h-3.5 text-blue-400" />
-                  </div>
-                  Check-ins
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="relative pt-0">
-                <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{checkins.length}</div>
-                <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Total de avaliações</p>
-              </CardContent>
-            </Card>
+            {!isPatientView && (
+              <Card className="relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <CardHeader className="pb-1 relative">
+                  <CardTitle className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 font-medium">
+                    <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <Activity className="w-3.5 h-3.5 text-blue-400" />
+                    </div>
+                    Check-ins
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="relative pt-0">
+                  <div className="text-2xl sm:text-3xl font-bold text-white tracking-tight">{checkins.length}</div>
+                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Total de avaliações</p>
+                </CardContent>
+              </Card>
+            )}
 
             {/* Idade */}
             {patient?.data_nascimento && (
-              <Card className="relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="relative overflow-hidden bg-slate-800/30 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] hover:bg-slate-800/50 hover:border-cyan-500/30 hover:shadow-[0_0_15px_rgba(6,182,212,0.1)] transition-all duration-300 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20">
+                    <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition-colors">
                       <Calendar className="w-3.5 h-3.5 text-cyan-400" />
                     </div>
                     Idade
@@ -247,11 +251,11 @@ export function PatientEvolutionTab({
 
             {/* Altura */}
             {(patient as any)?.altura_inicial && (
-              <Card className="relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="relative overflow-hidden bg-slate-800/30 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] hover:bg-slate-800/50 hover:border-purple-500/30 hover:shadow-[0_0_15px_rgba(168,85,247,0.1)] transition-all duration-300 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                    <div className="p-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
                       <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
                     </div>
                     Altura
@@ -269,12 +273,12 @@ export function PatientEvolutionTab({
 
             {/* Peso Inicial */}
             {weightData.length > 0 && (
-              <Card className="relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="relative overflow-hidden bg-slate-800/30 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] hover:bg-slate-800/50 hover:border-indigo-500/30 hover:shadow-[0_0_15px_rgba(99,102,241,0.1)] transition-all duration-300 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-                      <Weight className="w-3.5 h-3.5 text-emerald-400" />
+                    <div className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-colors">
+                      <Weight className="w-3.5 h-3.5 text-indigo-400" />
                     </div>
                     Peso Inicial
                   </CardTitle>
@@ -293,12 +297,12 @@ export function PatientEvolutionTab({
 
             {/* Peso Atual */}
             {checkins[0]?.peso && (
-              <Card className="relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+              <Card className="relative overflow-hidden bg-slate-800/30 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] hover:bg-slate-800/50 hover:border-blue-500/30 hover:shadow-[0_0_15px_rgba(59,130,246,0.1)] transition-all duration-300 group">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-400 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20">
-                      <Weight className="w-3.5 h-3.5 text-indigo-400" />
+                    <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
+                      <Weight className="w-3.5 h-3.5 text-blue-400" />
                     </div>
                     Peso Atual
                   </CardTitle>
@@ -317,12 +321,18 @@ export function PatientEvolutionTab({
 
             {/* Variação */}
             {weightData.length >= 2 && (
-              <Card className={`relative overflow-hidden bg-slate-800/40 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] transition-all duration-300 group`}>
-                <div className={`absolute inset-0 bg-gradient-to-br ${isNeutral ? 'from-slate-500/10' : isNegative ? 'from-emerald-500/10' : 'from-orange-500/10'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
+              <Card className={`relative overflow-hidden bg-slate-800/30 border-slate-700/50 backdrop-blur-md shadow-lg hover:scale-[1.02] hover:bg-slate-800/50 transition-all duration-300 group ${isNeutral ? 'hover:border-slate-500/30 hover:shadow-[0_0_15px_rgba(100,116,139,0.1)]' :
+                isNegative ? 'hover:border-emerald-500/30 hover:shadow-[0_0_15px_rgba(16,185,129,0.1)]' :
+                  'hover:border-rose-500/30 hover:shadow-[0_0_15px_rgba(244,63,94,0.1)]'
+                }`}>
+                <div className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${isNeutral ? 'from-slate-500/5' : isNegative ? 'from-emerald-500/5' : 'from-rose-500/5'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className={`text-xs sm:text-sm flex items-center gap-2 font-medium text-slate-400`}>
-                    <div className={`p-1.5 rounded-lg border backdrop-blur-sm ${isNeutral ? 'bg-slate-500/10 border-slate-500/20' : isNegative ? 'bg-emerald-500/10 border-emerald-500/20' : 'bg-orange-500/10 border-orange-500/20'}`}>
-                      <TrendingUp className={`w-3.5 h-3.5 ${isNeutral ? 'text-slate-400' : isNegative ? 'text-emerald-400' : 'text-orange-400'}`} />
+                    <div className={`p-1.5 rounded-lg border backdrop-blur-sm transition-colors ${isNeutral ? 'bg-slate-500/10 border-slate-500/20 group-hover:bg-slate-500/20' :
+                      isNegative ? 'bg-emerald-500/10 border-emerald-500/20 group-hover:bg-emerald-500/20' :
+                        'bg-rose-500/10 border-rose-500/20 group-hover:bg-rose-500/20'
+                      }`}>
+                      <TrendingUp className={`w-3.5 h-3.5 ${isNeutral ? 'text-slate-400' : isNegative ? 'text-emerald-400' : 'text-rose-400'}`} />
                     </div>
                     Variação
                   </CardTitle>
@@ -332,7 +342,7 @@ export function PatientEvolutionTab({
                     {parseFloat(weightChange) > 0 ? '+' : ''}{weightChange}
                     <span className={`text-base sm:text-lg ml-1 font-normal text-slate-400`}>kg</span>
                   </div>
-                  <p className={`text-[10px] sm:text-xs mt-0.5 ${isNeutral ? 'text-slate-500' : isNegative ? 'text-emerald-500/70' : 'text-orange-500/70'}`}>
+                  <p className={`text-[10px] sm:text-xs mt-0.5 ${isNeutral ? 'text-slate-500' : isNegative ? 'text-emerald-500/80' : 'text-rose-500/80'}`}>
                     {isNeutral ? 'Sem variação' : isNegative ? 'Perda de peso' : 'Ganho de peso'}
                   </p>
                 </CardContent>
@@ -375,6 +385,7 @@ export function PatientEvolutionTab({
             checkins={checkins}
             patient={patient}
             refreshTrigger={refreshTrigger || localRefreshTrigger}
+            isPatientView={isPatientView}
           />
         </motion.div>
       )}
@@ -386,7 +397,7 @@ export function PatientEvolutionTab({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.3 }}
         >
-          <PhotoComparison checkins={checkins} />
+          <PhotoComparison checkins={checkins} patient={patient} isPatientView={isPatientView} />
         </motion.div>
       )}
 

@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { dietConsumptionService, DailyConsumption } from '@/lib/diet-consumption-service';
+import { parseLocalISODate } from '@/lib/utils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ReferenceLine } from 'recharts';
 import { TrendingDown, TrendingUp, AlertTriangle, Target } from 'lucide-react';
 
@@ -35,7 +36,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
         const endDate = new Date();
         const startDate = new Date();
         startDate.setDate(startDate.getDate() - 89); // Últimos 90 dias
-        
+
         data = await dietConsumptionService.getConsumptionHistory(
           patientId,
           startDate.toISOString().split('T')[0],
@@ -53,7 +54,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
 
   // Preparar dados para o gráfico
   const chartData = consumption.map((day) => {
-    const date = new Date(day.consumption_date);
+    const date = parseLocalISODate(day.consumption_date);
     return {
       date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
       fullDate: date.toISOString().split('T')[0],
@@ -66,13 +67,13 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
   // Calcular tendência
   const calculateTrend = () => {
     if (consumption.length < 2) return null;
-    
+
     const firstHalf = consumption.slice(0, Math.floor(consumption.length / 2));
     const secondHalf = consumption.slice(Math.floor(consumption.length / 2));
-    
+
     const firstAvg = firstHalf.reduce((sum, d) => sum + d.completion_percentage, 0) / firstHalf.length;
     const secondAvg = secondHalf.reduce((sum, d) => sum + d.completion_percentage, 0) / secondHalf.length;
-    
+
     const change = secondAvg - firstAvg;
     return {
       change: Math.round(change * 10) / 10,
@@ -85,10 +86,10 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
   const lowAdherenceDays = consumption.filter(d => d.completion_percentage < lowAdherenceThreshold);
   const consecutiveLowDays = () => {
     if (lowAdherenceDays.length === 0) return 0;
-    
+
     let maxConsecutive = 0;
     let currentConsecutive = 0;
-    
+
     consumption.forEach((day) => {
       if (day.completion_percentage < lowAdherenceThreshold) {
         currentConsecutive++;
@@ -97,7 +98,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
         currentConsecutive = 0;
       }
     });
-    
+
     return maxConsecutive;
   };
 
@@ -152,31 +153,28 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
             <div className="flex gap-2 w-full sm:w-auto">
               <button
                 onClick={() => setPeriod('week')}
-                className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${
-                  period === 'week'
+                className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${period === 'week'
                     ? 'bg-[#00C98A] text-white'
                     : 'bg-gray-100 text-[#777777] hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 Semana
               </button>
               <button
                 onClick={() => setPeriod('month')}
-                className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${
-                  period === 'month'
+                className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${period === 'month'
                     ? 'bg-[#00C98A] text-white'
                     : 'bg-gray-100 text-[#777777] hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 Mês
               </button>
               <button
                 onClick={() => setPeriod('3months')}
-                className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${
-                  period === '3months'
+                className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${period === '3months'
                     ? 'bg-[#00C98A] text-white'
                     : 'bg-gray-100 text-[#777777] hover:bg-gray-200'
-                }`}
+                  }`}
               >
                 3 Meses
               </button>
@@ -190,20 +188,18 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
               <div className="text-xl sm:text-2xl font-bold text-[#00C98A]">{avgAdherence}%</div>
               <div className="text-xs text-[#777777] mt-1">Média de Adesão</div>
             </div>
-            <div className={`text-center p-3 sm:p-4 rounded-xl border ${
-              trend?.isIncreasing
+            <div className={`text-center p-3 sm:p-4 rounded-xl border ${trend?.isIncreasing
                 ? 'bg-green-50 border-green-200'
                 : trend?.isDecreasing
-                ? 'bg-red-50 border-red-200'
-                : 'bg-gray-50 border-gray-200'
-            }`}>
-              <div className={`text-xl sm:text-2xl font-bold flex items-center justify-center gap-1 ${
-                trend?.isIncreasing
+                  ? 'bg-red-50 border-red-200'
+                  : 'bg-gray-50 border-gray-200'
+              }`}>
+              <div className={`text-xl sm:text-2xl font-bold flex items-center justify-center gap-1 ${trend?.isIncreasing
                   ? 'text-green-600'
                   : trend?.isDecreasing
-                  ? 'text-red-600'
-                  : 'text-gray-600'
-              }`}>
+                    ? 'text-red-600'
+                    : 'text-gray-600'
+                }`}>
                 {trend && (
                   <>
                     {trend.isIncreasing ? (
@@ -228,71 +224,67 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
 
           {/* Gráfico de Tendência */}
           <div className="w-full h-[250px] sm:h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-              <XAxis 
-                dataKey="date" 
-                stroke="#777777"
-                style={{ fontSize: '10px' }}
-                className="sm:text-xs"
-              />
-              <YAxis 
-                stroke="#777777"
-                style={{ fontSize: '10px' }}
-                className="sm:text-xs"
-                domain={[0, 100]}
-                label={{ value: 'Adesão (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#777777', fontSize: '10px' } }}
-              />
-              <Tooltip
-                contentStyle={{
-                  backgroundColor: '#fff',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '8px',
-                  color: '#222222'
-                }}
-                labelStyle={{ color: '#777777', fontWeight: 'bold' }}
-              />
-              <Legend />
-              <ReferenceLine 
-                y={lowAdherenceThreshold} 
-                stroke="#ef4444" 
-                strokeDasharray="5 5"
-                label={{ value: `Limite (${lowAdherenceThreshold}%)`, position: 'right', fill: '#ef4444' }}
-              />
-              <Line
-                type="monotone"
-                dataKey="adherence"
-                stroke="#00C98A"
-                strokeWidth={3}
-                name="Adesão (%)"
-                dot={{ fill: '#00C98A', r: 4 }}
-                activeDot={{ r: 6, fill: '#00A875' }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                <XAxis
+                  dataKey="date"
+                  stroke="#777777"
+                  style={{ fontSize: '10px' }}
+                  className="sm:text-xs"
+                />
+                <YAxis
+                  stroke="#777777"
+                  style={{ fontSize: '10px' }}
+                  className="sm:text-xs"
+                  domain={[0, 100]}
+                  label={{ value: 'Adesão (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#777777', fontSize: '10px' } }}
+                />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: '#fff',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    color: '#222222'
+                  }}
+                  labelStyle={{ color: '#777777', fontWeight: 'bold' }}
+                />
+                <Legend />
+                <ReferenceLine
+                  y={lowAdherenceThreshold}
+                  stroke="#ef4444"
+                  strokeDasharray="5 5"
+                  label={{ value: `Limite(${lowAdherenceThreshold}%)`, position: 'right', fill: '#ef4444' }}
+                />
+                <Line
+                  type="monotone"
+                  dataKey="adherence"
+                  stroke="#00C98A"
+                  strokeWidth={3}
+                  name="Adesão (%)"
+                  dot={{ fill: '#00C98A', r: 4 }}
+                  activeDot={{ r: 6, fill: '#00A875' }}
+                />
+              </LineChart>
+            </ResponsiveContainer>
           </div>
         </CardContent>
       </Card>
 
       {/* Alertas de Baixa Adesão */}
       {(lowAdherenceDays.length > 0 || consecutiveLow >= 3) && (
-        <Alert className={`border-2 ${
-          consecutiveLow >= 3
+        <Alert className={`border-2 ${consecutiveLow >= 3
             ? 'border-red-500 bg-red-50'
             : 'border-yellow-500 bg-yellow-50'
-        }`}>
-          <AlertTriangle className={`h-5 w-5 ${
-            consecutiveLow >= 3 ? 'text-red-600' : 'text-yellow-600'
-          }`} />
-          <AlertTitle className={`font-bold ${
-            consecutiveLow >= 3 ? 'text-red-900' : 'text-yellow-900'
           }`}>
+          <AlertTriangle className={`h-5 w-5 ${consecutiveLow >= 3 ? 'text-red-600' : 'text-yellow-600'
+            }`} />
+          <AlertTitle className={`font-bold ${consecutiveLow >= 3 ? 'text-red-900' : 'text-yellow-900'
+            }`}>
             {consecutiveLow >= 3 ? '⚠️ Alerta Crítico de Adesão' : '⚠️ Baixa Adesão Detectada'}
           </AlertTitle>
-          <AlertDescription className={`mt-2 ${
-            consecutiveLow >= 3 ? 'text-red-800' : 'text-yellow-800'
-          }`}>
+          <AlertDescription className={`mt-2 ${consecutiveLow >= 3 ? 'text-red-800' : 'text-yellow-800'
+            }`}>
             {consecutiveLow >= 3 ? (
               <>
                 <strong>{consecutiveLow} dias consecutivos</strong> com adesão abaixo de {lowAdherenceThreshold}%.
@@ -321,7 +313,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
           <CardContent>
             <div className="space-y-2">
               {lowAdherenceDays.map((day) => {
-                const date = new Date(day.consumption_date);
+                const date = parseLocalISODate(day.consumption_date);
                 return (
                   <div
                     key={day.id}
@@ -348,4 +340,3 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
     </div>
   );
 }
-

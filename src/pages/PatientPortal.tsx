@@ -14,6 +14,7 @@ import { validateToken } from '@/lib/patient-portal-service';
 import { detectAchievements } from '@/lib/achievement-system';
 import { analyzeTrends } from '@/lib/trends-analysis';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
+import { MembersAreaButton } from '@/components/patient-portal/MembersAreaButton';
 import { PatientDietPortal } from '@/components/patient-portal/PatientDietPortal';
 import { dietService } from '@/lib/diet-service';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
@@ -835,6 +836,8 @@ export default function PatientPortal() {
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
               <InstallPWAButton />
+
+              <MembersAreaButton />
 
               {/* Botão de Peso removido a pedido */}
 

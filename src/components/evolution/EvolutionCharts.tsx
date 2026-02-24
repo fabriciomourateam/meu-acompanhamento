@@ -31,9 +31,10 @@ interface EvolutionChartsProps {
   checkins: Checkin[];
   patient?: Patient | null;
   refreshTrigger?: number; // Trigger para forçar atualização
+  isPatientView?: boolean;
 }
 
-export function EvolutionCharts({ checkins, patient, refreshTrigger }: EvolutionChartsProps) {
+export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientView }: EvolutionChartsProps) {
   const [selectedCheckinIndex, setSelectedCheckinIndex] = useState(0);
   const [hiddenSeries, setHiddenSeries] = useState<Set<string>>(new Set());
   const [dailyWeights, setDailyWeights] = useState<any[]>([]);
@@ -698,7 +699,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger }: Evolution
       )}
 
       {/* Gráfico Radar de Performance Atual */}
-      {radarData.length > 0 && (
+      {!isPatientView && radarData.length > 0 && (
         <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
           <CardHeader>
             <div className="flex items-center justify-between">

@@ -23,6 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dietService } from '@/lib/diet-service';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { DailyChallengesWidget } from '@/components/diets/DailyChallengesWidget';
+import { formatTextToPlain } from '@/lib/utils';
 import { WeeklyProgressChart } from '@/components/diets/WeeklyProgressChart';
 import { WeeklyHabitsGrid } from '@/components/diets/WeeklyHabitsGrid';
 import { GamificationWidget } from '@/components/diets/GamificationWidget';
@@ -30,7 +31,6 @@ import { PatientEvolutionTab } from '@/components/diets/PatientEvolutionTab';
 import { AdherenceCharts } from '@/components/diets/AdherenceCharts';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import {
-  Utensils,
   Calendar,
   Check,
   Plus,
@@ -38,8 +38,24 @@ import {
   ChevronRight,
   CheckCircle,
   Package,
-  AlertTriangle,
+  MapPin,
+  Phone,
+  Mail,
+  Calendar as CalendarIcon,
+  Share2,
+  LogOut,
+  Utensils,
+  Apple,
+  Activity,
+  Clock,
+  Dumbbell,
+  Droplets,
   BookOpen,
+  Pill,
+  FlaskConical,
+  ListChecks,
+  AlertTriangle,
+  FileText,
   Info,
   RefreshCw
 } from 'lucide-react';
@@ -598,8 +614,8 @@ export function PatientDietPortal({
                         <div
                           key={i}
                           className={`flex-1 rounded-full bg-slate-100 transition-all duration-500 border border-transparent ${i < consumedMeals.size
-                              ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] border-emerald-200/50'
-                              : 'bg-slate-100 border-slate-200'
+                            ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] border-emerald-200/50'
+                            : 'bg-slate-100 border-slate-200'
                             }`}
                         />
                       ))}
@@ -633,348 +649,443 @@ export function PatientDietPortal({
                               <div
                                 style={{
                                   backgroundColor: isConsumed ? '#d1fae5' : 'white',
-                              borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
-                              color: '#0f172a'
+                                  borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
+                                  color: '#0f172a'
                                 }}
-                              className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
-                                ? 'shadow-sm'
-                                : 'hover:border-emerald-300 hover:shadow-lg'
-                                }`}
+                                className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
+                                  ? 'shadow-sm'
+                                  : 'hover:border-emerald-300 hover:shadow-lg'
+                                  }`}
                               >
-                              <CollapsibleTrigger asChild>
-                                <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
-                                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                    <div
-                                      className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
-                                        ? 'bg-emerald-100 text-emerald-600'
-                                        : '!bg-emerald-50 !text-emerald-500'
-                                        }`}
-                                    >
-                                      {isConsumed ? (
-                                        <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                                      ) : (
-                                        <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
-                                      )}
-                                    </div>
-                                    <div className="flex-1 min-w-0">
-                                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                        <h4 className={`text-sm sm:text-base font-semibold transition-colors truncate text-slate-900`}>
-                                          {meal.meal_name}
-                                        </h4>
-                                        {meal.suggested_time && (
-                                          <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
-                                            {meal.suggested_time}
-                                          </Badge>
+                                <CollapsibleTrigger asChild>
+                                  <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
+                                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                      <div
+                                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
+                                          ? 'bg-emerald-100 text-emerald-600'
+                                          : '!bg-emerald-50 !text-emerald-500'
+                                          }`}
+                                      >
+                                        {isConsumed ? (
+                                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        ) : (
+                                          <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
                                         )}
                                       </div>
+                                      <div className="flex-1 min-w-0">
+                                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors truncate text-slate-900`}>
+                                            {meal.meal_name}
+                                          </h4>
+                                          {meal.suggested_time && (
+                                            <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
+                                              {meal.suggested_time}
+                                            </Badge>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                    <div className="text-right flex items-center gap-1 sm:gap-3 flex-shrink-0">
+                                      <Badge className={`text-xs sm:text-sm font-semibold border hidden sm:inline-flex ${isConsumed
+                                        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                                        : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
+                                        }`}>
+                                        {isConsumed ? (mealTotals.calorias || 0).toFixed(0) : 0} / {(mealTotals.calorias || 0).toFixed(0)} kcal
+                                      </Badge>
+                                      <Button
+                                        size="sm"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleToggleMealConsumed(meal.id);
+                                        }}
+                                        className={`w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${isConsumed
+                                          ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
+                                          : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md'
+                                          }`}
+                                      >
+                                        {isConsumed ? (
+                                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        ) : (
+                                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        )}
+                                      </Button>
+                                      <ChevronRight
+                                        className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''
+                                          }`}
+                                      />
                                     </div>
                                   </div>
-                                  <div className="text-right flex items-center gap-1 sm:gap-3 flex-shrink-0">
-                                    <Badge className={`text-xs sm:text-sm font-semibold border hidden sm:inline-flex ${isConsumed
-                                      ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
-                                      : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
-                                      }`}>
-                                      {isConsumed ? (mealTotals.calorias || 0).toFixed(0) : 0} / {(mealTotals.calorias || 0).toFixed(0)} kcal
-                                    </Badge>
-                                    <Button
-                                      size="sm"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleToggleMealConsumed(meal.id);
-                                      }}
-                                      className={`w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${isConsumed
-                                        ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
-                                        : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md'
-                                        }`}
-                                    >
-                                      {isConsumed ? (
-                                        <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                                      ) : (
-                                        <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                                      )}
-                                    </Button>
-                                    <ChevronRight
-                                      className={`w-4 h-4 sm:w-5 sm:h-5 text-slate-500 transition-transform duration-200 ${isExpanded ? 'rotate-90' : ''
-                                        }`}
-                                    />
-                                  </div>
-                                </div>
-                              </CollapsibleTrigger>
+                                </CollapsibleTrigger>
 
-                              <CollapsibleContent>
-                                <div className={`px-4 pb-4 space-y-3 transition-all duration-300 ${isConsumed ? 'opacity-75' : ''}`}>
-                                  {meal.diet_foods && meal.diet_foods.length > 0 ? (
-                                    <div className="space-y-2">
-                                      {meal.diet_foods.map((food: any, foodIndex: number) => {
-                                        let substitutions: any[] = [];
-                                        try {
-                                          if (food.notes) {
-                                            const parsed = JSON.parse(food.notes);
-                                            if (parsed.substitutions && Array.isArray(parsed.substitutions)) {
-                                              substitutions = parsed.substitutions;
+                                <CollapsibleContent>
+                                  <div className={`px-4 pb-4 space-y-3 transition-all duration-300 ${isConsumed ? 'opacity-75' : ''}`}>
+                                    {meal.diet_foods && meal.diet_foods.length > 0 ? (
+                                      <div className="space-y-2">
+                                        {meal.diet_foods.map((food: any, foodIndex: number) => {
+                                          let substitutions: any[] = [];
+                                          try {
+                                            if (food.notes) {
+                                              const parsed = JSON.parse(food.notes);
+                                              if (parsed.substitutions && Array.isArray(parsed.substitutions)) {
+                                                substitutions = parsed.substitutions;
+                                              }
                                             }
+                                          } catch (e) {
+                                            // Se não for JSON válido, não há substituições
                                           }
-                                        } catch (e) {
-                                          // Se não for JSON válido, não há substituições
-                                        }
 
-                                        return (
-                                          <div
-                                            key={food.id || foodIndex}
-                                            style={{ backgroundColor: 'white' }}
-                                            className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${isConsumed
-                                              ? 'border-emerald-100'
-                                              : 'border-slate-100 hover:border-emerald-200 shadow-sm'
-                                              }`}
-                                          >
-                                            <div className="flex items-start sm:items-center justify-between gap-2">
-                                              <div className="flex items-start gap-2 flex-1 min-w-0">
-                                                {isConsumed && (
-                                                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                                                )}
-                                                <div className="flex-1 min-w-0">
-                                                  <span className={`font-medium text-xs sm:text-sm block ${isConsumed ? 'text-slate-500 line-through' : 'text-slate-700'
-                                                    }`}>
-                                                    {food.food_name}
-                                                  </span>
-                                                  <Badge className={`text-xs font-medium mt-1 inline-flex ${isConsumed
-                                                    ? 'bg-slate-100 text-slate-500 border-slate-200'
-                                                    : 'bg-slate-100 text-slate-600 border-slate-200'
+                                          return (
+                                            <div
+                                              key={food.id || foodIndex}
+                                              style={{ backgroundColor: 'white' }}
+                                              className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${isConsumed
+                                                ? 'border-emerald-100'
+                                                : 'border-slate-100 hover:border-emerald-200 shadow-sm'
+                                                }`}
+                                            >
+                                              <div className="flex items-start sm:items-center justify-between gap-2">
+                                                <div className="flex items-start gap-2 flex-1 min-w-0">
+                                                  {isConsumed && (
+                                                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
+                                                  )}
+                                                  <div className="flex-1 min-w-0">
+                                                    <span className={`font-medium text-xs sm:text-sm block ${isConsumed ? 'text-slate-500 line-through' : 'text-slate-700'
+                                                      }`}>
+                                                      {food.food_name}
+                                                    </span>
+                                                    <Badge className={`text-xs font-medium mt-1 inline-flex ${isConsumed
+                                                      ? 'bg-slate-100 text-slate-500 border-slate-200'
+                                                      : 'bg-slate-100 text-slate-600 border-slate-200'
+                                                      } border`}>
+                                                      {food.quantity} {food.unit === 'unidade' && food.quantity > 1 ? 'unidades' : food.unit}
+                                                    </Badge>
+                                                  </div>
+                                                </div>
+                                                <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
+                                                  {substitutions.length > 0 && !isConsumed && (
+                                                    <Button
+                                                      size="sm"
+                                                      variant="ghost"
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setSelectedFoodSubstitutions({
+                                                          foodName: food.food_name,
+                                                          substitutions: substitutions
+                                                        });
+                                                        setSubstitutionsModalOpen(true);
+                                                      }}
+                                                      className="h-7 sm:h-8 px-2 text-xs bg-[#00C98A]/10 hover:bg-[#00C98A]/20 text-[#00C98A] border border-[#00C98A]/30 min-h-[44px]"
+                                                    >
+                                                      <RefreshCw className="w-3 h-3 mr-1" />
+                                                      <span className="hidden sm:inline">Substituições</span>
+                                                      <span className="sm:hidden">Trocar</span>
+                                                    </Button>
+                                                  )}
+                                                  <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${isConsumed
+                                                    ? 'bg-slate-50 text-slate-400 border-slate-100'
+                                                    : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
                                                     } border`}>
-                                                    {food.quantity} {food.unit === 'unidade' && food.quantity > 1 ? 'unidades' : food.unit}
+                                                    {food.calories} kcal
                                                   </Badge>
                                                 </div>
                                               </div>
-                                              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
-                                                {substitutions.length > 0 && !isConsumed && (
-                                                  <Button
-                                                    size="sm"
-                                                    variant="ghost"
-                                                    onClick={(e) => {
-                                                      e.stopPropagation();
-                                                      setSelectedFoodSubstitutions({
-                                                        foodName: food.food_name,
-                                                        substitutions: substitutions
-                                                      });
-                                                      setSubstitutionsModalOpen(true);
-                                                    }}
-                                                    className="h-7 sm:h-8 px-2 text-xs bg-[#00C98A]/10 hover:bg-[#00C98A]/20 text-[#00C98A] border border-[#00C98A]/30 min-h-[44px]"
-                                                  >
-                                                    <RefreshCw className="w-3 h-3 mr-1" />
-                                                    <span className="hidden sm:inline">Substituições</span>
-                                                    <span className="sm:hidden">Trocar</span>
-                                                  </Button>
-                                                )}
-                                                <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${isConsumed
-                                                  ? 'bg-slate-50 text-slate-400 border-slate-100'
-                                                  : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
-                                                  } border`}>
-                                                  {food.calories} kcal
-                                                </Badge>
-                                              </div>
                                             </div>
-                                          </div>
-                                        );
-                                      })}
-                                    </div>
-                                  ) : (
-                                    <p className="text-sm text-[#777777] text-center py-4">Nenhum alimento adicionado</p>
-                                  )}
-                                  {meal.instructions && (
-                                    <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                      <p className="text-xs text-amber-700 font-medium mb-1 flex items-center gap-2">
-                                        <AlertTriangle className="w-3 h-3" />
-                                        Instruções:
-                                      </p>
-                                      <p className="text-sm text-amber-800 leading-relaxed">{meal.instructions}</p>
-                                    </div>
-                                  )}
-                                </div>
-                              </CollapsibleContent>
-                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    ) : (
+                                      <p className="text-sm text-[#777777] text-center py-4">Nenhum alimento adicionado</p>
+                                    )}
+                                    {meal.instructions && (
+                                      <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                        <p className="text-xs text-amber-700 font-medium mb-1 flex items-center gap-2">
+                                          <AlertTriangle className="w-3 h-3" />
+                                          Instruções:
+                                        </p>
+                                        <p className="text-sm text-amber-800 leading-relaxed">{meal.instructions}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </CollapsibleContent>
+                              </div>
                             </Collapsible>
-                    );
+                          );
                         })}
-                  </div>
-                </CardContent>
+                    </div>
+                  </CardContent>
                 </Card>
               )}
 
-          {/* Mensagem quando não há refeições */}
-          {hasActivePlan && planDetails && (!planDetails.diet_meals || planDetails.diet_meals.length === 0) && (
-            <Card className="bg-white rounded-2xl shadow-sm border border-amber-200">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-3 sm:mb-4" />
-                <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Refeições não disponíveis</h3>
-                <p className="text-sm sm:text-base text-[#777777] mb-4">
-                  Não foi possível carregar as refeições deste plano alimentar.
-                </p>
-                <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg">
-                  <strong>Possível causa:</strong> As políticas de segurança (RLS) do Supabase podem estar bloqueando o acesso.
-                  Verifique se as políticas RLS para as tabelas <code>diet_meals</code> e <code>diet_foods</code> permitem leitura para usuários anônimos ou autenticados.
-                </p>
-              </CardContent>
-            </Card>
-          )}
+              {/* Mensagem quando não há refeições */}
+              {hasActivePlan && planDetails && (!planDetails.diet_meals || planDetails.diet_meals.length === 0) && (
+                <Card className="bg-white rounded-2xl shadow-sm border border-amber-200">
+                  <CardContent className="p-6 sm:p-8 text-center">
+                    <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-3 sm:mb-4" />
+                    <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Refeições não disponíveis</h3>
+                    <p className="text-sm sm:text-base text-[#777777] mb-4">
+                      Não foi possível carregar as refeições deste plano alimentar.
+                    </p>
+                    <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg">
+                      <strong>Possível causa:</strong> As políticas de segurança (RLS) do Supabase podem estar bloqueando o acesso.
+                      Verifique se as políticas RLS para as tabelas <code>diet_meals</code> e <code>diet_foods</code> permitem leitura para usuários anônimos ou autenticados.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
 
-          {/* Orientações - Novo Layout */}
-          {hasActivePlan && planDetails?.diet_guidelines && planDetails.diet_guidelines.length > 0 && (
-            <div className="space-y-3 mt-6">
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 bg-emerald-500/10 rounded-lg">
-                  <BookOpen className="w-5 h-5 text-emerald-400" />
+              {/* Orientações - Novo Layout Categorizado */}
+              {hasActivePlan && planDetails?.diet_guidelines && planDetails.diet_guidelines.length > 0 && (
+                <div className="space-y-6 mt-8">
+                  {(() => {
+                    const guidelines = planDetails.diet_guidelines || [];
+
+                    // Utility para checar tipo explícito OU palavras-chave no título (para retrocompatibilidade)
+                    const isManipulated = (g: any) => {
+                      if (g.guideline_type === 'manipulated') return true;
+                      const title = (g.title || '').toLowerCase();
+                      return title.includes('manipulado') || title.includes('fórmula');
+                    };
+
+                    const isProtocol = (g: any) => {
+                      if (g.guideline_type === 'protocol') return true;
+                      const title = (g.title || '').toLowerCase();
+                      return title.includes('protocolo') || title.includes('ciclo');
+                    };
+
+                    const isSupplement = (g: any) => {
+                      if (g.guideline_type === 'supplement' && !isManipulated(g) && !isProtocol(g)) return true;
+                      const title = (g.title || '').toLowerCase();
+                      return (title.includes('suplementação') || title.includes('suplemento') || title.includes('junto com')) && !isManipulated(g) && !isProtocol(g);
+                    };
+
+                    const nutritionGuidelines = guidelines.filter((g: any) =>
+                      !isManipulated(g) && !isProtocol(g) && !isSupplement(g) && g.guideline_type !== 'between_meals'
+                    );
+
+                    const supplementGuidelines = guidelines.filter(isSupplement);
+                    const manipulatedGuidelines = guidelines.filter(isManipulated);
+                    const protocolGuidelines = guidelines.filter(isProtocol);
+
+                    const renderCategory = (
+                      items: any[],
+                      title: string,
+                      Icon: any,
+                      colorClass: string,
+                      bgLightClass: string,
+                      borderClass: string
+                    ) => {
+                      if (items.length === 0) return null;
+
+                      return (
+                        <Collapsible defaultOpen={true} className="space-y-3 group/category bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100">
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-1 sm:p-2 rounded-2xl hover:bg-slate-50 transition-colors">
+                            <div className="flex items-center gap-4">
+                              <div className={`p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-transparent`}>
+                                <Icon className={`w-6 h-6 ${colorClass}`} />
+                              </div>
+                              <h3 className="text-xl font-bold text-slate-800 tracking-wide">
+                                {title}
+                              </h3>
+                            </div>
+                            <div className="p-2.5 rounded-full bg-slate-50 group-data-[state=open]/category:bg-slate-100 transition-colors">
+                              <ChevronRight className="w-5 h-5 text-slate-500 transform transition-transform group-data-[state=open]/category:rotate-90" />
+                            </div>
+                          </CollapsibleTrigger>
+
+                          <CollapsibleContent>
+                            <div className="grid gap-3 pt-3">
+                              {items.map((guideline: any, index: number) => (
+                                <Collapsible key={guideline.id || index} className="group/item">
+                                  <div
+                                    className={`bg-white rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
+                                  >
+                                    {/* Subtle edge highlight */}
+                                    <div className={`absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-50 pointer-events-none z-0`} />
+
+                                    <CollapsibleTrigger className="w-full flex items-center justify-between py-2.5 px-4 hover:bg-slate-50/80 transition-colors text-left min-h-[48px] relative z-10">
+                                      <span className="font-semibold text-sm sm:text-base text-slate-700 pr-4">{formatTextToPlain(guideline.title)}</span>
+                                      <div className={`p-1.5 rounded-full ${bgLightClass} group-data-[state=open]/item:bg-slate-100 transition-colors`}>
+                                        <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 ${colorClass} group-data-[state=open]/item:text-slate-500 transform transition-transform group-data-[state=open]/item:rotate-90`} />
+                                      </div>
+                                    </CollapsibleTrigger>
+                                    <CollapsibleContent className="relative z-10">
+                                      <div className="px-4 pb-4 pt-0">
+                                        <div className="h-px w-full bg-slate-100 mb-3" />
+                                        <div
+                                          className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
+                                          dangerouslySetInnerHTML={{ __html: guideline.content || '' }}
+                                        />
+                                      </div>
+                                    </CollapsibleContent>
+                                  </div>
+                                </Collapsible>
+                              ))}
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      );
+                    };
+
+                    return (
+                      <div className="space-y-4">
+                        {renderCategory(
+                          nutritionGuidelines,
+                          "Orientações Nutricionais",
+                          Apple,
+                          "text-emerald-500",
+                          "bg-emerald-500/10",
+                          "border-emerald-100"
+                        )}
+                        {renderCategory(
+                          supplementGuidelines,
+                          "Suplementação",
+                          Pill,
+                          "text-blue-500",
+                          "bg-blue-500/10",
+                          "border-blue-100"
+                        )}
+                        {renderCategory(
+                          manipulatedGuidelines,
+                          "Manipulados",
+                          FlaskConical,
+                          "text-purple-500",
+                          "bg-purple-500/10",
+                          "border-purple-100"
+                        )}
+                        {renderCategory(
+                          protocolGuidelines,
+                          "Protocolo",
+                          ListChecks,
+                          "text-amber-500",
+                          "bg-amber-500/10",
+                          "border-amber-100"
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
-                <h3 className="text-xl font-bold text-white">
-                  Orientações Nutricionais
-                </h3>
+              )}
+
+              {/* Histórico de Exames - Movido para o final da aba Plano */}
+              {patient?.telefone && (
+                <div className="space-y-4">
+                  <ExamsHistory
+                    patientId={patient?.id}
+                    telefone={patient.telefone}
+                    onUpdate={() => {
+                      // Recarregar se necessário
+                    }}
+                    refreshTrigger={refreshTrigger}
+                    allowDelete={true} // Portal do paciente permite deletar
+                  />
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        {/* Aba: Metas (com histórico semanal) */}
+        <TabsContent value="challenges" className="mt-6 space-y-6">
+          <DailyChallengesWidget patientId={patientId} />
+          <WeeklyHabitsGrid patientId={patientId} />
+        </TabsContent>
+
+        {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
+        <TabsContent value="results" className="mt-6 space-y-8">
+          {/* Seção 1: Evolução Corporal (o mais importante para o aluno) */}
+          <section>
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="text-2xl drop-shadow-glow-sm">⚖️</span> Evolução Corporal
+            </h3>
+            <PatientEvolutionTab
+              patientId={patientId}
+              checkins={checkins}
+              patient={patient}
+              bodyCompositions={bodyCompositions}
+              achievements={achievements}
+              refreshTrigger={refreshTrigger}
+              isPatientView={true}
+            />
+          </section>
+
+          {/* Seção 2: Adesão à Dieta */}
+          <section className="mt-8">
+            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+              <span className="text-2xl drop-shadow-glow-sm">📊</span> Adesão ao Plano
+            </h3>
+            <div className="space-y-6">
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
+                <WeeklyProgressChart patientId={patientId} />
               </div>
-
-              <div className="grid gap-3">
-                {planDetails.diet_guidelines.map((guideline: any, index: number) => (
-                  <Collapsible key={guideline.id || index} className="group">
-                    <div
-                      style={{ backgroundColor: 'white' }}
-                      className="rounded-xl border border-slate-200 shadow-sm overflow-hidden"
-                    >
-                      <CollapsibleTrigger className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors text-left min-h-[72px]">
-                        <span className="font-semibold text-lg text-slate-900 pr-4">{guideline.title}</span>
-                        <ChevronRight className="w-5 h-5 text-slate-400 transform transition-transform group-data-[state=open]:rotate-90" />
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <div className="px-5 pb-5 pt-0">
-                          <div className="h-px w-full bg-slate-100 mb-4" />
-                          <div
-                            className="text-sm sm:text-base text-slate-600 leading-relaxed prose prose-sm max-w-none prose-p:my-2 prose-headings:text-slate-800 prose-strong:text-slate-900 prose-ul:list-disc prose-ul:pl-4"
-                            dangerouslySetInnerHTML={{ __html: guideline.content }}
-                          />
-                        </div>
-                      </CollapsibleContent>
-                    </div>
-                  </Collapsible>
-                ))}
+              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
+                <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
               </div>
             </div>
-          )}
+          </section>
+        </TabsContent>
 
-          {/* Histórico de Exames - Movido para o final da aba Plano */}
-          {patient?.telefone && (
-            <div className="space-y-4">
-              <ExamsHistory
-                patientId={patient?.id}
-                telefone={patient.telefone}
-                onUpdate={() => {
-                  // Recarregar se necessário
-                }}
-                refreshTrigger={refreshTrigger}
-                allowDelete={true} // Portal do paciente permite deletar
-              />
-            </div>
-          )}
-        </>
-          )}
-      </TabsContent>
+        {/* Aba: Ranking & Conquistas */}
+        <TabsContent value="ranking" className="mt-6">
+          <GamificationWidget patientId={patientId} />
+        </TabsContent>
+      </Tabs >
 
-      {/* Aba: Metas (com histórico semanal) */}
-      <TabsContent value="challenges" className="mt-6 space-y-6">
-        <DailyChallengesWidget patientId={patientId} />
-        <WeeklyHabitsGrid patientId={patientId} />
-      </TabsContent>
+      {/* Modal de Substituições */}
+      < Dialog open={substitutionsModalOpen} onOpenChange={setSubstitutionsModalOpen} >
+        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto shadow-2xl">
+          <DialogHeader className="relative pb-4 border-b border-slate-800">
+            <button
+              onClick={() => setSubstitutionsModalOpen(false)}
+              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              aria-label="Fechar"
+            >
+              <X className="w-5 h-5 text-slate-400 hover:text-white" />
+            </button>
+            <DialogTitle className="text-white text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
+              <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
+              <span className="truncate">Opções de Substituição</span>
+            </DialogTitle>
+            <DialogDescription className="text-xs sm:text-sm text-slate-400 pr-8">
+              Você pode substituir <strong className="text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
+            </DialogDescription>
+          </DialogHeader>
 
-      {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
-      <TabsContent value="results" className="mt-6 space-y-8">
-        {/* Seção 1: Evolução Corporal (o mais importante para o aluno) */}
-        <section>
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-2xl drop-shadow-glow-sm">⚖️</span> Evolução Corporal
-          </h3>
-          <PatientEvolutionTab
-            patientId={patientId}
-            checkins={checkins}
-            patient={patient}
-            bodyCompositions={bodyCompositions}
-            achievements={achievements}
-            refreshTrigger={refreshTrigger}
-          />
-        </section>
-
-        {/* Seção 2: Adesão à Dieta */}
-        <section className="mt-8">
-          <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-            <span className="text-2xl drop-shadow-glow-sm">📊</span> Adesão ao Plano
-          </h3>
-          <div className="space-y-6">
-            <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-              <WeeklyProgressChart patientId={patientId} />
-            </div>
-            <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-              <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
-            </div>
+          <div className="space-y-3 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto pr-2 mt-4 custom-scrollbar">
+            {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
+              <div
+                key={index}
+                className="p-3 sm:p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all group"
+              >
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
+                      {sub.food_name}
+                    </h4>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Quantidade: <span className="font-medium text-emerald-400">{sub.quantity} {sub.unit}</span>
+                      {sub.custom_unit_name && (
+                        <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
+                          ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
+                        </span>
+                      )}
+                    </p>
+                  </div>
+                  <CheckCircle className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
+                </div>
+              </div>
+            ))}
           </div>
-        </section>
-      </TabsContent>
 
-      {/* Aba: Ranking & Conquistas */}
-      <TabsContent value="ranking" className="mt-6">
-        <GamificationWidget patientId={patientId} />
-      </TabsContent>
-    </Tabs >
-
-      {/* Modal de Substituições */ }
-  < Dialog open={substitutionsModalOpen} onOpenChange={setSubstitutionsModalOpen} >
-    <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto shadow-2xl">
-      <DialogHeader className="relative pb-4 border-b border-slate-800">
-        <button
-          onClick={() => setSubstitutionsModalOpen(false)}
-          className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
-          aria-label="Fechar"
-        >
-          <X className="w-5 h-5 text-slate-400 hover:text-white" />
-        </button>
-        <DialogTitle className="text-white text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
-          <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
-          <span className="truncate">Opções de Substituição</span>
-        </DialogTitle>
-        <DialogDescription className="text-xs sm:text-sm text-slate-400 pr-8">
-          Você pode substituir <strong className="text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
-        </DialogDescription>
-      </DialogHeader>
-
-      <div className="space-y-3 max-h-[50vh] sm:max-h-[60vh] overflow-y-auto pr-2 mt-4 custom-scrollbar">
-        {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
-          <div
-            key={index}
-            className="p-3 sm:p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all group"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-              <div className="flex-1 min-w-0">
-                <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
-                  {sub.food_name}
-                </h4>
-                <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                  Quantidade: <span className="font-medium text-emerald-400">{sub.quantity} {sub.unit}</span>
-                  {sub.custom_unit_name && (
-                    <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
-                      ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
-                    </span>
-                  )}
-                </p>
-              </div>
-              <CheckCircle className="w-5 h-5 text-emerald-500 group-hover:scale-110 transition-transform" />
-            </div>
+          <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+            <p className="text-xs text-cyan-400 flex items-center gap-2">
+              <Info className="w-4 h-4" />
+              <span>
+                Essas são opções equivalentes que você pode usar no lugar do alimento original.
+              </span>
+            </p>
           </div>
-        ))}
-      </div>
-
-      <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-        <p className="text-xs text-cyan-400 flex items-center gap-2">
-          <Info className="w-4 h-4" />
-          <span>
-            Essas são opções equivalentes que você pode usar no lugar do alimento original.
-          </span>
-        </p>
-      </div>
-    </DialogContent>
-  </Dialog >
+        </DialogContent>
+      </Dialog >
     </div >
   );
 }

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dietConsumptionService, DailyConsumption } from '@/lib/diet-consumption-service';
+import { parseLocalISODate } from '@/lib/utils';
 import { WeeklyHabitsGrid } from './WeeklyHabitsGrid';
 import { Calendar, Target } from 'lucide-react';
 import {
@@ -40,7 +41,7 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
 
   // Preparar dados para gráficos
   const chartData = consumption.map((day) => {
-    const date = new Date(day.consumption_date);
+    const date = parseLocalISODate(day.consumption_date);
     return {
       date: date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
       calorias: Math.round(day.total_calories_consumed),
@@ -56,7 +57,7 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
   const avgCompletion = consumption.length > 0
     ? Math.round(consumption.reduce((sum, d) => sum + d.completion_percentage, 0) / consumption.length)
     : 0;
-  
+
   const totalDays = consumption.length;
   const perfectDays = consumption.filter(d => d.completion_percentage === 100).length;
 
@@ -132,19 +133,19 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-                <XAxis 
-                  dataKey="date" 
+                <XAxis
+                  dataKey="date"
                   stroke="#777777"
                   fontSize={10}
                   className="sm:text-xs"
                 />
-                <YAxis 
+                <YAxis
                   domain={[0, 100]}
                   stroke="#777777"
                   fontSize={10}
                   className="sm:text-xs"
                 />
-                <Tooltip 
+                <Tooltip
                   contentStyle={{
                     backgroundColor: '#FFFFFF',
                     border: '1px solid #E5E7EB',
@@ -152,10 +153,10 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
                   }}
                   formatter={(value: number) => [`${value}%`, 'Conclusão']}
                 />
-                <Line 
-                  type="monotone" 
-                  dataKey="percentual" 
-                  stroke="#00C98A" 
+                <Line
+                  type="monotone"
+                  dataKey="percentual"
+                  stroke="#00C98A"
                   strokeWidth={3}
                   dot={{ fill: '#00C98A', r: 5 }}
                   activeDot={{ r: 8 }}
