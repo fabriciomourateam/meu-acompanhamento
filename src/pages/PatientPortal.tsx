@@ -786,17 +786,13 @@ export default function PatientPortal() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.15),transparent_50%)]" />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.12),transparent_50%)]" />
 
-        {/* Padrão de grade sutil */}
-        <div
-          className="absolute inset-0 opacity-[0.03]"
-          style={{
-            backgroundImage: `
-              linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)
-            `,
-            backgroundSize: '50px 50px'
-          }}
-        />
+        {/* Geometria Abstrata (Deep Polygons) */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 mix-blend-overlay">
+          <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-slate-600 blur-[1px] transition-transform duration-[20s] hover:scale-105" style={{ clipPath: 'polygon(0 0, 100% 0, 60% 100%, 20% 80%)' }} />
+          <div className="absolute top-[10%] -right-[10%] w-[60%] h-[80%] bg-slate-900 blur-[1px] transition-transform duration-[20s] hover:scale-105" style={{ clipPath: 'polygon(50% 0%, 100% 20%, 80% 100%, 10% 80%)' }} />
+          <div className="absolute -bottom-[20%] left-[10%] w-[80%] h-[60%] bg-slate-950 blur-[2px] transition-transform duration-[20s] hover:scale-105" style={{ clipPath: 'polygon(20% 0%, 90% 10%, 100% 100%, 0% 100%)' }} />
+          <div className="absolute top-[30%] left-[20%] w-[50%] h-[50%] bg-slate-500/30 blur-[3px]" style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
+        </div>
 
         {/* Efeito de brilho animado */}
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
@@ -837,7 +833,9 @@ export default function PatientPortal() {
             <div className="flex gap-2 items-center hide-in-pdf">
               <InstallPWAButton />
 
-              <MembersAreaButton />
+              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                <MembersAreaButton />
+              )}
 
               {/* Botão de Peso removido a pedido */}
 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,11 @@ import { motion } from 'framer-motion';
 
 export default function PortalLogin() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { toast } = useToast();
+
+  const refParam = (searchParams.get('n') || searchParams.get('ref') || '').toLowerCase();
+  const isFabricio = ['fm', 'fabricio', 'fabriciomoura'].includes(refParam);
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkingToken, setCheckingToken] = useState(true);
@@ -195,19 +199,21 @@ export default function PortalLogin() {
 
   return (
     <div
-      className="min-h-screen relative overflow-hidden flex items-center justify-center p-6 animate-gradient"
+      className="min-h-screen relative overflow-hidden flex flex-col items-center justify-center p-6 animate-gradient"
       style={{
         minHeight: '100vh',
-        background: 'linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #1e293b, #0f172a)',
+        background: isFabricio
+          ? 'linear-gradient(-45deg, #000000, #18181b, #000000, #18181b, #000000)'
+          : 'linear-gradient(-45deg, #0f172a, #1e293b, #0f172a, #1e293b, #0f172a)',
         backgroundSize: '400% 400%',
         animation: 'gradientShift 15s ease infinite',
       }}
     >
       {/* Orbs decorativos de fundo */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-        <div className="absolute top-1/2 left-1/2 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '2s' }} />
+        <div className={`absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse ${isFabricio ? 'bg-amber-500/10' : 'bg-blue-500/10'}`} />
+        <div className={`absolute bottom-1/4 right-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse ${isFabricio ? 'bg-yellow-500/10' : 'bg-purple-500/10'}`} style={{ animationDelay: '1s' }} />
+        <div className={`absolute top-1/2 left-1/2 w-96 h-96 rounded-full blur-3xl animate-pulse ${isFabricio ? 'bg-orange-500/10' : 'bg-cyan-500/10'}`} style={{ animationDelay: '2s' }} />
       </div>
 
       {/* Grid pattern sutil */}
@@ -223,19 +229,21 @@ export default function PortalLogin() {
         className="w-full max-w-md relative z-10"
       >
         <Card
-          className="bg-slate-800/70 backdrop-blur-xl border-slate-700/50 shadow-2xl relative overflow-hidden"
+          className={`backdrop-blur-xl shadow-2xl relative overflow-hidden ${isFabricio ? 'bg-zinc-900/70 border-zinc-800/50' : 'bg-slate-800/70 border-slate-700/50'}`}
           style={{
-            backgroundColor: 'rgba(30, 41, 59, 0.7)',
+            backgroundColor: isFabricio ? 'rgba(24, 24, 27, 0.7)' : 'rgba(30, 41, 59, 0.7)',
             backdropFilter: 'blur(12px)',
             WebkitBackdropFilter: 'blur(12px)',
-            border: '1px solid rgba(51, 65, 85, 0.5)',
+            border: isFabricio ? '1px solid rgba(245, 158, 11, 0.2)' : '1px solid rgba(51, 65, 85, 0.5)',
             borderRadius: '1rem',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
+            boxShadow: isFabricio ? '0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245, 158, 11, 0.1)' : '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05)',
           }}
         >
           {/* Borda gradiente animada */}
           <div className="absolute inset-0 rounded-lg opacity-50" style={{
-            background: 'linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.3), transparent, rgba(147, 51, 234, 0.3), transparent)',
+            background: isFabricio
+              ? 'linear-gradient(45deg, transparent, rgba(245, 158, 11, 0.2), transparent, rgba(234, 179, 8, 0.2), transparent)'
+              : 'linear-gradient(45deg, transparent, rgba(59, 130, 246, 0.3), transparent, rgba(147, 51, 234, 0.3), transparent)',
             backgroundSize: '200% 200%',
             animation: 'gradientShift 3s ease infinite',
             zIndex: -1
@@ -248,13 +256,22 @@ export default function PortalLogin() {
               transition={{ type: "spring", stiffness: 200, damping: 15 }}
               className="w-24 h-24 mx-auto relative"
             >
-              <div className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-600 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/50">
-                <User className="w-12 h-12 text-white" />
-              </div>
+              {isFabricio ? (
+                // Estilo exlusivo Fabricio Moura Team (Preto, Dourado/Amarelo)
+                <div className="w-full h-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 border border-amber-500/20 overflow-hidden">
+                  <img src="/fm-logo.png" alt="FMTeam Logo" className="w-[85%] h-[85%] object-contain" />
+                </div>
+              ) : (
+                // Estilo Padrão (Azul/Roxo)
+                <div className="w-full h-full bg-gradient-to-br from-blue-500 via-purple-600 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-blue-500/50">
+                  <User className="w-12 h-12 text-white" />
+                </div>
+              )}
               <motion.div
                 animate={{ rotate: 360 }}
                 transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                className="absolute inset-0 rounded-full border-2 border-transparent border-t-blue-400 border-r-purple-400"
+                className={`absolute inset-0 rounded-full border-2 border-transparent ${isFabricio ? 'border-t-amber-400 border-r-amber-600' : 'border-t-blue-400 border-r-purple-400'
+                  }`}
               />
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
@@ -262,15 +279,18 @@ export default function PortalLogin() {
                 transition={{ duration: 2, repeat: Infinity }}
                 className="absolute -top-2 -right-2"
               >
-                <Sparkles className="w-6 h-6 text-yellow-400" />
+                <Sparkles className={`w-6 h-6 ${isFabricio ? 'text-amber-300' : 'text-yellow-400'}`} />
               </motion.div>
             </motion.div>
             <div>
-              <CardTitle className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent">
-                Meu Acompanhamento
+              <CardTitle className={`text-3xl font-bold bg-clip-text text-transparent ${isFabricio
+                ? 'bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600'
+                : 'bg-gradient-to-r from-blue-400 via-purple-400 to-cyan-400'
+                }`}>
+                {isFabricio ? 'Consultoria Esportiva FMTeam' : 'Meu Acompanhamento'}
               </CardTitle>
               <CardDescription className="text-slate-400 mt-2">
-                Acesse seu portal de evolução
+                {isFabricio ? 'Construindo Resultados' : 'Acesse seu portal de evolução'}
               </CardDescription>
             </div>
           </CardHeader>
@@ -315,7 +335,10 @@ export default function PortalLogin() {
                 <Button
                   type="submit"
                   disabled={loading || normalizePhone(telefone).length < 10}
-                  className="w-full h-14 text-lg bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all relative overflow-hidden"
+                  className={`w-full h-14 text-lg transition-all relative overflow-hidden ${isFabricio
+                    ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 text-black font-semibold'
+                    : 'bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-white'
+                    }`}
                   style={{
                     opacity: loading || normalizePhone(telefone).length < 10 ? 0.6 : 1,
                     cursor: loading || normalizePhone(telefone).length < 10 ? 'not-allowed' : 'pointer',
@@ -362,9 +385,20 @@ export default function PortalLogin() {
           </CardContent>
         </Card>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
+        <p className="text-center text-sm text-slate-500 mt-6 mb-8">
           Problemas para acessar? Entre em contato com seu treinador
         </p>
+
+        {isFabricio && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 1 }}
+            className="flex justify-center w-full mt-4"
+          >
+            <img src="/fm-myshape-logo.png" alt="My Shape" className="h-10 sm:h-12 object-contain drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity" />
+          </motion.div>
+        )}
       </motion.div>
     </div>
   );
