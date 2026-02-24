@@ -57,7 +57,9 @@ import {
   AlertTriangle,
   FileText,
   Info,
-  RefreshCw
+  RefreshCw,
+  Star,
+  ExternalLink
 } from 'lucide-react';
 import { dietConsumptionService } from '@/lib/diet-consumption-service';
 import { useToast } from '@/hooks/use-toast';
@@ -386,6 +388,97 @@ export function PatientDietPortal({
   const caloriasRestantes = Math.max(0, metaCalorias - caloriasConsumidas);
   const percentualConsumido = metaCalorias > 0 ? Math.min(100, (caloriasConsumidas / metaCalorias) * 100) : 0;
 
+  // Extrair lógica de categorias das guidelines para fora do JSX
+  const guidelines = planDetails?.diet_guidelines || [];
+
+  // Utility para checar tipo explícito OU palavras-chave no título (para retrocompatibilidade)
+  const isManipulated = (g: any) => {
+    if (g.guideline_type === 'manipulated') return true;
+    const title = (g.title || '').toLowerCase();
+    return title.includes('manipulado') || title.includes('fórmula');
+  };
+
+  const isProtocol = (g: any) => {
+    if (g.guideline_type === 'protocol') return true;
+    const title = (g.title || '').toLowerCase();
+    return title.includes('protocolo') || title.includes('ciclo');
+  };
+
+  const isSupplement = (g: any) => {
+    if (g.guideline_type === 'supplement' && !isManipulated(g) && !isProtocol(g)) return true;
+    const title = (g.title || '').toLowerCase();
+    return (title.includes('suplementação') || title.includes('suplemento') || title.includes('junto com')) && !isManipulated(g) && !isProtocol(g);
+  };
+
+  const nutritionGuidelines = guidelines.filter((g: any) =>
+    !isManipulated(g) && !isProtocol(g) && !isSupplement(g) && g.guideline_type !== 'between_meals'
+  );
+
+  const supplementGuidelines = guidelines.filter(isSupplement);
+  const manipulatedGuidelines = guidelines.filter(isManipulated);
+  const protocolGuidelines = guidelines.filter(isProtocol);
+
+  const renderCategory = (
+    items: any[],
+    title: string,
+    Icon: any,
+    colorClass: string,
+    bgLightClass: string,
+    borderClass: string,
+    defaultOpen: boolean = true
+  ) => {
+    if (items.length === 0) return null;
+
+    return (
+      <Collapsible defaultOpen={defaultOpen} className="space-y-3 group/category bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100">
+        <CollapsibleTrigger className="w-full flex items-center justify-between p-1 sm:p-2 rounded-2xl hover:bg-slate-50 transition-colors">
+          <div className="flex items-center gap-4">
+            <div className={`p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-transparent`}>
+              <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${colorClass}`} />
+            </div>
+            <h3 className="text-lg sm:text-lg font-bold text-slate-800 tracking-wide mt-0.5">
+              {title}
+            </h3>
+          </div>
+          <div className="p-2.5 rounded-full bg-slate-50 group-data-[state=open]/category:bg-slate-100 transition-colors">
+            <ChevronRight className="w-5 h-5 text-slate-500 transform transition-transform group-data-[state=open]/category:rotate-90" />
+          </div>
+        </CollapsibleTrigger>
+
+        <CollapsibleContent>
+          <div className="grid gap-3 pt-3">
+            {items.map((guideline: any, index: number) => (
+              <Collapsible key={guideline.id || index} className="group/item">
+                <div
+                  className={`bg-white rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
+                >
+                  {/* Subtle edge highlight */}
+                  <div className={`absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-50 pointer-events-none z-0`} />
+
+                  <CollapsibleTrigger className="w-full flex items-center justify-between py-2.5 px-4 hover:bg-slate-50/80 transition-colors text-left min-h-[48px] relative z-10">
+                    <span className="font-semibold text-sm sm:text-base text-slate-700 pr-4">{formatTextToPlain(guideline.title)}</span>
+                    <div className={`p-1.5 rounded-full ${bgLightClass} group-data-[state=open]/item:bg-slate-100 transition-colors`}>
+                      <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 ${colorClass} group-data-[state=open]/item:text-slate-500 transform transition-transform group-data-[state=open]/item:rotate-90`} />
+                    </div>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="relative z-10">
+                    <div className="px-4 pb-4 pt-0">
+                      <div className="h-px w-full bg-slate-100 mb-3" />
+                      <div
+                        className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
+                        dangerouslySetInnerHTML={{ __html: guideline.content || '' }}
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </div>
+              </Collapsible>
+            ))}
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+    );
+  };
+
   return (
     <div className="space-y-6 bg-slate-900/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-700/50">
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
@@ -425,39 +518,46 @@ export function PatientDietPortal({
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
       <Tabs defaultValue="diet" className="w-full">
         {/* Desktop: abas em linha */}
-        <TabsList className="sticky top-0 z-50 hidden sm:grid w-full grid-cols-4 bg-slate-800/80 backdrop-blur-md p-1 border-b border-slate-700/50 shadow-lg rounded-t-lg">
-          <TabsTrigger value="diet" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
+        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-white/90 backdrop-blur-md p-1 border-b border-slate-200 shadow-lg rounded-t-lg min-h-[48px]">
+          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Plano Alimentar
           </TabsTrigger>
-          <TabsTrigger value="challenges" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
+          <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            Suplementação
+          </TabsTrigger>
+          <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Metas
           </TabsTrigger>
-          <TabsTrigger value="ranking" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
+          <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Ranking & Conquistas
           </TabsTrigger>
-          <TabsTrigger value="results" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 text-sm py-2.5 rounded-md transition-all">
+          <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Meus Resultados
           </TabsTrigger>
         </TabsList>
 
         {/* Mobile: grid 4 colunas com ícones */}
-        <div className="sticky top-0 z-50 sm:hidden bg-slate-800/90 backdrop-blur-md p-2 border-b border-slate-700/50 shadow-lg rounded-t-lg">
-          <TabsList className="grid grid-cols-4 gap-2 bg-transparent h-auto">
-            <TabsTrigger value="diet" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
+        <div className="sticky top-0 z-50 sm:hidden bg-white/95 backdrop-blur-md p-2 border-b border-slate-200 shadow-lg rounded-t-lg">
+          <TabsList className="grid grid-cols-5 gap-2 bg-transparent h-auto">
+            <TabsTrigger value="diet" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
               <span className="text-lg">🍽️</span>
               <span>Plano</span>
             </TabsTrigger>
-            <TabsTrigger value="challenges" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
+            <TabsTrigger value="supplements" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
+              <span className="text-lg">💊</span>
+              <span>Supl.</span>
+            </TabsTrigger>
+            <TabsTrigger value="challenges" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
               <span className="text-lg">🎯</span>
               <span>Metas</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
+            <TabsTrigger value="ranking" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
               <span className="text-lg">🏆</span>
-              <span>Ranking</span>
+              <span>Rank</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm bg-slate-800/40 text-slate-400 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-500/30">
+            <TabsTrigger value="results" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
               <span className="text-lg">📊</span>
-              <span>Resultados</span>
+              <span>Evolução</span>
             </TabsTrigger>
           </TabsList>
         </div>
@@ -596,7 +696,7 @@ export function PatientDietPortal({
                       <div>
                         <CardTitle className="text-slate-900 flex items-center gap-2">
                           <Utensils className="w-5 h-5 text-emerald-500" />
-                          Hoje
+                          {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
                           {consumedMeals.size} de {planDetails.diet_meals.length} refeições consumidas
@@ -674,7 +774,7 @@ export function PatientDietPortal({
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors truncate text-slate-900`}>
+                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
                                             {meal.meal_name}
                                           </h4>
                                           {meal.suggested_time && (
@@ -833,136 +933,19 @@ export function PatientDietPortal({
                 </Card>
               )}
 
-              {/* Orientações - Novo Layout Categorizado */}
+              {/* Orientações Nutricionais */}
               {hasActivePlan && planDetails?.diet_guidelines && planDetails.diet_guidelines.length > 0 && (
                 <div className="space-y-6 mt-8">
-                  {(() => {
-                    const guidelines = planDetails.diet_guidelines || [];
-
-                    // Utility para checar tipo explícito OU palavras-chave no título (para retrocompatibilidade)
-                    const isManipulated = (g: any) => {
-                      if (g.guideline_type === 'manipulated') return true;
-                      const title = (g.title || '').toLowerCase();
-                      return title.includes('manipulado') || title.includes('fórmula');
-                    };
-
-                    const isProtocol = (g: any) => {
-                      if (g.guideline_type === 'protocol') return true;
-                      const title = (g.title || '').toLowerCase();
-                      return title.includes('protocolo') || title.includes('ciclo');
-                    };
-
-                    const isSupplement = (g: any) => {
-                      if (g.guideline_type === 'supplement' && !isManipulated(g) && !isProtocol(g)) return true;
-                      const title = (g.title || '').toLowerCase();
-                      return (title.includes('suplementação') || title.includes('suplemento') || title.includes('junto com')) && !isManipulated(g) && !isProtocol(g);
-                    };
-
-                    const nutritionGuidelines = guidelines.filter((g: any) =>
-                      !isManipulated(g) && !isProtocol(g) && !isSupplement(g) && g.guideline_type !== 'between_meals'
-                    );
-
-                    const supplementGuidelines = guidelines.filter(isSupplement);
-                    const manipulatedGuidelines = guidelines.filter(isManipulated);
-                    const protocolGuidelines = guidelines.filter(isProtocol);
-
-                    const renderCategory = (
-                      items: any[],
-                      title: string,
-                      Icon: any,
-                      colorClass: string,
-                      bgLightClass: string,
-                      borderClass: string
-                    ) => {
-                      if (items.length === 0) return null;
-
-                      return (
-                        <Collapsible defaultOpen={true} className="space-y-3 group/category bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100">
-                          <CollapsibleTrigger className="w-full flex items-center justify-between p-1 sm:p-2 rounded-2xl hover:bg-slate-50 transition-colors">
-                            <div className="flex items-center gap-4">
-                              <div className={`p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-transparent`}>
-                                <Icon className={`w-6 h-6 ${colorClass}`} />
-                              </div>
-                              <h3 className="text-xl font-bold text-slate-800 tracking-wide">
-                                {title}
-                              </h3>
-                            </div>
-                            <div className="p-2.5 rounded-full bg-slate-50 group-data-[state=open]/category:bg-slate-100 transition-colors">
-                              <ChevronRight className="w-5 h-5 text-slate-500 transform transition-transform group-data-[state=open]/category:rotate-90" />
-                            </div>
-                          </CollapsibleTrigger>
-
-                          <CollapsibleContent>
-                            <div className="grid gap-3 pt-3">
-                              {items.map((guideline: any, index: number) => (
-                                <Collapsible key={guideline.id || index} className="group/item">
-                                  <div
-                                    className={`bg-white rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
-                                  >
-                                    {/* Subtle edge highlight */}
-                                    <div className={`absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-50 pointer-events-none z-0`} />
-
-                                    <CollapsibleTrigger className="w-full flex items-center justify-between py-2.5 px-4 hover:bg-slate-50/80 transition-colors text-left min-h-[48px] relative z-10">
-                                      <span className="font-semibold text-sm sm:text-base text-slate-700 pr-4">{formatTextToPlain(guideline.title)}</span>
-                                      <div className={`p-1.5 rounded-full ${bgLightClass} group-data-[state=open]/item:bg-slate-100 transition-colors`}>
-                                        <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 ${colorClass} group-data-[state=open]/item:text-slate-500 transform transition-transform group-data-[state=open]/item:rotate-90`} />
-                                      </div>
-                                    </CollapsibleTrigger>
-                                    <CollapsibleContent className="relative z-10">
-                                      <div className="px-4 pb-4 pt-0">
-                                        <div className="h-px w-full bg-slate-100 mb-3" />
-                                        <div
-                                          className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
-                                          dangerouslySetInnerHTML={{ __html: guideline.content || '' }}
-                                        />
-                                      </div>
-                                    </CollapsibleContent>
-                                  </div>
-                                </Collapsible>
-                              ))}
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      );
-                    };
-
-                    return (
-                      <div className="space-y-4">
-                        {renderCategory(
-                          nutritionGuidelines,
-                          "Orientações Nutricionais",
-                          Apple,
-                          "text-emerald-500",
-                          "bg-emerald-500/10",
-                          "border-emerald-100"
-                        )}
-                        {renderCategory(
-                          supplementGuidelines,
-                          "Suplementação",
-                          Pill,
-                          "text-blue-500",
-                          "bg-blue-500/10",
-                          "border-blue-100"
-                        )}
-                        {renderCategory(
-                          manipulatedGuidelines,
-                          "Manipulados",
-                          FlaskConical,
-                          "text-purple-500",
-                          "bg-purple-500/10",
-                          "border-purple-100"
-                        )}
-                        {renderCategory(
-                          protocolGuidelines,
-                          "Protocolo",
-                          ListChecks,
-                          "text-amber-500",
-                          "bg-amber-500/10",
-                          "border-amber-100"
-                        )}
-                      </div>
-                    );
-                  })()}
+                  <div className="space-y-4">
+                    {renderCategory(
+                      nutritionGuidelines,
+                      "Orientações Nutricionais",
+                      Apple,
+                      "text-emerald-500",
+                      "bg-emerald-500/10",
+                      "border-emerald-100"
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -981,6 +964,89 @@ export function PatientDietPortal({
                 </div>
               )}
             </>
+          )}
+        </TabsContent>
+
+        {/* Aba: Suplementação */}
+        <TabsContent value="supplements" className="mt-6 space-y-6">
+          {!hasActivePlan ? (
+            <Card className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <Pill className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500 mx-auto mb-3 sm:mb-4 opacity-50" />
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Nenhuma Suplementação Ativa</h3>
+                <p className="text-sm sm:text-base text-slate-400">
+                  Seu nutricionista ainda não cadastrou informações de suplementação.
+                </p>
+              </CardContent>
+            </Card>
+          ) : supplementGuidelines.length === 0 && manipulatedGuidelines.length === 0 && protocolGuidelines.length === 0 ? (
+            <Card className="bg-white rounded-2xl shadow-sm border border-slate-200">
+              <CardContent className="p-6 sm:p-8 text-center">
+                <Pill className="w-12 h-12 sm:w-16 sm:h-16 text-slate-400 mx-auto mb-3 sm:mb-4" />
+                <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Sem protocolos ativos</h3>
+                <p className="text-sm sm:text-base text-[#777777] mb-4">
+                  Não há suplementos, manipulados ou protocolos definidos para este plano.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              <div className="space-y-4">
+                {renderCategory(
+                  supplementGuidelines,
+                  "Suplementação",
+                  Pill,
+                  "text-blue-500",
+                  "bg-blue-500/10",
+                  "border-blue-100",
+                  false
+                )}
+                {renderCategory(
+                  manipulatedGuidelines,
+                  "Manipulados",
+                  FlaskConical,
+                  "text-purple-500",
+                  "bg-purple-500/10",
+                  "border-purple-100",
+                  false
+                )}
+                {renderCategory(
+                  protocolGuidelines,
+                  "Protocolo",
+                  ListChecks,
+                  "text-amber-500",
+                  "bg-amber-500/10",
+                  "border-amber-100",
+                  false
+                )}
+              </div>
+
+              {/* Card Suplementos Custo Benefício */}
+              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                <Card className="relative overflow-hidden border-0 rounded-2xl shadow-xl mt-8">
+                  <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 opacity-90 layer-bg"></div>
+                  <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
+                  <CardContent className="relative p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 z-10">
+                    <div className="text-center sm:text-left text-white flex-1">
+                      <h3 className="text-xl sm:text-2xl font-bold mb-2 flex items-center justify-center sm:justify-start gap-2">
+                        <Star className="w-6 h-6 text-amber-300 fill-amber-300/50" />
+                        Em dúvida sobre qual marca escolher?
+                      </h3>
+                      <p className="text-emerald-50 text-sm sm:text-base leading-relaxed max-w-xl">
+                        Preparamos uma lista exclusiva com as melhores opções de suplementos do mercado, priorizando a máxima qualidade com o melhor custo-benefício para seus resultados.
+                      </p>
+                    </div>
+                    <Button
+                      onClick={() => window.open('https://area-de-membros-fabriciomourateam.vercel.app/#/supplements', '_blank')}
+                      className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-600 font-bold px-8 py-6 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 group whitespace-nowrap"
+                    >
+                      <span>Ver Recomendações</span>
+                      <ExternalLink className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           )}
         </TabsContent>
 
@@ -1007,6 +1073,13 @@ export function PatientDietPortal({
               isPatientView={true}
             />
           </section>
+        </TabsContent>
+
+        {/* Aba: Ranking & Conquistas */}
+        <TabsContent value="ranking" className="mt-6 space-y-8">
+          <section>
+            <GamificationWidget patientId={patientId} />
+          </section>
 
           {/* Seção 2: Adesão à Dieta */}
           <section className="mt-8">
@@ -1022,11 +1095,6 @@ export function PatientDietPortal({
               </div>
             </div>
           </section>
-        </TabsContent>
-
-        {/* Aba: Ranking & Conquistas */}
-        <TabsContent value="ranking" className="mt-6">
-          <GamificationWidget patientId={patientId} />
         </TabsContent>
       </Tabs >
 
