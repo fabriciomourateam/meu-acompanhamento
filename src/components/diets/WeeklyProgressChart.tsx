@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dietConsumptionService, DailyConsumption } from '@/lib/diet-consumption-service';
 import { parseLocalISODate } from '@/lib/utils';
-import { WeeklyHabitsGrid } from './WeeklyHabitsGrid';
 import { Calendar, Target } from 'lucide-react';
 import {
   LineChart,
@@ -95,9 +94,6 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
 
   return (
     <div className="space-y-4">
-      {/* Grid Semanal de Hábitos */}
-      <WeeklyHabitsGrid patientId={patientId} />
-
       {/* Estatísticas */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
         <Card className="bg-white rounded-xl shadow-sm border border-gray-100">

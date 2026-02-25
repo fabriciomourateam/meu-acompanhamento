@@ -60,27 +60,27 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
   const currentStreak = points?.current_streak || 0;
 
   // Calcular pontos para próximo nível
-  const pointsForNextLevel = currentLevel === 1 ? 100 : 
-    currentLevel === 2 ? 300 : 
-    currentLevel === 3 ? 600 :
-    currentLevel === 4 ? 1000 :
-    currentLevel === 5 ? 1500 :
-    (currentLevel - 5) * 500 + 1500;
-  
+  const pointsForNextLevel = currentLevel === 1 ? 100 :
+    currentLevel === 2 ? 300 :
+      currentLevel === 3 ? 600 :
+        currentLevel === 4 ? 1000 :
+          currentLevel === 5 ? 1500 :
+            (currentLevel - 5) * 500 + 1500;
+
   const pointsInCurrentLevel = currentLevel === 1 ? totalPoints :
     currentLevel === 2 ? totalPoints - 100 :
-    currentLevel === 3 ? totalPoints - 300 :
-    currentLevel === 4 ? totalPoints - 600 :
-    currentLevel === 5 ? totalPoints - 1000 :
-    totalPoints - ((currentLevel - 6) * 500 + 1500);
-  
-  const pointsNeeded = pointsForNextLevel - (currentLevel === 1 ? 0 : 
+      currentLevel === 3 ? totalPoints - 300 :
+        currentLevel === 4 ? totalPoints - 600 :
+          currentLevel === 5 ? totalPoints - 1000 :
+            totalPoints - ((currentLevel - 6) * 500 + 1500);
+
+  const pointsNeeded = pointsForNextLevel - (currentLevel === 1 ? 0 :
     currentLevel === 2 ? 100 :
-    currentLevel === 3 ? 300 :
-    currentLevel === 4 ? 600 :
-    currentLevel === 5 ? 1000 :
-    (currentLevel - 6) * 500 + 1500);
-  
+      currentLevel === 3 ? 300 :
+        currentLevel === 4 ? 600 :
+          currentLevel === 5 ? 1000 :
+            (currentLevel - 6) * 500 + 1500);
+
   const progressToNextLevel = pointsNeeded > 0 ? (pointsInCurrentLevel / pointsNeeded) * 100 : 100;
 
   return (
@@ -98,7 +98,7 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
               <p className="text-3xl sm:text-4xl font-bold">{totalPoints}</p>
             </div>
           </div>
-          
+
           {/* Barra de Progresso para Próximo Nível */}
           <div className="mb-4">
             <div className="flex justify-between text-xs opacity-90 mb-2">
@@ -178,38 +178,6 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
           )}
         </CardContent>
       </Card>
-
-      {/* Estatísticas */}
-      {points && (
-        <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-base sm:text-lg text-[#222222] flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-[#00C98A] flex-shrink-0" />
-              Estatísticas
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <div className="grid grid-cols-2 gap-3 sm:gap-4">
-              <div>
-                <p className="text-xs text-[#777777] mb-1">Pontos por Dieta</p>
-                <p className="text-xl sm:text-2xl font-bold text-[#222222]">{points.points_diet}</p>
-              </div>
-              <div>
-                <p className="text-xs text-[#777777] mb-1">Pontos por Consistência</p>
-                <p className="text-xl sm:text-2xl font-bold text-[#222222]">{points.points_consistency}</p>
-              </div>
-              <div>
-                <p className="text-xs text-[#777777] mb-1">Dias Rastreados</p>
-                <p className="text-xl sm:text-2xl font-bold text-[#222222]">{points.total_days_tracked}</p>
-              </div>
-              <div>
-                <p className="text-xs text-[#777777] mb-1">Maior Sequência</p>
-                <p className="text-xl sm:text-2xl font-bold text-[#00C98A]">{points.longest_streak}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 }
