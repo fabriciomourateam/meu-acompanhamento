@@ -1,34 +1,69 @@
 <!doctype html>
 <html lang="pt-BR">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/icone (192 x 192 px).png" />
-    <link rel="apple-touch-icon" href="/icone (512 x 512 px).png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Acompanhe seu progresso, dieta e evolução" />
-    <meta name="theme-color" content="#10b981" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="Meu Acompanhamento" />
-    <link rel="manifest" href="/manifest.json" />
-    <title>Meu Acompanhamento</title>
-  </head>
-  <body>
-    <div id="app"></div>
-    <script type="module" src="/src/main.tsx"></script>
-    <script>
-      // Registrar Service Worker para PWA
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('SW registered:', registration);
-            })
-            .catch((error) => {
-              console.log('SW registration failed:', error);
-            });
-        });
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/png" href="/fmteam-icon.png" />
+  <link rel="apple-touch-icon" href="/fmteam-icon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Acompanhe seu progresso, dieta e evolução" />
+  <meta name="theme-color" content="#10b981" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Meu Acompanhamento" />
+  <!-- Manifest gerado dinamicamente para suportar start_url por nutricionista -->
+  <script>
+    (function () {
+      var path = window.location.pathname;
+      // Se estiver em uma rota de portal personalizada (ex: /portal-fmteam), usar como start_url
+      var startUrl = '/portal';
+      if (path.startsWith('/portal-')) {
+        startUrl = path;
       }
-    </script>
-  </body>
+      var manifest = {
+        name: 'Meu Acompanhamento',
+        short_name: 'Meu Acompanhamento',
+        description: 'Acompanhe seu progresso, dieta e evolução',
+        start_url: startUrl,
+        display: 'standalone',
+        background_color: '#0f172a',
+        theme_color: '#10b981',
+        orientation: 'portrait-primary',
+        scope: '/',
+        icons: [
+          { src: '/fmteam-icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+        ],
+        categories: ['health', 'fitness', 'lifestyle'],
+        prefer_related_applications: false
+      };
+      var blob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
+      var manifestUrl = URL.createObjectURL(blob);
+      var link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = manifestUrl;
+      document.head.appendChild(link);
+    })();
+  </script>
+  <title>Meu Acompanhamento</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script type="module" src="/src/main.tsx"></script>
+  <script>
+    // Registrar Service Worker para PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then((registration) => {
+            console.log('SW registered:', registration);
+          })
+          .catch((error) => {
+            console.log('SW registration failed:', error);
+          });
+      });
+    }
+  </script>
+</body>
+
 </html>

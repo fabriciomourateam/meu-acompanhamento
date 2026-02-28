@@ -10,13 +10,7 @@
   "scope": "/",
   "icons": [
     {
-      "src": "/icone (192 x 192 px).png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icone (512 x 512 px).png",
+      "src": "/fmteam-icon.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -30,14 +24,17 @@
       "url": "/portal",
       "icons": [
         {
-          "src": "/icone (192 x 192 px).png",
+          "src": "/fmteam-icon.png",
           "sizes": "192x192"
         }
       ]
     }
   ],
-  "categories": ["health", "fitness", "lifestyle"],
+  "categories": [
+    "health",
+    "fitness",
+    "lifestyle"
+  ],
   "screenshots": [],
   "prefer_related_applications": false
 }
-

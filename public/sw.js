@@ -7,9 +7,9 @@ const urlsToCache = [
   '/',
   '/index.html',
   '/portal',
+  '/portal-fmteam',
   '/manifest.json',
-  '/icone (192 x 192 px).png',
-  '/icone (512 x 512 px).png',
+  '/fmteam-icon.png',
   '/vite.svg'
 ];
 
@@ -55,9 +55,9 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Ignorar requisições de API externas (Supabase, etc)
-  if (event.request.url.includes('supabase.co') || 
-      event.request.url.includes('googleapis.com') ||
-      event.request.url.includes('google.com')) {
+  if (event.request.url.includes('supabase.co') ||
+    event.request.url.includes('googleapis.com') ||
+    event.request.url.includes('google.com')) {
     return;
   }
 

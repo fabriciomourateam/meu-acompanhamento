@@ -10,6 +10,7 @@ const App = () => (
       <Routes>
         <Route path="/" element={<PortalLogin />} />
         <Route path="/portal" element={<PortalLogin />} />
+        <Route path="/portal-fmteam" element={<PortalLogin />} />
         <Route path="/portal/:token" element={<PatientPortal />} />
       </Routes>
     </BrowserRouter>
