@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,10 +12,12 @@ import { motion } from 'framer-motion';
 export default function PortalLogin() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const { toast } = useToast();
 
   const refParam = (searchParams.get('n') || searchParams.get('ref') || '').toLowerCase();
-  const isFabricio = ['fm', 'fabricio', 'fabriciomoura'].includes(refParam);
+  const isFmTeamRoute = location.pathname === '/portal-fmteam';
+  const isFabricio = isFmTeamRoute || ['fm', 'fabricio', 'fabriciomoura'].includes(refParam);
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
   const [checkingToken, setCheckingToken] = useState(true);
