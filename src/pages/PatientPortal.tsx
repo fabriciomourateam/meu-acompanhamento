@@ -155,12 +155,14 @@ export default function PatientPortal() {
 
   // Memoizar função de logout
   const handleLogout = useCallback(() => {
+    // Ler a rota de login antes de limpar tudo
+    const loginRoute = localStorage.getItem('portal_login_route') || '/portal';
     // Limpar token do localStorage
     localStorage.removeItem('portal_access_token');
     localStorage.removeItem('portal_token');
     localStorage.removeItem('portal_phone');
-    // Redirecionar para página de login
-    navigate('/portal', { replace: true });
+    // Redirecionar para a página de login original (personalizada ou padrão)
+    navigate(loginRoute, { replace: true });
     toast({
       title: 'Logout realizado',
       description: 'Você saiu do portal com sucesso'
@@ -238,7 +240,7 @@ export default function PatientPortal() {
             description: 'Por favor, faça login novamente',
             variant: 'destructive'
           });
-          setTimeout(() => navigate('/portal', { replace: true }), 2000);
+          setTimeout(() => navigate(localStorage.getItem('portal_login_route') || '/portal', { replace: true }), 2000);
           return;
         }
       }

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -20,27 +20,28 @@ export default function PortalLogin() {
   const isFabricio = isFmTeamRoute || ['fm', 'fabricio', 'fabriciomoura'].includes(refParam);
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
-  const [checkingToken, setCheckingToken] = useState(true);
+  const hasRedirected = useRef(false);
+
+  // Salvar rota de login ao visitar a página
+  // Se é uma rota personalizada (ex: /portal-fmteam), sempre salvar
+  // Se é rota genérica (/portal ou /), só salvar se não houver rota já salva
+  useEffect(() => {
+    if (isFabricio) {
+      localStorage.setItem('portal_login_route', location.pathname);
+    } else if (!localStorage.getItem('portal_login_route')) {
+      localStorage.setItem('portal_login_route', location.pathname);
+    }
+  }, [isFabricio, location.pathname]);
 
   // Verificar se há um token salvo (para PWA instalado)
   useEffect(() => {
+    if (hasRedirected.current) return;
     const savedToken = localStorage.getItem('portal_access_token');
     if (savedToken) {
-      // Redirecionar automaticamente para o portal com o token salvo
+      hasRedirected.current = true;
       navigate(`/portal/${savedToken}`, { replace: true });
-    } else {
-      setCheckingToken(false);
     }
   }, [navigate]);
-
-  // Mostrar loading enquanto verifica token
-  if (checkingToken) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 text-white animate-spin" />
-      </div>
-    );
-  }
 
   // Normalizar telefone (preparar para busca)
   const normalizePhone = (phone: string): string => {
@@ -184,6 +185,9 @@ export default function PortalLogin() {
         description: `Bem-vindo(a), ${patient.nome}!`
       });
 
+      // Salvar a rota de login para redirecionar corretamente no logout
+      localStorage.setItem('portal_login_route', location.pathname);
+
       // Redirecionar para o portal com o token
       navigate(`/portal/${token}`);
 
@@ -225,9 +229,9 @@ export default function PortalLogin() {
       }} />
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
         className="w-full max-w-md relative z-10"
       >
         <Card
@@ -253,9 +257,9 @@ export default function PortalLogin() {
 
           <CardHeader className="text-center space-y-4 relative z-10">
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 200, damping: 15 }}
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
               className="w-24 h-24 mx-auto relative"
             >
               {isFabricio ? (
@@ -298,19 +302,11 @@ export default function PortalLogin() {
           </CardHeader>
 
           <CardContent style={{ padding: '0 2rem 2.5rem 2rem', position: 'relative', zIndex: 10 }}>
-            <motion.form
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.6 }}
+            <form
               onSubmit={handleSubmit}
               className="space-y-6"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.7 }}
-                className="space-y-2"
-              >
+              <div className="space-y-2">
                 <Label htmlFor="telefone" className="text-slate-300 flex items-center gap-2">
                   <Phone className="w-4 h-4" />
                   Número de Telefone
@@ -328,7 +324,7 @@ export default function PortalLogin() {
                 <p className="text-xs text-slate-400">
                   Digite o seu telefone (aceita código do país +55)
                 </p>
-              </motion.div>
+              </div>
 
               <motion.div
                 whileHover={{ scale: loading || normalizePhone(telefone).length < 10 ? 1 : 1.02 }}
@@ -372,18 +368,13 @@ export default function PortalLogin() {
                   />
                 </Button>
               </motion.div>
-            </motion.form>
+            </form>
 
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 0.8 }}
-              className="mt-6 pt-6 border-t border-slate-700/50"
-            >
+            <div className="mt-6 pt-6 border-t border-slate-700/50">
               <p className="text-center text-sm text-slate-400">
                 Constância é o segredo dos resultados!
               </p>
-            </motion.div>
+            </div>
           </CardContent>
         </Card>
 
@@ -392,14 +383,9 @@ export default function PortalLogin() {
         </p>
 
         {isFabricio && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 1 }}
-            className="flex justify-center w-full mt-4"
-          >
+          <div className="flex justify-center w-full mt-4">
             <img src="/fm-myshape-logo.png" alt="My Shape" className="h-10 sm:h-12 object-contain drop-shadow-2xl opacity-90 hover:opacity-100 transition-opacity" />
-          </motion.div>
+          </div>
         )}
       </motion.div>
     </div>

@@ -453,22 +453,7 @@
   color: #1f2937 !important;
 }
 
-/* Animação de gradiente para landing page */
-@keyframes gradient {
-  0%, 100% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-}
-
-.animate-gradient {
-  background-size: 200% 200%;
-  animation: gradient 3s ease infinite;
-}
-
-/* Animação de gradiente para página de login */
+/* Animação de gradiente para login e landing page */
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
