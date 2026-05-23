@@ -667,8 +667,7 @@ export function PatientDietPortal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-slate-900 flex items-center gap-2">
-                          <Utensils className="w-5 h-5 text-emerald-500" />
+                        <CardTitle className="text-slate-900">
                           {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
@@ -733,18 +732,6 @@ export function PatientDietPortal({
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
                                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                      <div
-                                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
-                                          ? 'bg-emerald-100 text-emerald-600'
-                                          : '!bg-emerald-50 !text-emerald-500'
-                                          }`}
-                                      >
-                                        {isConsumed ? (
-                                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        ) : (
-                                          <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        )}
-                                      </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                           <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
