@@ -53,6 +53,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { WeightInput } from '@/components/evolution/WeightInput';
@@ -782,27 +784,10 @@ export default function PatientPortal() {
 
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
-      {/* Background Premium Moderno */}
+      {/* Background */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        {/* Gradiente radial para profundidade */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.15),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.12),transparent_50%)]" />
-
-        {/* Geometria Abstrata (Deep Polygons) */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-30 mix-blend-overlay">
-          <div className="absolute -top-[20%] -left-[10%] w-[70%] h-[70%] bg-slate-600 blur-[1px] transition-transform duration-[20s] hover:scale-105" style={{ clipPath: 'polygon(0 0, 100% 0, 60% 100%, 20% 80%)' }} />
-          <div className="absolute top-[10%] -right-[10%] w-[60%] h-[80%] bg-slate-900 blur-[1px] transition-transform duration-[20s] hover:scale-105" style={{ clipPath: 'polygon(50% 0%, 100% 20%, 80% 100%, 10% 80%)' }} />
-          <div className="absolute -bottom-[20%] left-[10%] w-[80%] h-[60%] bg-slate-950 blur-[2px] transition-transform duration-[20s] hover:scale-105" style={{ clipPath: 'polygon(20% 0%, 90% 10%, 100% 100%, 0% 100%)' }} />
-          <div className="absolute top-[30%] left-[20%] w-[50%] h-[50%] bg-slate-500/30 blur-[3px]" style={{ clipPath: 'polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)' }} />
-        </div>
-
-        {/* Efeito de brilho animado */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" style={{ animationDelay: '1s' }} />
-
-        {/* Linhas de gradiente decorativas */}
-        <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-cyan-500/20 to-transparent" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.12),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.10),transparent_50%)]" />
       </div>
 
       {/* Conteúdo com z-index */}
@@ -853,64 +838,66 @@ export default function PatientPortal() {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700 text-white w-56">
+                  <DropdownMenuLabel className="text-slate-400 text-xs uppercase tracking-wide px-2 py-1.5">Dieta</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={handleExportDietPremiumPDF}
                     disabled={exporting}
-                    className="text-white hover:bg-slate-700 cursor-pointer py-3"
+                    className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    {exporting ? 'Gerando...' : 'Baixar Dieta PDF'}
+                    <FileText className="w-4 h-4 mr-2 text-emerald-400" />
+                    {exporting ? 'Gerando...' : 'PDF Premium (colorido)'}
                   </DropdownMenuItem>
-
                   <DropdownMenuItem
                     onClick={handleExportDietPDF}
                     disabled={exporting}
-                    className="text-white hover:bg-slate-700 cursor-pointer py-3"
+                    className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
                   >
-                    <FileText className="w-4 h-4 mr-2" />
-                    {exporting ? 'Gerando...' : 'Baixar Dieta (Impressão)'}
+                    <FileText className="w-4 h-4 mr-2 text-slate-400" />
+                    {exporting ? 'Gerando...' : 'PDF para impressão'}
                   </DropdownMenuItem>
 
                   {patient && (
                     <>
+                      <DropdownMenuSeparator className="bg-slate-700 my-1" />
+                      <DropdownMenuLabel className="text-slate-400 text-xs uppercase tracking-wide px-2 py-1.5">Evolução</DropdownMenuLabel>
                       <DropdownMenuItem
                         onClick={() => setShowEvolutionExport(true)}
-                        className="text-white hover:bg-blue-700/50 cursor-pointer py-3"
+                        className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
                       >
                         <Eye className="w-4 h-4 mr-2 text-blue-400" />
-                        Visualizar Evolução
+                        Visualizar relatório
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleExportEvolution('png')}
-                        className="text-white hover:bg-green-700/50 cursor-pointer py-3"
+                        className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
                       >
                         <FileImage className="w-4 h-4 mr-2 text-green-400" />
-                        Baixar Evolução PNG
+                        Exportar como imagem
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleExportEvolution('pdf')}
-                        className="text-white hover:bg-purple-700/50 cursor-pointer py-3"
+                        className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
                       >
                         <FileText className="w-4 h-4 mr-2 text-purple-400" />
-                        Baixar Evolução PDF
+                        Exportar como PDF
                       </DropdownMenuItem>
                     </>
                   )}
 
+                  <DropdownMenuSeparator className="bg-slate-700 my-1" />
                   <DropdownMenuItem
                     onClick={loadPortalData}
-                    className="text-white hover:bg-slate-700 cursor-pointer py-3"
+                    className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
-                    Atualizar Dados
+                    Atualizar dados
                   </DropdownMenuItem>
-
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-red-400 hover:bg-red-500/10 cursor-pointer py-3 border-t border-slate-700 mt-1"
+                    className="text-red-400 hover:bg-red-500/10 cursor-pointer py-2.5"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
-                    Sair do Portal
+                    Sair do portal
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

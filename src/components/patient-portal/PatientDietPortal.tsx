@@ -518,45 +518,45 @@ export function PatientDietPortal({
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
       <Tabs defaultValue="diet" className="w-full">
         {/* Desktop: abas em linha */}
-        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-white/90 backdrop-blur-md p-1 border-b border-slate-200 shadow-lg rounded-t-lg min-h-[48px]">
-          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-800/95 backdrop-blur-md p-1 border-b border-slate-700 shadow-lg rounded-t-lg min-h-[48px]">
+          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Plano Alimentar
           </TabsTrigger>
-          <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Suplementação
           </TabsTrigger>
-          <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Metas
           </TabsTrigger>
-          <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Ranking & Conquistas
           </TabsTrigger>
-          <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Meus Resultados
           </TabsTrigger>
         </TabsList>
 
-        {/* Mobile: grid 4 colunas com ícones */}
-        <div className="sticky top-0 z-50 sm:hidden bg-white/95 backdrop-blur-md p-2 border-b border-slate-200 shadow-lg rounded-t-lg">
-          <TabsList className="grid grid-cols-5 gap-2 bg-transparent h-auto">
-            <TabsTrigger value="diet" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">🍽️</span>
+        {/* Mobile: grid 5 colunas com ícones */}
+        <div className="sticky top-0 z-50 sm:hidden bg-slate-900/95 backdrop-blur-md p-2 border-b border-slate-700 shadow-lg rounded-t-lg">
+          <TabsList className="grid grid-cols-5 gap-1.5 bg-transparent h-auto">
+            <TabsTrigger value="diet" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+              <span className="text-base">🍽️</span>
               <span>Plano</span>
             </TabsTrigger>
-            <TabsTrigger value="supplements" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">💊</span>
+            <TabsTrigger value="supplements" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+              <span className="text-base">💊</span>
               <span>Supl.</span>
             </TabsTrigger>
-            <TabsTrigger value="challenges" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">🎯</span>
+            <TabsTrigger value="challenges" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+              <span className="text-base">🎯</span>
               <span>Metas</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">🏆</span>
+            <TabsTrigger value="ranking" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+              <span className="text-base">🏆</span>
               <span>Rank</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">📊</span>
+            <TabsTrigger value="results" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+              <span className="text-base">📊</span>
               <span>Evolução</span>
             </TabsTrigger>
           </TabsList>
