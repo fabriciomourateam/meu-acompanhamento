@@ -30,6 +30,8 @@ import { GamificationWidget } from '@/components/diets/GamificationWidget';
 import { PatientEvolutionTab } from '@/components/diets/PatientEvolutionTab';
 import { AdherenceCharts } from '@/components/diets/AdherenceCharts';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
+import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
+import { portalSettingsService, PortalConfig } from '@/lib/portal-settings-service';
 import {
   Calendar,
   Check,
@@ -97,10 +99,19 @@ export function PatientDietPortal({
     substitutions: any[];
   } | null>(null);
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
+  const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
+
+  const trainerUserId = patient?.user_id || '';
 
   useEffect(() => {
     loadDietData();
   }, [patientId]);
+
+  useEffect(() => {
+    if (trainerUserId) {
+      portalSettingsService.getConfig(trainerUserId).then(setPortalConfig);
+    }
+  }, [trainerUserId]);
 
   useEffect(() => {
     // Carregar refeições consumidas do localStorage
@@ -1012,8 +1023,17 @@ export function PatientDietPortal({
 
         {/* Aba: Metas (com histórico semanal) */}
         <TabsContent value="challenges" className="mt-6 space-y-6">
-          <DailyChallengesWidget patientId={patientId} />
-          <WeeklyHabitsGrid patientId={patientId} />
+          {portalConfig?.challenges.show_tab === false ? (
+            <div className="text-center py-12 text-slate-400">
+              <p className="text-3xl mb-2">🎯</p>
+              <p className="text-sm">As metas diárias estão desativadas no momento.</p>
+            </div>
+          ) : (
+            <>
+              <DailyChallengesWidget patientId={patientId} />
+              <WeeklyHabitsGrid patientId={patientId} />
+            </>
+          )}
         </TabsContent>
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
@@ -1036,25 +1056,36 @@ export function PatientDietPortal({
         </TabsContent>
 
         {/* Aba: Ranking & Conquistas */}
-        <TabsContent value="ranking" className="mt-6 space-y-8">
-          <section>
-            <GamificationWidget patientId={patientId} />
-          </section>
+        <TabsContent value="ranking" className="mt-6 space-y-6">
+          {(!portalConfig || portalConfig.ranking.show_leaderboard) && trainerUserId && (
+            <LeaderboardWidget
+              patientId={patientId}
+              trainerUserId={trainerUserId}
+              periods={portalConfig?.ranking.periods ?? ['monthly', 'all_time']}
+            />
+          )}
 
-          {/* Seção 2: Adesão à Dieta */}
-          <section className="mt-8">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <span className="text-2xl drop-shadow-glow-sm">📊</span> Adesão ao Plano
-            </h3>
-            <div className="space-y-6">
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-                <WeeklyProgressChart patientId={patientId} />
+          {(!portalConfig || portalConfig.ranking.show_gamification) && (
+            <section>
+              <GamificationWidget patientId={patientId} />
+            </section>
+          )}
+
+          {(!portalConfig || portalConfig.ranking.show_adherence) && (
+            <section>
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">📊</span> Adesão ao Plano
+              </h3>
+              <div className="space-y-4">
+                <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
+                  <WeeklyProgressChart patientId={patientId} />
+                </div>
+                <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
+                  <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
+                </div>
               </div>
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-                <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
-              </div>
-            </div>
-          </section>
+            </section>
+          )}
         </TabsContent>
       </Tabs >
 

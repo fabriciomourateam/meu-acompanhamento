@@ -41,6 +41,7 @@ import {
   TrendingUp,
   Weight,
   Flame,
+  Settings,
   Smartphone,
   FileText,
   Scale,
@@ -822,6 +823,18 @@ export default function PatientPortal() {
 
               {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
                 <MembersAreaButton />
+              )}
+
+              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate(`/admin?uid=${patient.user_id}`)}
+                  className="border-slate-600 hover:bg-slate-800 text-white gap-1.5"
+                >
+                  <Settings className="w-4 h-4" />
+                  Admin
+                </Button>
               )}
 
               {/* Botão de Peso removido a pedido */}
