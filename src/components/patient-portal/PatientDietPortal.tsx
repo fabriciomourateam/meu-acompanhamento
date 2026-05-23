@@ -1073,21 +1073,21 @@ export function PatientDietPortal({
 
       {/* Modal de Substituições */}
       < Dialog open={substitutionsModalOpen} onOpenChange={setSubstitutionsModalOpen} >
-        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto shadow-2xl">
-          <DialogHeader className="relative pb-4 border-b border-slate-800">
+        <DialogContent className="max-w-2xl bg-white border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto shadow-2xl">
+          <DialogHeader className="relative pb-4 border-b border-slate-100">
             <button
               onClick={() => setSubstitutionsModalOpen(false)}
-              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Fechar"
             >
-              <X className="w-5 h-5 text-slate-400 hover:text-white" />
+              <X className="w-5 h-5 text-slate-400 hover:text-slate-700" />
             </button>
-            <DialogTitle className="text-white text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
-              <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
+            <DialogTitle className="text-slate-900 text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
+              <RefreshCw className="w-5 h-5 text-emerald-500 animate-spin-slow" />
               <span className="truncate">Opções de Substituição</span>
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-slate-400 pr-8">
-              Você pode substituir <strong className="text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
+            <DialogDescription className="text-xs sm:text-sm text-slate-500 pr-8">
+              Você pode substituir <strong className="text-emerald-600">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
             </DialogDescription>
           </DialogHeader>
 
@@ -1095,15 +1095,15 @@ export function PatientDietPortal({
             {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all group"
+                className="p-3 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
+                    <h4 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors text-sm sm:text-base truncate">
                       {sub.food_name}
                     </h4>
-                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                      Quantidade: <span className="font-medium text-emerald-400">{sub.quantity} {sub.unit}</span>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                      Quantidade: <span className="font-medium text-emerald-600">{sub.quantity} {sub.unit}</span>
                       {sub.custom_unit_name && (
                         <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
                           ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
@@ -1117,8 +1117,8 @@ export function PatientDietPortal({
             ))}
           </div>
 
-          <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-            <p className="text-xs text-cyan-400 flex items-center gap-2">
+          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs text-blue-600 flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
                 Essas são opções equivalentes que você pode usar no lugar do alimento original.
