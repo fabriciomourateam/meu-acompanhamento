@@ -155,7 +155,7 @@ function ReferenceQuantityPicker({
   const chipBase =
     "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300";
   const activeChip =
-    "border-emerald-500 bg-emerald-50 text-emerald-700";
+    "border-emerald-500 bg-emerald-100 text-emerald-800 font-semibold shadow-sm shadow-emerald-500/20";
 
   return (
     <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">

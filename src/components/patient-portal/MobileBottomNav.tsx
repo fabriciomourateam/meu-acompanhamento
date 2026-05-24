@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
-import { Utensils, Pill, RefreshCw, Target, Trophy, BarChart2 } from 'lucide-react';
+import { Utensils, RefreshCw, Target, Trophy, BarChart2 } from 'lucide-react';
 
-type TabValue = 'diet' | 'supplements' | 'substitutions' | 'challenges' | 'ranking' | 'results';
+type TabValue = 'diet' | 'substitutions' | 'challenges' | 'ranking' | 'results';
 
 interface NavItem {
   value: TabValue;
@@ -10,12 +10,11 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { value: 'diet',          label: 'Dieta',        Icon: Utensils   },
-  { value: 'supplements',   label: 'Suplementos',  Icon: Pill       },
+  { value: 'diet',          label: 'Dieta',         Icon: Utensils   },
   { value: 'substitutions', label: 'Substituições', Icon: RefreshCw  },
-  { value: 'challenges',    label: 'Metas',        Icon: Target     },
-  { value: 'ranking',       label: 'Ranking',      Icon: Trophy     },
-  { value: 'results',       label: 'Evolução',     Icon: BarChart2  },
+  { value: 'challenges',    label: 'Metas',         Icon: Target     },
+  { value: 'ranking',       label: 'Ranking',       Icon: Trophy     },
+  { value: 'results',       label: 'Evolução',      Icon: BarChart2  },
 ];
 
 interface MobileBottomNavProps {

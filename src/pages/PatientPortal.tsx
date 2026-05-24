@@ -923,7 +923,7 @@ export default function PatientPortal() {
           )}
 
           {/* Footer */}
-          <div className="text-center text-xs sm:text-sm text-slate-500 py-3 px-4 pb-24 sm:pb-6">
+          <div className="text-center text-xs text-slate-500 -mt-2 sm:mt-0 pt-1 px-4 pb-24 sm:pb-4">
             {getDailyMotivationalPhrase()}
           </div>
         </div>

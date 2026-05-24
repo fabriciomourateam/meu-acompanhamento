@@ -104,7 +104,7 @@ export function PatientDietPortal({
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>('diet');
-  const TAB_ORDER = ['diet', 'supplements', 'substitutions', 'challenges', 'ranking', 'results'];
+  const TAB_ORDER = ['diet', 'substitutions', 'challenges', 'ranking', 'results'];
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
@@ -575,10 +575,7 @@ export function PatientDietPortal({
         {/* Desktop: abas em linha */}
         <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
           <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Plano Alimentar
-          </TabsTrigger>
-          <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Suplementação
+            Dieta
           </TabsTrigger>
           <TabsTrigger value="substitutions" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Substituições
@@ -596,8 +593,25 @@ export function PatientDietPortal({
 
         {/* Mobile: navegação via MobileBottomNav (fora deste bloco) */}
 
-        {/* Aba: Plano Alimentar + Orientações + Exames */}
-        <TabsContent value="diet" className="mt-6 space-y-6">
+        {/* Aba: Dieta — sub-tabs Plano Alimentar + Suplementos */}
+        <TabsContent value="diet" className="mt-6 space-y-4">
+          <Tabs defaultValue="meals" className="w-full">
+            <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-lg h-auto">
+              <TabsTrigger
+                value="meals"
+                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+              >
+                Plano Alimentar
+              </TabsTrigger>
+              <TabsTrigger
+                value="supplements"
+                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+              >
+                Suplementos
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="meals" className="mt-4 space-y-6">
           {!hasActivePlan ? (
             <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
               <CardContent className="p-5 sm:p-6 text-center">
@@ -972,10 +986,9 @@ export function PatientDietPortal({
               )}
             </>
           )}
-        </TabsContent>
+            </TabsContent>
 
-        {/* Aba: Suplementação */}
-        <TabsContent value="supplements" className="mt-6 space-y-6">
+            <TabsContent value="supplements" className="mt-4 space-y-6">
           {!hasActivePlan ? (
             <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
               <CardContent className="p-5 sm:p-6 text-center">
@@ -1055,6 +1068,8 @@ export function PatientDietPortal({
               )}
             </div>
           )}
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* Aba: Substituições */}

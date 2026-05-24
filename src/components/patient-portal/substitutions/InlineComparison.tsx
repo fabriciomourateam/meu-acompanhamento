@@ -101,7 +101,7 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
 
   const chipBase =
     "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300";
-  const activeChip = "border-emerald-500 bg-emerald-50 text-emerald-700";
+  const activeChip = "border-emerald-500 bg-emerald-100 text-emerald-800 font-semibold shadow-sm shadow-emerald-500/20";
 
   const gramPresets = [50, 100, 150, 200];
   const unitPresets = [0.5, 1, 2, 3];
