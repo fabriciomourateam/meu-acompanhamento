@@ -786,10 +786,9 @@ export default function PatientPortal() {
 
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
-      {/* Background em tons de emerald — combina com o accent do app */}
-      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/60 to-emerald-100/50">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.18),transparent_55%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(20,184,166,0.14),transparent_55%)]" />
+      {/* Background branco com sutil tom emerald no canto inferior direito */}
+      <div className="absolute inset-0 bg-white">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_95%,rgba(16,185,129,0.16),transparent_55%)]" />
       </div>
 
       {/* Conteúdo com z-index */}
@@ -831,7 +830,7 @@ export default function PatientPortal() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-slate-300 hover:bg-slate-100 text-slate-700 min-w-[40px] px-0"
+                    className="border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-700 min-w-[40px] px-0"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </Button>

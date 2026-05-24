@@ -985,7 +985,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-blue-300 text-blue-600 hover:bg-blue-50"
+                  className="border-emerald-300 text-emerald-700 hover:bg-emerald-50 hover:text-emerald-800"
                   onClick={() => {
                     if (selectedPhoto) {
                       const link = document.createElement('a');

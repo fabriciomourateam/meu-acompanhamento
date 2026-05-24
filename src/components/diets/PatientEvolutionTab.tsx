@@ -210,7 +210,7 @@ export function PatientEvolutionTab({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {/* Check-ins Realizados */}
             {!isPatientView && (
-              <Card className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:scale-[1.02] hover:shadow-md transition-all duration-300 group">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-sky-50/40 border border-blue-100 shadow-sm hover:scale-[1.02] hover:border-blue-300 hover:shadow-md transition-all duration-300 group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
@@ -229,7 +229,7 @@ export function PatientEvolutionTab({
 
             {/* Idade */}
             {patient?.data_nascimento && (
-              <Card className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:scale-[1.02] hover:border-cyan-300 hover:shadow-md transition-all duration-300 group">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-teal-50/40 border border-cyan-100 shadow-sm hover:scale-[1.02] hover:border-cyan-300 hover:shadow-md transition-all duration-300 group">
                 <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
@@ -251,7 +251,7 @@ export function PatientEvolutionTab({
 
             {/* Altura */}
             {(patient as any)?.altura_inicial && (
-              <Card className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:scale-[1.02] hover:border-purple-300 hover:shadow-md transition-all duration-300 group">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-violet-50/40 border border-purple-100 shadow-sm hover:scale-[1.02] hover:border-purple-300 hover:shadow-md transition-all duration-300 group">
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
@@ -273,7 +273,7 @@ export function PatientEvolutionTab({
 
             {/* Peso Inicial */}
             {weightData.length > 0 && (
-              <Card className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:scale-[1.02] hover:border-indigo-300 hover:shadow-md transition-all duration-300 group">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-blue-50/40 border border-indigo-100 shadow-sm hover:scale-[1.02] hover:border-indigo-300 hover:shadow-md transition-all duration-300 group">
                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
@@ -297,7 +297,7 @@ export function PatientEvolutionTab({
 
             {/* Peso Atual */}
             {checkins[0]?.peso && (
-              <Card className="relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:scale-[1.02] hover:border-blue-300 hover:shadow-md transition-all duration-300 group">
+              <Card className="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-blue-50/40 border border-sky-100 shadow-sm hover:scale-[1.02] hover:border-sky-300 hover:shadow-md transition-all duration-300 group">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
                 <CardHeader className="pb-1 relative">
                   <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
@@ -321,9 +321,9 @@ export function PatientEvolutionTab({
 
             {/* Variação */}
             {weightData.length >= 2 && (
-              <Card className={`relative overflow-hidden bg-white border border-slate-200 shadow-sm hover:scale-[1.02] hover:shadow-md transition-all duration-300 group ${isNeutral ? 'hover:border-slate-300' :
-                isNegative ? 'hover:border-emerald-300' :
-                  'hover:border-rose-300'
+              <Card className={`relative overflow-hidden shadow-sm hover:scale-[1.02] hover:shadow-md transition-all duration-300 group ${isNeutral ? 'bg-gradient-to-br from-slate-50 via-white to-slate-50/40 border border-slate-200 hover:border-slate-300' :
+                isNegative ? 'bg-gradient-to-br from-emerald-50 via-white to-teal-50/40 border border-emerald-100 hover:border-emerald-300' :
+                  'bg-gradient-to-br from-rose-50 via-white to-red-50/40 border border-rose-100 hover:border-rose-300'
                 }`}>
                 <div className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${isNeutral ? 'from-slate-500/5' : isNegative ? 'from-emerald-500/5' : 'from-rose-500/5'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
                 <CardHeader className="pb-1 relative">
