@@ -33,6 +33,7 @@ import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
 import { SubstitutionListWidget } from '@/components/diets/SubstitutionListWidget';
 import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
+import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import {
   Calendar,
@@ -102,6 +103,7 @@ export function PatientDietPortal({
   } | null>(null);
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
+  const [activeTab, setActiveTab] = useState<string>('diet');
 
   const trainerUserId = patient?.user_id || '';
 
@@ -493,7 +495,7 @@ export function PatientDietPortal({
   };
 
   return (
-    <div className="space-y-6 bg-slate-900/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-700/50">
+    <div className="space-y-6 bg-slate-900/40 backdrop-blur-xl rounded-2xl p-4 sm:p-6 shadow-2xl border border-slate-700/50 pb-28 sm:pb-6">
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
       {releasedPlans.length > 1 && (
         <Card className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/20 shadow-lg">
@@ -528,8 +530,14 @@ export function PatientDietPortal({
         </Card>
       )}
 
+      {/* Bottom nav mobile — fora do Tabs mas controla o value */}
+      <MobileBottomNav
+        value={activeTab as any}
+        onChange={(v) => setActiveTab(v)}
+      />
+
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
-      <Tabs defaultValue="diet" className="w-full">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         {/* Desktop: abas em linha */}
         <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
           <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
@@ -552,35 +560,7 @@ export function PatientDietPortal({
           </TabsTrigger>
         </TabsList>
 
-        {/* Mobile: scroll horizontal com palavras completas */}
-        <div className="sticky top-0 z-50 sm:hidden bg-slate-200/95 backdrop-blur-md px-2 pt-2 pb-2 shadow-md rounded-t-lg">
-          <TabsList className="flex gap-1.5 bg-transparent h-auto overflow-x-auto scrollbar-hide w-full">
-            <TabsTrigger value="diet" className="flex-shrink-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 data-[state=active]:font-semibold data-[state=active]:shadow-sm bg-slate-300/60 text-slate-600 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-300/60 hover:bg-slate-100 transition-all">
-              <span className="text-base leading-none">🍽️</span>
-              <span className="whitespace-nowrap">Plano</span>
-            </TabsTrigger>
-            <TabsTrigger value="supplements" className="flex-shrink-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 data-[state=active]:font-semibold data-[state=active]:shadow-sm bg-slate-300/60 text-slate-600 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-300/60 hover:bg-slate-100 transition-all">
-              <span className="text-base leading-none">💊</span>
-              <span className="whitespace-nowrap">Suplementos</span>
-            </TabsTrigger>
-            <TabsTrigger value="substitutions" className="flex-shrink-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 data-[state=active]:font-semibold data-[state=active]:shadow-sm bg-slate-300/60 text-slate-600 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-300/60 hover:bg-slate-100 transition-all">
-              <span className="text-base leading-none">🔄</span>
-              <span className="whitespace-nowrap">Substituições</span>
-            </TabsTrigger>
-            <TabsTrigger value="challenges" className="flex-shrink-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 data-[state=active]:font-semibold data-[state=active]:shadow-sm bg-slate-300/60 text-slate-600 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-300/60 hover:bg-slate-100 transition-all">
-              <span className="text-base leading-none">🎯</span>
-              <span className="whitespace-nowrap">Metas</span>
-            </TabsTrigger>
-            <TabsTrigger value="ranking" className="flex-shrink-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 data-[state=active]:font-semibold data-[state=active]:shadow-sm bg-slate-300/60 text-slate-600 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-300/60 hover:bg-slate-100 transition-all">
-              <span className="text-base leading-none">🏆</span>
-              <span className="whitespace-nowrap">Ranking</span>
-            </TabsTrigger>
-            <TabsTrigger value="results" className="flex-shrink-0 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:border-emerald-200 data-[state=active]:font-semibold data-[state=active]:shadow-sm bg-slate-300/60 text-slate-600 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-300/60 hover:bg-slate-100 transition-all">
-              <span className="text-base leading-none">📊</span>
-              <span className="whitespace-nowrap">Evolução</span>
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        {/* Mobile: navegação via MobileBottomNav (fora deste bloco) */}
 
         {/* Aba: Plano Alimentar + Orientações + Exames */}
         <TabsContent value="diet" className="mt-6 space-y-6">
