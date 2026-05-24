@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -104,6 +104,21 @@ export function PatientDietPortal({
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>('diet');
+  const TAB_ORDER = ['diet', 'supplements', 'substitutions', 'challenges', 'ranking', 'results'];
+  const touchStartX = useRef<number | null>(null);
+  const touchStartY = useRef<number | null>(null);
+
+  const goToTab = (tab: string) => {
+    setActiveTab(tab);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleSwipe = (deltaX: number, deltaY: number) => {
+    if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
+    const idx = TAB_ORDER.indexOf(activeTab);
+    if (deltaX < 0 && idx < TAB_ORDER.length - 1) goToTab(TAB_ORDER[idx + 1]);
+    if (deltaX > 0 && idx > 0) goToTab(TAB_ORDER[idx - 1]);
+  };
 
   const trainerUserId = patient?.user_id || '';
 
@@ -533,11 +548,28 @@ export function PatientDietPortal({
       {/* Bottom nav mobile — fora do Tabs mas controla o value */}
       <MobileBottomNav
         value={activeTab as any}
-        onChange={(v) => setActiveTab(v)}
+        onChange={(v) => goToTab(v)}
       />
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+      <Tabs
+        value={activeTab}
+        onValueChange={goToTab}
+        className="w-full"
+        onTouchStart={(e) => {
+          touchStartX.current = e.touches[0].clientX;
+          touchStartY.current = e.touches[0].clientY;
+        }}
+        onTouchEnd={(e) => {
+          if (touchStartX.current === null || touchStartY.current === null) return;
+          handleSwipe(
+            touchStartX.current - e.changedTouches[0].clientX,
+            touchStartY.current - e.changedTouches[0].clientY,
+          );
+          touchStartX.current = null;
+          touchStartY.current = null;
+        }}
+      >
         {/* Desktop: abas em linha */}
         <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
           <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
