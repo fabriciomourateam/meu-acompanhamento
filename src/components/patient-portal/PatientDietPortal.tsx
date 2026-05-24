@@ -547,28 +547,28 @@ export function PatientDietPortal({
           </TabsTrigger>
         </TabsList>
 
-        {/* Mobile: grid 5 colunas com ícones */}
-        <div className="sticky top-0 z-50 sm:hidden bg-slate-900/95 backdrop-blur-md p-2 border-b border-slate-700 shadow-lg rounded-t-lg">
-          <TabsList className="grid grid-cols-5 gap-1.5 bg-transparent h-auto">
-            <TabsTrigger value="diet" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all overflow-hidden">
+        {/* Mobile: scroll horizontal com palavras completas */}
+        <div className="sticky top-0 z-50 sm:hidden bg-slate-900/95 backdrop-blur-md px-2 pt-2 pb-1 border-b border-slate-700 shadow-lg rounded-t-lg">
+          <TabsList className="flex gap-1.5 bg-transparent h-auto overflow-x-auto scrollbar-hide w-full">
+            <TabsTrigger value="diet" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
               <span className="text-base leading-none">🍽️</span>
-              <span className="text-[10px] leading-tight truncate w-full text-center">Plano</span>
+              <span className="whitespace-nowrap">Plano</span>
             </TabsTrigger>
-            <TabsTrigger value="supplements" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all overflow-hidden">
+            <TabsTrigger value="supplements" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
               <span className="text-base leading-none">💊</span>
-              <span className="text-[10px] leading-tight truncate w-full text-center">Supl.</span>
+              <span className="whitespace-nowrap">Suplementos</span>
             </TabsTrigger>
-            <TabsTrigger value="challenges" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all overflow-hidden">
+            <TabsTrigger value="challenges" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
               <span className="text-base leading-none">🎯</span>
-              <span className="text-[10px] leading-tight truncate w-full text-center">Metas</span>
+              <span className="whitespace-nowrap">Metas</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all overflow-hidden">
+            <TabsTrigger value="ranking" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
               <span className="text-base leading-none">🏆</span>
-              <span className="text-[10px] leading-tight truncate w-full text-center">Rank</span>
+              <span className="whitespace-nowrap">Ranking</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2.5 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all overflow-hidden">
+            <TabsTrigger value="results" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
               <span className="text-base leading-none">📊</span>
-              <span className="text-[10px] leading-tight truncate w-full text-center">Evol.</span>
+              <span className="whitespace-nowrap">Evolução</span>
             </TabsTrigger>
           </TabsList>
         </div>
