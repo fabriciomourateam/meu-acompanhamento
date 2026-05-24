@@ -123,7 +123,7 @@ export function CheckinAIWidget({ patientId, patientName, trainerUserId }: Check
         <CardHeader className="pb-3">
           <CardTitle className="text-slate-900 flex items-center gap-2 text-base">
             <Sparkles className="w-5 h-5 text-emerald-500" />
-            Check-in diário com IA
+            Check-in Diário
           </CardTitle>
           <p className="text-xs text-slate-400">Como você está hoje? Receba um feedback personalizado.</p>
         </CardHeader>

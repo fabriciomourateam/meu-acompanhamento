@@ -6,6 +6,7 @@ export interface PortalConfig {
   ranking: {
     show_leaderboard: boolean;
     show_gamification: boolean;
+    show_weekly_progress: boolean;
     show_adherence: boolean;
     periods: RankingPeriod[];
   };
@@ -18,7 +19,8 @@ const DEFAULT_CONFIG: PortalConfig = {
   ranking: {
     show_leaderboard: true,
     show_gamification: true,
-    show_adherence: true,
+    show_weekly_progress: false,
+    show_adherence: false,
     periods: ['monthly', 'all_time'],
   },
   challenges: {
@@ -43,7 +45,8 @@ export const portalSettingsService = {
         ranking: {
           show_leaderboard: value?.ranking?.show_leaderboard ?? true,
           show_gamification: value?.ranking?.show_gamification ?? true,
-          show_adherence: value?.ranking?.show_adherence ?? true,
+          show_weekly_progress: value?.ranking?.show_weekly_progress ?? false,
+          show_adherence: value?.ranking?.show_adherence ?? false,
           periods: value?.ranking?.periods ?? ['monthly', 'all_time'],
         },
         challenges: {

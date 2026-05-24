@@ -800,7 +800,7 @@ export default function PatientPortal() {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
+            className="rounded-2xl bg-gradient-to-r from-slate-800/80 via-slate-700/60 to-slate-800/80 border border-slate-600/50 backdrop-blur-sm px-4 sm:px-6 py-4 shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
           >
             <div className="flex-1 min-w-0">
               {patientId ? (

@@ -38,28 +38,25 @@ function PodiumBlock({
     1: {
       height: 'h-24',
       medal: '🥇',
-      bg: 'bg-amber-500/20 border-amber-400/40',
-      text: 'text-amber-600',
-      avatarBg: 'bg-amber-100 border-amber-300',
-      label: '1°',
+      bg: 'bg-amber-400/40 border-amber-500/60',
+      text: 'text-amber-800',
+      avatarBg: 'bg-amber-200 border-amber-500',
       order: 'order-2',
     },
     2: {
       height: 'h-16',
       medal: '🥈',
-      bg: 'bg-slate-200/60 border-slate-300/60',
-      text: 'text-slate-600',
-      avatarBg: 'bg-slate-100 border-slate-300',
-      label: '2°',
+      bg: 'bg-slate-300/70 border-slate-400/70',
+      text: 'text-slate-700',
+      avatarBg: 'bg-slate-200 border-slate-400',
       order: 'order-1',
     },
     3: {
       height: 'h-12',
       medal: '🥉',
-      bg: 'bg-orange-100/60 border-orange-300/60',
-      text: 'text-orange-700',
-      avatarBg: 'bg-orange-50 border-orange-200',
-      label: '3°',
+      bg: 'bg-orange-300/40 border-orange-400/60',
+      text: 'text-orange-800',
+      avatarBg: 'bg-orange-100 border-orange-400',
       order: 'order-3',
     },
   };
@@ -73,14 +70,14 @@ function PodiumBlock({
         <div
           className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
             isCurrent
-              ? 'bg-emerald-100 border-emerald-400 text-emerald-700 ring-2 ring-emerald-300'
+              ? 'bg-emerald-200 border-emerald-500 text-emerald-800 ring-2 ring-emerald-400'
               : `${c.avatarBg} ${c.text}`
           }`}
         >
           {initials(entry.patient_name)}
         </div>
       ) : (
-        <div className="w-12 h-12 rounded-full border-2 border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400">
+        <div className="w-12 h-12 rounded-full border-2 border-slate-300 bg-slate-200 flex items-center justify-center text-slate-500">
           —
         </div>
       )}
@@ -88,15 +85,11 @@ function PodiumBlock({
       <div className="text-center w-full px-1">
         {entry ? (
           <>
-            <p
-              className={`text-xs font-semibold truncate leading-tight ${
-                isCurrent ? 'text-emerald-600' : c.text
-              }`}
-            >
+            <p className={`text-xs font-semibold truncate leading-tight ${isCurrent ? 'text-emerald-700' : c.text}`}>
               {entry.patient_name.split(' ')[0]}
-              {isCurrent && <span className="ml-1 text-emerald-500">★</span>}
+              {isCurrent && <span className="ml-1 text-emerald-600">★</span>}
             </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
+            <p className="text-[10px] text-slate-500 mt-0.5 font-medium">
               {entry.points.toLocaleString('pt-BR')} pts
             </p>
           </>
@@ -106,8 +99,8 @@ function PodiumBlock({
       </div>
 
       <div
-        className={`w-full ${c.height} rounded-t-lg border flex items-center justify-center text-xl ${
-          isCurrent ? 'bg-emerald-100/60 border-emerald-300' : c.bg
+        className={`w-full ${c.height} rounded-t-lg border-2 flex items-center justify-center text-xl shadow-inner ${
+          isCurrent ? 'bg-emerald-200/70 border-emerald-400' : c.bg
         }`}
       >
         <span>{c.medal}</span>
@@ -149,7 +142,7 @@ function LeaderboardList({
     return (
       <div className="space-y-2 mt-4">
         {[1, 2, 3, 4, 5].map(i => (
-          <Skeleton key={i} className="h-12 w-full rounded-xl bg-slate-100" />
+          <Skeleton key={i} className="h-12 w-full rounded-xl bg-slate-200" />
         ))}
       </div>
     );
@@ -157,7 +150,7 @@ function LeaderboardList({
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-10 text-slate-400">
+      <div className="text-center py-10 text-slate-500">
         <p className="text-3xl mb-2">🏆</p>
         <p className="text-sm">Nenhum ponto registrado neste período ainda.</p>
       </div>
@@ -181,32 +174,32 @@ function LeaderboardList({
 
       {/* Lista a partir do 4° lugar */}
       {rest.length > 0 && (
-        <div className="space-y-1.5">
+        <div className="space-y-1">
           {rest.map(entry => (
             <div
               key={entry.patient_id}
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl border transition-all duration-150 ${
                 entry.is_current_patient
-                  ? 'bg-emerald-50 border border-emerald-200'
-                  : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
+                  ? 'bg-emerald-100 border-emerald-300 shadow-sm'
+                  : 'bg-slate-100 border-slate-300 hover:bg-slate-200 hover:border-slate-400 cursor-default'
               }`}
             >
-              <span className="text-sm font-bold w-7 text-center shrink-0 text-slate-400">
+              <span className="text-sm font-bold w-7 text-center shrink-0 text-slate-500">
                 {entry.position}°
               </span>
               <span
-                className={`flex-1 text-sm font-medium truncate ${
-                  entry.is_current_patient ? 'text-emerald-700' : 'text-slate-700'
+                className={`flex-1 text-sm font-semibold truncate ${
+                  entry.is_current_patient ? 'text-emerald-800' : 'text-slate-700'
                 }`}
               >
                 {entry.patient_name}
                 {entry.is_current_patient && (
-                  <span className="ml-1.5 text-xs text-emerald-500 font-normal">(você)</span>
+                  <span className="ml-1.5 text-xs text-emerald-600 font-normal">(você)</span>
                 )}
               </span>
               <span
                 className={`text-sm font-bold shrink-0 ${
-                  entry.is_current_patient ? 'text-emerald-600' : 'text-slate-600'
+                  entry.is_current_patient ? 'text-emerald-700' : 'text-slate-600'
                 }`}
               >
                 {entry.points.toLocaleString('pt-BR')} pts
@@ -220,19 +213,19 @@ function LeaderboardList({
       {showSeparated && currentEntry && (
         <>
           <div className="flex items-center gap-2">
-            <div className="flex-1 border-t border-dashed border-slate-300" />
-            <span className="text-xs text-slate-400 shrink-0">...</span>
-            <div className="flex-1 border-t border-dashed border-slate-300" />
+            <div className="flex-1 border-t border-dashed border-slate-400" />
+            <span className="text-xs text-slate-500 shrink-0">...</span>
+            <div className="flex-1 border-t border-dashed border-slate-400" />
           </div>
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200">
-            <span className="text-sm font-bold w-7 text-center shrink-0 text-emerald-600">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-100 border border-emerald-300 shadow-sm">
+            <span className="text-sm font-bold w-7 text-center shrink-0 text-emerald-700">
               {currentEntry.position}°
             </span>
-            <span className="flex-1 text-sm font-medium truncate text-emerald-700">
+            <span className="flex-1 text-sm font-semibold truncate text-emerald-800">
               {currentEntry.patient_name}
-              <span className="ml-1.5 text-xs text-emerald-500 font-normal">(você)</span>
+              <span className="ml-1.5 text-xs text-emerald-600 font-normal">(você)</span>
             </span>
-            <span className="text-sm font-bold shrink-0 text-emerald-600">
+            <span className="text-sm font-bold shrink-0 text-emerald-700">
               {currentEntry.points.toLocaleString('pt-BR')} pts
             </span>
           </div>
@@ -249,9 +242,9 @@ export function LeaderboardWidget({ patientId, trainerUserId, periods }: Leaderb
   if (activePeriods.length === 0) return null;
 
   return (
-    <Card className="bg-white border border-slate-200 rounded-2xl shadow-sm">
+    <Card className="bg-white border-2 border-slate-200 rounded-2xl shadow-md">
       <CardHeader className="pb-2">
-        <CardTitle className="text-slate-900 flex items-center gap-2 text-lg">
+        <CardTitle className="text-slate-800 flex items-center gap-2 text-lg font-bold">
           <span className="text-2xl">🏆</span>
           Ranking
         </CardTitle>
@@ -265,12 +258,12 @@ export function LeaderboardWidget({ patientId, trainerUserId, periods }: Leaderb
           />
         ) : (
           <Tabs defaultValue={defaultPeriod}>
-            <TabsList className="w-full bg-slate-100 rounded-lg p-1">
+            <TabsList className="w-full bg-slate-200 rounded-lg p-1">
               {activePeriods.map(period => (
                 <TabsTrigger
                   key={period}
                   value={period}
-                  className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 text-slate-500 text-sm rounded-md transition-all"
+                  className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 text-sm rounded-md transition-all"
                 >
                   {PERIOD_LABELS[period]}
                 </TabsTrigger>

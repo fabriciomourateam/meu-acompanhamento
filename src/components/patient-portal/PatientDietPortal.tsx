@@ -1084,6 +1084,8 @@ export function PatientDietPortal({
 
         {/* Aba: Metas (com histórico semanal) */}
         <TabsContent value="challenges" className="mt-6 space-y-6">
+          <DailyChallengesWidget patientId={patientId} />
+          <WeeklyHabitsGrid patientId={patientId} />
           {trainerUserId && (
             <CheckinAIWidget
               patientId={patientId}
@@ -1091,8 +1093,6 @@ export function PatientDietPortal({
               trainerUserId={trainerUserId}
             />
           )}
-          <DailyChallengesWidget patientId={patientId} />
-          <WeeklyHabitsGrid patientId={patientId} />
         </TabsContent>
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
@@ -1123,12 +1123,17 @@ export function PatientDietPortal({
             />
           )}
 
-          <GamificationWidget patientId={patientId} />
+          {(!portalConfig || portalConfig.ranking.show_gamification) && (
+            <GamificationWidget patientId={patientId} />
+          )}
 
-          <div className="space-y-4">
+          {portalConfig?.ranking?.show_weekly_progress && (
             <WeeklyProgressChart patientId={patientId} />
+          )}
+
+          {portalConfig?.ranking?.show_adherence && (
             <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
-          </div>
+          )}
         </TabsContent>
       </Tabs >
 

@@ -279,7 +279,8 @@ function RankingSettings({ config, onChange }: { config: PortalConfig; onChange:
         {[
           { key: 'show_leaderboard' as const, label: 'Mostrar leaderboard (placar com todos os alunos)' },
           { key: 'show_gamification' as const, label: 'Mostrar nível, pontos e conquistas' },
-          { key: 'show_adherence' as const, label: 'Mostrar gráfico de Adesão à Dieta' },
+          { key: 'show_weekly_progress' as const, label: 'Mostrar Progresso Semanal' },
+          { key: 'show_adherence' as const, label: 'Mostrar Adesão ao Plano Alimentar' },
         ].map(({ key, label }) => (
           <button
             key={key}
