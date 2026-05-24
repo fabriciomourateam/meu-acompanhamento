@@ -124,6 +124,7 @@ export default function PatientPortal() {
   const [chartsRefreshTrigger, setChartsRefreshTrigger] = useState(0);
   const [showEvolutionExport, setShowEvolutionExport] = useState(false);
   const [evolutionExportMode, setEvolutionExportMode] = useState<'png' | 'pdf' | null>(null);
+  const [isTrainerViewing, setIsTrainerViewing] = useState(false);
 
   // Memoizar cálculos pesados
   const achievements = useMemo(() => {
@@ -147,6 +148,15 @@ export default function PatientPortal() {
   useEffect(() => {
     loadPortalData();
   }, [token]);
+
+  // Detecta se quem está vendo é o trainer autenticado deste paciente
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user?.id && patient?.user_id === session.user.id) {
+        setIsTrainerViewing(true);
+      }
+    });
+  }, [patient]);
 
   // Salvar token no localStorage para PWA (permite abrir direto no portal)
   useEffect(() => {
@@ -825,11 +835,11 @@ export default function PatientPortal() {
                 <MembersAreaButton />
               )}
 
-              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+              {isTrainerViewing && (
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => navigate(`/admin?uid=${patient.user_id}`)}
+                  onClick={() => navigate(`/admin?uid=${patient?.user_id}`)}
                   className="border-slate-600 hover:bg-slate-800 text-white gap-1.5"
                 >
                   <Settings className="w-4 h-4" />

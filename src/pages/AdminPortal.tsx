@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save } from 'lucide-react';
 
-const TRAINER_UID = 'a9798432-60bd-4ac8-a035-d139a47ad59b';
 
 interface Challenge {
   id: string;
@@ -56,10 +54,11 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
     const { data } = await supabase
       .from('daily_challenges')
       .select('*')
+      .eq('user_id', trainerUserId)
       .order('display_order', { ascending: true });
     setChallenges((data as Challenge[]) || []);
     setLoading(false);
-  }, []);
+  }, [trainerUserId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -104,6 +103,7 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
       points_earned: newForm.points_earned,
       display_order: newForm.display_order,
       is_active: true,
+      user_id: trainerUserId,
     });
     setSaving(false);
     if (error) { toast({ title: 'Erro ao criar', description: error.message, variant: 'destructive' }); return; }
@@ -314,19 +314,32 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
 }
 
 export default function AdminPortal() {
-  const [searchParams] = useSearchParams();
   const { toast } = useToast();
-  const trainerUserId = searchParams.get('uid') || '';
+  const [trainerUserId, setTrainerUserId] = useState<string | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [config, setConfig] = useState<PortalConfig | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (trainerUserId === TRAINER_UID) {
-      portalSettingsService.getConfig(trainerUserId).then(setConfig);
-    }
-  }, [trainerUserId]);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      const uid = session?.user?.id || null;
+      setTrainerUserId(uid);
+      setAuthLoading(false);
+      if (uid) {
+        portalSettingsService.getConfig(uid).then(setConfig);
+      }
+    });
+  }, []);
 
-  if (trainerUserId !== TRAINER_UID) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-400 text-sm">Verificando acesso...</div>
+      </div>
+    );
+  }
+
+  if (!trainerUserId) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <Card className="max-w-sm w-full">
@@ -335,7 +348,7 @@ export default function AdminPortal() {
               <Lock className="w-8 h-8 text-red-500" />
             </div>
             <h1 className="text-xl font-bold text-slate-800">Acesso restrito</h1>
-            <p className="text-slate-500 text-sm">Esta página é exclusiva para o administrador.</p>
+            <p className="text-slate-500 text-sm">Faça login como treinador para acessar o painel admin.</p>
           </CardContent>
         </Card>
       </div>

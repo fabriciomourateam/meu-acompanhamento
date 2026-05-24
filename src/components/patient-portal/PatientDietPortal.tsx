@@ -1030,7 +1030,7 @@ export function PatientDietPortal({
             </div>
           ) : (
             <>
-              <DailyChallengesWidget patientId={patientId} />
+              <DailyChallengesWidget patientId={patientId} trainerUserId={trainerUserId || undefined} />
               <WeeklyHabitsGrid patientId={patientId} />
             </>
           )}

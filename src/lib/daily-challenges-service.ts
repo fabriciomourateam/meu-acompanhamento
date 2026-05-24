@@ -23,13 +23,18 @@ export const dailyChallengesService = {
   /**
    * Buscar todos os desafios disponíveis
    */
-  async getAllChallenges(): Promise<DailyChallenge[]> {
-    const { data, error } = await supabase
+  async getAllChallenges(userId?: string): Promise<DailyChallenge[]> {
+    let query = supabase
       .from('daily_challenges')
       .select('*')
-      .eq('is_active', true)
-      .order('points_earned', { ascending: false });
-    
+      .eq('is_active', true);
+
+    if (userId) {
+      query = query.eq('user_id', userId);
+    }
+
+    const { data, error } = await query.order('points_earned', { ascending: false });
+
     if (error) throw error;
     return data || [];
   },

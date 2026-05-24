@@ -22,6 +22,7 @@ import { motion } from 'framer-motion';
 
 interface DailyChallengesWidgetProps {
   patientId: string;
+  trainerUserId?: string;
 }
 
 const iconMap: { [key: string]: any } = {
@@ -35,7 +36,7 @@ const iconMap: { [key: string]: any } = {
   CalendarCheck,
 };
 
-export function DailyChallengesWidget({ patientId }: DailyChallengesWidgetProps) {
+export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallengesWidgetProps) {
   const { toast } = useToast();
   const [challenges, setChallenges] = useState<DailyChallenge[]>([]);
   const [completedChallenges, setCompletedChallenges] = useState<Set<string>>(new Set());
@@ -43,13 +44,13 @@ export function DailyChallengesWidget({ patientId }: DailyChallengesWidgetProps)
 
   useEffect(() => {
     loadChallenges();
-  }, [patientId]);
+  }, [patientId, trainerUserId]);
 
   const loadChallenges = async () => {
     try {
       setLoading(true);
       const [allChallenges, completed] = await Promise.all([
-        dailyChallengesService.getAllChallenges(),
+        dailyChallengesService.getAllChallenges(trainerUserId),
         dailyChallengesService.getCompletedChallenges(patientId),
       ]);
       setChallenges(allChallenges);
