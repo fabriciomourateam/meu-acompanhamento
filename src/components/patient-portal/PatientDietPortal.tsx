@@ -1114,7 +1114,7 @@ export function PatientDietPortal({
         </TabsContent>
 
         {/* Aba: Ranking & Conquistas */}
-        <TabsContent value="ranking" className="mt-6 space-y-8">
+        <TabsContent value="ranking" className="mt-6 space-y-6">
           {trainerUserId && (
             <LeaderboardWidget
               patientId={patientId}
@@ -1123,23 +1123,12 @@ export function PatientDietPortal({
             />
           )}
 
-          <section>
-            <GamificationWidget patientId={patientId} />
-          </section>
+          <GamificationWidget patientId={patientId} />
 
-          <section>
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <span className="text-2xl drop-shadow-glow-sm">📊</span> Adesão ao Plano
-            </h3>
-            <div className="space-y-4">
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-                <WeeklyProgressChart patientId={patientId} />
-              </div>
-              <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-                <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
-              </div>
-            </div>
-          </section>
+          <div className="space-y-4">
+            <WeeklyProgressChart patientId={patientId} />
+            <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
+          </div>
         </TabsContent>
       </Tabs >
 
