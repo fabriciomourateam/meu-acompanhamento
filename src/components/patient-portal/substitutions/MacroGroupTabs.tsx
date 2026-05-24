@@ -8,11 +8,21 @@ interface MacroGroupTabsProps {
 }
 
 export function MacroGroupTabs({ active, onChange, favoritesCount, counts }: MacroGroupTabsProps) {
+  // Impede que o swipe horizontal dentro dessa barra seja capturado pelo
+  // handler do PatientDietPortal (que troca de aba). O usuário precisa
+  // rolar livremente os macrogrupos sem mudar a aba ativa do portal.
+  const stopSwipePropagation = (e: React.TouchEvent) => {
+    e.stopPropagation();
+  };
+
   return (
     <nav
       aria-label="Categorias de alimentos"
       className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1"
       style={{ scrollbarWidth: "thin" }}
+      onTouchStart={stopSwipePropagation}
+      onTouchMove={stopSwipePropagation}
+      onTouchEnd={stopSwipePropagation}
     >
       {favoritesCount > 0 && (
         <Tab
