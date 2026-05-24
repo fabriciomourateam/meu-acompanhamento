@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Search, X, Sparkles } from "lucide-react";
+import { Search, X, Sparkles, ArrowRight } from "lucide-react";
 import {
   fetchAllPatientFoods,
   type PatientFood,
@@ -14,6 +14,8 @@ import { useToast } from "@/hooks/use-toast";
 import { MacroGroupTabs } from "./MacroGroupTabs";
 import { FoodGrid } from "./FoodGrid";
 import { SubstitutionsPanel } from "./SubstitutionsPanel";
+import { FoodAutocomplete } from "./FoodAutocomplete";
+import { InlineComparison } from "./InlineComparison";
 import { Skeleton } from "@/components/ui/skeleton";
 
 function stripDiacritics(input: string): string {
@@ -36,6 +38,8 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<PatientFood | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [baseFood, setBaseFood] = useState<PatientFood | null>(null);
+  const [targetFood, setTargetFood] = useState<PatientFood | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -178,11 +182,49 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
           <div className="flex-1">
             <h3 className="text-sm font-semibold text-slate-900">Substitua sem culpa</h3>
             <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
-              Toque num alimento para ver opções equivalentes em macros. As gramas são
-              ajustadas automaticamente para manter a sua dieta no rumo certo.
+              Compare dois alimentos direto, ou toque na lista pra ver opções equivalentes
+              do mesmo grupo com gramas já ajustadas.
             </p>
           </div>
         </div>
+      </div>
+
+      {/* Comparador direto: A → B */}
+      <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+          Comparar dois alimentos
+        </p>
+        <div className="flex items-center gap-2">
+          <div className="flex-1 min-w-0">
+            <FoodAutocomplete
+              foods={allFoods}
+              value={baseFood}
+              onChange={setBaseFood}
+              placeholder="Qual alimento substituir?"
+            />
+          </div>
+          <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
+          <div className="flex-1 min-w-0">
+            <FoodAutocomplete
+              foods={allFoods}
+              value={targetFood}
+              onChange={setTargetFood}
+              placeholder="Por qual?"
+            />
+          </div>
+        </div>
+        {baseFood && targetFood && (
+          <InlineComparison base={baseFood} target={targetFood} />
+        )}
+      </div>
+
+      {/* Separador */}
+      <div className="flex items-center gap-3">
+        <div className="h-px flex-1 bg-slate-200" />
+        <span className="text-[11px] uppercase tracking-wide text-slate-400">
+          ou explore por grupo
+        </span>
+        <div className="h-px flex-1 bg-slate-200" />
       </div>
 
       {/* Busca */}
