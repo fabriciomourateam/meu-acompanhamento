@@ -786,10 +786,10 @@ export default function PatientPortal() {
 
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
-      {/* Background claro com sutil tonalidade emerald */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/40">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.06),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.04),transparent_50%)]" />
+      {/* Background em tons de emerald — combina com o accent do app */}
+      <div className="absolute inset-0 bg-gradient-to-br from-emerald-50 via-teal-50/60 to-emerald-100/50">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.18),transparent_55%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(20,184,166,0.14),transparent_55%)]" />
       </div>
 
       {/* Conteúdo com z-index */}

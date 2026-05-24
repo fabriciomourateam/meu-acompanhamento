@@ -36,43 +36,43 @@ const TONE_STYLES: Record<MetricCardProps["tone"], {
   subtitle: string;
 }> = {
   fuchsia: {
-    card: "bg-gradient-to-br from-fuchsia-50 to-white border-fuchsia-200 hover:border-fuchsia-300 hover:shadow-fuchsia-100",
-    iconBox: "bg-fuchsia-100 text-fuchsia-600",
+    card: "bg-gradient-to-br from-fuchsia-100 via-pink-50 to-white border-fuchsia-200 hover:border-fuchsia-400 hover:shadow-fuchsia-200/60",
+    iconBox: "bg-gradient-to-br from-fuchsia-500 to-pink-500 text-white",
     icon: "text-fuchsia-600",
     valueAccent: "text-fuchsia-700",
     subtitle: "text-fuchsia-600/80",
   },
   blue: {
-    card: "bg-gradient-to-br from-blue-50 to-white border-blue-200 hover:border-blue-300 hover:shadow-blue-100",
-    iconBox: "bg-blue-100 text-blue-600",
+    card: "bg-gradient-to-br from-blue-100 via-sky-50 to-white border-blue-200 hover:border-blue-400 hover:shadow-blue-200/60",
+    iconBox: "bg-gradient-to-br from-blue-500 to-sky-500 text-white",
     icon: "text-blue-600",
     valueAccent: "text-blue-700",
     subtitle: "text-blue-600/80",
   },
   rose: {
-    card: "bg-gradient-to-br from-rose-50 to-white border-rose-200 hover:border-rose-300 hover:shadow-rose-100",
-    iconBox: "bg-rose-100 text-rose-600",
+    card: "bg-gradient-to-br from-rose-100 via-red-50 to-white border-rose-200 hover:border-rose-400 hover:shadow-rose-200/60",
+    iconBox: "bg-gradient-to-br from-rose-500 to-red-500 text-white",
     icon: "text-rose-600",
     valueAccent: "text-rose-700",
     subtitle: "text-rose-600/80",
   },
   emerald: {
-    card: "bg-gradient-to-br from-emerald-50 to-white border-emerald-200 hover:border-emerald-300 hover:shadow-emerald-100",
-    iconBox: "bg-emerald-100 text-emerald-600",
+    card: "bg-gradient-to-br from-emerald-100 via-teal-50 to-white border-emerald-200 hover:border-emerald-400 hover:shadow-emerald-200/60",
+    iconBox: "bg-gradient-to-br from-emerald-500 to-teal-500 text-white",
     icon: "text-emerald-600",
     valueAccent: "text-emerald-700",
     subtitle: "text-emerald-600/80",
   },
   purple: {
-    card: "bg-gradient-to-br from-purple-50 to-white border-purple-200 hover:border-purple-300 hover:shadow-purple-100",
-    iconBox: "bg-purple-100 text-purple-600",
+    card: "bg-gradient-to-br from-purple-100 via-violet-50 to-white border-purple-200 hover:border-purple-400 hover:shadow-purple-200/60",
+    iconBox: "bg-gradient-to-br from-purple-500 to-violet-500 text-white",
     icon: "text-purple-600",
     valueAccent: "text-purple-700",
     subtitle: "text-purple-600/80",
   },
   amber: {
-    card: "bg-gradient-to-br from-amber-50 to-white border-amber-200 hover:border-amber-300 hover:shadow-amber-100",
-    iconBox: "bg-amber-100 text-amber-600",
+    card: "bg-gradient-to-br from-amber-100 via-orange-50 to-white border-amber-200 hover:border-amber-400 hover:shadow-amber-200/60",
+    iconBox: "bg-gradient-to-br from-amber-500 to-orange-500 text-white",
     icon: "text-amber-600",
     valueAccent: "text-amber-700",
     subtitle: "text-amber-600/80",
@@ -176,7 +176,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* Massa Gorda */}
           <MetricCard
             tone="rose"
-            icon={<div className="w-4 h-4 bg-rose-500 rounded-full" />}
+            icon={<div className="w-4 h-4 bg-white rounded-full" />}
             label="Massa Gorda"
             value={
               <>

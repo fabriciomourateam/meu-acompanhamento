@@ -974,18 +974,18 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
       {/* Modal de Zoom */}
       <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
-        <DialogContent className="max-w-4xl bg-slate-900/95 backdrop-blur-sm border-slate-700/50">
+        <DialogContent className="max-w-4xl bg-white border-slate-200">
           <DialogHeader>
-            <DialogTitle className="text-white flex items-center justify-between">
+            <DialogTitle className="text-slate-900 flex items-center justify-between">
               <span>Foto - {selectedPhoto?.date}</span>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="text-white">
+                <Badge variant="outline" className="border-slate-300 text-slate-700">
                   {selectedPhoto?.weight} kg
                 </Badge>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="border-blue-500/50 text-blue-400 hover:bg-blue-500/20"
+                  className="border-blue-300 text-blue-600 hover:bg-blue-50"
                   onClick={() => {
                     if (selectedPhoto) {
                       const link = document.createElement('a');
@@ -1017,11 +1017,10 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                   }}
                 />
               ) : isGoogleDriveUrl(selectedPhoto.url) ? (
-                // Usar imagem direta ao invés de iframe no modal para evitar controles do Google Drive
                 <img
                   src={convertGoogleDriveUrl(selectedPhoto.url, false) || selectedPhoto.url}
                   alt="Foto ampliada"
-                  className="w-full h-auto max-h-[70vh] object-contain rounded-lg bg-slate-800"
+                  className="w-full h-auto max-h-[70vh] object-contain rounded-lg bg-slate-100"
                   onError={(e) => {
                     console.error('Erro ao carregar imagem do Google Drive');
                     handleImageError(getPhotoId(selectedPhoto), getPhotoUrl(selectedPhoto), selectedPhoto.url);
@@ -1029,9 +1028,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                   crossOrigin="anonymous"
                 />
               ) : imageErrors.has(getPhotoId(selectedPhoto)) ? (
-                <div className="w-full h-[70vh] flex flex-col items-center justify-center bg-slate-800/50 rounded-lg">
+                <div className="w-full h-[70vh] flex flex-col items-center justify-center bg-slate-100 rounded-lg">
                   <ExternalLink className="h-16 w-16 text-slate-400 mb-4" />
-                  <p className="text-slate-300 text-lg mb-6">Foto não disponível</p>
+                  <p className="text-slate-600 text-lg mb-6">Foto não disponível</p>
                   <Button
                     onClick={() => window.open(selectedPhoto.url, '_blank')}
                   >
