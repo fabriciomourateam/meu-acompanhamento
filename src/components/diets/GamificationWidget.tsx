@@ -95,82 +95,102 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
 
   return (
     <div className="space-y-4">
-      {/* Streak */}
-      <Card className={`rounded-2xl border-2 ${
-        streakActive
-          ? 'bg-orange-50 border-orange-200'
-          : 'bg-slate-50 border-slate-200'
+      {/* Streak — layout premium laranja */}
+      <Card className={`rounded-2xl border-0 overflow-hidden shadow-lg ${
+        streakActive ? '' : 'bg-slate-50 border border-slate-200 shadow-sm'
       }`}>
-        <CardContent className="p-4 sm:p-5">
-          <div className="flex items-center gap-4">
-            <motion.span
-              key={currentStreak}
-              initial={{ scale: 0.5, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-              className="text-5xl select-none"
-            >
-              {streakActive ? '🔥' : '💤'}
-            </motion.span>
-            <div>
-              <motion.p
-                key={`s-${currentStreak}`}
-                initial={{ y: -8, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                className={`text-2xl sm:text-3xl font-bold ${streakActive ? 'text-orange-700' : 'text-slate-500'}`}
-              >
-                {currentStreak > 0 ? `${currentStreak} dias seguidos` : 'Comece hoje!'}
-              </motion.p>
-              <p className={`text-sm mt-0.5 font-medium ${streakActive ? 'text-orange-500' : 'text-slate-400'}`}>
-                {getStreakMessage(currentStreak)}
-              </p>
-              {(points?.longest_streak ?? 0) > 0 && (
-                <p className="text-xs text-slate-400 mt-1">
-                  Recorde: {points!.longest_streak} dias
-                </p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+        {streakActive ? (
+          <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-red-500 p-4 sm:p-6 relative overflow-hidden">
+            {/* Glow decorativo */}
+            <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-300/30 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-red-600/20 rounded-full blur-xl pointer-events-none" />
 
-      {/* Nível + Pontos */}
-      <Card className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm">
-        <CardContent className="p-4 sm:p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <p className="text-xs text-slate-500 font-medium mb-1">Nível Atual</p>
-              <div className="flex items-center gap-2">
-                <span className="text-3xl sm:text-4xl font-black text-slate-800">{currentLevel}</span>
-                <Badge className="bg-emerald-100 text-emerald-700 border-emerald-300 text-xs font-semibold">
-                  Nível {currentLevel}
-                </Badge>
+            <div className="relative flex items-center gap-4">
+              <motion.div
+                key={currentStreak}
+                initial={{ scale: 0.4, opacity: 0, rotate: -15 }}
+                animate={{ scale: 1, opacity: 1, rotate: 0 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                className="text-6xl sm:text-7xl select-none drop-shadow-lg"
+              >
+                🔥
+              </motion.div>
+              <div className="flex-1">
+                <motion.p
+                  key={`s-${currentStreak}`}
+                  initial={{ x: -10, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="text-3xl sm:text-4xl font-black text-white drop-shadow"
+                >
+                  {currentStreak} dias
+                </motion.p>
+                <p className="text-base sm:text-lg font-semibold text-orange-100 mt-0.5">
+                  {getStreakMessage(currentStreak)}
+                </p>
+                {(points?.longest_streak ?? 0) > 0 && (
+                  <p className="text-xs text-orange-200/80 mt-1.5 flex items-center gap-1">
+                    <span>🏅</span> Recorde: {points!.longest_streak} dias
+                  </p>
+                )}
+              </div>
+              <div className="text-right hidden sm:block">
+                <p className="text-4xl font-black text-white/20 select-none leading-none">🔥</p>
               </div>
             </div>
-            <div className="text-right">
-              <p className="text-xs text-slate-500 font-medium mb-1">Pontos Totais</p>
-              <p className="text-3xl sm:text-4xl font-black text-slate-800">{totalPoints.toLocaleString('pt-BR')}</p>
-            </div>
           </div>
+        ) : (
+          <CardContent className="p-4 sm:p-5 flex items-center gap-4">
+            <span className="text-4xl select-none">💤</span>
+            <div>
+              <p className="text-base font-bold text-slate-600">Comece hoje!</p>
+              <p className="text-sm text-slate-400">Complete suas metas diárias e inicie sua sequência.</p>
+            </div>
+          </CardContent>
+        )}
+      </Card>
 
-          <div>
-            <div className="flex justify-between text-xs text-slate-500 mb-1.5">
-              <span>Progresso para Nível {currentLevel + 1}</span>
-              <span className="font-semibold">{Math.round(progress)}%</span>
+      {/* Nível + Pontos — mesma cor dos desafios de hoje */}
+      <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
+        <div className="bg-gradient-to-br from-[#00C98A] to-[#00A875] p-4 sm:p-6 relative overflow-hidden">
+          <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="relative">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-xs text-white/70 font-medium uppercase tracking-wider mb-1">Nível Atual</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-5xl sm:text-6xl font-black text-white leading-none">{currentLevel}</span>
+                  <div className="flex flex-col gap-0.5">
+                    <Badge className="bg-white/20 text-white border-white/30 text-xs font-semibold backdrop-blur-sm">
+                      Nível {currentLevel}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-xs text-white/70 font-medium uppercase tracking-wider mb-1">Pontos</p>
+                <p className="text-4xl sm:text-5xl font-black text-white leading-none">{totalPoints.toLocaleString('pt-BR')}</p>
+              </div>
             </div>
-            <div className="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
-              <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: `${progress}%` }}
-                transition={{ duration: 1, ease: 'easeOut' }}
-                className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full"
-              />
+
+            <div>
+              <div className="flex justify-between text-xs text-white/70 mb-1.5">
+                <span>Para o Nível {currentLevel + 1}</span>
+                <span className="font-bold text-white">{Math.round(progress)}%</span>
+              </div>
+              <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 1.2, ease: 'easeOut' }}
+                  className="h-full bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+                />
+              </div>
+              <p className="text-xs text-white/60 mt-1.5">
+                {Math.max(0, pointsNeeded - pointsInLevel)} pontos para o próximo nível
+              </p>
             </div>
-            <p className="text-xs text-slate-400 mt-1.5">
-              {Math.max(0, pointsNeeded - pointsInLevel)} pontos para o próximo nível
-            </p>
           </div>
-        </CardContent>
+        </div>
       </Card>
 
       {/* Conquistas */}
