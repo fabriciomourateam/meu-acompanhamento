@@ -894,15 +894,6 @@ export default function PatientPortal() {
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Atualizar dados
                   </DropdownMenuItem>
-                  {patient?.user_id && (
-                    <DropdownMenuItem
-                      onClick={() => navigate(`/admin?uid=${patient.user_id}`)}
-                      className="text-slate-400 hover:bg-slate-700 cursor-pointer py-2.5"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Acesso admin
-                    </DropdownMenuItem>
-                  )}
                   <DropdownMenuItem
                     onClick={handleLogout}
                     className="text-red-400 hover:bg-red-500/10 cursor-pointer py-2.5"
