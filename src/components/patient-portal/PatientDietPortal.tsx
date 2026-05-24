@@ -31,7 +31,9 @@ import { PatientEvolutionTab } from '@/components/diets/PatientEvolutionTab';
 import { AdherenceCharts } from '@/components/diets/AdherenceCharts';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
-import { portalSettingsService, PortalConfig } from '@/lib/portal-settings-service';
+import { SubstitutionListWidget } from '@/components/diets/SubstitutionListWidget';
+import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
+import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import {
   Calendar,
   Check,
@@ -104,14 +106,14 @@ export function PatientDietPortal({
   const trainerUserId = patient?.user_id || '';
 
   useEffect(() => {
-    loadDietData();
-  }, [patientId]);
-
-  useEffect(() => {
     if (trainerUserId) {
       portalSettingsService.getConfig(trainerUserId).then(setPortalConfig);
     }
   }, [trainerUserId]);
+
+  useEffect(() => {
+    loadDietData();
+  }, [patientId]);
 
   useEffect(() => {
     // Carregar refeições consumidas do localStorage
@@ -529,44 +531,51 @@ export function PatientDietPortal({
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
       <Tabs defaultValue="diet" className="w-full">
         {/* Desktop: abas em linha */}
-        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-800/95 backdrop-blur-md p-1 border-b border-slate-700 shadow-lg rounded-t-lg min-h-[48px]">
-          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-white/90 backdrop-blur-md p-1 border-b border-slate-200 shadow-lg rounded-t-lg min-h-[48px]">
+          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Plano Alimentar
           </TabsTrigger>
-          <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Suplementação
           </TabsTrigger>
-          <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="substitutions" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            Substituições
+          </TabsTrigger>
+          <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Metas
           </TabsTrigger>
-          <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Ranking & Conquistas
+          <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            Ranking
           </TabsTrigger>
-          <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:shadow-sm text-slate-400 hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Meus Resultados
+          <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            Evolução
           </TabsTrigger>
         </TabsList>
 
         {/* Mobile: scroll horizontal com palavras completas */}
-        <div className="sticky top-0 z-50 sm:hidden bg-slate-900/95 backdrop-blur-md px-2 pt-2 pb-1 border-b border-slate-700 shadow-lg rounded-t-lg">
+        <div className="sticky top-0 z-50 sm:hidden bg-white/95 backdrop-blur-md px-2 pt-2 pb-1 border-b border-slate-200 shadow-lg rounded-t-lg">
           <TabsList className="flex gap-1.5 bg-transparent h-auto overflow-x-auto scrollbar-hide w-full">
-            <TabsTrigger value="diet" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+            <TabsTrigger value="diet" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
               <span className="text-base leading-none">🍽️</span>
               <span className="whitespace-nowrap">Plano</span>
             </TabsTrigger>
-            <TabsTrigger value="supplements" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+            <TabsTrigger value="supplements" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
               <span className="text-base leading-none">💊</span>
               <span className="whitespace-nowrap">Suplementos</span>
             </TabsTrigger>
-            <TabsTrigger value="challenges" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+            <TabsTrigger value="substitutions" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">🔄</span>
+              <span className="whitespace-nowrap">Substituições</span>
+            </TabsTrigger>
+            <TabsTrigger value="challenges" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
               <span className="text-base leading-none">🎯</span>
               <span className="whitespace-nowrap">Metas</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+            <TabsTrigger value="ranking" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
               <span className="text-base leading-none">🏆</span>
               <span className="whitespace-nowrap">Ranking</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="flex-shrink-0 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 data-[state=active]:border-emerald-500/40 bg-slate-800/60 text-slate-400 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-700 hover:bg-slate-700/60 transition-all">
+            <TabsTrigger value="results" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
               <span className="text-base leading-none">📊</span>
               <span className="whitespace-nowrap">Evolução</span>
             </TabsTrigger>
@@ -590,82 +599,109 @@ export function PatientDietPortal({
               {/* Resumo de Calorias e Macros */}
               <Card className="!bg-white rounded-2xl shadow-lg border border-slate-200 transition-all duration-300 overflow-hidden">
                 <CardContent className="p-4 sm:p-6">
-                  <div className="flex items-center gap-5 sm:gap-7">
-                    {/* Círculo - lado esquerdo */}
-                    <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex-shrink-0">
-                      <svg className="transform -rotate-90 w-36 h-36 sm:w-40 sm:h-40">
-                        <defs>
-                          <linearGradient id="emerald-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                            <stop offset="0%" stopColor="#10b981" />
-                            <stop offset="100%" stopColor="#34d399" />
-                          </linearGradient>
-                        </defs>
-                        {/* Mobile */}
-                        <circle cx="72" cy="72" r="62" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" className="sm:hidden" />
+                  <div className="flex flex-col items-center justify-center mb-4 sm:mb-6">
+                    {/* Círculo de Progresso de Calorias */}
+                    <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-3 sm:mb-4">
+                      <svg className="transform -rotate-90 w-40 h-40 sm:w-48 sm:h-48">
                         <circle
-                          cx="72" cy="72" r="62"
+                          cx="80"
+                          cy="80"
+                          r="70"
+                          stroke="rgba(0,0,0,0.05)"
+                          strokeWidth="10"
+                          fill="none"
+                          className="sm:hidden"
+                        />
+                        <circle
+                          cx="80"
+                          cy="80"
+                          r="70"
                           stroke="url(#emerald-gradient)"
-                          strokeWidth="10" fill="none"
-                          strokeDasharray={`${2 * Math.PI * 62}`}
-                          strokeDashoffset={`${2 * Math.PI * 62 * (1 - percentualConsumido / 100)}`}
+                          strokeWidth="10"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 70}`}
+                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - percentualConsumido / 100)}`}
                           strokeLinecap="round"
                           className="transition-all duration-500 sm:hidden"
                         />
-                        {/* Desktop */}
-                        <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" className="hidden sm:block" />
                         <circle
-                          cx="80" cy="80" r="70"
+                          cx="96"
+                          cy="96"
+                          r="84"
+                          stroke="rgba(0,0,0,0.05)"
+                          strokeWidth="12"
+                          fill="none"
+                          className="hidden sm:block"
+                        />
+                        <circle
+                          cx="96"
+                          cy="96"
+                          r="84"
                           stroke="url(#emerald-gradient)"
-                          strokeWidth="10" fill="none"
-                          strokeDasharray={`${2 * Math.PI * 70}`}
-                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - percentualConsumido / 100)}`}
+                          strokeWidth="12"
+                          fill="none"
+                          strokeDasharray={`${2 * Math.PI * 84}`}
+                          strokeDashoffset={`${2 * Math.PI * 84 * (1 - percentualConsumido / 100)}`}
                           strokeLinecap="round"
                           className="transition-all duration-500 hidden sm:block"
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-2xl sm:text-3xl font-bold text-slate-900">{Math.round(caloriasConsumidas)}</p>
-                        <p className="text-xs text-slate-400 mt-0.5 font-medium">Kcal</p>
+                        <p className="text-3xl sm:text-4xl font-bold text-slate-900">{Math.round(caloriasRestantes)}</p>
+                        <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Kcal restantes</p>
                       </div>
                     </div>
 
-                    {/* Macros - lado direito, empilhados */}
-                    <div className="flex-1 space-y-3 sm:space-y-4">
+                    {/* Informações de Consumo */}
+                    <div className="flex gap-4 sm:gap-6 text-center">
                       <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Carbos</span>
-                          <span className="text-sm font-bold text-slate-800">
-                            {carboidratosConsumidos.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaCarboidratos.toFixed(0)}g</span>
-                          </span>
-                        </div>
-                        <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                          <div className="bg-purple-500 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${Math.min((carboidratosConsumidos / metaCarboidratos) * 100, 100)}%` }} />
-                        </div>
+                        <p className="text-xl sm:text-2xl font-bold text-emerald-600">{Math.round(caloriasConsumidas)}</p>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Consumidas</p>
                       </div>
+                      <div className="w-px bg-slate-200"></div>
                       <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Proteínas</span>
-                          <span className="text-sm font-bold text-slate-800">
-                            {proteinasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaProteinas.toFixed(0)}g</span>
-                          </span>
-                        </div>
-                        <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                          <div className="bg-blue-500 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${Math.min((proteinasConsumidas / metaProteinas) * 100, 100)}%` }} />
-                        </div>
+                        <p className="text-xl sm:text-2xl font-bold text-slate-400">{Math.round(metaCalorias)}</p>
+                        <p className="text-xs text-slate-500 mt-1 font-medium">Meta do dia</p>
                       </div>
-                      <div>
-                        <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Gorduras</span>
-                          <span className="text-sm font-bold text-slate-800">
-                            {gordurasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaGorduras.toFixed(0)}g</span>
-                          </span>
-                        </div>
-                        <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
-                          <div className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                            style={{ width: `${Math.min((gordurasConsumidas / metaGorduras) * 100, 100)}%` }} />
-                        </div>
+                    </div>
+                  </div>
+
+                  {/* Macros */}
+                  <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-slate-100">
+                    <div className="text-center px-1">
+                      <p className="text-sm sm:text-lg font-bold text-slate-800 whitespace-nowrap">
+                        {carboidratosConsumidos.toFixed(0)} <span className="text-xs text-slate-400 font-normal">/ {metaCarboidratos.toFixed(0)}g</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1 font-medium">Carbos</p>
+                      <div className="mt-2 bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-purple-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min((carboidratosConsumidos / metaCarboidratos) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-center px-1">
+                      <p className="text-sm sm:text-lg font-bold text-slate-800 whitespace-nowrap">
+                        {proteinasConsumidas.toFixed(0)} <span className="text-xs text-slate-400 font-normal">/ {metaProteinas.toFixed(0)}g</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1 font-medium">Proteínas</p>
+                      <div className="mt-2 bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min((proteinasConsumidas / metaProteinas) * 100, 100)}%` }}
+                        />
+                      </div>
+                    </div>
+                    <div className="text-center px-1">
+                      <p className="text-sm sm:text-lg font-bold text-slate-800 whitespace-nowrap">
+                        {gordurasConsumidas.toFixed(0)} <span className="text-xs text-slate-400 font-normal">/ {metaGorduras.toFixed(0)}g</span>
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1 font-medium">Gorduras</p>
+                      <div className="mt-2 bg-slate-100 rounded-full h-2 overflow-hidden">
+                        <div
+                          className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${Math.min((gordurasConsumidas / metaGorduras) * 100, 100)}%` }}
+                        />
                       </div>
                     </div>
                   </div>
@@ -678,7 +714,8 @@ export function PatientDietPortal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-slate-900">
+                        <CardTitle className="text-slate-900 flex items-center gap-2">
+                          <Utensils className="w-5 h-5 text-emerald-500" />
                           {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
@@ -743,6 +780,18 @@ export function PatientDietPortal({
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
                                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                      <div
+                                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
+                                          ? 'bg-emerald-100 text-emerald-600'
+                                          : '!bg-emerald-50 !text-emerald-500'
+                                          }`}
+                                      >
+                                        {isConsumed ? (
+                                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        ) : (
+                                          <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        )}
+                                      </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                           <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
@@ -1021,24 +1070,33 @@ export function PatientDietPortal({
           )}
         </TabsContent>
 
+        {/* Aba: Substituições */}
+        <TabsContent value="substitutions" className="mt-6 space-y-4">
+          {trainerUserId ? (
+            <SubstitutionListWidget trainerUserId={trainerUserId} />
+          ) : (
+            <div className="text-center py-12 text-slate-400">
+              <p className="text-3xl mb-2">🔄</p>
+              <p className="text-sm">Lista de substituições não disponível.</p>
+            </div>
+          )}
+        </TabsContent>
+
         {/* Aba: Metas (com histórico semanal) */}
         <TabsContent value="challenges" className="mt-6 space-y-6">
-          {portalConfig?.challenges.show_tab === false ? (
-            <div className="text-center py-12 text-slate-400">
-              <p className="text-3xl mb-2">🎯</p>
-              <p className="text-sm">As metas diárias estão desativadas no momento.</p>
-            </div>
-          ) : (
-            <>
-              <DailyChallengesWidget patientId={patientId} trainerUserId={trainerUserId || undefined} />
-              <WeeklyHabitsGrid patientId={patientId} />
-            </>
+          {trainerUserId && (
+            <CheckinAIWidget
+              patientId={patientId}
+              patientName={patientName}
+              trainerUserId={trainerUserId}
+            />
           )}
+          <DailyChallengesWidget patientId={patientId} />
+          <WeeklyHabitsGrid patientId={patientId} />
         </TabsContent>
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
         <TabsContent value="results" className="mt-6 space-y-8">
-          {/* Seção 1: Evolução Corporal (o mais importante para o aluno) */}
           <section>
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <span className="text-2xl drop-shadow-glow-sm">⚖️</span> Evolução Corporal
@@ -1057,55 +1115,40 @@ export function PatientDietPortal({
 
         {/* Aba: Ranking & Conquistas */}
         <TabsContent value="ranking" className="mt-6 space-y-6">
-          {(!portalConfig || portalConfig.ranking.show_leaderboard) && trainerUserId && (
+          {trainerUserId && (
             <LeaderboardWidget
               patientId={patientId}
               trainerUserId={trainerUserId}
-              periods={portalConfig?.ranking.periods ?? ['monthly', 'all_time']}
+              periods={portalConfig?.ranking?.periods ?? ['monthly', 'all_time']}
             />
           )}
 
-          {(!portalConfig || portalConfig.ranking.show_gamification) && (
-            <section>
-              <GamificationWidget patientId={patientId} />
-            </section>
-          )}
+          <GamificationWidget patientId={patientId} />
 
-          {(!portalConfig || portalConfig.ranking.show_adherence) && (
-            <section>
-              <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                <span className="text-2xl">📊</span> Adesão ao Plano
-              </h3>
-              <div className="space-y-4">
-                <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-                  <WeeklyProgressChart patientId={patientId} />
-                </div>
-                <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
-                  <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
-                </div>
-              </div>
-            </section>
-          )}
+          <div className="space-y-4">
+            <WeeklyProgressChart patientId={patientId} />
+            <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
+          </div>
         </TabsContent>
       </Tabs >
 
       {/* Modal de Substituições */}
       < Dialog open={substitutionsModalOpen} onOpenChange={setSubstitutionsModalOpen} >
-        <DialogContent className="max-w-2xl bg-white border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto shadow-2xl">
-          <DialogHeader className="relative pb-4 border-b border-slate-100">
+        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto shadow-2xl">
+          <DialogHeader className="relative pb-4 border-b border-slate-800">
             <button
               onClick={() => setSubstitutionsModalOpen(false)}
-              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Fechar"
             >
-              <X className="w-5 h-5 text-slate-400 hover:text-slate-700" />
+              <X className="w-5 h-5 text-slate-400 hover:text-white" />
             </button>
-            <DialogTitle className="text-slate-900 text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
-              <RefreshCw className="w-5 h-5 text-emerald-500 animate-spin-slow" />
+            <DialogTitle className="text-white text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
+              <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
               <span className="truncate">Opções de Substituição</span>
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-slate-500 pr-8">
-              Você pode substituir <strong className="text-emerald-600">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
+            <DialogDescription className="text-xs sm:text-sm text-slate-400 pr-8">
+              Você pode substituir <strong className="text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
             </DialogDescription>
           </DialogHeader>
 
@@ -1113,15 +1156,15 @@ export function PatientDietPortal({
             {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all group"
+                className="p-3 sm:p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-slate-800 group-hover:text-emerald-700 transition-colors text-sm sm:text-base truncate">
+                    <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
                       {sub.food_name}
                     </h4>
-                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
-                      Quantidade: <span className="font-medium text-emerald-600">{sub.quantity} {sub.unit}</span>
+                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                      Quantidade: <span className="font-medium text-emerald-400">{sub.quantity} {sub.unit}</span>
                       {sub.custom_unit_name && (
                         <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
                           ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
@@ -1135,8 +1178,8 @@ export function PatientDietPortal({
             ))}
           </div>
 
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-xs text-blue-600 flex items-center gap-2">
+          <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
+            <p className="text-xs text-cyan-400 flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
                 Essas são opções equivalentes que você pode usar no lugar do alimento original.

@@ -1,7 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { RankingPeriod } from '@/lib/portal-settings-service';
 
-export type { RankingPeriod };
+export type RankingPeriod = 'weekly' | 'monthly' | 'yearly' | 'all_time';
 
 export interface LeaderboardEntry {
   patient_id: string;
@@ -18,7 +17,7 @@ function getStartDate(period: RankingPeriod): string | null {
 
   if (period === 'weekly') {
     const day = now.getDay();
-    const diff = (day === 0 ? -6 : 1 - day);
+    const diff = day === 0 ? -6 : 1 - day;
     const monday = new Date(now);
     monday.setDate(now.getDate() + diff);
     monday.setHours(0, 0, 0, 0);
@@ -42,7 +41,6 @@ export const rankingService = {
     currentPatientId: string,
     period: RankingPeriod
   ): Promise<LeaderboardEntry[]> {
-    // Fetch patients for name lookup
     const { data: patients, error: patientsError } = await supabase
       .from('patients')
       .select('id, nome, apelido')
@@ -50,11 +48,12 @@ export const rankingService = {
 
     if (patientsError || !patients || patients.length === 0) return [];
 
-    const patientMap = new Map(patients.map((p) => [p.id, p.apelido || p.nome || 'Paciente']));
+    const patientMap = new Map(
+      patients.map(p => [p.id, p.apelido || p.nome || 'Paciente'])
+    );
     const pointsMap = new Map<string, number>();
 
     if (period === 'all_time') {
-      // Join patient_points with patients server-side — avoids large in() URL
       const { data: pointsData, error } = await supabase
         .from('patient_points')
         .select('patient_id, total_points, patients!inner(user_id)')
@@ -62,7 +61,7 @@ export const rankingService = {
 
       if (!error && pointsData) {
         for (const row of pointsData) {
-          pointsMap.set(row.patient_id, row.total_points || 0);
+          pointsMap.set(row.patient_id, (row as any).total_points || 0);
         }
       }
     } else {
@@ -82,7 +81,7 @@ export const rankingService = {
       if (!error && historyData) {
         for (const row of historyData) {
           const current = pointsMap.get(row.patient_id) || 0;
-          pointsMap.set(row.patient_id, current + (row.points_earned || 0));
+          pointsMap.set(row.patient_id, current + ((row as any).points_earned || 0));
         }
       }
     }

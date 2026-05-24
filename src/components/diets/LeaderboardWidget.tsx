@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { rankingService, LeaderboardEntry } from '@/lib/ranking-service';
+import { rankingService, type LeaderboardEntry } from '@/lib/ranking-service';
 import type { RankingPeriod } from '@/lib/portal-settings-service';
 
 interface LeaderboardWidgetProps {
@@ -23,7 +23,7 @@ function initials(name: string): string {
     .split(' ')
     .filter(Boolean)
     .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
+    .map(w => w[0].toUpperCase())
     .join('');
 }
 
@@ -39,26 +39,26 @@ function PodiumBlock({
       height: 'h-24',
       medal: '🥇',
       bg: 'bg-amber-500/20 border-amber-400/40',
-      text: 'text-amber-300',
-      avatarBg: 'bg-amber-500/30 border-amber-400/50',
+      text: 'text-amber-600',
+      avatarBg: 'bg-amber-100 border-amber-300',
       label: '1°',
       order: 'order-2',
     },
     2: {
       height: 'h-16',
       medal: '🥈',
-      bg: 'bg-slate-500/20 border-slate-400/40',
-      text: 'text-slate-300',
-      avatarBg: 'bg-slate-500/30 border-slate-400/50',
+      bg: 'bg-slate-200/60 border-slate-300/60',
+      text: 'text-slate-600',
+      avatarBg: 'bg-slate-100 border-slate-300',
       label: '2°',
       order: 'order-1',
     },
     3: {
       height: 'h-12',
       medal: '🥉',
-      bg: 'bg-orange-700/20 border-orange-600/40',
-      text: 'text-orange-300',
-      avatarBg: 'bg-orange-700/30 border-orange-600/50',
+      bg: 'bg-orange-100/60 border-orange-300/60',
+      text: 'text-orange-700',
+      avatarBg: 'bg-orange-50 border-orange-200',
       label: '3°',
       order: 'order-3',
     },
@@ -69,48 +69,45 @@ function PodiumBlock({
 
   return (
     <div className={`flex flex-col items-center gap-1.5 flex-1 ${c.order}`}>
-      {/* Avatar */}
       {entry ? (
         <div
           className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
             isCurrent
-              ? 'bg-emerald-500/30 border-emerald-400/60 text-emerald-300 ring-2 ring-emerald-400/40'
+              ? 'bg-emerald-100 border-emerald-400 text-emerald-700 ring-2 ring-emerald-300'
               : `${c.avatarBg} ${c.text}`
           }`}
         >
           {initials(entry.patient_name)}
         </div>
       ) : (
-        <div className="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-800/40 flex items-center justify-center text-slate-600">
+        <div className="w-12 h-12 rounded-full border-2 border-slate-200 bg-slate-100 flex items-center justify-center text-slate-400">
           —
         </div>
       )}
 
-      {/* Name + points */}
       <div className="text-center w-full px-1">
         {entry ? (
           <>
             <p
               className={`text-xs font-semibold truncate leading-tight ${
-                isCurrent ? 'text-emerald-300' : c.text
+                isCurrent ? 'text-emerald-600' : c.text
               }`}
             >
               {entry.patient_name.split(' ')[0]}
-              {isCurrent && <span className="ml-1 text-emerald-400">★</span>}
+              {isCurrent && <span className="ml-1 text-emerald-500">★</span>}
             </p>
             <p className="text-[10px] text-slate-400 mt-0.5">
               {entry.points.toLocaleString('pt-BR')} pts
             </p>
           </>
         ) : (
-          <p className="text-xs text-slate-600">—</p>
+          <p className="text-xs text-slate-400">—</p>
         )}
       </div>
 
-      {/* Podium block */}
       <div
         className={`w-full ${c.height} rounded-t-lg border flex items-center justify-center text-xl ${
-          isCurrent ? 'bg-emerald-500/20 border-emerald-400/40' : c.bg
+          isCurrent ? 'bg-emerald-100/60 border-emerald-300' : c.bg
         }`}
       >
         <span>{c.medal}</span>
@@ -136,7 +133,7 @@ function LeaderboardList({
     setLoading(true);
     rankingService
       .getLeaderboard(trainerUserId, patientId, period)
-      .then((data) => {
+      .then(data => {
         if (!cancelled) {
           setEntries(data);
           setLoading(false);
@@ -151,8 +148,8 @@ function LeaderboardList({
   if (loading) {
     return (
       <div className="space-y-2 mt-4">
-        {[1, 2, 3, 4, 5].map((i) => (
-          <Skeleton key={i} className="h-12 w-full rounded-xl bg-slate-700/40" />
+        {[1, 2, 3, 4, 5].map(i => (
+          <Skeleton key={i} className="h-12 w-full rounded-xl bg-slate-100" />
         ))}
       </div>
     );
@@ -167,11 +164,10 @@ function LeaderboardList({
     );
   }
 
-  const top3 = [entries[0], entries[1], entries[2]];
   const rest = entries.slice(3);
-  const currentEntry = entries.find((e) => e.is_current_patient);
-  const currentInRest = rest.some((e) => e.is_current_patient);
-  const currentInTop3 = top3.some((e) => e?.is_current_patient);
+  const currentEntry = entries.find(e => e.is_current_patient);
+  const currentInRest = rest.some(e => e.is_current_patient);
+  const currentInTop3 = entries.slice(0, 3).some(e => e?.is_current_patient);
   const showSeparated = currentEntry && !currentInRest && !currentInTop3;
 
   return (
@@ -186,13 +182,13 @@ function LeaderboardList({
       {/* Lista a partir do 4° lugar */}
       {rest.length > 0 && (
         <div className="space-y-1.5">
-          {rest.map((entry) => (
+          {rest.map(entry => (
             <div
               key={entry.patient_id}
               className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
                 entry.is_current_patient
-                  ? 'bg-emerald-500/15 border border-emerald-500/30 ring-1 ring-emerald-400/20'
-                  : 'bg-slate-800/40 border border-slate-700/40 hover:bg-slate-700/30'
+                  ? 'bg-emerald-50 border border-emerald-200'
+                  : 'bg-slate-50 border border-slate-200 hover:bg-slate-100'
               }`}
             >
               <span className="text-sm font-bold w-7 text-center shrink-0 text-slate-400">
@@ -200,17 +196,17 @@ function LeaderboardList({
               </span>
               <span
                 className={`flex-1 text-sm font-medium truncate ${
-                  entry.is_current_patient ? 'text-emerald-300' : 'text-slate-200'
+                  entry.is_current_patient ? 'text-emerald-700' : 'text-slate-700'
                 }`}
               >
                 {entry.patient_name}
                 {entry.is_current_patient && (
-                  <span className="ml-1.5 text-xs text-emerald-400 font-normal">(você)</span>
+                  <span className="ml-1.5 text-xs text-emerald-500 font-normal">(você)</span>
                 )}
               </span>
               <span
                 className={`text-sm font-bold shrink-0 ${
-                  entry.is_current_patient ? 'text-emerald-400' : 'text-slate-300'
+                  entry.is_current_patient ? 'text-emerald-600' : 'text-slate-600'
                 }`}
               >
                 {entry.points.toLocaleString('pt-BR')} pts
@@ -220,23 +216,23 @@ function LeaderboardList({
         </div>
       )}
 
-      {/* Paciente atual fora do top visível */}
+      {/* Paciente fora do top visível */}
       {showSeparated && currentEntry && (
         <>
           <div className="flex items-center gap-2">
-            <div className="flex-1 border-t border-dashed border-slate-600" />
-            <span className="text-xs text-slate-500 shrink-0">...</span>
-            <div className="flex-1 border-t border-dashed border-slate-600" />
+            <div className="flex-1 border-t border-dashed border-slate-300" />
+            <span className="text-xs text-slate-400 shrink-0">...</span>
+            <div className="flex-1 border-t border-dashed border-slate-300" />
           </div>
-          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 ring-1 ring-emerald-400/20">
-            <span className="text-sm font-bold w-7 text-center shrink-0 text-emerald-400">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-50 border border-emerald-200">
+            <span className="text-sm font-bold w-7 text-center shrink-0 text-emerald-600">
               {currentEntry.position}°
             </span>
-            <span className="flex-1 text-sm font-medium truncate text-emerald-300">
+            <span className="flex-1 text-sm font-medium truncate text-emerald-700">
               {currentEntry.patient_name}
-              <span className="ml-1.5 text-xs text-emerald-400 font-normal">(você)</span>
+              <span className="ml-1.5 text-xs text-emerald-500 font-normal">(você)</span>
             </span>
-            <span className="text-sm font-bold shrink-0 text-emerald-400">
+            <span className="text-sm font-bold shrink-0 text-emerald-600">
               {currentEntry.points.toLocaleString('pt-BR')} pts
             </span>
           </div>
@@ -247,15 +243,15 @@ function LeaderboardList({
 }
 
 export function LeaderboardWidget({ patientId, trainerUserId, periods }: LeaderboardWidgetProps) {
-  const activePeriods = periods.filter((p) => p);
+  const activePeriods = periods.filter(Boolean);
   const defaultPeriod = activePeriods[0] || 'monthly';
 
   if (activePeriods.length === 0) return null;
 
   return (
-    <Card className="bg-slate-800/50 backdrop-blur-sm border border-slate-700/50 rounded-2xl shadow-xl">
+    <Card className="bg-white border border-slate-200 rounded-2xl shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="text-white flex items-center gap-2 text-lg">
+        <CardTitle className="text-slate-900 flex items-center gap-2 text-lg">
           <span className="text-2xl">🏆</span>
           Ranking
         </CardTitle>
@@ -269,18 +265,18 @@ export function LeaderboardWidget({ patientId, trainerUserId, periods }: Leaderb
           />
         ) : (
           <Tabs defaultValue={defaultPeriod}>
-            <TabsList className="w-full bg-slate-700/40 rounded-lg p-1">
-              {activePeriods.map((period) => (
+            <TabsList className="w-full bg-slate-100 rounded-lg p-1">
+              {activePeriods.map(period => (
                 <TabsTrigger
                   key={period}
                   value={period}
-                  className="flex-1 data-[state=active]:bg-emerald-500/20 data-[state=active]:text-emerald-400 text-slate-400 text-sm rounded-md transition-all"
+                  className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 text-slate-500 text-sm rounded-md transition-all"
                 >
                   {PERIOD_LABELS[period]}
                 </TabsTrigger>
               ))}
             </TabsList>
-            {activePeriods.map((period) => (
+            {activePeriods.map(period => (
               <TabsContent key={period} value={period}>
                 <LeaderboardList
                   patientId={patientId}

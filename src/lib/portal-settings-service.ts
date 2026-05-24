@@ -2,28 +2,24 @@ import { supabase } from '@/integrations/supabase/client';
 
 export type RankingPeriod = 'weekly' | 'monthly' | 'yearly' | 'all_time';
 
-export interface RankingConfig {
-  periods: RankingPeriod[];
-  show_leaderboard: boolean;
-  show_adherence: boolean;
-  show_gamification: boolean;
-}
-
-export interface ChallengesConfig {
-  show_tab: boolean;
-}
-
 export interface PortalConfig {
-  ranking: RankingConfig;
-  challenges: ChallengesConfig;
+  ranking: {
+    show_leaderboard: boolean;
+    show_gamification: boolean;
+    show_adherence: boolean;
+    periods: RankingPeriod[];
+  };
+  challenges: {
+    show_tab: boolean;
+  };
 }
 
 const DEFAULT_CONFIG: PortalConfig = {
   ranking: {
-    periods: ['monthly', 'all_time'],
     show_leaderboard: true,
-    show_adherence: true,
     show_gamification: true,
+    show_adherence: true,
+    periods: ['monthly', 'all_time'],
   },
   challenges: {
     show_tab: true,
@@ -31,37 +27,31 @@ const DEFAULT_CONFIG: PortalConfig = {
 };
 
 export const portalSettingsService = {
-  async getConfig(userId: string): Promise<PortalConfig> {
-    if (!userId) return DEFAULT_CONFIG;
+  async getConfig(trainerUserId: string): Promise<PortalConfig> {
+    try {
+      const { data, error } = await supabase
+        .from('portal_settings')
+        .select('setting_key, setting_value')
+        .eq('user_id', trainerUserId)
+        .eq('setting_key', 'portal_config')
+        .maybeSingle();
 
-    const { data, error } = await supabase
-      .from('portal_settings')
-      .select('setting_value')
-      .eq('user_id', userId)
-      .eq('setting_key', 'portal_config')
-      .maybeSingle();
+      if (error || !data) return DEFAULT_CONFIG;
 
-    if (error || !data) return DEFAULT_CONFIG;
-
-    const saved = data.setting_value as Partial<PortalConfig>;
-    return {
-      ranking: { ...DEFAULT_CONFIG.ranking, ...(saved?.ranking || {}) },
-      challenges: { ...DEFAULT_CONFIG.challenges, ...(saved?.challenges || {}) },
-    };
-  },
-
-  async saveConfig(userId: string, config: PortalConfig): Promise<void> {
-    const { error } = await supabase
-      .from('portal_settings')
-      .upsert(
-        {
-          user_id: userId,
-          setting_key: 'portal_config',
-          setting_value: config as any,
+      const value = (data.setting_value as any) || {};
+      return {
+        ranking: {
+          show_leaderboard: value?.ranking?.show_leaderboard ?? true,
+          show_gamification: value?.ranking?.show_gamification ?? true,
+          show_adherence: value?.ranking?.show_adherence ?? true,
+          periods: value?.ranking?.periods ?? ['monthly', 'all_time'],
         },
-        { onConflict: 'user_id,setting_key' }
-      );
-
-    if (error) throw error;
+        challenges: {
+          show_tab: value?.challenges?.show_tab ?? true,
+        },
+      };
+    } catch {
+      return DEFAULT_CONFIG;
+    }
   },
 };
