@@ -488,15 +488,15 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
       patientWithData?.foto_inicial_costas;
 
     return (
-      <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
+      <Card className="bg-white border border-slate-200 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Camera className="w-5 h-5 text-blue-400" />
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <Camera className="w-5 h-5 text-blue-500" />
                 Evolução Fotográfica
               </CardTitle>
-              <CardDescription className="text-slate-400">
+              <CardDescription className="text-slate-500">
                 Comparação visual da evolução
               </CardDescription>
             </div>
@@ -570,29 +570,29 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
   return (
     <>
-      <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
+      <Card className="bg-white border border-slate-200 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Camera className="w-5 h-5 text-blue-400" />
+              <CardTitle className="flex items-center gap-2 text-slate-900">
+                <Camera className="w-5 h-5 text-blue-500" />
                 Evolução Fotográfica
               </CardTitle>
               {!isPatientView && (
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-500">
                   Comparação visual da evolução - {allPhotos.length} {allPhotos.length === 1 ? 'foto' : 'fotos'} disponíveis
                 </CardDescription>
               )}
             </div>
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-200 flex items-center justify-center"
               aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
             >
               {isMinimized ? (
-                <ChevronDown className="w-5 h-5 text-slate-300" />
+                <ChevronDown className="w-5 h-5 text-slate-500" />
               ) : (
-                <ChevronUp className="w-5 h-5 text-slate-300" />
+                <ChevronUp className="w-5 h-5 text-slate-500" />
               )}
             </button>
           </div>
@@ -610,14 +610,14 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                 {allPhotos.length >= 2 && firstPhoto && lastPhoto && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-white flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
                         <ChevronRight className="w-5 h-5 text-emerald-400" />
                         Comparação: Antes e Depois
                       </h3>
                     </div>
 
                     {/* Seletores de Fotos */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-slate-800/30 p-4 sm:p-5 rounded-xl border border-slate-700/50 shadow-inner">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-inner">
                       <div className="space-y-2.5">
                         <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-slate-500"></span>
@@ -627,15 +627,15 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                           value={selectedBeforeIndex.toString()}
                           onValueChange={(value) => setSelectedBeforeIndex(parseInt(value))}
                         >
-                          <SelectTrigger className="w-full h-11 bg-slate-900/50 border-slate-600/50 text-white hover:bg-slate-800/80 transition-colors rounded-lg shadow-sm">
+                          <SelectTrigger className="w-full h-11 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 transition-colors rounded-lg shadow-sm">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-slate-700 rounded-xl shadow-xl">
+                          <SelectContent className="bg-white border-slate-200 rounded-xl shadow-xl">
                             {allPhotos.map((photo, index) => (
                               <SelectItem
                                 key={`before-${index}`}
                                 value={index.toString()}
-                                className="text-slate-200 hover:text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white py-2.5 cursor-pointer data-[state=checked]:bg-blue-600/20 data-[state=checked]:text-blue-400"
+                                className="text-slate-700 hover:bg-slate-100 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-700"
                               >
                                 {getPhotoLabel(photo, index)}
                               </SelectItem>
@@ -653,15 +653,15 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                           value={(selectedAfterIndex ?? allPhotos.length - 1).toString()}
                           onValueChange={(value) => setSelectedAfterIndex(parseInt(value))}
                         >
-                          <SelectTrigger className="w-full h-11 bg-slate-900/50 border-slate-600/50 text-white hover:bg-slate-800/80 transition-colors rounded-lg shadow-sm">
+                          <SelectTrigger className="w-full h-11 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 transition-colors rounded-lg shadow-sm">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-slate-800 border-slate-700 rounded-xl shadow-xl">
+                          <SelectContent className="bg-white border-slate-200 rounded-xl shadow-xl">
                             {allPhotos.map((photo, index) => (
                               <SelectItem
                                 key={`after-${index}`}
                                 value={index.toString()}
-                                className="text-slate-200 hover:text-white hover:bg-slate-700 focus:bg-slate-700 focus:text-white py-2.5 cursor-pointer data-[state=checked]:bg-blue-600/20 data-[state=checked]:text-blue-400"
+                                className="text-slate-700 hover:bg-slate-100 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-700"
                               >
                                 {getPhotoLabel(photo, index)}
                               </SelectItem>
@@ -932,33 +932,33 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
       {/* Dialog de Confirmação de Exclusão */}
       <AlertDialog open={!!photoToDelete} onOpenChange={(open) => !open && setPhotoToDelete(null)}>
-        <AlertDialogContent className="bg-slate-900 border-slate-700">
+        <AlertDialogContent className="bg-white border-slate-200">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-300">
+            <AlertDialogTitle className="text-slate-900">Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600">
               Tem certeza que deseja deletar esta foto?
             </AlertDialogDescription>
           </AlertDialogHeader>
           {photoToDelete && (
             <div className="px-6 pb-2">
-              <div className="p-3 bg-slate-800/50 rounded-lg border border-slate-700 space-y-1">
-                <div className="text-sm text-slate-300">
-                  <strong className="text-white">Data:</strong> {photoToDelete.date}
+              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
+                <div className="text-sm text-slate-600">
+                  <strong className="text-slate-900">Data:</strong> {photoToDelete.date}
                 </div>
-                <div className="text-sm text-slate-300">
-                  <strong className="text-white">Peso:</strong> {photoToDelete.weight} kg
+                <div className="text-sm text-slate-600">
+                  <strong className="text-slate-900">Peso:</strong> {photoToDelete.weight} kg
                 </div>
-                <div className="text-sm text-slate-300">
-                  <strong className="text-white">Tipo:</strong> {photoToDelete.isInitial ? 'Foto Inicial (Baseline)' : 'Foto de Check-in'}
+                <div className="text-sm text-slate-600">
+                  <strong className="text-slate-900">Tipo:</strong> {photoToDelete.isInitial ? 'Foto Inicial (Baseline)' : 'Foto de Check-in'}
                 </div>
               </div>
-              <div className="mt-3 text-red-400 font-semibold text-sm">
+              <div className="mt-3 text-red-600 font-semibold text-sm">
                 ⚠️ Esta ação não pode ser desfeita!
               </div>
             </div>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-slate-800 text-white border-slate-700 hover:bg-slate-700">
+            <AlertDialogCancel className="bg-white text-slate-700 border-slate-300 hover:bg-slate-100">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction

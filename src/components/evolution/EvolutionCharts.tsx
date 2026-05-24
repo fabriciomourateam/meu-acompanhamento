@@ -294,26 +294,26 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
     <div className="space-y-6">
       {/* Gráfico de Peso - Mostrar se houver qualquer dado de peso */}
       {allWeightData.length > 0 && (
-        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
+        <Card className="bg-white border border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <TrendingUp className="w-5 h-5 text-blue-400" />
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <TrendingUp className="w-5 h-5 text-blue-500" />
               Evolução do Peso
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500">
               Acompanhamento do peso ao longo do tempo
             </CardDescription>
-            <div className="flex items-center gap-4 mt-2 text-xs text-slate-400">
+            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
               <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white"></div>
+                <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow"></div>
                 <span>Peso Inicial</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-full bg-slate-500"></div>
+                <div className="w-2 h-2 rounded-full bg-slate-400"></div>
                 <span>Pesos Diários</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white"></div>
+                <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow"></div>
                 <span>Check-ins Mensais</span>
               </div>
             </div>
@@ -322,10 +322,10 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={allWeightData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis
                     dataKey="dataCompleta"
-                    stroke="#94a3b8"
+                    stroke="#64748b"
                     style={{ fontSize: '12px' }}
                     tickFormatter={(value) => {
                       const date = new Date(value);
@@ -333,16 +333,17 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                     }}
                   />
                   <YAxis
-                    stroke="#94a3b8"
+                    stroke="#64748b"
                     style={{ fontSize: '12px' }}
                     domain={['dataMin - 2', 'dataMax + 2']}
                   />
                   <Tooltip
                     contentStyle={{
-                      backgroundColor: '#1e293b',
-                      border: '1px solid #334155',
+                      backgroundColor: '#ffffff',
+                      border: '1px solid #e2e8f0',
                       borderRadius: '8px',
-                      color: '#fff'
+                      color: '#0f172a',
+                      boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                     }}
                     content={({ active, payload }) => {
                       if (active && payload && payload.length) {
@@ -354,9 +355,9 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                         else tipoLabel = data.tipo || 'Peso';
 
                         return (
-                          <div className="bg-slate-800 p-3 rounded-lg border border-slate-600">
-                            <p className="text-slate-300 text-sm mb-1">Data: {data.data}</p>
-                            <p className="text-white font-semibold">{tipoLabel}: {data.peso} kg</p>
+                          <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-md">
+                            <p className="text-slate-500 text-sm mb-1">Data: {data.data}</p>
+                            <p className="text-slate-900 font-semibold">{tipoLabel}: {data.peso} kg</p>
                           </div>
                         );
                       }
@@ -367,7 +368,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                   <Line
                     type="monotone"
                     dataKey="peso"
-                    stroke="#94a3b8"
+                    stroke="#64748b"
                     strokeWidth={2}
                     name="Peso (kg)"
                     dot={(props) => {
@@ -461,19 +462,19 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
 
       {/* Gráfico de Pontuações e Quantidades */}
       {scoresData.length > 0 && (
-        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
+        <Card className="bg-white border border-slate-200 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-white">
-              <Target className="w-5 h-5 text-blue-400" />
+            <CardTitle className="flex items-center gap-2 text-slate-900">
+              <Target className="w-5 h-5 text-blue-500" />
               Evolução das Pontuações
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-500">
               Performance em diferentes categorias
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="pontuacoes" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-700/50">
+              <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100">
                 <TabsTrigger value="pontuacoes" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   Pontuações
                 </TabsTrigger>
@@ -486,23 +487,24 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={scoresData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis
                         dataKey="data"
-                        stroke="#94a3b8"
+                        stroke="#64748b"
                         style={{ fontSize: '12px' }}
                       />
                       <YAxis
-                        stroke="#94a3b8"
+                        stroke="#64748b"
                         style={{ fontSize: '12px' }}
                         domain={[0, 10]}
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: '#1e293b',
-                          border: '1px solid #334155',
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #e2e8f0',
                           borderRadius: '8px',
-                          color: '#fff'
+                          color: '#0f172a',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                         }}
                       />
                       <Legend content={<CustomLegend />} />
@@ -592,23 +594,24 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                 <div className="h-[300px] w-full">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={quantitiesData}>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                       <XAxis
                         dataKey="data"
-                        stroke="#94a3b8"
+                        stroke="#64748b"
                         style={{ fontSize: '12px' }}
                       />
                       <YAxis
-                        stroke="#94a3b8"
+                        stroke="#64748b"
                         style={{ fontSize: '12px' }}
                         domain={[0, 'dataMax + 1']}
                       />
                       <Tooltip
                         contentStyle={{
-                          backgroundColor: '#1e293b',
-                          border: '1px solid #334155',
+                          backgroundColor: '#ffffff',
+                          border: '1px solid #e2e8f0',
                           borderRadius: '8px',
-                          color: '#fff'
+                          color: '#0f172a',
+                          boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                         }}
                       />
                       <Legend content={<CustomLegend />} />
@@ -700,15 +703,15 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
 
       {/* Gráfico Radar de Performance Atual */}
       {!isPatientView && radarData.length > 0 && (
-        <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
+        <Card className="bg-white border border-slate-200 shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Activity className="w-5 h-5 text-blue-400" />
+                <CardTitle className="text-slate-900 flex items-center gap-2">
+                  <Activity className="w-5 h-5 text-blue-500" />
                   Performance Atual
                 </CardTitle>
-                <CardDescription className="text-slate-400">
+                <CardDescription className="text-slate-500">
                   Análise multidimensional do check-in
                   {selectedCheckin && (
                     <span className="ml-2">
@@ -728,13 +731,13 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                     size="sm"
                     onClick={handlePreviousCheckin}
                     disabled={selectedCheckinIndex >= checkinsForRadar.length - 1}
-                    className="bg-slate-700/50 border-slate-600 hover:bg-slate-600/50 text-slate-300 hover:text-white"
+                    className="border-slate-300 hover:bg-slate-100 text-slate-700"
                     title="Check-in anterior"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" />
                     Anterior
                   </Button>
-                  <span className="text-sm text-slate-400 px-2">
+                  <span className="text-sm text-slate-500 px-2">
                     {selectedCheckinIndex + 1} / {checkinsForRadar.length}
                   </span>
                   <Button
@@ -742,7 +745,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                     size="sm"
                     onClick={handleNextCheckin}
                     disabled={selectedCheckinIndex === 0}
-                    className="bg-slate-700/50 border-slate-600 hover:bg-slate-600/50 text-slate-300 hover:text-white"
+                    className="border-slate-300 hover:bg-slate-100 text-slate-700"
                     title="Próximo check-in"
                   >
                     Próximo

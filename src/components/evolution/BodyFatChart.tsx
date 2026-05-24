@@ -15,13 +15,13 @@ interface BodyFatChartProps {
 export function BodyFatChart({ data }: BodyFatChartProps) {
   if (data.length === 0) {
     return (
-      <Card className="bg-slate-800/40 border-slate-700/50">
+      <Card className="bg-white border border-slate-200 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <Activity className="w-5 h-5 text-blue-400" />
+          <CardTitle className="text-slate-900 flex items-center gap-2">
+            <Activity className="w-5 h-5 text-blue-500" />
             Evolução do % de Gordura Corporal
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-500">
             Nenhuma bioimpedância registrada ainda
           </CardDescription>
         </CardHeader>
@@ -44,25 +44,25 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
   const porcentagemMudanca = primeiro !== 0 ? ((diferenca / primeiro) * 100).toFixed(1) : '0.0';
 
   return (
-    <Card className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50">
+    <Card className="bg-white border border-slate-200 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-white flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-400" />
+        <CardTitle className="text-slate-900 flex items-center gap-2">
+          <Activity className="w-5 h-5 text-blue-500" />
           Evolução do % de Gordura Corporal
         </CardTitle>
-        <CardDescription className="text-slate-400 flex items-center gap-2">
+        <CardDescription className="text-slate-500 flex items-center gap-2">
           {diferenca < -0.5 ? (
-            <span className="flex items-center gap-1 text-emerald-400 font-semibold">
+            <span className="flex items-center gap-1 text-emerald-600 font-semibold">
               <TrendingDown className="w-4 h-4" />
               Redução de {Math.abs(diferenca).toFixed(1)}% ({porcentagemMudanca}%)
             </span>
           ) : diferenca > 0.5 ? (
-            <span className="flex items-center gap-1 text-amber-400 font-semibold">
+            <span className="flex items-center gap-1 text-amber-600 font-semibold">
               <TrendingUp className="w-4 h-4" />
               Aumento de {diferenca.toFixed(1)}% (+{porcentagemMudanca}%)
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-slate-400">
+            <span className="flex items-center gap-1 text-slate-500">
               <Minus className="w-4 h-4" />
               Sem mudança significativa
             </span>
@@ -72,29 +72,27 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
           <LineChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis
               dataKey="data"
-              stroke="#94a3b8"
+              stroke="#64748b"
               style={{ fontSize: '12px' }}
             />
             <YAxis
-              stroke="#94a3b8"
+              stroke="#64748b"
               style={{ fontSize: '12px' }}
               domain={['dataMin - 2', 'dataMax + 2']}
-              label={{ value: '% Gordura', angle: -90, position: 'insideLeft', style: { fill: '#94a3b8', fontSize: '12px' } }}
+              label={{ value: '% Gordura', angle: -90, position: 'insideLeft', style: { fill: '#64748b', fontSize: '12px' } }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: '#1e293b',
-                border: '1px solid #475569',
+                backgroundColor: '#ffffff',
+                border: '1px solid #e2e8f0',
                 borderRadius: '8px',
-                color: '#f1f5f9'
+                color: '#0f172a',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
               }}
-              formatter={(value: any, name: string, props: any) => [
-                `${value}%`,
-                'Gordura Corporal'
-              ]}
+              formatter={(value: any) => [`${value}%`, 'Gordura Corporal']}
               labelFormatter={(label, payload) => {
                 if (payload && payload[0]) {
                   return `Data: ${payload[0].payload.dataCompleta}`;
@@ -113,26 +111,26 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
           </LineChart>
         </ResponsiveContainer>
 
-        <div className="mt-4 grid grid-cols-2 gap-4">
-          <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/30">
-            <p className="text-xs text-slate-400 mb-1">Primeira Avaliação</p>
-            <p className="text-2xl font-bold text-white">{primeiro.toFixed(1)}%</p>
-            <p className="text-xs text-slate-500 mt-1">
+        <div className="mt-4 grid grid-cols-2 gap-3">
+          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
+            <p className="text-xs text-slate-500 mb-1">Primeira Avaliação</p>
+            <p className="text-2xl font-bold text-slate-900">{primeiro.toFixed(1)}%</p>
+            <p className="text-xs text-slate-400 mt-1">
               {new Date(data[data.length - 1].data_avaliacao).toLocaleDateString('pt-BR')}
             </p>
           </div>
-          <div className="bg-slate-800/50 p-3 rounded-lg border border-slate-700/30">
-            <p className="text-xs text-slate-400 mb-1">Última Avaliação</p>
-            <p className="text-2xl font-bold text-emerald-400">{ultimo.toFixed(1)}%</p>
-            <p className="text-xs text-slate-500 mt-1">
+          <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
+            <p className="text-xs text-emerald-700 mb-1">Última Avaliação</p>
+            <p className="text-2xl font-bold text-emerald-600">{ultimo.toFixed(1)}%</p>
+            <p className="text-xs text-emerald-700/80 mt-1">
               {new Date(data[0].data_avaliacao).toLocaleDateString('pt-BR')}
             </p>
           </div>
         </div>
 
         {data.length > 1 && (
-          <div className="mt-4 p-3 bg-slate-800/30 rounded-lg border border-slate-700/30">
-            <p className="text-xs text-slate-400">
+          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <p className="text-xs text-blue-800">
               <strong>Meta ideal:</strong> Reduzir % de gordura mantendo ou aumentando massa magra para melhor composição corporal
             </p>
           </div>
@@ -141,4 +139,3 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
     </Card>
   );
 }
-
