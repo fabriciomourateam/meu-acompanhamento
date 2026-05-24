@@ -512,7 +512,7 @@ export function PatientDietPortal({
   };
 
   return (
-    <div className="space-y-5 pb-4">
+    <div className="space-y-5">
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
       {releasedPlans.length > 1 && (
         <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
