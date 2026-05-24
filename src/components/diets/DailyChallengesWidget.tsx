@@ -55,6 +55,8 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
       ]);
       setChallenges(allChallenges);
       setCompletedChallenges(new Set(completed));
+      // Sync streak on initial load
+      await dailyChallengesService.calculateAndSyncStreak(patientId);
     } catch (error) {
       console.error('Erro ao carregar desafios:', error);
     } finally {
@@ -64,7 +66,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
 
   const handleToggleChallenge = async (challengeKey: string) => {
     const isCompleted = completedChallenges.has(challengeKey);
-    
+
     try {
       if (isCompleted) {
         await dailyChallengesService.uncompleteChallenge(patientId, challengeKey);
@@ -86,6 +88,9 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
           description: `Você ganhou ${challenge?.points_earned || 0} pontos!`,
         });
       }
+      // Recalculate streak and check for new achievements
+      const streak = await dailyChallengesService.calculateAndSyncStreak(patientId);
+      await dailyChallengesService.checkAndUnlockStreakAchievements(patientId, streak);
     } catch (error) {
       console.error('Erro ao atualizar desafio:', error);
       toast({
