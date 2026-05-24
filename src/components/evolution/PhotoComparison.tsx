@@ -720,7 +720,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDownloadPhoto(firstPhoto.url, `Foto-Antes-${firstPhoto.date}-${firstPhoto.weight}kg`);
@@ -732,7 +732,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 onClick={() => handleZoomPhoto(firstPhoto)}
                               >
                                 <ZoomIn className="w-4 h-4" />
@@ -801,7 +801,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDownloadPhoto(lastPhoto.url, `Foto-Depois-${lastPhoto.date}-${lastPhoto.weight}kg`);
@@ -813,7 +813,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0"
+                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 onClick={() => handleZoomPhoto(lastPhoto)}
                               >
                                 <ZoomIn className="w-4 h-4" />
@@ -821,13 +821,13 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </>
                           )}
                         </div>
-                        <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
+                        <div className="bg-slate-100 border border-slate-200 p-3 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2 text-emerald-700">
+                            <div className="flex items-center gap-2 text-slate-600">
                               <Calendar className="w-4 h-4" />
                               {lastPhoto.date}
                             </div>
-                            <div className="text-emerald-700 font-semibold">
+                            <div className="text-slate-900 font-semibold">
                               {lastPhoto.weight} kg
                             </div>
                           </div>

@@ -22,77 +22,92 @@ interface MetricCardProps {
   icon: React.ReactNode;
   label: string;
   value: React.ReactNode;
+  unit?: React.ReactNode;
   subtitle?: React.ReactNode;
   badge?: React.ReactNode;
-  // Cor base que tinge o fundo, a borda e o ícone
   tone: "fuchsia" | "blue" | "rose" | "emerald" | "purple" | "amber";
 }
 
 const TONE_STYLES: Record<MetricCardProps["tone"], {
   card: string;
   iconBox: string;
-  icon: string;
-  valueAccent: string;
+  value: string;
   subtitle: string;
+  accentBar: string;
 }> = {
   fuchsia: {
-    card: "bg-gradient-to-br from-fuchsia-50 via-white to-pink-50/40 border-fuchsia-100 hover:border-fuchsia-300 hover:shadow-fuchsia-200/40",
-    iconBox: "bg-gradient-to-br from-fuchsia-500 to-pink-500 text-white",
-    icon: "text-fuchsia-600",
-    valueAccent: "text-fuchsia-700",
-    subtitle: "text-fuchsia-600/80",
+    card: "from-fuchsia-50/80 via-white to-pink-50/30 border-fuchsia-100/80 hover:border-fuchsia-200 hover:shadow-fuchsia-200/50",
+    iconBox: "bg-gradient-to-br from-fuchsia-500 to-pink-500 shadow-lg shadow-fuchsia-500/30",
+    value: "text-fuchsia-700",
+    subtitle: "text-fuchsia-700/70",
+    accentBar: "from-fuchsia-400 to-pink-400",
   },
   blue: {
-    card: "bg-gradient-to-br from-blue-50 via-white to-sky-50/40 border-blue-100 hover:border-blue-300 hover:shadow-blue-200/40",
-    iconBox: "bg-gradient-to-br from-blue-500 to-sky-500 text-white",
-    icon: "text-blue-600",
-    valueAccent: "text-blue-700",
-    subtitle: "text-blue-600/80",
+    card: "from-blue-50/80 via-white to-sky-50/30 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50",
+    iconBox: "bg-gradient-to-br from-blue-500 to-sky-500 shadow-lg shadow-blue-500/30",
+    value: "text-blue-700",
+    subtitle: "text-blue-700/70",
+    accentBar: "from-blue-400 to-sky-400",
   },
   rose: {
-    card: "bg-gradient-to-br from-rose-50 via-white to-red-50/40 border-rose-100 hover:border-rose-300 hover:shadow-rose-200/40",
-    iconBox: "bg-gradient-to-br from-rose-500 to-red-500 text-white",
-    icon: "text-rose-600",
-    valueAccent: "text-rose-700",
-    subtitle: "text-rose-600/80",
+    card: "from-rose-50/80 via-white to-red-50/30 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50",
+    iconBox: "bg-gradient-to-br from-rose-500 to-red-500 shadow-lg shadow-rose-500/30",
+    value: "text-rose-700",
+    subtitle: "text-rose-700/70",
+    accentBar: "from-rose-400 to-red-400",
   },
   emerald: {
-    card: "bg-gradient-to-br from-emerald-50 via-white to-teal-50/40 border-emerald-100 hover:border-emerald-300 hover:shadow-emerald-200/40",
-    iconBox: "bg-gradient-to-br from-emerald-500 to-teal-500 text-white",
-    icon: "text-emerald-600",
-    valueAccent: "text-emerald-700",
-    subtitle: "text-emerald-600/80",
+    card: "from-emerald-50/80 via-white to-teal-50/30 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50",
+    iconBox: "bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30",
+    value: "text-emerald-700",
+    subtitle: "text-emerald-700/70",
+    accentBar: "from-emerald-400 to-teal-400",
   },
   purple: {
-    card: "bg-gradient-to-br from-purple-50 via-white to-violet-50/40 border-purple-100 hover:border-purple-300 hover:shadow-purple-200/40",
-    iconBox: "bg-gradient-to-br from-purple-500 to-violet-500 text-white",
-    icon: "text-purple-600",
-    valueAccent: "text-purple-700",
-    subtitle: "text-purple-600/80",
+    card: "from-purple-50/80 via-white to-violet-50/30 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50",
+    iconBox: "bg-gradient-to-br from-purple-500 to-violet-500 shadow-lg shadow-purple-500/30",
+    value: "text-purple-700",
+    subtitle: "text-purple-700/70",
+    accentBar: "from-purple-400 to-violet-400",
   },
   amber: {
-    card: "bg-gradient-to-br from-amber-50 via-white to-orange-50/40 border-amber-100 hover:border-amber-300 hover:shadow-amber-200/40",
-    iconBox: "bg-gradient-to-br from-amber-500 to-orange-500 text-white",
-    icon: "text-amber-600",
-    valueAccent: "text-amber-700",
-    subtitle: "text-amber-600/80",
+    card: "from-amber-50/80 via-white to-orange-50/30 border-amber-100/80 hover:border-amber-200 hover:shadow-amber-200/50",
+    iconBox: "bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30",
+    value: "text-amber-700",
+    subtitle: "text-amber-700/70",
+    accentBar: "from-amber-400 to-orange-400",
   },
 };
 
-function MetricCard({ icon, label, value, subtitle, badge, tone }: MetricCardProps) {
+function MetricCard({ icon, label, value, unit, subtitle, badge, tone }: MetricCardProps) {
   const t = TONE_STYLES[tone];
   return (
-    <div className={`p-3 sm:p-4 rounded-2xl border-2 ${t.card} hover:shadow-lg transition-all duration-300 group`}>
-      <div className="flex items-center justify-between mb-3">
-        <div className={`p-2 rounded-xl ${t.iconBox} shadow-sm group-hover:scale-110 transition-transform`}>
+    <div className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${t.card} p-4 sm:p-5 shadow-sm hover:shadow-xl transition-all duration-300 group`}>
+      {/* Barra de accent superior */}
+      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${t.accentBar}`} />
+
+      {/* Linha topo: ícone + badge */}
+      <div className="flex items-start justify-between mb-3 sm:mb-4">
+        <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full text-white ${t.iconBox} group-hover:scale-110 transition-transform duration-300`}>
           {icon}
         </div>
-        {badge}
+        {badge && <div className="pt-1">{badge}</div>}
       </div>
-      <p className={`text-2xl font-extrabold ${t.valueAccent} tracking-tight`}>{value}</p>
-      <p className="text-xs font-semibold text-slate-700 mt-1">{label}</p>
+
+      {/* Label */}
+      <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+        {label}
+      </p>
+
+      {/* Valor principal */}
+      <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${t.value} leading-none`}>
+        {value}
+        {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
+      </p>
+
+      {/* Subtítulo */}
       {subtitle && (
-        <p className={`text-[10px] mt-0.5 truncate ${t.subtitle}`}>{subtitle}</p>
+        <p className={`text-[11px] mt-1.5 truncate ${t.subtitle}`}>{subtitle}</p>
       )}
     </div>
   );
@@ -117,16 +132,15 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
   const perdaMassaMagra = parseFloat(diferencas.gordura) < 0 && parseFloat(diferencas.massaMagra) < 0;
   const aumentoGordura = parseFloat(diferencas.gordura) > 0;
 
-  // Badges de delta: verde quando bom, rosé quando ruim, neutro pra peso/imc/tmb
-  const goodBadge = "bg-emerald-100 text-emerald-700 border border-emerald-300 text-[10px] px-1.5 py-0";
-  const badBadge = "bg-rose-100 text-rose-700 border border-rose-300 text-[10px] px-1.5 py-0";
-  const neutralBadge = "bg-slate-100 text-slate-700 border border-slate-300 text-[10px] px-1.5 py-0";
+  const goodBadge = "bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] px-2 py-0.5 font-semibold";
+  const badBadge = "bg-rose-100 text-rose-700 border border-rose-200 text-[10px] px-2 py-0.5 font-semibold";
+  const neutralBadge = "bg-slate-100 text-slate-700 border border-slate-200 text-[10px] px-2 py-0.5 font-semibold";
 
   return (
     <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden">
       <CardHeader className="pb-4">
         <CardTitle className="text-slate-900 flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-md shadow-blue-500/20">
             <Activity className="w-4 h-4" />
           </div>
           Composição Corporal Atual
@@ -144,7 +158,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* % Gordura */}
           <MetricCard
             tone="fuchsia"
-            icon={<TrendingDown className="w-4 h-4" />}
+            icon={<TrendingDown className="w-5 h-5" />}
             label="% Gordura"
             value={`${ultima.percentual_gordura}%`}
             subtitle={ultima.classificacao}
@@ -158,14 +172,10 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* Peso */}
           <MetricCard
             tone="blue"
-            icon={<Scale className="w-4 h-4" />}
+            icon={<Scale className="w-5 h-5" />}
             label="Peso Total"
-            value={
-              <>
-                {ultima.peso}
-                <span className="text-sm font-normal text-slate-500 ml-1">kg</span>
-              </>
-            }
+            value={ultima.peso}
+            unit="kg"
             badge={data.length > 1 && (
               <Badge className={neutralBadge}>
                 {parseFloat(diferencas.peso) > 0 ? '+' : ''}{diferencas.peso} kg
@@ -178,12 +188,8 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
             tone="rose"
             icon={<div className="w-4 h-4 bg-white rounded-full" />}
             label="Massa Gorda"
-            value={
-              <>
-                {ultima.massa_gorda}
-                <span className="text-sm font-normal text-slate-500 ml-1">kg</span>
-              </>
-            }
+            value={ultima.massa_gorda}
+            unit="kg"
             badge={data.length > 1 && (
               <Badge className={parseFloat(diferencas.massaGorda) < 0 ? goodBadge : badBadge}>
                 {parseFloat(diferencas.massaGorda) < 0 ? '↓' : '↑'} {Math.abs(parseFloat(diferencas.massaGorda))} kg
@@ -194,14 +200,10 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* Massa Magra */}
           <MetricCard
             tone="emerald"
-            icon={<Activity className="w-4 h-4" />}
+            icon={<Activity className="w-5 h-5" />}
             label="Massa Magra"
-            value={
-              <>
-                {ultima.massa_magra}
-                <span className="text-sm font-normal text-slate-500 ml-1">kg</span>
-              </>
-            }
+            value={ultima.massa_magra}
+            unit="kg"
             badge={data.length > 1 && (
               <Badge className={parseFloat(diferencas.massaMagra) > 0 ? goodBadge : badBadge}>
                 {parseFloat(diferencas.massaMagra) > 0 ? '+' : ''}{diferencas.massaMagra} kg
@@ -212,7 +214,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* IMC */}
           <MetricCard
             tone="purple"
-            icon={<Scale className="w-4 h-4" />}
+            icon={<Scale className="w-5 h-5" />}
             label="IMC"
             value={ultima.imc}
             subtitle={classificarIMC(ultima.imc)}
@@ -226,7 +228,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* TMB */}
           <MetricCard
             tone="amber"
-            icon={<Flame className="w-4 h-4" />}
+            icon={<Flame className="w-5 h-5" />}
             label="TMB"
             value={ultima.tmb}
             subtitle="kcal por dia"

@@ -29,6 +29,98 @@ import type { Database } from '@/integrations/supabase/types';
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 type Patient = Database['public']['Tables']['patients']['Row'];
 
+type StatTone = 'blue' | 'cyan' | 'purple' | 'indigo' | 'sky' | 'emerald' | 'rose' | 'slate';
+
+const STAT_TONES: Record<StatTone, { card: string; iconBox: string; value: string; subtitle: string; accentBar: string }> = {
+  blue: {
+    card: 'from-blue-50/80 via-white to-sky-50/30 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50',
+    iconBox: 'bg-gradient-to-br from-blue-500 to-sky-500 shadow-lg shadow-blue-500/30',
+    value: 'text-blue-700',
+    subtitle: 'text-blue-700/70',
+    accentBar: 'from-blue-400 to-sky-400',
+  },
+  cyan: {
+    card: 'from-cyan-50/80 via-white to-teal-50/30 border-cyan-100/80 hover:border-cyan-200 hover:shadow-cyan-200/50',
+    iconBox: 'bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30',
+    value: 'text-cyan-700',
+    subtitle: 'text-cyan-700/70',
+    accentBar: 'from-cyan-400 to-teal-400',
+  },
+  purple: {
+    card: 'from-purple-50/80 via-white to-violet-50/30 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50',
+    iconBox: 'bg-gradient-to-br from-purple-500 to-violet-500 shadow-lg shadow-purple-500/30',
+    value: 'text-purple-700',
+    subtitle: 'text-purple-700/70',
+    accentBar: 'from-purple-400 to-violet-400',
+  },
+  indigo: {
+    card: 'from-indigo-50/80 via-white to-blue-50/30 border-indigo-100/80 hover:border-indigo-200 hover:shadow-indigo-200/50',
+    iconBox: 'bg-gradient-to-br from-indigo-500 to-blue-500 shadow-lg shadow-indigo-500/30',
+    value: 'text-indigo-700',
+    subtitle: 'text-indigo-700/70',
+    accentBar: 'from-indigo-400 to-blue-400',
+  },
+  sky: {
+    card: 'from-sky-50/80 via-white to-blue-50/30 border-sky-100/80 hover:border-sky-200 hover:shadow-sky-200/50',
+    iconBox: 'bg-gradient-to-br from-sky-500 to-blue-500 shadow-lg shadow-sky-500/30',
+    value: 'text-sky-700',
+    subtitle: 'text-sky-700/70',
+    accentBar: 'from-sky-400 to-blue-400',
+  },
+  emerald: {
+    card: 'from-emerald-50/80 via-white to-teal-50/30 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50',
+    iconBox: 'bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30',
+    value: 'text-emerald-700',
+    subtitle: 'text-emerald-700/70',
+    accentBar: 'from-emerald-400 to-teal-400',
+  },
+  rose: {
+    card: 'from-rose-50/80 via-white to-red-50/30 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50',
+    iconBox: 'bg-gradient-to-br from-rose-500 to-red-500 shadow-lg shadow-rose-500/30',
+    value: 'text-rose-700',
+    subtitle: 'text-rose-700/70',
+    accentBar: 'from-rose-400 to-red-400',
+  },
+  slate: {
+    card: 'from-slate-50/80 via-white to-slate-50/30 border-slate-200/80 hover:border-slate-300 hover:shadow-slate-200/50',
+    iconBox: 'bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg shadow-slate-500/30',
+    value: 'text-slate-700',
+    subtitle: 'text-slate-500',
+    accentBar: 'from-slate-300 to-slate-400',
+  },
+};
+
+interface PremiumStatCardProps {
+  tone: StatTone;
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  unit?: React.ReactNode;
+  subtitle?: React.ReactNode;
+}
+
+function PremiumStatCard({ tone, icon, label, value, unit, subtitle }: PremiumStatCardProps) {
+  const t = STAT_TONES[tone];
+  return (
+    <div className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${t.card} p-4 sm:p-5 shadow-sm hover:shadow-xl transition-all duration-300 group`}>
+      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${t.accentBar}`} />
+      <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full text-white ${t.iconBox} group-hover:scale-110 transition-transform duration-300 mb-3 sm:mb-4`}>
+        {icon}
+      </div>
+      <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+        {label}
+      </p>
+      <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${t.value} leading-none`}>
+        {value}
+        {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
+      </p>
+      {subtitle && (
+        <p className={`text-[11px] mt-1.5 truncate ${t.subtitle}`}>{subtitle}</p>
+      )}
+    </div>
+  );
+}
+
 interface PatientEvolutionTabProps {
   patientId: string;
   checkins?: Checkin[];
@@ -210,143 +302,77 @@ export function PatientEvolutionTab({
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
             {/* Check-ins Realizados */}
             {!isPatientView && (
-              <Card className="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-sky-50/40 border border-blue-100 shadow-sm hover:scale-[1.02] hover:border-blue-300 hover:shadow-md transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <CardHeader className="pb-1 relative">
-                  <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                      <Activity className="w-3.5 h-3.5 text-blue-400" />
-                    </div>
-                    Check-ins
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative pt-0">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{checkins.length}</div>
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Total de avaliações</p>
-                </CardContent>
-              </Card>
+              <PremiumStatCard
+                tone="blue"
+                icon={<Activity className="w-5 h-5" />}
+                label="Check-ins"
+                value={checkins.length}
+                subtitle="Total de avaliações"
+              />
             )}
 
             {/* Idade */}
             {patient?.data_nascimento && (
-              <Card className="relative overflow-hidden bg-gradient-to-br from-cyan-50 via-white to-teal-50/40 border border-cyan-100 shadow-sm hover:scale-[1.02] hover:border-cyan-300 hover:shadow-md transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <CardHeader className="pb-1 relative">
-                  <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-cyan-500/10 border border-cyan-500/20 group-hover:bg-cyan-500/20 transition-colors">
-                      <Calendar className="w-3.5 h-3.5 text-cyan-400" />
-                    </div>
-                    Idade
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative pt-0">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                    {idade}
-                    <span className="text-base sm:text-lg ml-1 font-normal text-slate-500">anos</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Idade atual</p>
-                </CardContent>
-              </Card>
+              <PremiumStatCard
+                tone="cyan"
+                icon={<Calendar className="w-5 h-5" />}
+                label="Idade"
+                value={idade}
+                unit="anos"
+                subtitle="Idade atual"
+              />
             )}
 
             {/* Altura */}
             {(patient as any)?.altura_inicial && (
-              <Card className="relative overflow-hidden bg-gradient-to-br from-purple-50 via-white to-violet-50/40 border border-purple-100 shadow-sm hover:scale-[1.02] hover:border-purple-300 hover:shadow-md transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <CardHeader className="pb-1 relative">
-                  <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-purple-500/10 border border-purple-500/20 group-hover:bg-purple-500/20 transition-colors">
-                      <TrendingUp className="w-3.5 h-3.5 text-purple-400" />
-                    </div>
-                    Altura
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative pt-0">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                    {(patient as any).altura_inicial}
-                    <span className="text-base sm:text-lg ml-1 font-normal text-slate-500">m</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">Altura</p>
-                </CardContent>
-              </Card>
+              <PremiumStatCard
+                tone="purple"
+                icon={<TrendingUp className="w-5 h-5" />}
+                label="Altura"
+                value={(patient as any).altura_inicial}
+                unit="m"
+                subtitle="Altura registrada"
+              />
             )}
 
             {/* Peso Inicial */}
             {weightData.length > 0 && (
-              <Card className="relative overflow-hidden bg-gradient-to-br from-indigo-50 via-white to-blue-50/40 border border-indigo-100 shadow-sm hover:scale-[1.02] hover:border-indigo-300 hover:shadow-md transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <CardHeader className="pb-1 relative">
-                  <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-indigo-500/10 border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-colors">
-                      <Weight className="w-3.5 h-3.5 text-indigo-400" />
-                    </div>
-                    Peso Inicial
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative pt-0">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                    {weightData[0]?.peso?.toFixed(1) || 'N/A'}
-                    {weightData[0]?.peso && <span className="text-base sm:text-lg ml-1 font-normal text-slate-500">kg</span>}
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
-                    {weightData[0]?.data}
-                  </p>
-                </CardContent>
-              </Card>
+              <PremiumStatCard
+                tone="indigo"
+                icon={<Weight className="w-5 h-5" />}
+                label="Peso Inicial"
+                value={weightData[0]?.peso?.toFixed(1) || 'N/A'}
+                unit={weightData[0]?.peso ? 'kg' : undefined}
+                subtitle={weightData[0]?.data}
+              />
             )}
 
             {/* Peso Atual */}
             {checkins[0]?.peso && (
-              <Card className="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-blue-50/40 border border-sky-100 shadow-sm hover:scale-[1.02] hover:border-sky-300 hover:shadow-md transition-all duration-300 group">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
-                <CardHeader className="pb-1 relative">
-                  <CardTitle className="text-xs sm:text-sm text-slate-600 flex items-center gap-2 font-medium">
-                    <div className="p-1.5 rounded-lg bg-blue-500/10 border border-blue-500/20 group-hover:bg-blue-500/20 transition-colors">
-                      <Weight className="w-3.5 h-3.5 text-blue-400" />
-                    </div>
-                    Peso Atual
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative pt-0">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                    {parseFloat(checkins[0].peso.replace(',', '.')).toFixed(1)}
-                    <span className="text-base sm:text-lg ml-1 font-normal text-slate-500">kg</span>
-                  </div>
-                  <p className="text-[10px] sm:text-xs text-slate-500 mt-0.5">
-                    {new Date(checkins[0].data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
-                  </p>
-                </CardContent>
-              </Card>
+              <PremiumStatCard
+                tone="sky"
+                icon={<Weight className="w-5 h-5" />}
+                label="Peso Atual"
+                value={parseFloat(checkins[0].peso.replace(',', '.')).toFixed(1)}
+                unit="kg"
+                subtitle={new Date(checkins[0].data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+              />
             )}
 
             {/* Variação */}
             {weightData.length >= 2 && (
-              <Card className={`relative overflow-hidden shadow-sm hover:scale-[1.02] hover:shadow-md transition-all duration-300 group ${isNeutral ? 'bg-gradient-to-br from-slate-50 via-white to-slate-50/40 border border-slate-200 hover:border-slate-300' :
-                isNegative ? 'bg-gradient-to-br from-emerald-50 via-white to-teal-50/40 border border-emerald-100 hover:border-emerald-300' :
-                  'bg-gradient-to-br from-rose-50 via-white to-red-50/40 border border-rose-100 hover:border-rose-300'
-                }`}>
-                <div className={`absolute inset-0 bg-gradient-to-br pointer-events-none ${isNeutral ? 'from-slate-500/5' : isNegative ? 'from-emerald-500/5' : 'from-rose-500/5'} to-transparent opacity-0 group-hover:opacity-100 transition-opacity`} />
-                <CardHeader className="pb-1 relative">
-                  <CardTitle className={`text-xs sm:text-sm flex items-center gap-2 font-medium text-slate-600`}>
-                    <div className={`p-1.5 rounded-lg border backdrop-blur-sm transition-colors ${isNeutral ? 'bg-slate-500/10 border-slate-500/20 group-hover:bg-slate-500/20' :
-                      isNegative ? 'bg-emerald-500/10 border-emerald-500/20 group-hover:bg-emerald-500/20' :
-                        'bg-rose-500/10 border-rose-500/20 group-hover:bg-rose-500/20'
-                      }`}>
-                      <TrendingUp className={`w-3.5 h-3.5 ${isNeutral ? 'text-slate-400' : isNegative ? 'text-emerald-400' : 'text-rose-400'}`} />
-                    </div>
-                    Variação
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="relative pt-0">
-                  <div className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+              <PremiumStatCard
+                tone={isNeutral ? 'slate' : isNegative ? 'emerald' : 'rose'}
+                icon={<TrendingUp className="w-5 h-5" />}
+                label="Variação"
+                value={
+                  <>
                     {parseFloat(weightChange) > 0 ? '+' : ''}{weightChange}
-                    <span className={`text-base sm:text-lg ml-1 font-normal text-slate-500`}>kg</span>
-                  </div>
-                  <p className={`text-[10px] sm:text-xs mt-0.5 ${isNeutral ? 'text-slate-500' : isNegative ? 'text-emerald-500/80' : 'text-rose-500/80'}`}>
-                    {isNeutral ? 'Sem variação' : isNegative ? 'Perda de peso' : 'Ganho de peso'}
-                  </p>
-                </CardContent>
-              </Card>
+                  </>
+                }
+                unit="kg"
+                subtitle={isNeutral ? 'Sem variação' : isNegative ? 'Perda de peso' : 'Ganho de peso'}
+              />
             )}
           </div>
         </motion.div>
