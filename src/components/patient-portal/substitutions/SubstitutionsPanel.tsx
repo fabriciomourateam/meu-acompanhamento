@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -85,16 +85,29 @@ export function SubstitutionsPanel({ food, open, onOpenChange }: SubstitutionsPa
               )}
 
               {!loading && result && result.substitutions.length > 0 && (
-                <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
-                  {result.substitutions.map((sub) => (
-                    <SubstitutionCard
-                      key={sub.id}
-                      original={result.original}
-                      referenceGrams={result.reference_quantity_g}
-                      sub={sub}
-                    />
-                  ))}
-                </div>
+                <>
+                  {/* Banner quando a melhor substituição é fraca (score < 70) */}
+                  {result.substitutions[0].similarity_score < 70 && (
+                    <div className="mb-3 flex items-start gap-2 rounded-xl border border-orange-200 bg-orange-50 p-3 text-xs text-orange-800">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>
+                        <strong>Nenhuma substituição é muito próxima.</strong> Este alimento tem um
+                        perfil nutricional bem específico. Use as opções abaixo com moderação e prefira
+                        confirmar com seu nutricionista antes de trocar.
+                      </span>
+                    </div>
+                  )}
+                  <div className="grid grid-cols-1 gap-3 lg:grid-cols-2">
+                    {result.substitutions.map((sub) => (
+                      <SubstitutionCard
+                        key={sub.id}
+                        original={result.original}
+                        referenceGrams={result.reference_quantity_g}
+                        sub={sub}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </>
