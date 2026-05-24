@@ -579,109 +579,82 @@ export function PatientDietPortal({
               {/* Resumo de Calorias e Macros */}
               <Card className="!bg-white rounded-2xl shadow-lg border border-slate-200 transition-all duration-300 overflow-hidden">
                 <CardContent className="p-4 sm:p-6">
-                  <div className="flex flex-col items-center justify-center mb-4 sm:mb-6">
-                    {/* Círculo de Progresso de Calorias */}
-                    <div className="relative w-40 h-40 sm:w-48 sm:h-48 mb-3 sm:mb-4">
-                      <svg className="transform -rotate-90 w-40 h-40 sm:w-48 sm:h-48">
+                  <div className="flex items-center gap-5 sm:gap-7">
+                    {/* Círculo - lado esquerdo */}
+                    <div className="relative w-36 h-36 sm:w-40 sm:h-40 flex-shrink-0">
+                      <svg className="transform -rotate-90 w-36 h-36 sm:w-40 sm:h-40">
+                        <defs>
+                          <linearGradient id="emerald-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stopColor="#10b981" />
+                            <stop offset="100%" stopColor="#34d399" />
+                          </linearGradient>
+                        </defs>
+                        {/* Mobile */}
+                        <circle cx="72" cy="72" r="62" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" className="sm:hidden" />
                         <circle
-                          cx="80"
-                          cy="80"
-                          r="70"
-                          stroke="rgba(0,0,0,0.05)"
-                          strokeWidth="10"
-                          fill="none"
-                          className="sm:hidden"
-                        />
-                        <circle
-                          cx="80"
-                          cy="80"
-                          r="70"
+                          cx="72" cy="72" r="62"
                           stroke="url(#emerald-gradient)"
-                          strokeWidth="10"
-                          fill="none"
-                          strokeDasharray={`${2 * Math.PI * 70}`}
-                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - percentualConsumido / 100)}`}
+                          strokeWidth="10" fill="none"
+                          strokeDasharray={`${2 * Math.PI * 62}`}
+                          strokeDashoffset={`${2 * Math.PI * 62 * (1 - percentualConsumido / 100)}`}
                           strokeLinecap="round"
                           className="transition-all duration-500 sm:hidden"
                         />
+                        {/* Desktop */}
+                        <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" className="hidden sm:block" />
                         <circle
-                          cx="96"
-                          cy="96"
-                          r="84"
-                          stroke="rgba(0,0,0,0.05)"
-                          strokeWidth="12"
-                          fill="none"
-                          className="hidden sm:block"
-                        />
-                        <circle
-                          cx="96"
-                          cy="96"
-                          r="84"
+                          cx="80" cy="80" r="70"
                           stroke="url(#emerald-gradient)"
-                          strokeWidth="12"
-                          fill="none"
-                          strokeDasharray={`${2 * Math.PI * 84}`}
-                          strokeDashoffset={`${2 * Math.PI * 84 * (1 - percentualConsumido / 100)}`}
+                          strokeWidth="10" fill="none"
+                          strokeDasharray={`${2 * Math.PI * 70}`}
+                          strokeDashoffset={`${2 * Math.PI * 70 * (1 - percentualConsumido / 100)}`}
                           strokeLinecap="round"
                           className="transition-all duration-500 hidden sm:block"
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
-                        <p className="text-3xl sm:text-4xl font-bold text-slate-900">{Math.round(caloriasRestantes)}</p>
-                        <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">Kcal restantes</p>
+                        <p className="text-2xl sm:text-3xl font-bold text-slate-900">{Math.round(caloriasConsumidas)}</p>
+                        <p className="text-xs text-slate-400 mt-0.5 font-medium">/ {Math.round(metaCalorias)} kcal</p>
                       </div>
                     </div>
 
-                    {/* Informações de Consumo */}
-                    <div className="flex gap-4 sm:gap-6 text-center">
+                    {/* Macros - lado direito, empilhados */}
+                    <div className="flex-1 space-y-3 sm:space-y-4">
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-emerald-600">{Math.round(caloriasConsumidas)}</p>
-                        <p className="text-xs text-slate-500 mt-1 font-medium">Consumidas</p>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Carbos</span>
+                          <span className="text-sm font-bold text-slate-800">
+                            {carboidratosConsumidos.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaCarboidratos.toFixed(0)}g</span>
+                          </span>
+                        </div>
+                        <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                          <div className="bg-purple-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min((carboidratosConsumidos / metaCarboidratos) * 100, 100)}%` }} />
+                        </div>
                       </div>
-                      <div className="w-px bg-slate-200"></div>
                       <div>
-                        <p className="text-xl sm:text-2xl font-bold text-slate-400">{Math.round(metaCalorias)}</p>
-                        <p className="text-xs text-slate-500 mt-1 font-medium">Meta do dia</p>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Proteínas</span>
+                          <span className="text-sm font-bold text-slate-800">
+                            {proteinasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaProteinas.toFixed(0)}g</span>
+                          </span>
+                        </div>
+                        <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                          <div className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min((proteinasConsumidas / metaProteinas) * 100, 100)}%` }} />
+                        </div>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Macros */}
-                  <div className="grid grid-cols-3 gap-3 sm:gap-4 pt-3 sm:pt-4 border-t border-slate-100">
-                    <div className="text-center px-1">
-                      <p className="text-sm sm:text-lg font-bold text-slate-800 whitespace-nowrap">
-                        {carboidratosConsumidos.toFixed(0)} <span className="text-xs text-slate-400 font-normal">/ {metaCarboidratos.toFixed(0)}g</span>
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1 font-medium">Carbos</p>
-                      <div className="mt-2 bg-slate-100 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="bg-purple-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min((carboidratosConsumidos / metaCarboidratos) * 100, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-center px-1">
-                      <p className="text-sm sm:text-lg font-bold text-slate-800 whitespace-nowrap">
-                        {proteinasConsumidas.toFixed(0)} <span className="text-xs text-slate-400 font-normal">/ {metaProteinas.toFixed(0)}g</span>
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1 font-medium">Proteínas</p>
-                      <div className="mt-2 bg-slate-100 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="bg-blue-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min((proteinasConsumidas / metaProteinas) * 100, 100)}%` }}
-                        />
-                      </div>
-                    </div>
-                    <div className="text-center px-1">
-                      <p className="text-sm sm:text-lg font-bold text-slate-800 whitespace-nowrap">
-                        {gordurasConsumidas.toFixed(0)} <span className="text-xs text-slate-400 font-normal">/ {metaGorduras.toFixed(0)}g</span>
-                      </p>
-                      <p className="text-xs text-slate-500 mt-1 font-medium">Gorduras</p>
-                      <div className="mt-2 bg-slate-100 rounded-full h-2 overflow-hidden">
-                        <div
-                          className="bg-emerald-500 h-full rounded-full transition-all duration-500"
-                          style={{ width: `${Math.min((gordurasConsumidas / metaGorduras) * 100, 100)}%` }}
-                        />
+                      <div>
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Gorduras</span>
+                          <span className="text-sm font-bold text-slate-800">
+                            {gordurasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaGorduras.toFixed(0)}g</span>
+                          </span>
+                        </div>
+                        <div className="bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                          <div className="bg-emerald-500 h-full rounded-full transition-all duration-500"
+                            style={{ width: `${Math.min((gordurasConsumidas / metaGorduras) * 100, 100)}%` }} />
+                        </div>
                       </div>
                     </div>
                   </div>
