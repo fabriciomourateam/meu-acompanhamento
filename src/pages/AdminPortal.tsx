@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -313,42 +314,169 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
   );
 }
 
+const SESSION_KEY = 'admin_session';
+
+function getSessionUid(): string | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const { uid, expires } = JSON.parse(raw);
+    if (Date.now() > expires) { sessionStorage.removeItem(SESSION_KEY); return null; }
+    return uid;
+  } catch { return null; }
+}
+
+function setSessionUid(uid: string) {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ uid, expires: Date.now() + 8 * 60 * 60 * 1000 }));
+}
+
 export default function AdminPortal() {
   const { toast } = useToast();
-  const [trainerUserId, setTrainerUserId] = useState<string | null>(null);
-  const [authLoading, setAuthLoading] = useState(true);
+  const [searchParams] = useSearchParams();
+  const trainerUserId = searchParams.get('uid') || '';
+
+  const [authenticated, setAuthenticated] = useState(() => getSessionUid() === trainerUserId && !!trainerUserId);
+  const [pinLoading, setPinLoading] = useState(false);
+  const [storedPin, setStoredPin] = useState<string | null>(null);
+  const [pinChecked, setPinChecked] = useState(false);
+  const [pinInput, setPinInput] = useState('');
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+
   const [config, setConfig] = useState<PortalConfig | null>(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      const uid = session?.user?.id || null;
-      setTrainerUserId(uid);
-      setAuthLoading(false);
-      if (uid) {
-        portalSettingsService.getConfig(uid).then(setConfig);
-      }
-    });
-  }, []);
+    if (!trainerUserId) { setPinChecked(true); return; }
+    supabase.from('portal_settings')
+      .select('setting_value')
+      .eq('user_id', trainerUserId)
+      .eq('setting_key', 'admin_pin')
+      .maybeSingle()
+      .then(({ data }) => {
+        setStoredPin((data?.setting_value as any)?.pin || null);
+        setPinChecked(true);
+      });
+  }, [trainerUserId]);
 
-  if (authLoading) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-slate-400 text-sm">Verificando acesso...</div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (authenticated && trainerUserId) {
+      portalSettingsService.getConfig(trainerUserId).then(setConfig);
+    }
+  }, [authenticated, trainerUserId]);
 
   if (!trainerUserId) {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <Card className="max-w-sm w-full">
           <CardContent className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-red-100 rounded-full flex items-center justify-center">
-              <Lock className="w-8 h-8 text-red-500" />
+            <Lock className="w-10 h-10 mx-auto text-slate-300" />
+            <p className="text-slate-500 text-sm">Link de acesso inválido.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!pinChecked) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <div className="text-slate-400 text-sm">Carregando...</div>
+      </div>
+    );
+  }
+
+  async function handleSetPin() {
+    if (newPin.length < 4) { toast({ title: 'PIN deve ter ao menos 4 dígitos', variant: 'destructive' }); return; }
+    if (newPin !== confirmPin) { toast({ title: 'PINs não coincidem', variant: 'destructive' }); return; }
+    setPinLoading(true);
+    await supabase.from('portal_settings').upsert(
+      { user_id: trainerUserId, setting_key: 'admin_pin', setting_value: { pin: newPin } },
+      { onConflict: 'user_id,setting_key' }
+    );
+    setStoredPin(newPin);
+    setSessionUid(trainerUserId);
+    setAuthenticated(true);
+    setPinLoading(false);
+    toast({ title: 'PIN configurado! Bem-vindo ao admin.' });
+  }
+
+  async function handleVerifyPin() {
+    if (pinInput === storedPin) {
+      setSessionUid(trainerUserId);
+      setAuthenticated(true);
+    } else {
+      toast({ title: 'PIN incorreto', variant: 'destructive' });
+      setPinInput('');
+    }
+  }
+
+  if (!authenticated) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <Card className="max-w-sm w-full shadow-lg">
+          <CardHeader className="text-center pb-2">
+            <div className="w-14 h-14 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-3">
+              <Lock className="w-7 h-7 text-emerald-600" />
             </div>
-            <h1 className="text-xl font-bold text-slate-800">Acesso restrito</h1>
-            <p className="text-slate-500 text-sm">Faça login como treinador para acessar o painel admin.</p>
+            <CardTitle className="text-slate-800">
+              {storedPin ? 'Acesso Admin' : 'Configurar PIN de Acesso'}
+            </CardTitle>
+            <p className="text-sm text-slate-500 mt-1">
+              {storedPin ? 'Digite seu PIN para continuar' : 'Crie um PIN para proteger o painel admin'}
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-4">
+            {storedPin ? (
+              <>
+                <div>
+                  <Label className="text-sm text-slate-600">PIN</Label>
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    value={pinInput}
+                    onChange={e => setPinInput(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleVerifyPin()}
+                    placeholder="Digite seu PIN"
+                    className="mt-1 text-center text-lg tracking-widest"
+                    autoFocus
+                  />
+                </div>
+                <Button onClick={handleVerifyPin} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                  Entrar
+                </Button>
+              </>
+            ) : (
+              <>
+                <div>
+                  <Label className="text-sm text-slate-600">Novo PIN (mín. 4 dígitos)</Label>
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    value={newPin}
+                    onChange={e => setNewPin(e.target.value)}
+                    placeholder="Digite um PIN"
+                    className="mt-1 text-center text-lg tracking-widest"
+                    autoFocus
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm text-slate-600">Confirmar PIN</Label>
+                  <Input
+                    type="password"
+                    inputMode="numeric"
+                    value={confirmPin}
+                    onChange={e => setConfirmPin(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && handleSetPin()}
+                    placeholder="Repita o PIN"
+                    className="mt-1 text-center text-lg tracking-widest"
+                  />
+                </div>
+                <Button onClick={handleSetPin} disabled={pinLoading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
+                  Criar PIN e Entrar
+                </Button>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

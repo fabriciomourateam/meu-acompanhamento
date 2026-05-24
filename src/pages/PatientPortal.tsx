@@ -124,7 +124,6 @@ export default function PatientPortal() {
   const [chartsRefreshTrigger, setChartsRefreshTrigger] = useState(0);
   const [showEvolutionExport, setShowEvolutionExport] = useState(false);
   const [evolutionExportMode, setEvolutionExportMode] = useState<'png' | 'pdf' | null>(null);
-  const [isTrainerViewing, setIsTrainerViewing] = useState(false);
 
   // Memoizar cálculos pesados
   const achievements = useMemo(() => {
@@ -149,14 +148,6 @@ export default function PatientPortal() {
     loadPortalData();
   }, [token]);
 
-  // Detecta se quem está vendo é o trainer autenticado deste paciente
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user?.id && patient?.user_id === session.user.id) {
-        setIsTrainerViewing(true);
-      }
-    });
-  }, [patient]);
 
   // Salvar token no localStorage para PWA (permite abrir direto no portal)
   useEffect(() => {
@@ -835,18 +826,6 @@ export default function PatientPortal() {
                 <MembersAreaButton />
               )}
 
-              {isTrainerViewing && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate(`/admin?uid=${patient?.user_id}`)}
-                  className="border-slate-600 hover:bg-slate-800 text-white gap-1.5"
-                >
-                  <Settings className="w-4 h-4" />
-                  Admin
-                </Button>
-              )}
-
               {/* Botão de Peso removido a pedido */}
 
               {/* Menu de ações simplificado */}
@@ -915,6 +894,15 @@ export default function PatientPortal() {
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Atualizar dados
                   </DropdownMenuItem>
+                  {patient?.user_id && (
+                    <DropdownMenuItem
+                      onClick={() => navigate(`/admin?uid=${patient.user_id}`)}
+                      className="text-slate-400 hover:bg-slate-700 cursor-pointer py-2.5"
+                    >
+                      <Settings className="w-4 h-4 mr-2" />
+                      Acesso admin
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={handleLogout}
                     className="text-red-400 hover:bg-red-500/10 cursor-pointer py-2.5"
