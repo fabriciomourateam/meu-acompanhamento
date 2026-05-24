@@ -30,6 +30,10 @@ import { GamificationWidget } from '@/components/diets/GamificationWidget';
 import { PatientEvolutionTab } from '@/components/diets/PatientEvolutionTab';
 import { AdherenceCharts } from '@/components/diets/AdherenceCharts';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
+import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
+import { SubstitutionListWidget } from '@/components/diets/SubstitutionListWidget';
+import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
+import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import {
   Calendar,
   Check,
@@ -97,6 +101,15 @@ export function PatientDietPortal({
     substitutions: any[];
   } | null>(null);
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
+  const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
+
+  const trainerUserId = patient?.user_id || '';
+
+  useEffect(() => {
+    if (trainerUserId) {
+      portalSettingsService.getConfig(trainerUserId).then(setPortalConfig);
+    }
+  }, [trainerUserId]);
 
   useEffect(() => {
     loadDietData();
@@ -525,39 +538,46 @@ export function PatientDietPortal({
           <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Suplementação
           </TabsTrigger>
+          <TabsTrigger value="substitutions" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            Substituições
+          </TabsTrigger>
           <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Metas
           </TabsTrigger>
           <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Ranking & Conquistas
+            Ranking
           </TabsTrigger>
           <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm text-slate-500 hover:text-slate-700 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Meus Resultados
+            Evolução
           </TabsTrigger>
         </TabsList>
 
-        {/* Mobile: grid 4 colunas com ícones */}
-        <div className="sticky top-0 z-50 sm:hidden bg-white/95 backdrop-blur-md p-2 border-b border-slate-200 shadow-lg rounded-t-lg">
-          <TabsList className="grid grid-cols-5 gap-2 bg-transparent h-auto">
-            <TabsTrigger value="diet" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">🍽️</span>
-              <span>Plano</span>
+        {/* Mobile: scroll horizontal com palavras completas */}
+        <div className="sticky top-0 z-50 sm:hidden bg-white/95 backdrop-blur-md px-2 pt-2 pb-1 border-b border-slate-200 shadow-lg rounded-t-lg">
+          <TabsList className="flex gap-1.5 bg-transparent h-auto overflow-x-auto scrollbar-hide w-full">
+            <TabsTrigger value="diet" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">🍽️</span>
+              <span className="whitespace-nowrap">Plano</span>
             </TabsTrigger>
-            <TabsTrigger value="supplements" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">💊</span>
-              <span>Supl.</span>
+            <TabsTrigger value="supplements" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">💊</span>
+              <span className="whitespace-nowrap">Suplementos</span>
             </TabsTrigger>
-            <TabsTrigger value="challenges" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">🎯</span>
-              <span>Metas</span>
+            <TabsTrigger value="substitutions" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">🔄</span>
+              <span className="whitespace-nowrap">Substituições</span>
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">🏆</span>
-              <span>Rank</span>
+            <TabsTrigger value="challenges" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">🎯</span>
+              <span className="whitespace-nowrap">Metas</span>
             </TabsTrigger>
-            <TabsTrigger value="results" className="data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:shadow-sm bg-slate-50 text-slate-500 text-xs py-3 px-1 rounded-lg flex flex-col items-center gap-1 h-auto border border-transparent data-[state=active]:border-emerald-200 hover:bg-slate-100">
-              <span className="text-lg">📊</span>
-              <span>Evolução</span>
+            <TabsTrigger value="ranking" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">🏆</span>
+              <span className="whitespace-nowrap">Ranking</span>
+            </TabsTrigger>
+            <TabsTrigger value="results" className="flex-shrink-0 data-[state=active]:bg-emerald-50 data-[state=active]:text-emerald-600 data-[state=active]:border-emerald-200 bg-slate-50 text-slate-500 text-xs py-2 px-3 rounded-lg flex flex-col items-center gap-1 h-auto border border-slate-200 hover:bg-slate-100 transition-all">
+              <span className="text-base leading-none">📊</span>
+              <span className="whitespace-nowrap">Evolução</span>
             </TabsTrigger>
           </TabsList>
         </div>
@@ -1050,15 +1070,33 @@ export function PatientDietPortal({
           )}
         </TabsContent>
 
+        {/* Aba: Substituições */}
+        <TabsContent value="substitutions" className="mt-6 space-y-4">
+          {trainerUserId ? (
+            <SubstitutionListWidget trainerUserId={trainerUserId} />
+          ) : (
+            <div className="text-center py-12 text-slate-400">
+              <p className="text-3xl mb-2">🔄</p>
+              <p className="text-sm">Lista de substituições não disponível.</p>
+            </div>
+          )}
+        </TabsContent>
+
         {/* Aba: Metas (com histórico semanal) */}
         <TabsContent value="challenges" className="mt-6 space-y-6">
+          {trainerUserId && (
+            <CheckinAIWidget
+              patientId={patientId}
+              patientName={patientName}
+              trainerUserId={trainerUserId}
+            />
+          )}
           <DailyChallengesWidget patientId={patientId} />
           <WeeklyHabitsGrid patientId={patientId} />
         </TabsContent>
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
         <TabsContent value="results" className="mt-6 space-y-8">
-          {/* Seção 1: Evolução Corporal (o mais importante para o aluno) */}
           <section>
             <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
               <span className="text-2xl drop-shadow-glow-sm">⚖️</span> Evolução Corporal
@@ -1077,16 +1115,23 @@ export function PatientDietPortal({
 
         {/* Aba: Ranking & Conquistas */}
         <TabsContent value="ranking" className="mt-6 space-y-8">
+          {trainerUserId && (
+            <LeaderboardWidget
+              patientId={patientId}
+              trainerUserId={trainerUserId}
+              periods={portalConfig?.ranking?.periods ?? ['monthly', 'all_time']}
+            />
+          )}
+
           <section>
             <GamificationWidget patientId={patientId} />
           </section>
 
-          {/* Seção 2: Adesão à Dieta */}
-          <section className="mt-8">
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
+          <section>
+            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
               <span className="text-2xl drop-shadow-glow-sm">📊</span> Adesão ao Plano
             </h3>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="bg-slate-800/40 backdrop-blur-sm rounded-2xl p-1 border border-slate-700/50">
                 <WeeklyProgressChart patientId={patientId} />
               </div>
