@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, User, Phone, Sparkles, Settings } from 'lucide-react';
+import { Loader2, User, Phone, Sparkles, Settings, Calendar, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function PortalLogin() {
@@ -22,6 +22,14 @@ export default function PortalLogin() {
   const [loading, setLoading] = useState(false);
   const hasRedirected = useRef(false);
   const [adminUid, setAdminUid] = useState<string | null>(null);
+
+  // Fluxo de login em 2 etapas:
+  //  phone → confirma telefone e descobre se exige data de nascimento
+  //  dob   → pede e valida data de nascimento (segundo fator)
+  const [step, setStep] = useState<'phone' | 'dob'>('phone');
+  const [birthDate, setBirthDate] = useState(''); // YYYY-MM-DD
+  // Pattern do telefone validado pra reusar no submit da etapa 2 sem reformatar
+  const phonePatternRef = useRef<string>('');
 
   // Extrair slug da rota atual: /portal-evaner → "evaner"
   const pathSlug = location.pathname.startsWith('/portal-')
@@ -112,19 +120,40 @@ export default function PortalLogin() {
     setTelefone(formatted);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Gera o pattern wildcard usado pela RPC pra encontrar o telefone independente
+  // de espaços, parênteses ou traços que possam estar no banco.
+  const buildPhonePattern = (digits: string): string =>
+    '%' + digits.split('').join('%') + '%';
+
+  // Finaliza o login: gera token, salva no localStorage e redireciona.
+  const finalizeLogin = (patientPhone: string, patientName: string | null) => {
+    const token = btoa(`${patientPhone}:${Date.now()}`);
+    localStorage.setItem('portal_token', token);
+    localStorage.setItem('portal_phone', patientPhone);
+    localStorage.setItem('portal_login_route', location.pathname);
+
+    toast({
+      title: 'Acesso liberado! 🎉',
+      description: patientName ? `Bem-vindo(a), ${patientName}!` : 'Bem-vindo(a)!',
+    });
+
+    navigate(`/portal/${token}`);
+  };
+
+  // Etapa 1: validar telefone. Se o paciente tem data cadastrada, avança pra
+  // etapa 2; senão, loga direto (legacy graceful pros 97 pacientes que ainda
+  // não têm data_nascimento na base).
+  const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Normalizar telefone (apenas números, incluindo 55 se digitado)
     const normalizedPhone = normalizePhone(telefone);
-    // Agarrar apenas o número nacional para buscas flexíveis
     const nationalNumber = getNationalNumber(telefone);
 
     if (nationalNumber.length < 10) {
       toast({
         title: 'Telefone inválido',
         description: 'Digite um número de telefone válido com DDD',
-        variant: 'destructive'
+        variant: 'destructive',
       });
       return;
     }
@@ -132,94 +161,131 @@ export default function PortalLogin() {
     setLoading(true);
 
     try {
-      console.log('🔍 Buscando paciente com telefone:', normalizedPhone, ' / Nacional:', nationalNumber);
-
-      let patient = null;
-
-      // Formato 1: Busca exata combinada com curingas
-      // Garante que mesmo que haja um espaço oculto no banco (ex: "556799108131 "), ele encontre
-      // Formato Único Absoluto: Busca com wildcards entre TODOS os dígitos
-      // Ex: se o normalizedPhone for 556799108131,
-      // a pattern será: %5%5%6%7%9%9%1%0%8%1%3%1%
-      // Isso ignora espaços, traços, parênteses e quaisquer caracteres soltos espalhados.
-      const absolutePattern = '%' + normalizedPhone.split('').join('%') + '%';
-
-      console.log('🔍 Tentando busca absoluta com pattern via RPC:', absolutePattern);
-
-      const { data: dbResult, error: rpcError } = await supabase.rpc('check_patient_login', {
-        phone_search: absolutePattern
-      });
-
-      if (dbResult && dbResult.length > 0) {
-        patient = dbResult[0];
-        console.log('✅ Encontrado com padrão absoluto via RPC:', absolutePattern);
-      } else if (rpcError) {
-        console.error('❌ Erro no RPC check_patient_login:', rpcError);
+      // Tenta com o número completo (com 55 se digitado) e, se não achar,
+      // tenta sem o código do país.
+      const candidatePatterns: string[] = [buildPhonePattern(normalizedPhone)];
+      if (normalizedPhone.length > 10 && normalizedPhone.startsWith('55')) {
+        candidatePatterns.push(buildPhonePattern(normalizedPhone.slice(2)));
       }
 
-      // Se ainda assim não encontrar e for um telefone longo (tem o 55),
-      // Tentar sem o country code (mesma estratégia)
-      if (!patient && normalizedPhone.length > 10 && normalizedPhone.startsWith('55')) {
-        const withoutCountryCode = normalizedPhone.slice(2);
-        const patternWithout55 = '%' + withoutCountryCode.split('').join('%') + '%';
+      let foundPattern: string | null = null;
+      let requiresDob = false;
 
-        console.log('🔍 Tentando busca absoluta sem 55 via RPC:', patternWithout55);
-
-        const { data: dbResultFallback, error: rpcErrorFallback } = await supabase.rpc('check_patient_login', {
-          phone_search: patternWithout55
+      for (const pattern of candidatePatterns) {
+        const { data, error } = await supabase.rpc('check_patient_exists', {
+          phone_search: pattern,
         });
-
-        if (dbResultFallback && dbResultFallback.length > 0) {
-          patient = dbResultFallback[0];
-          console.log('✅ Encontrado com padrão sem 55 via RPC:', patternWithout55);
-        } else if (rpcErrorFallback) {
-          console.error('❌ Erro no RPC fallback:', rpcErrorFallback);
+        if (error) {
+          console.error('Erro RPC check_patient_exists:', error);
+          continue;
+        }
+        const row = Array.isArray(data) ? data[0] : data;
+        if (row?.found) {
+          foundPattern = pattern;
+          requiresDob = !!row.requires_dob;
+          break;
         }
       }
 
-      if (!patient) {
-        console.log('❌ Paciente não encontrado para:', telefone);
+      if (!foundPattern) {
         toast({
           title: 'Paciente não encontrado',
-          description: 'Não encontramos nenhum cadastro com este telefone. Verifique se digitou corretamente.',
-          variant: 'destructive'
+          description:
+            'Não encontramos nenhum cadastro com este telefone. Verifique se digitou corretamente.',
+          variant: 'destructive',
         });
         return;
       }
 
-      // Usar o telefone exato do banco de dados
-      const patientPhone = patient.telefone;
+      phonePatternRef.current = foundPattern;
 
-      // Gerar token temporário (válido por 24h)
-      const token = btoa(`${patientPhone}:${Date.now()}`);
+      // Paciente sem data_nascimento no banco: libera direto (compatibilidade)
+      if (!requiresDob) {
+        const { data: loginData } = await supabase.rpc('check_patient_login_with_dob', {
+          phone_search: foundPattern,
+          dob_check: null,
+        });
+        const loginRow = Array.isArray(loginData) ? loginData[0] : loginData;
+        if (loginRow?.telefone) {
+          finalizeLogin(loginRow.telefone, loginRow.nome ?? null);
+        } else {
+          toast({
+            title: 'Erro inesperado',
+            description: 'Não foi possível liberar o acesso. Fale com seu treinador.',
+            variant: 'destructive',
+          });
+        }
+        return;
+      }
 
-      // Salvar token no localStorage para validação
-      localStorage.setItem('portal_token', token);
-      localStorage.setItem('portal_phone', patientPhone);
-
-      console.log('✅ Token gerado para telefone:', patientPhone);
-
-      toast({
-        title: 'Acesso liberado! 🎉',
-        description: `Bem-vindo(a), ${patient.nome}!`
-      });
-
-      // Salvar a rota de login para redirecionar corretamente no logout
-      localStorage.setItem('portal_login_route', location.pathname);
-
-      // Redirecionar para o portal com o token
-      navigate(`/portal/${token}`);
-
+      // Tem data cadastrada — avança pra etapa de confirmação
+      setStep('dob');
     } catch (error) {
-      console.error('Erro ao fazer login:', error);
+      console.error('Erro ao fazer login (etapa 1):', error);
       toast({
         title: 'Erro',
         description: 'Ocorreu um erro ao acessar o portal',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  // Etapa 2: validar data de nascimento contra o telefone já confirmado
+  const handleDobSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!birthDate || !phonePatternRef.current) {
+      toast({
+        title: 'Data inválida',
+        description: 'Informe sua data de nascimento.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const { data, error } = await supabase.rpc('check_patient_login_with_dob', {
+        phone_search: phonePatternRef.current,
+        dob_check: birthDate,
+      });
+
+      if (error) {
+        console.error('Erro RPC check_patient_login_with_dob:', error);
+      }
+
+      const row = Array.isArray(data) ? data[0] : data;
+
+      if (!row?.telefone) {
+        toast({
+          title: 'Data não confere',
+          description:
+            'A data de nascimento não bate com o cadastro. Verifique com seu nutricionista se necessário.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      finalizeLogin(row.telefone, row.nome ?? null);
+    } catch (error) {
+      console.error('Erro ao fazer login (etapa 2):', error);
+      toast({
+        title: 'Erro',
+        description: 'Ocorreu um erro ao acessar o portal',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBackToPhone = () => {
+    setStep('phone');
+    setBirthDate('');
+    phonePatternRef.current = '';
   };
 
   return (
@@ -321,73 +387,146 @@ export default function PortalLogin() {
           </CardHeader>
 
           <CardContent style={{ padding: '0 2rem 2.5rem 2rem', position: 'relative', zIndex: 10 }}>
-            <form
-              onSubmit={handleSubmit}
-              className="space-y-6"
-            >
-              <div className="space-y-2">
-                <Label htmlFor="telefone" className="text-slate-300 flex items-center gap-2">
-                  <Phone className="w-4 h-4" />
-                  Número de Telefone
-                </Label>
-                <Input
-                  id="telefone"
-                  type="tel"
-                  placeholder="(00) 00000-0000 ou +55 (00) 00000-0000"
-                  value={telefone}
-                  onChange={handlePhoneChange}
-                  className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 h-14 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  disabled={loading}
-                  autoFocus
-                />
-                <p className="text-xs text-slate-400">
-                  Digite o seu telefone (aceita código do país +55)
-                </p>
-              </div>
-
-              <motion.div
-                whileHover={{ scale: loading || normalizePhone(telefone).length < 10 ? 1 : 1.02 }}
-                whileTap={{ scale: loading || normalizePhone(telefone).length < 10 ? 1 : 0.98 }}
-              >
-                <Button
-                  type="submit"
-                  disabled={loading || normalizePhone(telefone).length < 10}
-                  className={`w-full h-14 text-lg transition-all relative overflow-hidden ${isFabricio
-                    ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 text-black font-semibold'
-                    : 'bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-white'
-                    }`}
-                  style={{
-                    opacity: loading || normalizePhone(telefone).length < 10 ? 0.6 : 1,
-                    cursor: loading || normalizePhone(telefone).length < 10 ? 'not-allowed' : 'pointer',
-                  }}
-                >
-                  <span className="relative z-10 flex items-center justify-center">
-                    {loading ? (
-                      <>
-                        <Loader2 className="w-5 h-5 mr-2 animate-spin" />
-                        Acessando...
-                      </>
-                    ) : (
-                      <>
-                        Acessar Portal
-                        <motion.span
-                          animate={{ x: [0, 5, 0] }}
-                          transition={{ duration: 1.5, repeat: Infinity }}
-                          className="ml-2"
-                        >
-                          →
-                        </motion.span>
-                      </>
-                    )}
-                  </span>
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-                    animate={{ x: ['-100%', '100%'] }}
-                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+            {step === 'phone' ? (
+              <form onSubmit={handlePhoneSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <Label htmlFor="telefone" className="text-slate-300 flex items-center gap-2">
+                    <Phone className="w-4 h-4" />
+                    Número de Telefone
+                  </Label>
+                  <Input
+                    id="telefone"
+                    type="tel"
+                    placeholder="(00) 00000-0000 ou +55 (00) 00000-0000"
+                    value={telefone}
+                    onChange={handlePhoneChange}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 h-14 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    disabled={loading}
+                    autoFocus
                   />
-                </Button>
-              </motion.div>
-            </form>
+                  <p className="text-xs text-slate-400">
+                    Digite o seu telefone (aceita código do país +55)
+                  </p>
+                </div>
+
+                <motion.div
+                  whileHover={{ scale: loading || normalizePhone(telefone).length < 10 ? 1 : 1.02 }}
+                  whileTap={{ scale: loading || normalizePhone(telefone).length < 10 ? 1 : 0.98 }}
+                >
+                  <Button
+                    type="submit"
+                    disabled={loading || normalizePhone(telefone).length < 10}
+                    className={`w-full h-14 text-lg transition-all relative overflow-hidden ${isFabricio
+                      ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 text-black font-semibold'
+                      : 'bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-white'
+                      }`}
+                    style={{
+                      opacity: loading || normalizePhone(telefone).length < 10 ? 0.6 : 1,
+                      cursor: loading || normalizePhone(telefone).length < 10 ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <span className="relative z-10 flex items-center justify-center">
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Acessando...
+                        </>
+                      ) : (
+                        <>
+                          Continuar
+                          <motion.span
+                            animate={{ x: [0, 5, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                            className="ml-2"
+                          >
+                            →
+                          </motion.span>
+                        </>
+                      )}
+                    </span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                    />
+                  </Button>
+                </motion.div>
+              </form>
+            ) : (
+              <form onSubmit={handleDobSubmit} className="space-y-6">
+                <div className="space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleBackToPhone}
+                    disabled={loading}
+                    className="flex items-center gap-1 text-xs text-slate-400 hover:text-slate-200 transition-colors mb-2"
+                  >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    Trocar telefone
+                  </button>
+                  <Label htmlFor="birthDate" className="text-slate-300 flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    Data de Nascimento
+                  </Label>
+                  <Input
+                    id="birthDate"
+                    type="date"
+                    value={birthDate}
+                    onChange={(e) => setBirthDate(e.target.value)}
+                    max={new Date().toISOString().split('T')[0]}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 h-14 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    disabled={loading}
+                    autoFocus
+                  />
+                  <p className="text-xs text-slate-400">
+                    Confirme com a data de nascimento cadastrada no seu acompanhamento.
+                  </p>
+                </div>
+
+                <motion.div
+                  whileHover={{ scale: loading || !birthDate ? 1 : 1.02 }}
+                  whileTap={{ scale: loading || !birthDate ? 1 : 0.98 }}
+                >
+                  <Button
+                    type="submit"
+                    disabled={loading || !birthDate}
+                    className={`w-full h-14 text-lg transition-all relative overflow-hidden ${isFabricio
+                      ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 text-black font-semibold'
+                      : 'bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-white'
+                      }`}
+                    style={{
+                      opacity: loading || !birthDate ? 0.6 : 1,
+                      cursor: loading || !birthDate ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <span className="relative z-10 flex items-center justify-center">
+                      {loading ? (
+                        <>
+                          <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                          Acessando...
+                        </>
+                      ) : (
+                        <>
+                          Acessar Portal
+                          <motion.span
+                            animate={{ x: [0, 5, 0] }}
+                            transition={{ duration: 1.5, repeat: Infinity }}
+                            className="ml-2"
+                          >
+                            →
+                          </motion.span>
+                        </>
+                      )}
+                    </span>
+                    <motion.div
+                      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+                      animate={{ x: ['-100%', '100%'] }}
+                      transition={{ duration: 2, repeat: Infinity, repeatDelay: 1 }}
+                    />
+                  </Button>
+                </motion.div>
+              </form>
+            )}
 
             <div className="mt-6 pt-6 border-t border-slate-700/50">
               <p className="text-center text-sm text-slate-400">
