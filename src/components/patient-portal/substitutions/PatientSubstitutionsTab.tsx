@@ -190,8 +190,8 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
       </div>
 
       {/* Comparador direto: A → B */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-3 sm:p-4 shadow-sm">
-        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
+      <div className="rounded-2xl border border-amber-200 bg-gradient-to-br from-amber-50 via-white to-yellow-50/60 p-3 sm:p-4 shadow-sm">
+        <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-700">
           Comparar dois alimentos
         </p>
         <div className="flex items-center gap-2">

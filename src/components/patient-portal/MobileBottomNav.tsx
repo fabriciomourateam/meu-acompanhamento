@@ -10,7 +10,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { value: 'diet',          label: 'Plano',        Icon: Utensils   },
+  { value: 'diet',          label: 'Dieta',        Icon: Utensils   },
   { value: 'supplements',   label: 'Suplementos',  Icon: Pill       },
   { value: 'substitutions', label: 'Substituições', Icon: RefreshCw  },
   { value: 'challenges',    label: 'Metas',        Icon: Target     },
