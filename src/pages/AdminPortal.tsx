@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save } from 'lucide-react';
+import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut } from 'lucide-react';
 
 
 interface Challenge {
@@ -332,6 +332,7 @@ function setSessionUid(uid: string) {
 
 export default function AdminPortal() {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const trainerUserId = searchParams.get('uid') || '';
 
@@ -483,6 +484,13 @@ export default function AdminPortal() {
     );
   }
 
+  function handleLogout() {
+    sessionStorage.removeItem(SESSION_KEY);
+    // Voltar para a rota de login salva ou para /portal
+    const loginRoute = localStorage.getItem('portal_login_route') || '/portal';
+    navigate(loginRoute);
+  }
+
   async function handleSave() {
     if (!config) return;
     setSaving(true);
@@ -504,10 +512,16 @@ export default function AdminPortal() {
             <h1 className="text-2xl font-bold text-slate-800">Painel Admin</h1>
             <p className="text-sm text-slate-500 mt-0.5">Configure o portal dos seus alunos</p>
           </div>
-          <Button onClick={handleSave} disabled={saving || !config} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5">
-            <Save className="w-4 h-4" />
-            {saving ? 'Salvando...' : 'Salvar'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button onClick={handleSave} disabled={saving || !config} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5">
+              <Save className="w-4 h-4" />
+              {saving ? 'Salvando...' : 'Salvar'}
+            </Button>
+            <Button onClick={handleLogout} variant="outline" className="border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-100 gap-1.5">
+              <LogOut className="w-4 h-4" />
+              Sair
+            </Button>
+          </div>
         </div>
 
         <Tabs defaultValue="challenges">
