@@ -23,32 +23,34 @@ export default function PortalLogin() {
   const hasRedirected = useRef(false);
   const [adminUid, setAdminUid] = useState<string | null>(null);
 
-  // Buscar uid do trainer pela rota atual (para botão admin)
+  // Extrair slug da rota atual: /portal-evaner → "evaner"
+  const pathSlug = location.pathname.startsWith('/portal-')
+    ? location.pathname.slice('/portal-'.length)
+    : null;
+
+  // Buscar uid do trainer pelo checkin_slug na tabela profiles
   useEffect(() => {
-    const currentPath = location.pathname;
+    if (!pathSlug) return;
     supabase
-      .from('portal_settings')
-      .select('user_id, setting_value')
-      .eq('setting_key', 'login_slug')
+      .from('profiles')
+      .select('id')
+      .eq('checkin_slug', pathSlug)
+      .maybeSingle()
       .then(({ data }) => {
-        if (!data) return;
-        const match = data.find(
-          (row) => (row.setting_value as { slug?: string })?.slug === currentPath
-        );
-        if (match) setAdminUid(match.user_id);
+        if (data?.id) setAdminUid(data.id);
       });
-  }, [location.pathname]);
+  }, [pathSlug]);
 
   // Salvar rota de login ao visitar a página
-  // Se é uma rota personalizada (ex: /portal-fmteam), sempre salvar
+  // Se é uma rota de portal de trainer (/portal-xxx), sempre salvar
   // Se é rota genérica (/portal ou /), só salvar se não houver rota já salva
   useEffect(() => {
-    if (isFabricio) {
+    if (pathSlug) {
       localStorage.setItem('portal_login_route', location.pathname);
     } else if (!localStorage.getItem('portal_login_route')) {
       localStorage.setItem('portal_login_route', location.pathname);
     }
-  }, [isFabricio, location.pathname]);
+  }, [pathSlug, location.pathname]);
 
   // Verificar se há um token salvo (para PWA instalado)
   useEffect(() => {

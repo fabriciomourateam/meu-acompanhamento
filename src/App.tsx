@@ -16,6 +16,8 @@ const App = () => (
         <Route path="/portal-fmteam" element={<PortalLogin />} />
         <Route path="/portal/:token" element={<PatientPortal />} />
         <Route path="/admin" element={<Suspense fallback={null}><AdminPortal /></Suspense>} />
+        {/* Rota curinga para portais de outros trainers: /portal-evaner, /portal-nutri-matheus, etc. */}
+        <Route path="*" element={<PortalLogin />} />
       </Routes>
     </BrowserRouter>
   </>
