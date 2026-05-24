@@ -18,11 +18,105 @@ const PERIOD_LABELS: Record<RankingPeriod, string> = {
   all_time: 'Geral',
 };
 
-function getMedal(position: number): string {
-  if (position === 1) return '🥇';
-  if (position === 2) return '🥈';
-  if (position === 3) return '🥉';
-  return `${position}°`;
+function initials(name: string): string {
+  return name
+    .split(' ')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0].toUpperCase())
+    .join('');
+}
+
+function PodiumBlock({
+  entry,
+  rank,
+}: {
+  entry: LeaderboardEntry | undefined;
+  rank: 1 | 2 | 3;
+}) {
+  const configs = {
+    1: {
+      height: 'h-24',
+      medal: '🥇',
+      bg: 'bg-amber-500/20 border-amber-400/40',
+      text: 'text-amber-300',
+      avatarBg: 'bg-amber-500/30 border-amber-400/50',
+      label: '1°',
+      order: 'order-2',
+    },
+    2: {
+      height: 'h-16',
+      medal: '🥈',
+      bg: 'bg-slate-500/20 border-slate-400/40',
+      text: 'text-slate-300',
+      avatarBg: 'bg-slate-500/30 border-slate-400/50',
+      label: '2°',
+      order: 'order-1',
+    },
+    3: {
+      height: 'h-12',
+      medal: '🥉',
+      bg: 'bg-orange-700/20 border-orange-600/40',
+      text: 'text-orange-300',
+      avatarBg: 'bg-orange-700/30 border-orange-600/50',
+      label: '3°',
+      order: 'order-3',
+    },
+  };
+
+  const c = configs[rank];
+  const isCurrent = entry?.is_current_patient;
+
+  return (
+    <div className={`flex flex-col items-center gap-1.5 flex-1 ${c.order}`}>
+      {/* Avatar */}
+      {entry ? (
+        <div
+          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
+            isCurrent
+              ? 'bg-emerald-500/30 border-emerald-400/60 text-emerald-300 ring-2 ring-emerald-400/40'
+              : `${c.avatarBg} ${c.text}`
+          }`}
+        >
+          {initials(entry.patient_name)}
+        </div>
+      ) : (
+        <div className="w-12 h-12 rounded-full border-2 border-slate-700 bg-slate-800/40 flex items-center justify-center text-slate-600">
+          —
+        </div>
+      )}
+
+      {/* Name + points */}
+      <div className="text-center w-full px-1">
+        {entry ? (
+          <>
+            <p
+              className={`text-xs font-semibold truncate leading-tight ${
+                isCurrent ? 'text-emerald-300' : c.text
+              }`}
+            >
+              {entry.patient_name.split(' ')[0]}
+              {isCurrent && <span className="ml-1 text-emerald-400">★</span>}
+            </p>
+            <p className="text-[10px] text-slate-400 mt-0.5">
+              {entry.points.toLocaleString('pt-BR')} pts
+            </p>
+          </>
+        ) : (
+          <p className="text-xs text-slate-600">—</p>
+        )}
+      </div>
+
+      {/* Podium block */}
+      <div
+        className={`w-full ${c.height} rounded-t-lg border flex items-center justify-center text-xl ${
+          isCurrent ? 'bg-emerald-500/20 border-emerald-400/40' : c.bg
+        }`}
+      >
+        <span>{c.medal}</span>
+      </div>
+    </div>
+  );
 }
 
 function LeaderboardList({
@@ -51,9 +145,7 @@ function LeaderboardList({
       .catch(() => {
         if (!cancelled) setLoading(false);
       });
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [patientId, trainerUserId, period]);
 
   if (loading) {
@@ -75,55 +167,70 @@ function LeaderboardList({
     );
   }
 
+  const top3 = [entries[0], entries[1], entries[2]];
+  const rest = entries.slice(3);
   const currentEntry = entries.find((e) => e.is_current_patient);
-  const visibleEntries = entries.slice(0, 10);
-  const currentInVisible = visibleEntries.some((e) => e.is_current_patient);
-  const showSeparated = currentEntry && !currentInVisible;
+  const currentInRest = rest.some((e) => e.is_current_patient);
+  const currentInTop3 = top3.some((e) => e?.is_current_patient);
+  const showSeparated = currentEntry && !currentInRest && !currentInTop3;
 
   return (
-    <div className="mt-4 space-y-1.5">
-      {visibleEntries.map((entry) => (
-        <div
-          key={entry.patient_id}
-          className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
-            entry.is_current_patient
-              ? 'bg-emerald-500/15 border border-emerald-500/30 ring-1 ring-emerald-400/20'
-              : 'bg-slate-800/40 border border-slate-700/40 hover:bg-slate-700/30'
-          }`}
-        >
-          <span className="text-lg font-bold w-8 text-center shrink-0 text-slate-300">
-            {getMedal(entry.position)}
-          </span>
-          <span
-            className={`flex-1 text-sm font-medium truncate ${
-              entry.is_current_patient ? 'text-emerald-300' : 'text-slate-200'
-            }`}
-          >
-            {entry.patient_name}
-            {entry.is_current_patient && (
-              <span className="ml-1.5 text-xs text-emerald-400 font-normal">(você)</span>
-            )}
-          </span>
-          <span
-            className={`text-sm font-bold shrink-0 ${
-              entry.is_current_patient ? 'text-emerald-400' : 'text-slate-300'
-            }`}
-          >
-            {entry.points.toLocaleString('pt-BR')} pts
-          </span>
-        </div>
-      ))}
+    <div className="mt-4 space-y-4">
+      {/* Pódio */}
+      <div className="flex items-end gap-2 px-2 pt-2">
+        <PodiumBlock entry={entries[1]} rank={2} />
+        <PodiumBlock entry={entries[0]} rank={1} />
+        <PodiumBlock entry={entries[2]} rank={3} />
+      </div>
 
+      {/* Lista a partir do 4° lugar */}
+      {rest.length > 0 && (
+        <div className="space-y-1.5">
+          {rest.map((entry) => (
+            <div
+              key={entry.patient_id}
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+                entry.is_current_patient
+                  ? 'bg-emerald-500/15 border border-emerald-500/30 ring-1 ring-emerald-400/20'
+                  : 'bg-slate-800/40 border border-slate-700/40 hover:bg-slate-700/30'
+              }`}
+            >
+              <span className="text-sm font-bold w-7 text-center shrink-0 text-slate-400">
+                {entry.position}°
+              </span>
+              <span
+                className={`flex-1 text-sm font-medium truncate ${
+                  entry.is_current_patient ? 'text-emerald-300' : 'text-slate-200'
+                }`}
+              >
+                {entry.patient_name}
+                {entry.is_current_patient && (
+                  <span className="ml-1.5 text-xs text-emerald-400 font-normal">(você)</span>
+                )}
+              </span>
+              <span
+                className={`text-sm font-bold shrink-0 ${
+                  entry.is_current_patient ? 'text-emerald-400' : 'text-slate-300'
+                }`}
+              >
+                {entry.points.toLocaleString('pt-BR')} pts
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Paciente atual fora do top visível */}
       {showSeparated && currentEntry && (
         <>
-          <div className="flex items-center gap-2 py-1">
+          <div className="flex items-center gap-2">
             <div className="flex-1 border-t border-dashed border-slate-600" />
             <span className="text-xs text-slate-500 shrink-0">...</span>
             <div className="flex-1 border-t border-dashed border-slate-600" />
           </div>
           <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-emerald-500/15 border border-emerald-500/30 ring-1 ring-emerald-400/20">
-            <span className="text-lg font-bold w-8 text-center shrink-0 text-slate-300">
-              {getMedal(currentEntry.position)}
+            <span className="text-sm font-bold w-7 text-center shrink-0 text-emerald-400">
+              {currentEntry.position}°
             </span>
             <span className="flex-1 text-sm font-medium truncate text-emerald-300">
               {currentEntry.patient_name}
