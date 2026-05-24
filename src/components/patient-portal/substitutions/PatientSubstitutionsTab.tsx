@@ -1,0 +1,262 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Search, X, Sparkles } from "lucide-react";
+import {
+  fetchAllPatientFoods,
+  type PatientFood,
+} from "@/lib/patient-substitutions-service";
+import {
+  CATEGORY_TO_MACRO_GROUP,
+  MACRO_GROUPS,
+  type MacroGroupId,
+} from "@/lib/food-macro-groups";
+import { useFoodFavorites } from "@/lib/use-food-favorites";
+import { useToast } from "@/hooks/use-toast";
+import { MacroGroupTabs } from "./MacroGroupTabs";
+import { FoodGrid } from "./FoodGrid";
+import { SubstitutionsPanel } from "./SubstitutionsPanel";
+import { Skeleton } from "@/components/ui/skeleton";
+
+function stripDiacritics(input: string): string {
+  return input.normalize("NFD").replace(/[̀-ͯ]/g, "");
+}
+
+interface PatientSubstitutionsTabProps {
+  patientId: string;
+}
+
+export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabProps) {
+  const { toast } = useToast();
+  const [allFoods, setAllFoods] = useState<PatientFood[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const favorites = useFoodFavorites(patientId);
+
+  const [activeTab, setActiveTab] = useState<MacroGroupId | "favs">("carbos");
+  const [search, setSearch] = useState("");
+  const [selected, setSelected] = useState<PatientFood | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchAllPatientFoods()
+      .then((foods) => {
+        if (!cancelled) {
+          setAllFoods(foods);
+          setLoading(false);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError(true);
+          setLoading(false);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const counts = useMemo(() => {
+    const result: Record<MacroGroupId, number> = {
+      carbos: 0,
+      proteinas: 0,
+      frutas: 0,
+      vegetais: 0,
+      gorduras: 0,
+      laticinios: 0,
+      bebidas: 0,
+    };
+    for (const f of allFoods) {
+      result[f.macro_group] = (result[f.macro_group] ?? 0) + 1;
+    }
+    return result;
+  }, [allFoods]);
+
+  const visibleFoods = useMemo(() => {
+    let filtered = allFoods;
+    const q = stripDiacritics(search.trim().toLowerCase());
+
+    if (q.length > 0) {
+      filtered = filtered.filter((f) => stripDiacritics(f.name.toLowerCase()).includes(q));
+    } else if (activeTab === "favs") {
+      const favSet = new Set(favorites.list);
+      filtered = filtered.filter((f) => favSet.has(f.id));
+    } else {
+      filtered = filtered.filter(
+        (f) => CATEGORY_TO_MACRO_GROUP[f.category?.toLowerCase()?.trim() ?? ""] === activeTab
+      );
+    }
+
+    const sorted = [...filtered].sort((a, b) => {
+      const aHas = a.common_units.length > 0 ? 1 : 0;
+      const bHas = b.common_units.length > 0 ? 1 : 0;
+      if (aHas !== bHas) return bHas - aHas;
+      return a.name.localeCompare(b.name, "pt-BR");
+    });
+
+    return sorted;
+  }, [allFoods, activeTab, favorites.list, search]);
+
+  const handleToggleFavorite = useCallback(
+    (id: string) => {
+      const food = allFoods.find((f) => f.id === id);
+      const wasFav = favorites.has(id);
+      favorites.toggle(id);
+      if (food) {
+        if (wasFav) {
+          toast({ title: "Removido dos favoritos", description: food.name });
+        } else {
+          toast({ title: "⭐ Adicionado aos favoritos", description: food.name });
+        }
+      }
+    },
+    [allFoods, favorites, toast]
+  );
+
+  const onboardedRef = useRef(false);
+  useEffect(() => {
+    if (!patientId || onboardedRef.current) return;
+    if (typeof window === "undefined") return;
+    const key = `myshape:subs-onboarded:${patientId}`;
+    if (window.localStorage.getItem(key)) return;
+    onboardedRef.current = true;
+    const t = setTimeout(() => {
+      toast({
+        title: "👋 Toque num alimento",
+        description: "Veja substitutos com macros equivalentes. ⭐ pra favoritar.",
+        duration: 6000,
+      });
+      try {
+        window.localStorage.setItem(key, "1");
+      } catch {
+        /* quota — ignora */
+      }
+    }, 800);
+    return () => clearTimeout(t);
+  }, [patientId, toast]);
+
+  if (loading) {
+    return (
+      <div className="space-y-4">
+        <Skeleton className="h-12 w-full rounded-2xl bg-slate-800/60" />
+        <div className="flex gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <Skeleton key={i} className="h-9 w-24 rounded-full bg-slate-800/60" />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <Skeleton key={i} className="h-[220px] rounded-2xl bg-slate-800/60" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (error || allFoods.length === 0) {
+    return (
+      <div className="text-center py-12 text-slate-400">
+        <p className="text-3xl mb-2">🍽️</p>
+        <p className="text-sm">
+          {error
+            ? "Erro ao carregar alimentos. Tente recarregar a página."
+            : "Nenhum alimento disponível."}
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* Hero — instruções rápidas */}
+      <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-900/40 to-slate-900/40 p-4">
+        <div className="flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+            <Sparkles className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <h3 className="text-sm font-semibold text-slate-100">Substitua sem culpa</h3>
+            <p className="mt-0.5 text-xs leading-relaxed text-slate-400">
+              Toque num alimento para ver opções equivalentes em macros. As gramas são
+              ajustadas automaticamente para manter a sua dieta no rumo certo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Busca */}
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        <input
+          type="text"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="Buscar alimento... (ex: banana, frango, arroz)"
+          className="w-full rounded-xl border border-slate-700/70 bg-slate-900/60 py-2.5 pl-9 pr-9 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-500/60 focus:outline-none"
+        />
+        {search && (
+          <button
+            type="button"
+            onClick={() => setSearch("")}
+            aria-label="Limpar busca"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-500 transition hover:bg-slate-800 hover:text-slate-200"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      {/* Tabs por macrogrupo */}
+      <div className="sticky top-0 z-10 -mx-1 bg-slate-900/40 px-1 py-2 backdrop-blur-sm">
+        <MacroGroupTabs
+          active={activeTab}
+          onChange={setActiveTab}
+          favoritesCount={favorites.list.length}
+          counts={counts}
+        />
+      </div>
+
+      {/* Resumo numérico */}
+      <p className="text-xs text-slate-400">
+        {search ? (
+          <>
+            {visibleFoods.length} resultado{visibleFoods.length !== 1 ? "s" : ""} para "{search}"
+          </>
+        ) : activeTab === "favs" ? (
+          <>{favorites.list.length} favorito{favorites.list.length !== 1 ? "s" : ""}</>
+        ) : (
+          <>
+            {visibleFoods.length} alimento{visibleFoods.length !== 1 ? "s" : ""} •{" "}
+            {MACRO_GROUPS.find((g) => g.id === activeTab)?.label}
+          </>
+        )}
+      </p>
+
+      {/* Grid de alimentos */}
+      <FoodGrid
+        foods={visibleFoods}
+        onSelect={(f) => {
+          setSelected(f);
+          setPanelOpen(true);
+        }}
+        hasFavorite={favorites.has}
+        onToggleFavorite={handleToggleFavorite}
+        searchTerm={search.trim() || undefined}
+        onSuggestionClick={setSearch}
+        emptyMessage={
+          search
+            ? `Nenhum alimento encontrado para "${search}".`
+            : activeTab === "favs"
+            ? "Você ainda não tem favoritos. Toque na ⭐ de um alimento para adicionar."
+            : `Nenhum alimento em ${
+                MACRO_GROUPS.find((g) => g.id === activeTab)?.label ?? "esta categoria"
+              }.`
+        }
+      />
+
+      {/* Painel lateral com substituições */}
+      <SubstitutionsPanel food={selected} open={panelOpen} onOpenChange={setPanelOpen} />
+    </div>
+  );
+}

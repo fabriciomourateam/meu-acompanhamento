@@ -31,7 +31,7 @@ import { PatientEvolutionTab } from '@/components/diets/PatientEvolutionTab';
 import { AdherenceCharts } from '@/components/diets/AdherenceCharts';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
-import { SubstitutionListWidget } from '@/components/diets/SubstitutionListWidget';
+import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
 import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
@@ -1057,14 +1057,7 @@ export function PatientDietPortal({
 
         {/* Aba: Substituições */}
         <TabsContent value="substitutions" className="mt-6 space-y-4">
-          {trainerUserId ? (
-            <SubstitutionListWidget trainerUserId={trainerUserId} />
-          ) : (
-            <div className="text-center py-12 text-slate-400">
-              <p className="text-3xl mb-2">🔄</p>
-              <p className="text-sm">Lista de substituições não disponível.</p>
-            </div>
-          )}
+          <PatientSubstitutionsTab patientId={patientId} />
         </TabsContent>
 
         {/* Aba: Metas (com histórico semanal) */}
