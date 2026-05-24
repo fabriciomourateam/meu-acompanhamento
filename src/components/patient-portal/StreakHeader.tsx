@@ -31,9 +31,9 @@ export function StreakHeader({ patientId, patientName }: StreakHeaderProps) {
     };
 
     return (
-        <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-                <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2 truncate">
+        <div className="flex flex-col">
+            <div className="flex items-center gap-2 min-w-0">
+                <h1 className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center gap-2 truncate">
                     {patientName || 'Meu Acompanhamento'}
                 </h1>
 
@@ -42,17 +42,13 @@ export function StreakHeader({ patientId, patientName }: StreakHeaderProps) {
                     <motion.div
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="flex items-center gap-1 bg-orange-500/20 border border-orange-500/30 text-orange-400 px-2 py-1 rounded-full text-xs font-bold"
+                        className="flex items-center gap-1 bg-orange-100 border border-orange-200 text-orange-600 px-2 py-0.5 rounded-full text-xs font-bold shrink-0"
                     >
                         <Flame className="w-3.5 h-3.5 fill-orange-500 text-orange-500 animate-pulse" />
                         <span>{streak} {streak === 1 ? 'dia' : 'dias'}</span>
                     </motion.div>
                 )}
             </div>
-
-            <p className="text-sm sm:text-base text-slate-400">
-                Acompanhe seu progresso e conquistas
-            </p>
         </div>
     );
 }

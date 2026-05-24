@@ -139,15 +139,15 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
   if (loading) {
     return (
       <div className="space-y-4">
-        <Skeleton className="h-12 w-full rounded-2xl bg-slate-800/60" />
+        <Skeleton className="h-12 w-full rounded-2xl" />
         <div className="flex gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
-            <Skeleton key={i} className="h-9 w-24 rounded-full bg-slate-800/60" />
+            <Skeleton key={i} className="h-9 w-24 rounded-full" />
           ))}
         </div>
         <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 lg:grid-cols-4">
           {Array.from({ length: 12 }).map((_, i) => (
-            <Skeleton key={i} className="h-[220px] rounded-2xl bg-slate-800/60" />
+            <Skeleton key={i} className="h-[220px] rounded-2xl" />
           ))}
         </div>
       </div>
@@ -156,7 +156,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
 
   if (error || allFoods.length === 0) {
     return (
-      <div className="text-center py-12 text-slate-400">
+      <div className="text-center py-12 text-slate-500">
         <p className="text-3xl mb-2">🍽️</p>
         <p className="text-sm">
           {error
@@ -170,14 +170,14 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
   return (
     <div className="space-y-4">
       {/* Hero — instruções rápidas */}
-      <div className="rounded-2xl border border-emerald-500/20 bg-gradient-to-br from-emerald-900/40 to-slate-900/40 p-4">
+      <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-3 sm:p-4 shadow-sm">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500/20 text-emerald-400">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
             <Sparkles className="h-5 w-5" />
           </div>
           <div className="flex-1">
-            <h3 className="text-sm font-semibold text-slate-100">Substitua sem culpa</h3>
-            <p className="mt-0.5 text-xs leading-relaxed text-slate-400">
+            <h3 className="text-sm font-semibold text-slate-900">Substitua sem culpa</h3>
+            <p className="mt-0.5 text-xs leading-relaxed text-slate-600">
               Toque num alimento para ver opções equivalentes em macros. As gramas são
               ajustadas automaticamente para manter a sua dieta no rumo certo.
             </p>
@@ -187,20 +187,20 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
 
       {/* Busca */}
       <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar alimento... (ex: banana, frango, arroz)"
-          className="w-full rounded-xl border border-slate-700/70 bg-slate-900/60 py-2.5 pl-9 pr-9 text-sm text-slate-100 placeholder-slate-500 focus:border-emerald-500/60 focus:outline-none"
+          className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-9 text-sm text-slate-900 placeholder-slate-400 shadow-sm focus:border-emerald-400 focus:outline-none focus:ring-1 focus:ring-emerald-400/40"
         />
         {search && (
           <button
             type="button"
             onClick={() => setSearch("")}
             aria-label="Limpar busca"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-500 transition hover:bg-slate-800 hover:text-slate-200"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -208,7 +208,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
       </div>
 
       {/* Tabs por macrogrupo */}
-      <div className="sticky top-0 z-10 -mx-1 bg-slate-900/40 px-1 py-2 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 -mx-1 bg-white/80 px-1 py-2 backdrop-blur-sm">
         <MacroGroupTabs
           active={activeTab}
           onChange={setActiveTab}
@@ -218,7 +218,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
       </div>
 
       {/* Resumo numérico */}
-      <p className="text-xs text-slate-400">
+      <p className="text-xs text-slate-500">
         {search ? (
           <>
             {visibleFoods.length} resultado{visibleFoods.length !== 1 ? "s" : ""} para "{search}"

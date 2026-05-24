@@ -116,8 +116,10 @@ export function PatientDietPortal({
   const handleSwipe = (deltaX: number, deltaY: number) => {
     if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
     const idx = TAB_ORDER.indexOf(activeTab);
-    if (deltaX < 0 && idx < TAB_ORDER.length - 1) goToTab(TAB_ORDER[idx + 1]);
-    if (deltaX > 0 && idx > 0) goToTab(TAB_ORDER[idx - 1]);
+    // deltaX > 0 → dedo arrastou para esquerda → próxima aba (à direita)
+    // deltaX < 0 → dedo arrastou para direita → aba anterior (à esquerda)
+    if (deltaX > 0 && idx < TAB_ORDER.length - 1) goToTab(TAB_ORDER[idx + 1]);
+    if (deltaX < 0 && idx > 0) goToTab(TAB_ORDER[idx - 1]);
   };
 
   const trainerUserId = patient?.user_id || '';
@@ -510,28 +512,28 @@ export function PatientDietPortal({
   };
 
   return (
-    <div className="space-y-6 pb-28 sm:pb-6">
+    <div className="space-y-5 pb-4">
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
       {releasedPlans.length > 1 && (
-        <Card className="bg-gradient-to-r from-emerald-500/10 to-cyan-500/10 border-emerald-500/20 shadow-lg">
+        <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-emerald-100 mb-1">Plano Alimentar Ativo</p>
-                <p className="text-xs text-slate-400">Você tem {releasedPlans.length} planos disponíveis</p>
+                <p className="text-sm font-semibold text-slate-900 mb-0.5">Plano Alimentar Ativo</p>
+                <p className="text-xs text-slate-500">Você tem {releasedPlans.length} planos disponíveis</p>
               </div>
               <Select value={activePlan?.id} onValueChange={handleChangePlan}>
-                <SelectTrigger className="w-full sm:w-[280px] bg-slate-800/80 border-slate-700 text-white min-h-[44px]">
+                <SelectTrigger className="w-full sm:w-[280px] bg-white border-slate-300 text-slate-700 min-h-[44px]">
                   <SelectValue placeholder="Selecione um plano" />
                 </SelectTrigger>
-                <SelectContent className="bg-slate-800 border-slate-700 text-white">
+                <SelectContent className="bg-white border-slate-200 text-slate-700">
                   {releasedPlans.map((plan: any) => (
-                    <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-700 focus:bg-slate-700 cursor-pointer">
+                    <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-100 focus:bg-slate-100 cursor-pointer">
                       <div className="flex items-center gap-2">
-                        <Utensils className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                        <Utensils className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                         <span className="truncate">{plan.name}</span>
                         {(plan.status === 'active' || plan.active) && (
-                          <Badge className="ml-2 bg-emerald-500/20 text-emerald-400 border-emerald-500/30 flex-shrink-0">
+                          <Badge className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 flex-shrink-0">
                             Ativo
                           </Badge>
                         )}
@@ -572,7 +574,7 @@ export function PatientDietPortal({
       >
         {/* Desktop: abas em linha */}
         <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
-          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Plano Alimentar
           </TabsTrigger>
           <TabsTrigger value="supplements" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
@@ -597,11 +599,11 @@ export function PatientDietPortal({
         {/* Aba: Plano Alimentar + Orientações + Exames */}
         <TabsContent value="diet" className="mt-6 space-y-6">
           {!hasActivePlan ? (
-            <Card className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <Utensils className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500 mx-auto mb-3 sm:mb-4 opacity-50" />
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Nenhum Plano Alimentar Ativo</h3>
-                <p className="text-sm sm:text-base text-slate-400">
+            <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <CardContent className="p-5 sm:p-6 text-center">
+                <Utensils className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-3" />
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Nenhum plano ativo</h3>
+                <p className="text-xs sm:text-sm text-slate-500">
                   Seu nutricionista ainda não liberou um plano alimentar para você.
                 </p>
               </CardContent>
@@ -975,21 +977,21 @@ export function PatientDietPortal({
         {/* Aba: Suplementação */}
         <TabsContent value="supplements" className="mt-6 space-y-6">
           {!hasActivePlan ? (
-            <Card className="bg-slate-800/50 backdrop-blur-sm rounded-2xl shadow-xl border border-slate-700/50">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <Pill className="w-12 h-12 sm:w-16 sm:h-16 text-slate-500 mx-auto mb-3 sm:mb-4 opacity-50" />
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Nenhuma Suplementação Ativa</h3>
-                <p className="text-sm sm:text-base text-slate-400">
+            <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <CardContent className="p-5 sm:p-6 text-center">
+                <Pill className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-3" />
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Sem suplementação</h3>
+                <p className="text-xs sm:text-sm text-slate-500">
                   Seu nutricionista ainda não cadastrou informações de suplementação.
                 </p>
               </CardContent>
             </Card>
           ) : supplementGuidelines.length === 0 && manipulatedGuidelines.length === 0 && protocolGuidelines.length === 0 ? (
-            <Card className="bg-white rounded-2xl shadow-sm border border-slate-200">
-              <CardContent className="p-6 sm:p-8 text-center">
-                <Pill className="w-12 h-12 sm:w-16 sm:h-16 text-slate-400 mx-auto mb-3 sm:mb-4" />
-                <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Sem protocolos ativos</h3>
-                <p className="text-sm sm:text-base text-[#777777] mb-4">
+            <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+              <CardContent className="p-5 sm:p-6 text-center">
+                <Pill className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-3" />
+                <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-1">Sem protocolos ativos</h3>
+                <p className="text-xs sm:text-sm text-slate-500">
                   Não há suplementos, manipulados ou protocolos definidos para este plano.
                 </p>
               </CardContent>
@@ -1076,8 +1078,8 @@ export function PatientDietPortal({
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
         <TabsContent value="results" className="mt-6 space-y-8">
           <section>
-            <h3 className="text-xl font-bold text-white mb-6 flex items-center gap-2">
-              <span className="text-2xl drop-shadow-glow-sm">⚖️</span> Evolução Corporal
+            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+              <span className="text-2xl">⚖️</span> Evolução Corporal
             </h3>
             <PatientEvolutionTab
               patientId={patientId}
@@ -1117,21 +1119,21 @@ export function PatientDietPortal({
 
       {/* Modal de Substituições */}
       < Dialog open={substitutionsModalOpen} onOpenChange={setSubstitutionsModalOpen} >
-        <DialogContent className="max-w-2xl bg-slate-900 border-slate-800 text-white max-h-[90vh] overflow-y-auto shadow-2xl">
-          <DialogHeader className="relative pb-4 border-b border-slate-800">
+        <DialogContent className="max-w-2xl bg-white border-slate-200 text-slate-900 max-h-[90vh] overflow-y-auto shadow-2xl">
+          <DialogHeader className="relative pb-4 border-b border-slate-200">
             <button
               onClick={() => setSubstitutionsModalOpen(false)}
-              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Fechar"
             >
-              <X className="w-5 h-5 text-slate-400 hover:text-white" />
+              <X className="w-5 h-5 text-slate-500 hover:text-slate-900" />
             </button>
-            <DialogTitle className="text-white text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
-              <RefreshCw className="w-5 h-5 text-emerald-400 animate-spin-slow" />
+            <DialogTitle className="text-slate-900 text-lg sm:text-xl font-bold flex items-center gap-2 pr-12">
+              <RefreshCw className="w-5 h-5 text-emerald-500 animate-spin-slow" />
               <span className="truncate">Opções de Substituição</span>
             </DialogTitle>
-            <DialogDescription className="text-xs sm:text-sm text-slate-400 pr-8">
-              Você pode substituir <strong className="text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
+            <DialogDescription className="text-xs sm:text-sm text-slate-500 pr-8">
+              Você pode substituir <strong className="text-emerald-600">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
             </DialogDescription>
           </DialogHeader>
 
@@ -1139,15 +1141,15 @@ export function PatientDietPortal({
             {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-xl border border-emerald-500/20 bg-emerald-500/5 hover:bg-emerald-500/10 hover:border-emerald-500/40 transition-all group"
+                className="p-3 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-semibold text-white group-hover:text-emerald-400 transition-colors text-sm sm:text-base truncate">
+                    <h4 className="font-semibold text-slate-900 group-hover:text-emerald-700 transition-colors text-sm sm:text-base truncate">
                       {sub.food_name}
                     </h4>
-                    <p className="text-xs sm:text-sm text-slate-400 mt-1">
-                      Quantidade: <span className="font-medium text-emerald-400">{sub.quantity} {sub.unit}</span>
+                    <p className="text-xs sm:text-sm text-slate-600 mt-1">
+                      Quantidade: <span className="font-medium text-emerald-600">{sub.quantity} {sub.unit}</span>
                       {sub.custom_unit_name && (
                         <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
                           ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
@@ -1161,8 +1163,8 @@ export function PatientDietPortal({
             ))}
           </div>
 
-          <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-lg">
-            <p className="text-xs text-cyan-400 flex items-center gap-2">
+          <div className="mt-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg">
+            <p className="text-xs text-cyan-700 flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
                 Essas são opções equivalentes que você pode usar no lugar do alimento original.

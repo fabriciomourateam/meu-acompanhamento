@@ -786,21 +786,21 @@ export default function PatientPortal() {
 
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
-      {/* Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.12),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.10),transparent_50%)]" />
+      {/* Background claro com sutil tonalidade emerald */}
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-50 via-white to-emerald-50/40">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(16,185,129,0.06),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_80%,rgba(6,182,212,0.04),transparent_50%)]" />
       </div>
 
       {/* Conteúdo com z-index */}
       <div className="relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 sm:py-6 space-y-4 sm:space-y-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-5 space-y-4 sm:space-y-5">
           {/* Header do Portal */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="rounded-2xl bg-gradient-to-r from-slate-800/80 via-slate-700/60 to-slate-800/80 border border-slate-600/50 backdrop-blur-sm px-4 sm:px-6 py-4 shadow-lg flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4"
+            className="rounded-2xl bg-white border border-slate-200 shadow-sm px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
             <div className="flex-1 min-w-0">
               {patientId ? (
@@ -810,49 +810,46 @@ export default function PatientPortal() {
                 />
               ) : (
                 <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-white flex items-center gap-2">
+                  <h1 className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
                     📊 Meu Acompanhamento
                   </h1>
-                  <p className="text-sm sm:text-base text-slate-400 mt-1">
-                    Acompanhe seu progresso e conquistas
-                  </p>
                 </div>
               )}
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
-              <InstallPWAButton />
+              {/* Em mobile, esses botões ficam só no menu pra liberar espaço */}
+              <div className="hidden sm:flex gap-2 items-center">
+                <InstallPWAButton />
+                {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                  <MembersAreaButton />
+                )}
+              </div>
 
-              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                <MembersAreaButton />
-              )}
-
-              {/* Botão de Peso removido a pedido */}
-
-              {/* Menu de ações simplificado */}
+              {/* Menu de ações */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-slate-600 hover:bg-slate-800 text-white min-w-[40px] px-0"
+                    className="border-slate-300 hover:bg-slate-100 text-slate-700 min-w-[40px] px-0"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-slate-800 border-slate-700 text-white w-56">
-                  <DropdownMenuLabel className="text-slate-400 text-xs uppercase tracking-wide px-2 py-1.5">Dieta</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700 w-56 shadow-lg">
+                  <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Dieta</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={handleExportDietPremiumPDF}
                     disabled={exporting}
-                    className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
+                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                   >
-                    <FileText className="w-4 h-4 mr-2 text-emerald-400" />
+                    <FileText className="w-4 h-4 mr-2 text-emerald-500" />
                     {exporting ? 'Gerando...' : 'PDF Premium (colorido)'}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleExportDietPDF}
                     disabled={exporting}
-                    className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
+                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                   >
                     <FileText className="w-4 h-4 mr-2 text-slate-400" />
                     {exporting ? 'Gerando...' : 'PDF para impressão'}
@@ -860,43 +857,43 @@ export default function PatientPortal() {
 
                   {patient && (
                     <>
-                      <DropdownMenuSeparator className="bg-slate-700 my-1" />
-                      <DropdownMenuLabel className="text-slate-400 text-xs uppercase tracking-wide px-2 py-1.5">Evolução</DropdownMenuLabel>
+                      <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                      <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Evolução</DropdownMenuLabel>
                       <DropdownMenuItem
                         onClick={() => setShowEvolutionExport(true)}
-                        className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
+                        className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                       >
-                        <Eye className="w-4 h-4 mr-2 text-blue-400" />
+                        <Eye className="w-4 h-4 mr-2 text-blue-500" />
                         Visualizar relatório
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleExportEvolution('png')}
-                        className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
+                        className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                       >
-                        <FileImage className="w-4 h-4 mr-2 text-green-400" />
+                        <FileImage className="w-4 h-4 mr-2 text-green-500" />
                         Exportar como imagem
                       </DropdownMenuItem>
                       <DropdownMenuItem
                         onClick={() => handleExportEvolution('pdf')}
-                        className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
+                        className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                       >
-                        <FileText className="w-4 h-4 mr-2 text-purple-400" />
+                        <FileText className="w-4 h-4 mr-2 text-purple-500" />
                         Exportar como PDF
                       </DropdownMenuItem>
                     </>
                   )}
 
-                  <DropdownMenuSeparator className="bg-slate-700 my-1" />
+                  <DropdownMenuSeparator className="bg-slate-200 my-1" />
                   <DropdownMenuItem
                     onClick={loadPortalData}
-                    className="text-white hover:bg-slate-700 cursor-pointer py-2.5"
+                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Atualizar dados
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-red-400 hover:bg-red-500/10 cursor-pointer py-2.5"
+                    className="text-red-600 hover:bg-red-50 cursor-pointer py-2.5"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sair do portal
@@ -927,7 +924,7 @@ export default function PatientPortal() {
           )}
 
           {/* Footer */}
-          <div className="text-center text-xs sm:text-sm text-white py-4 sm:py-6 px-4 pb-24 sm:pb-6">
+          <div className="text-center text-xs sm:text-sm text-slate-500 py-3 px-4 pb-24 sm:pb-6">
             {getDailyMotivationalPhrase()}
           </div>
         </div>

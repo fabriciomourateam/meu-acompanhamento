@@ -16,16 +16,16 @@ export function MacroBadgeRow({ calories, protein, carbs, fats, size = "md" }: M
 
   return (
     <div className="flex flex-wrap gap-1.5">
-      <span className={`rounded-full font-medium bg-amber-500/15 text-amber-300 ${cls}`}>
+      <span className={`rounded-full font-medium bg-amber-100 text-amber-700 ${cls}`}>
         {Math.round(calories)} kcal
       </span>
-      <span className={`rounded-full font-medium bg-rose-500/15 text-rose-300 ${cls}`}>
+      <span className={`rounded-full font-medium bg-rose-100 text-rose-700 ${cls}`}>
         Prot {protein.toFixed(1)}g
       </span>
-      <span className={`rounded-full font-medium bg-sky-500/15 text-sky-300 ${cls}`}>
+      <span className={`rounded-full font-medium bg-sky-100 text-sky-700 ${cls}`}>
         Carb {carbs.toFixed(1)}g
       </span>
-      <span className={`rounded-full font-medium bg-yellow-500/15 text-yellow-300 ${cls}`}>
+      <span className={`rounded-full font-medium bg-yellow-100 text-yellow-700 ${cls}`}>
         Gord {fats.toFixed(1)}g
       </span>
     </div>

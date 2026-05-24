@@ -47,20 +47,20 @@ export function SubstitutionsPanel({ food, open, onOpenChange }: SubstitutionsPa
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="right"
-        className="w-full max-w-2xl overflow-y-auto border-l border-slate-800 bg-slate-950 p-0 text-slate-100 sm:max-w-2xl"
+        className="w-full max-w-2xl overflow-y-auto border-l border-slate-200 bg-white p-0 text-slate-900 sm:max-w-2xl"
       >
-        <SheetHeader className="border-b border-slate-800 px-4 pb-3 pt-6 text-left sm:px-6">
-          <SheetTitle className="text-slate-100">Substituições</SheetTitle>
-          <SheetDescription className="text-slate-400">
+        <SheetHeader className="border-b border-slate-200 px-4 pb-3 pt-6 text-left sm:px-6">
+          <SheetTitle className="text-slate-900">Substituições</SheetTitle>
+          <SheetDescription className="text-slate-500">
             Mesmo macrogrupo, gramas ajustadas para manter os macros.
           </SheetDescription>
         </SheetHeader>
 
         {!food ? (
-          <p className="px-4 py-4 text-sm text-slate-400 sm:px-6">Selecione um alimento.</p>
+          <p className="px-4 py-4 text-sm text-slate-500 sm:px-6">Selecione um alimento.</p>
         ) : (
           <>
-            <div className="sticky top-0 z-20 space-y-3 border-b border-slate-800 bg-slate-950/95 px-4 py-4 backdrop-blur sm:px-6">
+            <div className="sticky top-0 z-20 space-y-3 border-b border-slate-200 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">
               <OriginalFoodCard food={food} referenceGrams={referenceGrams} />
               <ReferenceQuantityPicker
                 key={pickerResetKey}
@@ -72,14 +72,14 @@ export function SubstitutionsPanel({ food, open, onOpenChange }: SubstitutionsPa
 
             <div className="space-y-3 px-4 py-4 sm:px-6">
               {loading && (
-                <div className="flex items-center justify-center gap-2 py-12 text-slate-400">
+                <div className="flex items-center justify-center gap-2 py-12 text-slate-500">
                   <Loader2 className="h-5 w-5 animate-spin" />
                   <span className="text-sm">Calculando equivalentes...</span>
                 </div>
               )}
 
               {!loading && result && result.substitutions.length === 0 && (
-                <p className="rounded-2xl border border-dashed border-slate-800 p-6 text-center text-sm text-slate-500">
+                <p className="rounded-2xl border border-dashed border-slate-200 p-6 text-center text-sm text-slate-500">
                   Não encontramos substitutos parecidos para este alimento.
                 </p>
               )}
@@ -140,24 +140,24 @@ function ReferenceQuantityPicker({
   const unitPresets = [0.5, 1, 2, 3];
 
   const chipBase =
-    "border border-slate-700 bg-slate-950 text-slate-300 hover:border-emerald-500/60";
+    "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300";
   const activeChip =
-    "border-emerald-400 bg-emerald-500/15 text-emerald-300";
+    "border-emerald-500 bg-emerald-50 text-emerald-700";
 
   return (
-    <div className="rounded-2xl border border-slate-800 bg-slate-900/50 p-3">
+    <div className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
       <div className="mb-2 flex items-center justify-between gap-2">
-        <label className="text-sm font-semibold text-slate-400">
+        <label className="text-sm font-semibold text-slate-600">
           Quantidade de referência
         </label>
 
         {unit && (
-          <div className="flex rounded-full border border-slate-700 bg-slate-950 text-xs">
+          <div className="flex rounded-full border border-slate-200 bg-white text-xs">
             <button
               type="button"
               onClick={switchToGrams}
               className={`rounded-full px-3 py-1 transition ${
-                mode === "grams" ? activeChip : "text-slate-400"
+                mode === "grams" ? activeChip : "text-slate-500"
               }`}
             >
               Gramas
@@ -166,7 +166,7 @@ function ReferenceQuantityPicker({
               type="button"
               onClick={switchToUnits}
               className={`rounded-full px-3 py-1 transition ${
-                mode === "units" ? activeChip : "text-slate-400"
+                mode === "units" ? activeChip : "text-slate-500"
               }`}
             >
               {unit.unit.charAt(0).toUpperCase() + unit.unit.slice(1)}
@@ -188,9 +188,9 @@ function ReferenceQuantityPicker({
                 const n = Number(e.target.value);
                 if (Number.isFinite(n) && n > 0) handleGramsChange(n);
               }}
-              className="h-8 w-20 rounded-lg border border-slate-700 bg-slate-950 px-2 text-right text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+              className="h-8 w-20 rounded-lg border border-slate-200 bg-white px-2 text-right text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
             />
-            <span className="text-sm text-slate-400">g</span>
+            <span className="text-sm text-slate-500">g</span>
           </div>
           <div className="flex flex-wrap gap-2">
             {gramPresets.map((p) => (
@@ -220,9 +220,9 @@ function ReferenceQuantityPicker({
                 const n = Number(e.target.value);
                 if (Number.isFinite(n) && n > 0) handleUnitCountChange(n);
               }}
-              className="h-8 w-20 rounded-lg border border-slate-700 bg-slate-950 px-2 text-right text-sm text-slate-100 focus:border-emerald-400 focus:outline-none"
+              className="h-8 w-20 rounded-lg border border-slate-200 bg-white px-2 text-right text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
             />
-            <span className="max-w-[80px] truncate text-sm text-slate-400">
+            <span className="max-w-[80px] truncate text-sm text-slate-500">
               {unit!.unit}
             </span>
           </div>

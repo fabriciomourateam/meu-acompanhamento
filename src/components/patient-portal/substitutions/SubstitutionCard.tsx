@@ -11,9 +11,9 @@ interface SubstitutionCardProps {
 }
 
 function similarityTone(score: number): { ring: string; label: string; tone: string; bar: string } {
-  if (score >= 85) return { ring: "ring-emerald-500/40", tone: "text-emerald-300 bg-emerald-500/10", label: "Equivalência alta", bar: "bg-emerald-500" };
-  if (score >= 70) return { ring: "ring-amber-500/40", tone: "text-amber-300 bg-amber-500/10", label: "Equivalência média", bar: "bg-amber-500" };
-  return { ring: "ring-orange-500/40", tone: "text-orange-300 bg-orange-500/10", label: "Equivalência baixa", bar: "bg-orange-500" };
+  if (score >= 85) return { ring: "ring-emerald-200", tone: "text-emerald-700 bg-emerald-50", label: "Equivalência alta", bar: "bg-emerald-500" };
+  if (score >= 70) return { ring: "ring-amber-200", tone: "text-amber-700 bg-amber-50", label: "Equivalência média", bar: "bg-amber-500" };
+  return { ring: "ring-orange-200", tone: "text-orange-700 bg-orange-50", label: "Equivalência baixa", bar: "bg-orange-500" };
 }
 
 export function SubstitutionCard({ original, referenceGrams, sub }: SubstitutionCardProps) {
@@ -38,13 +38,13 @@ export function SubstitutionCard({ original, referenceGrams, sub }: Substitution
   };
 
   return (
-    <div className={`relative rounded-2xl border border-slate-700/70 bg-slate-900/60 p-4 ring-1 ${tone.ring}`}>
+    <div className={`relative rounded-2xl border border-slate-200 bg-white p-4 ring-1 shadow-sm ${tone.ring}`}>
       <button
         type="button"
         onClick={handleShare}
         title="Compartilhar no WhatsApp"
         aria-label="Compartilhar no WhatsApp"
-        className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600/20 text-emerald-300 transition hover:bg-emerald-600/30 hover:text-emerald-200"
+        className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 transition hover:bg-emerald-100 hover:text-emerald-700"
       >
         <Share2 className="h-4 w-4" />
       </button>
@@ -52,12 +52,12 @@ export function SubstitutionCard({ original, referenceGrams, sub }: Substitution
       <div className="mb-2 flex items-start justify-between gap-2 pr-10">
         <div className="flex min-w-0 items-start gap-2">
           <span className="shrink-0 text-xl leading-tight" aria-hidden>{emoji}</span>
-          <h3 className="line-clamp-2 text-base font-semibold text-slate-100">{sub.name}</h3>
+          <h3 className="line-clamp-2 text-base font-semibold text-slate-900">{sub.name}</h3>
         </div>
       </div>
 
       <div className="mb-3 flex items-center gap-2" title={tone.label}>
-        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-800/80">
+        <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-100">
           <div
             className={`h-full ${tone.bar} transition-all`}
             style={{ width: `${Math.max(8, sub.similarity_score)}%` }}
@@ -69,11 +69,11 @@ export function SubstitutionCard({ original, referenceGrams, sub }: Substitution
       </div>
 
       <div className="mb-3 flex flex-wrap items-baseline gap-x-2 gap-y-1">
-        <span className="text-2xl font-bold text-emerald-400">
+        <span className="text-2xl font-bold text-emerald-600">
           {sub.equivalent_grams}g
         </span>
         {sub.household_measure && (
-          <span className="text-sm text-slate-300">≈ {sub.household_measure}</span>
+          <span className="text-sm text-slate-600">≈ {sub.household_measure}</span>
         )}
       </div>
 
@@ -85,7 +85,7 @@ export function SubstitutionCard({ original, referenceGrams, sub }: Substitution
         fats={sub.fats_per_100g * subMul}
       />
 
-      <p className="mt-3 text-xs leading-relaxed text-slate-400">{explanation}</p>
+      <p className="mt-3 text-xs leading-relaxed text-slate-600">{explanation}</p>
     </div>
   );
 }

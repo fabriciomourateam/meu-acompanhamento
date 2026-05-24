@@ -55,7 +55,7 @@ function Tab({
       type="button"
       onClick={onClick}
       data-active={active}
-      className="flex shrink-0 snap-start items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition border border-slate-700 bg-slate-900/60 text-slate-300 hover:border-emerald-500/60 data-[active=true]:border-emerald-400 data-[active=true]:bg-emerald-500 data-[active=true]:text-slate-950 data-[active=true]:shadow-md data-[active=true]:shadow-emerald-500/20"
+      className="flex shrink-0 snap-start items-center gap-1.5 rounded-full px-3 py-1.5 text-sm transition border border-slate-200 bg-white text-slate-700 hover:border-emerald-300 data-[active=true]:border-emerald-500 data-[active=true]:bg-emerald-500 data-[active=true]:text-white data-[active=true]:shadow-md data-[active=true]:shadow-emerald-500/20"
       aria-pressed={active}
     >
       <span aria-hidden>{emoji}</span>
@@ -63,9 +63,7 @@ function Tab({
       {count > 0 && (
         <span
           className={`rounded-full px-1.5 text-[10px] font-semibold tabular-nums ${
-            active
-              ? "bg-slate-950/20 text-slate-900"
-              : "bg-slate-800/80 text-slate-300"
+            active ? "bg-white/20 text-white" : "bg-slate-100 text-slate-600"
           }`}
         >
           {count}
