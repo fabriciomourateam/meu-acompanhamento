@@ -524,7 +524,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-12 text-center">
                   <Camera className="w-16 h-16 text-slate-600 mb-4" />
-                  <p className="text-slate-400 text-lg">Nenhuma foto disponível</p>
+                  <p className="text-slate-500 text-lg">Nenhuma foto disponível</p>
                   <p className="text-slate-500 text-sm mt-2">
                     As fotos dos check-ins aparecerão aqui para comparação
                   </p>
@@ -619,7 +619,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                     {/* Seletores de Fotos */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-inner">
                       <div className="space-y-2.5">
-                        <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-slate-500"></span>
                           Momento Inicial ("Antes")
                         </label>
@@ -645,7 +645,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="text-sm font-medium text-slate-400 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
                           Momento Final ("Depois")
                         </label>
@@ -690,9 +690,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               onError={() => handleImageError(getPhotoId(firstPhoto), getPhotoUrl(firstPhoto), firstPhoto.url)}
                             />
                           ) : imageErrors.has(getPhotoId(firstPhoto)) ? (
-                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-700/50 rounded-lg border-2 border-slate-600">
+                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-100 rounded-lg border-2 border-slate-200">
                               <ExternalLink className="h-12 w-12 text-slate-400 mb-3" />
-                              <p className="text-slate-300 mb-4">Foto não disponível</p>
+                              <p className="text-slate-600 mb-4">Foto não disponível</p>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -740,13 +740,13 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </>
                           )}
                         </div>
-                        <div className="bg-slate-700/50 p-3 rounded-lg">
+                        <div className="bg-slate-100 border border-slate-200 p-3 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2 text-slate-300">
+                            <div className="flex items-center gap-2 text-slate-600">
                               <Calendar className="w-4 h-4" />
                               {firstPhoto.date}
                             </div>
-                            <div className="text-white font-semibold">
+                            <div className="text-slate-900 font-semibold">
                               {firstPhoto.weight} kg
                             </div>
                           </div>
@@ -771,9 +771,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               onError={() => handleImageError(getPhotoId(lastPhoto), getPhotoUrl(lastPhoto), lastPhoto.url)}
                             />
                           ) : imageErrors.has(getPhotoId(lastPhoto)) ? (
-                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-700/50 rounded-lg border-2 border-slate-600">
+                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-100 rounded-lg border-2 border-slate-200">
                               <ExternalLink className="h-12 w-12 text-slate-400 mb-3" />
-                              <p className="text-slate-300 mb-4">Foto não disponível</p>
+                              <p className="text-slate-600 mb-4">Foto não disponível</p>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -821,13 +821,13 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </>
                           )}
                         </div>
-                        <div className="bg-slate-700/50 p-3 rounded-lg">
+                        <div className="bg-emerald-50 border border-emerald-200 p-3 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2 text-slate-300">
+                            <div className="flex items-center gap-2 text-emerald-700">
                               <Calendar className="w-4 h-4" />
                               {lastPhoto.date}
                             </div>
-                            <div className="text-white font-semibold">
+                            <div className="text-emerald-700 font-semibold">
                               {lastPhoto.weight} kg
                             </div>
                           </div>
@@ -863,9 +863,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                                 onError={() => handleImageError(getPhotoId(photo), getPhotoUrl(photo), photo.url)}
                               />
                             ) : imageErrors.has(getPhotoId(photo)) ? (
-                              <div className="w-full h-48 flex flex-col items-center justify-center bg-slate-700/50 rounded-lg border border-slate-600">
+                              <div className="w-full h-48 flex flex-col items-center justify-center bg-slate-100 rounded-lg border border-slate-200">
                                 <ExternalLink className="h-8 w-8 text-slate-400 mb-2" />
-                                <p className="text-xs text-slate-300 mb-2 px-2 text-center">Foto não disponível</p>
+                                <p className="text-xs text-slate-600 mb-2 px-2 text-center">Foto não disponível</p>
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -916,8 +916,8 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </Button>
                           </div>
                           <div className="text-xs text-center">
-                            <p className="text-slate-400">{photo.date}</p>
-                            <p className="text-white font-semibold">{photo.weight} kg</p>
+                            <p className="text-slate-500">{photo.date}</p>
+                            <p className="text-slate-900 font-semibold">{photo.weight} kg</p>
                           </div>
                         </div>
                       ))}

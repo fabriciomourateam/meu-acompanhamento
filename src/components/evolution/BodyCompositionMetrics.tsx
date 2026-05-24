@@ -18,6 +18,86 @@ interface BodyCompositionMetricsProps {
   data: BodyComposition[];
 }
 
+interface MetricCardProps {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  subtitle?: React.ReactNode;
+  badge?: React.ReactNode;
+  // Cor base que tinge o fundo, a borda e o ícone
+  tone: "fuchsia" | "blue" | "rose" | "emerald" | "purple" | "amber";
+}
+
+const TONE_STYLES: Record<MetricCardProps["tone"], {
+  card: string;
+  iconBox: string;
+  icon: string;
+  valueAccent: string;
+  subtitle: string;
+}> = {
+  fuchsia: {
+    card: "bg-gradient-to-br from-fuchsia-50 to-white border-fuchsia-200 hover:border-fuchsia-300 hover:shadow-fuchsia-100",
+    iconBox: "bg-fuchsia-100 text-fuchsia-600",
+    icon: "text-fuchsia-600",
+    valueAccent: "text-fuchsia-700",
+    subtitle: "text-fuchsia-600/80",
+  },
+  blue: {
+    card: "bg-gradient-to-br from-blue-50 to-white border-blue-200 hover:border-blue-300 hover:shadow-blue-100",
+    iconBox: "bg-blue-100 text-blue-600",
+    icon: "text-blue-600",
+    valueAccent: "text-blue-700",
+    subtitle: "text-blue-600/80",
+  },
+  rose: {
+    card: "bg-gradient-to-br from-rose-50 to-white border-rose-200 hover:border-rose-300 hover:shadow-rose-100",
+    iconBox: "bg-rose-100 text-rose-600",
+    icon: "text-rose-600",
+    valueAccent: "text-rose-700",
+    subtitle: "text-rose-600/80",
+  },
+  emerald: {
+    card: "bg-gradient-to-br from-emerald-50 to-white border-emerald-200 hover:border-emerald-300 hover:shadow-emerald-100",
+    iconBox: "bg-emerald-100 text-emerald-600",
+    icon: "text-emerald-600",
+    valueAccent: "text-emerald-700",
+    subtitle: "text-emerald-600/80",
+  },
+  purple: {
+    card: "bg-gradient-to-br from-purple-50 to-white border-purple-200 hover:border-purple-300 hover:shadow-purple-100",
+    iconBox: "bg-purple-100 text-purple-600",
+    icon: "text-purple-600",
+    valueAccent: "text-purple-700",
+    subtitle: "text-purple-600/80",
+  },
+  amber: {
+    card: "bg-gradient-to-br from-amber-50 to-white border-amber-200 hover:border-amber-300 hover:shadow-amber-100",
+    iconBox: "bg-amber-100 text-amber-600",
+    icon: "text-amber-600",
+    valueAccent: "text-amber-700",
+    subtitle: "text-amber-600/80",
+  },
+};
+
+function MetricCard({ icon, label, value, subtitle, badge, tone }: MetricCardProps) {
+  const t = TONE_STYLES[tone];
+  return (
+    <div className={`p-3 sm:p-4 rounded-2xl border-2 ${t.card} hover:shadow-lg transition-all duration-300 group`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className={`p-2 rounded-xl ${t.iconBox} shadow-sm group-hover:scale-110 transition-transform`}>
+          {icon}
+        </div>
+        {badge}
+      </div>
+      <p className={`text-2xl font-extrabold ${t.valueAccent} tracking-tight`}>{value}</p>
+      <p className="text-xs font-semibold text-slate-700 mt-1">{label}</p>
+      {subtitle && (
+        <p className={`text-[10px] mt-0.5 truncate ${t.subtitle}`}>{subtitle}</p>
+      )}
+    </div>
+  );
+}
+
 export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
   if (data.length === 0) return null;
 
@@ -37,15 +117,18 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
   const perdaMassaMagra = parseFloat(diferencas.gordura) < 0 && parseFloat(diferencas.massaMagra) < 0;
   const aumentoGordura = parseFloat(diferencas.gordura) > 0;
 
-  const cellCls = "bg-white p-3 sm:p-4 rounded-xl border border-slate-200 hover:shadow-md transition-all group";
-  const valueCls = "text-2xl font-bold text-slate-900 tracking-tight";
-  const labelCls = "text-xs font-medium text-slate-600 mt-1";
+  // Badges de delta: verde quando bom, rosé quando ruim, neutro pra peso/imc/tmb
+  const goodBadge = "bg-emerald-100 text-emerald-700 border border-emerald-300 text-[10px] px-1.5 py-0";
+  const badBadge = "bg-rose-100 text-rose-700 border border-rose-300 text-[10px] px-1.5 py-0";
+  const neutralBadge = "bg-slate-100 text-slate-700 border border-slate-300 text-[10px] px-1.5 py-0";
 
   return (
     <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden">
       <CardHeader className="pb-4">
         <CardTitle className="text-slate-900 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-500" />
+          <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+            <Activity className="w-4 h-4" />
+          </div>
           Composição Corporal Atual
         </CardTitle>
         <CardDescription className="text-slate-500">
@@ -59,108 +142,104 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
           {/* % Gordura */}
-          <div className={`${cellCls} hover:border-fuchsia-300`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-fuchsia-50 border border-fuchsia-200 text-fuchsia-600">
-                <TrendingDown className="w-4 h-4" />
-              </div>
-              {data.length > 1 && (
-                <Badge className={`text-[10px] px-1.5 py-0 border ${parseFloat(diferencas.gordura) < 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
-                  {parseFloat(diferencas.gordura) < 0 ? '↓' : '↑'} {Math.abs(parseFloat(diferencas.gordura))}%
-                </Badge>
-              )}
-            </div>
-            <p className={valueCls}>{ultima.percentual_gordura}%</p>
-            <p className={labelCls}>% Gordura</p>
-            <p className="text-[10px] text-fuchsia-600/80 mt-0.5 truncate" title={ultima.classificacao}>
-              {ultima.classificacao}
-            </p>
-          </div>
+          <MetricCard
+            tone="fuchsia"
+            icon={<TrendingDown className="w-4 h-4" />}
+            label="% Gordura"
+            value={`${ultima.percentual_gordura}%`}
+            subtitle={ultima.classificacao}
+            badge={data.length > 1 && (
+              <Badge className={parseFloat(diferencas.gordura) < 0 ? goodBadge : badBadge}>
+                {parseFloat(diferencas.gordura) < 0 ? '↓' : '↑'} {Math.abs(parseFloat(diferencas.gordura))}%
+              </Badge>
+            )}
+          />
 
           {/* Peso */}
-          <div className={`${cellCls} hover:border-blue-300`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-blue-50 border border-blue-200 text-blue-600">
-                <Scale className="w-4 h-4" />
-              </div>
-              {data.length > 1 && (
-                <Badge className="text-[10px] px-1.5 py-0 bg-blue-50 text-blue-700 border border-blue-200">
-                  {parseFloat(diferencas.peso) > 0 ? '+' : ''}{diferencas.peso} kg
-                </Badge>
-              )}
-            </div>
-            <p className={valueCls}>{ultima.peso} <span className="text-sm font-normal text-slate-500">kg</span></p>
-            <p className={labelCls}>Peso Total</p>
-          </div>
+          <MetricCard
+            tone="blue"
+            icon={<Scale className="w-4 h-4" />}
+            label="Peso Total"
+            value={
+              <>
+                {ultima.peso}
+                <span className="text-sm font-normal text-slate-500 ml-1">kg</span>
+              </>
+            }
+            badge={data.length > 1 && (
+              <Badge className={neutralBadge}>
+                {parseFloat(diferencas.peso) > 0 ? '+' : ''}{diferencas.peso} kg
+              </Badge>
+            )}
+          />
 
           {/* Massa Gorda */}
-          <div className={`${cellCls} hover:border-rose-300`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-rose-50 border border-rose-200 text-rose-600">
-                <div className="w-4 h-4 bg-rose-500 rounded-full"></div>
-              </div>
-              {data.length > 1 && (
-                <Badge className={`text-[10px] px-1.5 py-0 border ${parseFloat(diferencas.massaGorda) < 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
-                  {parseFloat(diferencas.massaGorda) < 0 ? '↓' : '↑'} {Math.abs(parseFloat(diferencas.massaGorda))} kg
-                </Badge>
-              )}
-            </div>
-            <p className={valueCls}>{ultima.massa_gorda} <span className="text-sm font-normal text-slate-500">kg</span></p>
-            <p className={labelCls}>Massa Gorda</p>
-          </div>
+          <MetricCard
+            tone="rose"
+            icon={<div className="w-4 h-4 bg-rose-500 rounded-full" />}
+            label="Massa Gorda"
+            value={
+              <>
+                {ultima.massa_gorda}
+                <span className="text-sm font-normal text-slate-500 ml-1">kg</span>
+              </>
+            }
+            badge={data.length > 1 && (
+              <Badge className={parseFloat(diferencas.massaGorda) < 0 ? goodBadge : badBadge}>
+                {parseFloat(diferencas.massaGorda) < 0 ? '↓' : '↑'} {Math.abs(parseFloat(diferencas.massaGorda))} kg
+              </Badge>
+            )}
+          />
 
           {/* Massa Magra */}
-          <div className={`${cellCls} hover:border-emerald-300`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-600">
-                <Activity className="w-4 h-4" />
-              </div>
-              {data.length > 1 && (
-                <Badge className={`text-[10px] px-1.5 py-0 border ${parseFloat(diferencas.massaMagra) > 0 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
-                  {parseFloat(diferencas.massaMagra) > 0 ? '+' : ''}{diferencas.massaMagra} kg
-                </Badge>
-              )}
-            </div>
-            <p className={valueCls}>{ultima.massa_magra} <span className="text-sm font-normal text-slate-500">kg</span></p>
-            <p className={labelCls}>Massa Magra</p>
-          </div>
+          <MetricCard
+            tone="emerald"
+            icon={<Activity className="w-4 h-4" />}
+            label="Massa Magra"
+            value={
+              <>
+                {ultima.massa_magra}
+                <span className="text-sm font-normal text-slate-500 ml-1">kg</span>
+              </>
+            }
+            badge={data.length > 1 && (
+              <Badge className={parseFloat(diferencas.massaMagra) > 0 ? goodBadge : badBadge}>
+                {parseFloat(diferencas.massaMagra) > 0 ? '+' : ''}{diferencas.massaMagra} kg
+              </Badge>
+            )}
+          />
 
           {/* IMC */}
-          <div className={`${cellCls} hover:border-purple-300`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-purple-50 border border-purple-200 text-purple-600">
-                <Scale className="w-4 h-4" />
-              </div>
-              {data.length > 1 && (
-                <Badge className="text-[10px] px-1.5 py-0 bg-purple-50 text-purple-700 border border-purple-200">
-                  {parseFloat(diferencas.imc) > 0 ? '+' : ''}{diferencas.imc}
-                </Badge>
-              )}
-            </div>
-            <p className={valueCls}>{ultima.imc}</p>
-            <p className={labelCls}>IMC</p>
-            <p className="text-[10px] text-purple-600/80 mt-0.5">{classificarIMC(ultima.imc)}</p>
-          </div>
+          <MetricCard
+            tone="purple"
+            icon={<Scale className="w-4 h-4" />}
+            label="IMC"
+            value={ultima.imc}
+            subtitle={classificarIMC(ultima.imc)}
+            badge={data.length > 1 && (
+              <Badge className={neutralBadge}>
+                {parseFloat(diferencas.imc) > 0 ? '+' : ''}{diferencas.imc}
+              </Badge>
+            )}
+          />
 
           {/* TMB */}
-          <div className={`${cellCls} hover:border-amber-300`}>
-            <div className="flex items-center justify-between mb-3">
-              <div className="p-2 rounded-lg bg-amber-50 border border-amber-200 text-amber-600">
-                <Flame className="w-4 h-4" />
-              </div>
-              {data.length > 1 && (
-                <Badge className="text-[10px] px-1.5 py-0 bg-amber-50 text-amber-700 border border-amber-200">
-                  {parseFloat(diferencas.tmb) > 0 ? '+' : ''}{diferencas.tmb} kcal
-                </Badge>
-              )}
-            </div>
-            <p className={valueCls}>{ultima.tmb}</p>
-            <p className={labelCls}>TMB <span className="text-[10px] text-slate-400 font-normal">(kcal/dia)</span></p>
-          </div>
+          <MetricCard
+            tone="amber"
+            icon={<Flame className="w-4 h-4" />}
+            label="TMB"
+            value={ultima.tmb}
+            subtitle="kcal por dia"
+            badge={data.length > 1 && (
+              <Badge className={neutralBadge}>
+                {parseFloat(diferencas.tmb) > 0 ? '+' : ''}{diferencas.tmb} kcal
+              </Badge>
+            )}
+          />
         </div>
 
         {data.length > 1 && (
-          <div className="mt-5 p-4 bg-slate-50 rounded-xl border border-slate-200 relative overflow-hidden">
+          <div className="mt-5 p-4 bg-gradient-to-r from-blue-50 via-purple-50 to-white rounded-xl border border-blue-200 relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
             <p className="text-sm text-slate-700 flex items-start gap-3">
               <Activity className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />

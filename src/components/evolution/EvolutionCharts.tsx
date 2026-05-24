@@ -92,7 +92,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                 className="h-3 w-3 rounded-sm"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-sm text-slate-300">{entry.value}</span>
+              <span className="text-sm text-slate-700">{entry.value}</span>
             </div>
           );
         })}
