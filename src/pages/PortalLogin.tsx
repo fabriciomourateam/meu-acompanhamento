@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { Loader2, User, Phone, Sparkles } from 'lucide-react';
+import { Loader2, User, Phone, Sparkles, Settings } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 export default function PortalLogin() {
@@ -21,6 +21,23 @@ export default function PortalLogin() {
   const [telefone, setTelefone] = useState('');
   const [loading, setLoading] = useState(false);
   const hasRedirected = useRef(false);
+  const [adminUid, setAdminUid] = useState<string | null>(null);
+
+  // Buscar uid do trainer pela rota atual (para botão admin)
+  useEffect(() => {
+    const currentPath = location.pathname;
+    supabase
+      .from('portal_settings')
+      .select('user_id, setting_value')
+      .eq('setting_key', 'login_slug')
+      .then(({ data }) => {
+        if (!data) return;
+        const match = data.find(
+          (row) => (row.setting_value as { slug?: string })?.slug === currentPath
+        );
+        if (match) setAdminUid(match.user_id);
+      });
+  }, [location.pathname]);
 
   // Salvar rota de login ao visitar a página
   // Se é uma rota personalizada (ex: /portal-fmteam), sempre salvar
@@ -375,6 +392,18 @@ export default function PortalLogin() {
                 Constância é o segredo dos resultados!
               </p>
             </div>
+
+            {adminUid && (
+              <div className="mt-4 flex justify-center">
+                <button
+                  onClick={() => navigate(`/admin?uid=${adminUid}`)}
+                  className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-700/30"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  Painel admin
+                </button>
+              </div>
+            )}
           </CardContent>
         </Card>
 

@@ -104,7 +104,7 @@ export const rankingService = {
 
     entries.sort((a, b) => b.points - a.points);
 
-    const result: LeaderboardEntry[] = entries.slice(0, 20).map((entry, index) => ({
+    const result: LeaderboardEntry[] = entries.map((entry, index) => ({
       ...entry,
       position: index + 1,
     }));
