@@ -42,6 +42,7 @@ export const rankingService = {
     currentPatientId: string,
     period: RankingPeriod
   ): Promise<LeaderboardEntry[]> {
+    // Fetch patients for name lookup
     const { data: patients, error: patientsError } = await supabase
       .from('patients')
       .select('id, nome, apelido')
@@ -49,16 +50,15 @@ export const rankingService = {
 
     if (patientsError || !patients || patients.length === 0) return [];
 
-    const patientIds = patients.map((p) => p.id);
     const patientMap = new Map(patients.map((p) => [p.id, p.apelido || p.nome || 'Paciente']));
-
     const pointsMap = new Map<string, number>();
 
     if (period === 'all_time') {
+      // Join patient_points with patients server-side — avoids large in() URL
       const { data: pointsData, error } = await supabase
         .from('patient_points')
-        .select('patient_id, total_points')
-        .in('patient_id', patientIds);
+        .select('patient_id, total_points, patients!inner(user_id)')
+        .eq('patients.user_id', trainerUserId);
 
       if (!error && pointsData) {
         for (const row of pointsData) {
@@ -67,10 +67,11 @@ export const rankingService = {
       }
     } else {
       const startDate = getStartDate(period);
+
       let query = supabase
         .from('patient_points_history')
-        .select('patient_id, points_earned')
-        .in('patient_id', patientIds);
+        .select('patient_id, points_earned, patients!inner(user_id)')
+        .eq('patients.user_id', trainerUserId);
 
       if (startDate) {
         query = query.gte('action_date', startDate);
@@ -90,25 +91,18 @@ export const rankingService = {
 
     for (const [patientId, name] of patientMap.entries()) {
       const points = pointsMap.get(patientId) || 0;
-      const isCurrentPatient = patientId === currentPatientId;
-
-      if (points > 0 || isCurrentPatient) {
+      if (points > 0 || patientId === currentPatientId) {
         entries.push({
           patient_id: patientId,
           patient_name: name,
           points,
-          is_current_patient: isCurrentPatient,
+          is_current_patient: patientId === currentPatientId,
         });
       }
     }
 
     entries.sort((a, b) => b.points - a.points);
 
-    const result: LeaderboardEntry[] = entries.map((entry, index) => ({
-      ...entry,
-      position: index + 1,
-    }));
-
-    return result;
+    return entries.map((entry, index) => ({ ...entry, position: index + 1 }));
   },
 };

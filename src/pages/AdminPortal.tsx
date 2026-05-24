@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut } from 'lucide-react';
+import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle } from 'lucide-react';
 
 
 interface Challenge {
@@ -131,11 +131,11 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-slate-500">Emoji</Label>
-                <Input value={newForm.emoji} onChange={e => setNewForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1" />
+                <Input value={newForm.emoji} onChange={e => setNewForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500">Pontos</Label>
-                <Input type="number" value={newForm.points_earned} onChange={e => setNewForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1" />
+                <Input type="number" value={newForm.points_earned} onChange={e => setNewForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
               </div>
             </div>
             <div>
@@ -144,11 +144,11 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
             </div>
             <div>
               <Label className="text-xs text-slate-500">Descrição</Label>
-              <Input value={newForm.challenge_description} onChange={e => setNewForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1" />
+              <Input value={newForm.challenge_description} onChange={e => setNewForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
             </div>
             <div>
               <Label className="text-xs text-slate-500">Ordem de exibição</Label>
-              <Input type="number" value={newForm.display_order} onChange={e => setNewForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1" />
+              <Input type="number" value={newForm.display_order} onChange={e => setNewForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
             </div>
             <div className="flex gap-2 pt-1">
               <Button onClick={handleCreate} disabled={saving} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">
@@ -170,24 +170,24 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs text-slate-500">Emoji</Label>
-                    <Input value={editForm.emoji ?? c.emoji} onChange={e => setEditForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1" />
+                    <Input value={editForm.emoji ?? c.emoji} onChange={e => setEditForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
                   </div>
                   <div>
                     <Label className="text-xs text-slate-500">Pontos</Label>
-                    <Input type="number" value={editForm.points_earned ?? c.points_earned} onChange={e => setEditForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1" />
+                    <Input type="number" value={editForm.points_earned ?? c.points_earned} onChange={e => setEditForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
                   </div>
                 </div>
                 <div>
                   <Label className="text-xs text-slate-500">Nome</Label>
-                  <Input value={editForm.challenge_name ?? c.challenge_name} onChange={e => setEditForm(f => ({ ...f, challenge_name: e.target.value }))} className="mt-1" />
+                  <Input value={editForm.challenge_name ?? c.challenge_name} onChange={e => setEditForm(f => ({ ...f, challenge_name: e.target.value }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
                 </div>
                 <div>
                   <Label className="text-xs text-slate-500">Descrição</Label>
-                  <Input value={editForm.challenge_description ?? c.challenge_description} onChange={e => setEditForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1" />
+                  <Input value={editForm.challenge_description ?? c.challenge_description} onChange={e => setEditForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
                 </div>
                 <div>
                   <Label className="text-xs text-slate-500">Ordem</Label>
-                  <Input type="number" value={editForm.display_order ?? c.display_order} onChange={e => setEditForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1" />
+                  <Input type="number" value={editForm.display_order ?? c.display_order} onChange={e => setEditForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1 bg-white border-slate-300 text-slate-900 placeholder:text-slate-400" />
                 </div>
                 <div className="flex gap-2 pt-1">
                   <Button onClick={() => handleSaveEdit(c)} disabled={saving} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">
@@ -311,6 +311,78 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
         Mostrar aba de Metas Diárias
       </button>
     </div>
+  );
+}
+
+function PointsManager({ trainerUserId }: { trainerUserId: string }) {
+  const { toast } = useToast();
+  const [confirming, setConfirming] = useState(false);
+  const [resetting, setResetting] = useState(false);
+
+  async function handleReset() {
+    setResetting(true);
+    try {
+      const { error } = await supabase.rpc('reset_trainer_patient_points', {
+        trainer_uid: trainerUserId,
+      });
+      if (error) throw error;
+      toast({ title: 'Pontos zerados!', description: 'Todos os alunos foram resetados para 0 pontos.' });
+      setConfirming(false);
+    } catch {
+      toast({ title: 'Erro ao zerar pontos', variant: 'destructive' });
+    } finally {
+      setResetting(false);
+    }
+  }
+
+  return (
+    <Card className="border-slate-200 bg-white">
+      <CardContent className="p-6 space-y-6">
+        <div>
+          <p className="font-semibold text-slate-700 mb-1">Zerar pontos de todos os alunos</p>
+          <p className="text-sm text-slate-500">
+            Reseta o total de pontos e o histórico de todos os seus alunos para zero. Use quando quiser começar uma nova contagem do zero.
+          </p>
+        </div>
+
+        {!confirming ? (
+          <button
+            onClick={() => setConfirming(true)}
+            className="flex items-center gap-2 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors w-full"
+          >
+            <RotateCcw className="w-4 h-4 shrink-0" />
+            Zerar pontos de todos os alunos
+          </button>
+        ) : (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold text-red-700 text-sm">Tem certeza?</p>
+                <p className="text-xs text-red-600 mt-0.5">
+                  Esta ação é irreversível. Os pontos e todo o histórico de pontuação serão apagados permanentemente.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={handleReset}
+                disabled={resetting}
+                className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-60"
+              >
+                {resetting ? 'Zerando...' : 'Sim, zerar tudo'}
+              </button>
+              <button
+                onClick={() => setConfirming(false)}
+                className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
 
@@ -535,6 +607,9 @@ export default function AdminPortal() {
             <TabsTrigger value="visibility" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Visibilidade
             </TabsTrigger>
+            <TabsTrigger value="points" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              Pontos
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="challenges" className="mt-4">
@@ -563,6 +638,10 @@ export default function AdminPortal() {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="points" className="mt-4">
+            <PointsManager trainerUserId={trainerUserId} />
           </TabsContent>
         </Tabs>
       </div>
