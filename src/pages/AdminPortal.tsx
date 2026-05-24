@@ -414,8 +414,8 @@ export default function AdminPortal() {
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
-        <Card className="max-w-sm w-full shadow-lg">
+      <div className="min-h-screen bg-white flex items-center justify-center p-6">
+        <Card className="max-w-sm w-full shadow-lg border border-slate-200 bg-white">
           <CardHeader className="text-center pb-2">
             <div className="w-14 h-14 mx-auto bg-emerald-100 rounded-full flex items-center justify-center mb-3">
               <Lock className="w-7 h-7 text-emerald-600" />
@@ -439,7 +439,7 @@ export default function AdminPortal() {
                     onChange={e => setPinInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleVerifyPin()}
                     placeholder="Digite seu PIN"
-                    className="mt-1 text-center text-lg tracking-widest"
+                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-emerald-400"
                     autoFocus
                   />
                 </div>
@@ -457,7 +457,7 @@ export default function AdminPortal() {
                     value={newPin}
                     onChange={e => setNewPin(e.target.value)}
                     placeholder="Digite um PIN"
-                    className="mt-1 text-center text-lg tracking-widest"
+                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-emerald-400"
                     autoFocus
                   />
                 </div>
@@ -470,7 +470,7 @@ export default function AdminPortal() {
                     onChange={e => setConfirmPin(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSetPin()}
                     placeholder="Repita o PIN"
-                    className="mt-1 text-center text-lg tracking-widest"
+                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 focus:border-emerald-400 focus:ring-emerald-400"
                   />
                 </div>
                 <Button onClick={handleSetPin} disabled={pinLoading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
