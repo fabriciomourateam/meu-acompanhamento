@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom';
 import { Utensils, Pill, RefreshCw, Target, Trophy, BarChart2 } from 'lucide-react';
 
 type TabValue = 'diet' | 'supplements' | 'substitutions' | 'challenges' | 'ranking' | 'results';
@@ -23,8 +24,8 @@ interface MobileBottomNavProps {
 }
 
 export function MobileBottomNav({ value, onChange }: MobileBottomNavProps) {
-  return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 sm:hidden">
+  const nav = (
+    <nav className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden">
       {/* Glass bar */}
       <div className="bg-white/90 backdrop-blur-xl border-t border-slate-200/80 shadow-[0_-4px_24px_rgba(0,0,0,0.10)] px-2 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <div className="flex items-center justify-around gap-0.5">
@@ -62,4 +63,6 @@ export function MobileBottomNav({ value, onChange }: MobileBottomNavProps) {
       </div>
     </nav>
   );
+
+  return createPortal(nav, document.body);
 }
