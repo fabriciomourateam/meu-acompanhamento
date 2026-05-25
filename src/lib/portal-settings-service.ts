@@ -57,4 +57,18 @@ export const portalSettingsService = {
       return DEFAULT_CONFIG;
     }
   },
+
+  async saveConfig(trainerUserId: string, config: PortalConfig): Promise<void> {
+    const { error } = await supabase
+      .from('portal_settings')
+      .upsert(
+        {
+          user_id: trainerUserId,
+          setting_key: 'portal_config',
+          setting_value: config as unknown as Record<string, unknown>,
+        },
+        { onConflict: 'user_id,setting_key' },
+      );
+    if (error) throw error;
+  },
 };
