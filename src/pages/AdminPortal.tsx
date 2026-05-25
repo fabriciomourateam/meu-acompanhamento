@@ -131,11 +131,11 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <Label className="text-xs text-slate-500">Emoji</Label>
-                <Input value={newForm.emoji} onChange={e => setNewForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                <Input value={newForm.emoji} onChange={e => setNewForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
               </div>
               <div>
                 <Label className="text-xs text-slate-500">Pontos</Label>
-                <Input type="number" value={newForm.points_earned} onChange={e => setNewForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                <Input type="number" value={newForm.points_earned} onChange={e => setNewForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
               </div>
             </div>
             <div>
@@ -144,11 +144,11 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
             </div>
             <div>
               <Label className="text-xs text-slate-500">Descrição</Label>
-              <Input value={newForm.challenge_description} onChange={e => setNewForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+              <Input value={newForm.challenge_description} onChange={e => setNewForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
             </div>
             <div>
               <Label className="text-xs text-slate-500">Ordem de exibição</Label>
-              <Input type="number" value={newForm.display_order} onChange={e => setNewForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+              <Input type="number" value={newForm.display_order} onChange={e => setNewForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
             </div>
             <div className="flex gap-2 pt-1">
               <Button onClick={handleCreate} disabled={saving} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">
@@ -170,24 +170,24 @@ function ChallengesManager({ trainerUserId }: { trainerUserId: string }) {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <Label className="text-xs text-slate-500">Emoji</Label>
-                    <Input value={editForm.emoji ?? c.emoji} onChange={e => setEditForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                    <Input value={editForm.emoji ?? c.emoji} onChange={e => setEditForm(f => ({ ...f, emoji: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
                   </div>
                   <div>
                     <Label className="text-xs text-slate-500">Pontos</Label>
-                    <Input type="number" value={editForm.points_earned ?? c.points_earned} onChange={e => setEditForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                    <Input type="number" value={editForm.points_earned ?? c.points_earned} onChange={e => setEditForm(f => ({ ...f, points_earned: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
                   </div>
                 </div>
                 <div>
                   <Label className="text-xs text-slate-500">Nome</Label>
-                  <Input value={editForm.challenge_name ?? c.challenge_name} onChange={e => setEditForm(f => ({ ...f, challenge_name: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                  <Input value={editForm.challenge_name ?? c.challenge_name} onChange={e => setEditForm(f => ({ ...f, challenge_name: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
                 </div>
                 <div>
                   <Label className="text-xs text-slate-500">Descrição</Label>
-                  <Input value={editForm.challenge_description ?? c.challenge_description} onChange={e => setEditForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                  <Input value={editForm.challenge_description ?? c.challenge_description} onChange={e => setEditForm(f => ({ ...f, challenge_description: e.target.value }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
                 </div>
                 <div>
                   <Label className="text-xs text-slate-500">Ordem</Label>
-                  <Input type="number" value={editForm.display_order ?? c.display_order} onChange={e => setEditForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40" />
+                  <Input type="number" value={editForm.display_order ?? c.display_order} onChange={e => setEditForm(f => ({ ...f, display_order: Number(e.target.value) }))} className="mt-1 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0" />
                 </div>
                 <div className="flex gap-2 pt-1">
                   <Button onClick={() => handleSaveEdit(c)} disabled={saving} size="sm" className="bg-emerald-600 hover:bg-emerald-700 text-white">
@@ -512,7 +512,7 @@ export default function AdminPortal() {
                     onChange={e => setPinInput(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleVerifyPin()}
                     placeholder="Digite seu PIN"
-                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40"
+                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0"
                     autoFocus
                   />
                 </div>
@@ -530,7 +530,7 @@ export default function AdminPortal() {
                     value={newPin}
                     onChange={e => setNewPin(e.target.value)}
                     placeholder="Digite um PIN"
-                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40"
+                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0"
                     autoFocus
                   />
                 </div>
@@ -543,7 +543,7 @@ export default function AdminPortal() {
                     onChange={e => setConfirmPin(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && handleSetPin()}
                     placeholder="Repita o PIN"
-                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus:border-emerald-300 focus:ring-1 focus:ring-emerald-300/40"
+                    className="mt-1 text-center text-lg tracking-widest bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-amber-200 focus-visible:ring-1 focus-visible:ring-amber-300/40 focus-visible:ring-offset-0"
                   />
                 </div>
                 <Button onClick={handleSetPin} disabled={pinLoading} className="w-full bg-emerald-600 hover:bg-emerald-700 text-white">
