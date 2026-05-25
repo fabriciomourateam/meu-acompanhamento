@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy } from 'lucide-react';
+import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy, Users } from 'lucide-react';
 
 
 interface Challenge {
@@ -345,6 +345,8 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
   const [alsoResetLevel, setAlsoResetLevel] = useState(false);
   const [history, setHistory] = useState<ResetEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
+  const [totalPatients, setTotalPatients] = useState<number | null>(null);
+  const [patientsWithPoints, setPatientsWithPoints] = useState<number | null>(null);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -358,7 +360,19 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
     setLoadingHistory(false);
   }, [trainerUserId]);
 
-  useEffect(() => { loadHistory(); }, [loadHistory]);
+  const loadCounts = useCallback(async () => {
+    const [totalRes, withPointsRes] = await Promise.all([
+      supabase.from('patients').select('id', { count: 'exact', head: true })
+        .eq('user_id', trainerUserId),
+      supabase.from('patient_points').select('patient_id, patients!inner(user_id)', { count: 'exact', head: true })
+        .gt('total_points', 0)
+        .eq('patients.user_id', trainerUserId),
+    ]);
+    setTotalPatients(totalRes.count ?? 0);
+    setPatientsWithPoints(withPointsRes.count ?? 0);
+  }, [trainerUserId]);
+
+  useEffect(() => { loadHistory(); loadCounts(); }, [loadHistory, loadCounts]);
 
   async function handleReset() {
     setResetting(true);
@@ -376,7 +390,7 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
       });
       setConfirming(false);
       setAlsoResetLevel(false);
-      await loadHistory();
+      await Promise.all([loadHistory(), loadCounts()]);
     } catch {
       toast({ title: 'Erro ao zerar pontos', variant: 'destructive' });
     } finally {
@@ -395,6 +409,19 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
             </p>
           </div>
 
+          {totalPatients !== null && (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-600">
+              <Users className="w-4 h-4 text-slate-500 shrink-0" />
+              <span>
+                Você tem <strong className="text-slate-800">{totalPatients}</strong> {totalPatients === 1 ? 'aluno cadastrado' : 'alunos cadastrados'}
+                {patientsWithPoints !== null && totalPatients > 0 && (
+                  <> — <strong className="text-emerald-700">{patientsWithPoints}</strong> com pontuação ativa</>
+                )}
+                .
+              </span>
+            </div>
+          )}
+
           {!confirming ? (
             <button
               onClick={() => setConfirming(true)}
@@ -412,6 +439,13 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
                   <p className="text-xs text-red-600 mt-0.5">
                     Esta ação é irreversível e afeta <strong>somente os seus alunos</strong>. Pontos e histórico de pontuação serão apagados permanentemente.
                   </p>
+                  {patientsWithPoints !== null && totalPatients !== null && (
+                    <p className="text-xs text-red-700 mt-2 font-medium">
+                      {patientsWithPoints === 0
+                        ? `Nenhum dos seus ${totalPatients} ${totalPatients === 1 ? 'aluno tem' : 'alunos têm'} pontuação no momento.`
+                        : <>Vão ser zerados os pontos de <strong>{patientsWithPoints}</strong> {patientsWithPoints === 1 ? 'aluno' : 'alunos'} (de {totalPatients} no total).</>}
+                    </p>
+                  )}
                 </div>
               </div>
 
