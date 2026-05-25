@@ -125,6 +125,34 @@ export default function PortalLogin() {
   const buildPhonePattern = (digits: string): string =>
     '%' + digits.split('').join('%') + '%';
 
+  // Aplica máscara DD/MM/YYYY enquanto o usuário digita
+  const maskBrDate = (raw: string): string => {
+    const digits = raw.replace(/\D/g, '').slice(0, 8);
+    if (digits.length <= 2) return digits;
+    if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+    return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+  };
+
+  // Converte DD/MM/YYYY (BR) → YYYY-MM-DD (ISO) validando ano/mês/dia.
+  // Retorna null se a data for inválida ou impossível (ex.: 31/02).
+  const brDateToIso = (br: string): string | null => {
+    const match = br.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!match) return null;
+    const [, dd, mm, yyyy] = match;
+    const day = Number(dd);
+    const month = Number(mm);
+    const year = Number(yyyy);
+    if (year < 1900 || year > new Date().getFullYear()) return null;
+    if (month < 1 || month > 12) return null;
+    if (day < 1 || day > 31) return null;
+    // Valida que o Date construído tem os mesmos campos (rejeita 31/02 etc.)
+    const d = new Date(year, month - 1, day);
+    if (d.getFullYear() !== year || d.getMonth() !== month - 1 || d.getDate() !== day) {
+      return null;
+    }
+    return `${yyyy}-${mm}-${dd}`;
+  };
+
   // Finaliza o login: gera token, salva no localStorage e redireciona.
   const finalizeLogin = (patientPhone: string, patientName: string | null) => {
     const token = btoa(`${patientPhone}:${Date.now()}`);
@@ -236,10 +264,11 @@ export default function PortalLogin() {
   const handleDobSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!birthDate || !phonePatternRef.current) {
+    const isoDate = brDateToIso(birthDate);
+    if (!isoDate || !phonePatternRef.current) {
       toast({
         title: 'Data inválida',
-        description: 'Informe sua data de nascimento.',
+        description: 'Informe sua data de nascimento no formato DD/MM/AAAA.',
         variant: 'destructive',
       });
       return;
@@ -250,7 +279,7 @@ export default function PortalLogin() {
     try {
       const { data, error } = await supabase.rpc('check_patient_login_with_dob', {
         phone_search: phonePatternRef.current,
-        dob_check: birthDate,
+        dob_check: isoDate,
       });
 
       if (error) {
@@ -470,11 +499,14 @@ export default function PortalLogin() {
                   </Label>
                   <Input
                     id="birthDate"
-                    type="date"
+                    type="text"
+                    inputMode="numeric"
+                    autoComplete="bday"
+                    placeholder="DD/MM/AAAA"
                     value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    max={new Date().toISOString().split('T')[0]}
-                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 h-14 text-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+                    onChange={(e) => setBirthDate(maskBrDate(e.target.value))}
+                    maxLength={10}
+                    className="bg-slate-700/50 border-slate-600 text-white placeholder:text-slate-500 h-14 text-lg tracking-wider focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
                     disabled={loading}
                     autoFocus
                   />
@@ -484,19 +516,19 @@ export default function PortalLogin() {
                 </div>
 
                 <motion.div
-                  whileHover={{ scale: loading || !birthDate ? 1 : 1.02 }}
-                  whileTap={{ scale: loading || !birthDate ? 1 : 0.98 }}
+                  whileHover={{ scale: loading || birthDate.length !== 10 ? 1 : 1.02 }}
+                  whileTap={{ scale: loading || birthDate.length !== 10 ? 1 : 0.98 }}
                 >
                   <Button
                     type="submit"
-                    disabled={loading || !birthDate}
+                    disabled={loading || birthDate.length !== 10}
                     className={`w-full h-14 text-lg transition-all relative overflow-hidden ${isFabricio
                       ? 'bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-600 hover:via-yellow-600 hover:to-amber-700 shadow-lg shadow-amber-500/30 hover:shadow-amber-500/50 text-black font-semibold'
                       : 'bg-gradient-to-r from-blue-600 via-purple-600 to-cyan-600 hover:from-blue-700 hover:via-purple-700 hover:to-cyan-700 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 text-white'
                       }`}
                     style={{
-                      opacity: loading || !birthDate ? 0.6 : 1,
-                      cursor: loading || !birthDate ? 'not-allowed' : 'pointer',
+                      opacity: loading || birthDate.length !== 10 ? 0.6 : 1,
+                      cursor: loading || birthDate.length !== 10 ? 'not-allowed' : 'pointer',
                     }}
                   >
                     <span className="relative z-10 flex items-center justify-center">
