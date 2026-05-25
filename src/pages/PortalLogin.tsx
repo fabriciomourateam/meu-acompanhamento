@@ -25,9 +25,11 @@ export default function PortalLogin() {
 
   // Fluxo de login em 2 etapas:
   //  phone → confirma telefone e descobre se exige data de nascimento
-  //  dob   → pede e valida data de nascimento (segundo fator)
+  //  dob   → pede data de nascimento; valida match OU cadastra (primeiro acesso)
   const [step, setStep] = useState<'phone' | 'dob'>('phone');
   const [birthDate, setBirthDate] = useState(''); // YYYY-MM-DD
+  // True quando o paciente ainda não tem DOB no banco — vamos cadastrar agora
+  const [firstTimeDob, setFirstTimeDob] = useState(false);
   // Pattern do telefone validado pra reusar no submit da etapa 2 sem reformatar
   const phonePatternRef = useRef<string>('');
 
@@ -227,26 +229,9 @@ export default function PortalLogin() {
 
       phonePatternRef.current = foundPattern;
 
-      // Paciente sem data_nascimento no banco: libera direto (compatibilidade)
-      if (!requiresDob) {
-        const { data: loginData } = await supabase.rpc('check_patient_login_with_dob', {
-          phone_search: foundPattern,
-          dob_check: null,
-        });
-        const loginRow = Array.isArray(loginData) ? loginData[0] : loginData;
-        if (loginRow?.telefone) {
-          finalizeLogin(loginRow.telefone, loginRow.nome ?? null);
-        } else {
-          toast({
-            title: 'Erro inesperado',
-            description: 'Não foi possível liberar o acesso. Fale com seu treinador.',
-            variant: 'destructive',
-          });
-        }
-        return;
-      }
-
-      // Tem data cadastrada — avança pra etapa de confirmação
+      // Sem DOB no banco → primeiro acesso, cadastra na etapa 2.
+      // Com DOB → valida na etapa 2.
+      setFirstTimeDob(!requiresDob);
       setStep('dob');
     } catch (error) {
       console.error('Erro ao fazer login (etapa 1):', error);
@@ -277,22 +262,33 @@ export default function PortalLogin() {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.rpc('check_patient_login_with_dob', {
-        phone_search: phonePatternRef.current,
-        dob_check: isoDate,
-      });
+      // Primeiro acesso (sem DOB no banco) usa RPC que grava + loga.
+      // Acesso recorrente apenas valida o match.
+      const { data, error } = firstTimeDob
+        ? await supabase.rpc('set_patient_dob_and_login', {
+            phone_search: phonePatternRef.current,
+            new_dob: isoDate,
+          })
+        : await supabase.rpc('check_patient_login_with_dob', {
+            phone_search: phonePatternRef.current,
+            dob_check: isoDate,
+          });
 
       if (error) {
-        console.error('Erro RPC check_patient_login_with_dob:', error);
+        console.error(
+          `Erro RPC ${firstTimeDob ? 'set_patient_dob_and_login' : 'check_patient_login_with_dob'}:`,
+          error,
+        );
       }
 
       const row = Array.isArray(data) ? data[0] : data;
 
       if (!row?.telefone) {
         toast({
-          title: 'Data não confere',
-          description:
-            'A data de nascimento não bate com o cadastro. Verifique com seu nutricionista se necessário.',
+          title: firstTimeDob ? 'Não foi possível cadastrar' : 'Data não confere',
+          description: firstTimeDob
+            ? 'A data informada parece inválida. Confira o ano e tente novamente.'
+            : 'A data de nascimento não bate com o cadastro. Verifique com seu nutricionista se necessário.',
           variant: 'destructive',
         });
         return;
@@ -315,6 +311,7 @@ export default function PortalLogin() {
     setStep('phone');
     setBirthDate('');
     phonePatternRef.current = '';
+    setFirstTimeDob(false);
   };
 
   return (
@@ -495,7 +492,7 @@ export default function PortalLogin() {
                   </button>
                   <Label htmlFor="birthDate" className="text-slate-300 flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    Data de Nascimento
+                    {firstTimeDob ? 'Cadastre sua Data de Nascimento' : 'Data de Nascimento'}
                   </Label>
                   <Input
                     id="birthDate"
@@ -510,9 +507,15 @@ export default function PortalLogin() {
                     disabled={loading}
                     autoFocus
                   />
-                  <p className="text-xs text-slate-400">
-                    Confirme com a data de nascimento cadastrada no seu acompanhamento.
-                  </p>
+                  {firstTimeDob ? (
+                    <p className="text-xs text-amber-300/90">
+                      Primeiro acesso — esta data será salva e usada nos próximos logins. Digite com cuidado.
+                    </p>
+                  ) : (
+                    <p className="text-xs text-slate-400">
+                      Confirme com a data de nascimento cadastrada no seu acompanhamento.
+                    </p>
+                  )}
                 </div>
 
                 <motion.div
@@ -539,7 +542,7 @@ export default function PortalLogin() {
                         </>
                       ) : (
                         <>
-                          Acessar Portal
+                          {firstTimeDob ? 'Cadastrar e Acessar' : 'Acessar Portal'}
                           <motion.span
                             animate={{ x: [0, 5, 0] }}
                             transition={{ duration: 1.5, repeat: Infinity }}
