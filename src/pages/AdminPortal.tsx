@@ -321,6 +321,7 @@ type ResetEntry = {
   reset_at: string;
   patients_affected: number;
   top3: Top3Entry[];
+  level_reset: boolean;
 };
 
 const MEDAL_STYLES = [
@@ -341,6 +342,7 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
   const { toast } = useToast();
   const [confirming, setConfirming] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [alsoResetLevel, setAlsoResetLevel] = useState(false);
   const [history, setHistory] = useState<ResetEntry[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(true);
 
@@ -348,7 +350,7 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
     setLoadingHistory(true);
     const { data, error } = await supabase
       .from('points_reset_audit')
-      .select('id, reset_at, patients_affected, top3')
+      .select('id, reset_at, patients_affected, top3, level_reset')
       .eq('trainer_user_id', trainerUserId)
       .order('reset_at', { ascending: false })
       .limit(5);
@@ -363,10 +365,17 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
     try {
       const { error } = await supabase.rpc('reset_trainer_patient_points', {
         trainer_uid: trainerUserId,
+        also_reset_level: alsoResetLevel,
       });
       if (error) throw error;
-      toast({ title: 'Pontos zerados!', description: 'Todos os alunos foram resetados para 0 pontos.' });
+      toast({
+        title: 'Pontos zerados!',
+        description: alsoResetLevel
+          ? 'Pontos, histórico e níveis dos seus alunos foram resetados.'
+          : 'Pontos e histórico dos seus alunos foram resetados.',
+      });
       setConfirming(false);
+      setAlsoResetLevel(false);
       await loadHistory();
     } catch {
       toast({ title: 'Erro ao zerar pontos', variant: 'destructive' });
@@ -380,9 +389,9 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
       <Card className="border-slate-200 bg-white">
         <CardContent className="p-6 space-y-6">
           <div>
-            <p className="font-semibold text-slate-700 mb-1">Zerar pontos de todos os alunos</p>
+            <p className="font-semibold text-slate-700 mb-1">Zerar pontos dos seus alunos</p>
             <p className="text-sm text-slate-500">
-              Reseta o total de pontos e o histórico de todos os seus alunos para zero. O pódio atual (1º, 2º e 3º) é guardado antes do reset.
+              Reseta o total de pontos e o histórico de pontuação <strong>apenas dos seus alunos</strong> (do trainer logado). O pódio atual (1º, 2º e 3º) é guardado antes do reset. Opcionalmente, é possível zerar também o nível atual.
             </p>
           </div>
 
@@ -392,7 +401,7 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
               className="flex items-center gap-2 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors w-full"
             >
               <RotateCcw className="w-4 h-4 shrink-0" />
-              Zerar pontos de todos os alunos
+              Zerar pontos dos seus alunos
             </button>
           ) : (
             <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3">
@@ -401,20 +410,33 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
                 <div>
                   <p className="font-semibold text-red-700 text-sm">Tem certeza?</p>
                   <p className="text-xs text-red-600 mt-0.5">
-                    Esta ação é irreversível. Os pontos e todo o histórico de pontuação serão apagados permanentemente.
+                    Esta ação é irreversível e afeta <strong>somente os seus alunos</strong>. Pontos e histórico de pontuação serão apagados permanentemente.
                   </p>
                 </div>
               </div>
+
+              <label className="flex items-start gap-2 px-3 py-2 rounded-lg bg-white/70 border border-red-100 cursor-pointer hover:bg-white transition-colors">
+                <input
+                  type="checkbox"
+                  checked={alsoResetLevel}
+                  onChange={e => setAlsoResetLevel(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-300"
+                />
+                <span className="text-xs text-slate-700">
+                  Também zerar o <strong>nível</strong> dos alunos (todos voltam para o nível 1)
+                </span>
+              </label>
+
               <div className="flex gap-2">
                 <button
                   onClick={handleReset}
                   disabled={resetting}
                   className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-60"
                 >
-                  {resetting ? 'Zerando...' : 'Sim, zerar tudo'}
+                  {resetting ? 'Zerando...' : alsoResetLevel ? 'Sim, zerar pontos e nível' : 'Sim, zerar pontos'}
                 </button>
                 <button
-                  onClick={() => setConfirming(false)}
+                  onClick={() => { setConfirming(false); setAlsoResetLevel(false); }}
                   className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm hover:bg-slate-50 transition-colors"
                 >
                   Cancelar
@@ -440,9 +462,16 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
             <ul className="space-y-3">
               {history.map(entry => (
                 <li key={entry.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
-                  <div className="flex items-center justify-between text-xs text-slate-500">
-                    <span>{formatResetDate(entry.reset_at)}</span>
-                    <span>{entry.patients_affected} {entry.patients_affected === 1 ? 'aluno' : 'alunos'} zerados</span>
+                  <div className="flex items-center justify-between gap-2 text-xs text-slate-500">
+                    <span className="shrink-0">{formatResetDate(entry.reset_at)}</span>
+                    <div className="flex items-center gap-2 flex-wrap justify-end">
+                      {entry.level_reset && (
+                        <span className="px-2 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[10px] font-medium">
+                          Nível zerado também
+                        </span>
+                      )}
+                      <span>{entry.patients_affected} {entry.patients_affected === 1 ? 'aluno' : 'alunos'} zerados</span>
+                    </div>
                   </div>
 
                   {entry.top3.length === 0 ? (
