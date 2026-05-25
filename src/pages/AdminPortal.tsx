@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle } from 'lucide-react';
+import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy } from 'lucide-react';
 
 
 interface Challenge {
@@ -315,10 +315,48 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
   );
 }
 
+type Top3Entry = { nome: string; points: number };
+type ResetEntry = {
+  id: number;
+  reset_at: string;
+  patients_affected: number;
+  top3: Top3Entry[];
+};
+
+const MEDAL_STYLES = [
+  { emoji: '🥇', label: '1º', wrap: 'bg-amber-50 border-amber-200 text-amber-800' },
+  { emoji: '🥈', label: '2º', wrap: 'bg-slate-50 border-slate-200 text-slate-700' },
+  { emoji: '🥉', label: '3º', wrap: 'bg-orange-50 border-orange-200 text-orange-800' },
+];
+
+function formatResetDate(iso: string): string {
+  const d = new Date(iso);
+  return d.toLocaleString('pt-BR', {
+    day: '2-digit', month: '2-digit', year: '2-digit',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
 function PointsManager({ trainerUserId }: { trainerUserId: string }) {
   const { toast } = useToast();
   const [confirming, setConfirming] = useState(false);
   const [resetting, setResetting] = useState(false);
+  const [history, setHistory] = useState<ResetEntry[]>([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  const loadHistory = useCallback(async () => {
+    setLoadingHistory(true);
+    const { data, error } = await supabase
+      .from('points_reset_audit')
+      .select('id, reset_at, patients_affected, top3')
+      .eq('trainer_user_id', trainerUserId)
+      .order('reset_at', { ascending: false })
+      .limit(5);
+    if (!error && data) setHistory(data as ResetEntry[]);
+    setLoadingHistory(false);
+  }, [trainerUserId]);
+
+  useEffect(() => { loadHistory(); }, [loadHistory]);
 
   async function handleReset() {
     setResetting(true);
@@ -329,6 +367,7 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
       if (error) throw error;
       toast({ title: 'Pontos zerados!', description: 'Todos os alunos foram resetados para 0 pontos.' });
       setConfirming(false);
+      await loadHistory();
     } catch {
       toast({ title: 'Erro ao zerar pontos', variant: 'destructive' });
     } finally {
@@ -337,53 +376,108 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
   }
 
   return (
-    <Card className="border-slate-200 bg-white">
-      <CardContent className="p-6 space-y-6">
-        <div>
-          <p className="font-semibold text-slate-700 mb-1">Zerar pontos de todos os alunos</p>
-          <p className="text-sm text-slate-500">
-            Reseta o total de pontos e o histórico de todos os seus alunos para zero. Use quando quiser começar uma nova contagem do zero.
-          </p>
-        </div>
+    <div className="space-y-4">
+      <Card className="border-slate-200 bg-white">
+        <CardContent className="p-6 space-y-6">
+          <div>
+            <p className="font-semibold text-slate-700 mb-1">Zerar pontos de todos os alunos</p>
+            <p className="text-sm text-slate-500">
+              Reseta o total de pontos e o histórico de todos os seus alunos para zero. O pódio atual (1º, 2º e 3º) é guardado antes do reset.
+            </p>
+          </div>
 
-        {!confirming ? (
-          <button
-            onClick={() => setConfirming(true)}
-            className="flex items-center gap-2 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors w-full"
-          >
-            <RotateCcw className="w-4 h-4 shrink-0" />
-            Zerar pontos de todos os alunos
-          </button>
-        ) : (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
-              <div>
-                <p className="font-semibold text-red-700 text-sm">Tem certeza?</p>
-                <p className="text-xs text-red-600 mt-0.5">
-                  Esta ação é irreversível. Os pontos e todo o histórico de pontuação serão apagados permanentemente.
-                </p>
+          {!confirming ? (
+            <button
+              onClick={() => setConfirming(true)}
+              className="flex items-center gap-2 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors w-full"
+            >
+              <RotateCcw className="w-4 h-4 shrink-0" />
+              Zerar pontos de todos os alunos
+            </button>
+          ) : (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-semibold text-red-700 text-sm">Tem certeza?</p>
+                  <p className="text-xs text-red-600 mt-0.5">
+                    Esta ação é irreversível. Os pontos e todo o histórico de pontuação serão apagados permanentemente.
+                  </p>
+                </div>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleReset}
+                  disabled={resetting}
+                  className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-60"
+                >
+                  {resetting ? 'Zerando...' : 'Sim, zerar tudo'}
+                </button>
+                <button
+                  onClick={() => setConfirming(false)}
+                  className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm hover:bg-slate-50 transition-colors"
+                >
+                  Cancelar
+                </button>
               </div>
             </div>
-            <div className="flex gap-2">
-              <button
-                onClick={handleReset}
-                disabled={resetting}
-                className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-60"
-              >
-                {resetting ? 'Zerando...' : 'Sim, zerar tudo'}
-              </button>
-              <button
-                onClick={() => setConfirming(false)}
-                className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm hover:bg-slate-50 transition-colors"
-              >
-                Cancelar
-              </button>
-            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200 bg-white">
+        <CardContent className="p-6 space-y-4">
+          <div className="flex items-center gap-2">
+            <History className="w-4 h-4 text-slate-500" />
+            <p className="font-semibold text-slate-700">Últimos resets</p>
           </div>
-        )}
-      </CardContent>
-    </Card>
+
+          {loadingHistory ? (
+            <p className="text-sm text-slate-400">Carregando...</p>
+          ) : history.length === 0 ? (
+            <p className="text-sm text-slate-400">Nenhum reset registrado ainda.</p>
+          ) : (
+            <ul className="space-y-3">
+              {history.map(entry => (
+                <li key={entry.id} className="rounded-xl border border-slate-200 bg-slate-50/60 p-3 space-y-2">
+                  <div className="flex items-center justify-between text-xs text-slate-500">
+                    <span>{formatResetDate(entry.reset_at)}</span>
+                    <span>{entry.patients_affected} {entry.patients_affected === 1 ? 'aluno' : 'alunos'} zerados</span>
+                  </div>
+
+                  {entry.top3.length === 0 ? (
+                    <div className="flex items-center gap-2 text-xs text-slate-400 italic">
+                      <Trophy className="w-3.5 h-3.5" />
+                      Nenhum aluno com pontuação no momento do reset.
+                    </div>
+                  ) : (
+                    <ol className="space-y-1.5">
+                      {entry.top3.map((p, i) => {
+                        const style = MEDAL_STYLES[i] ?? MEDAL_STYLES[2];
+                        return (
+                          <li
+                            key={i}
+                            className={`flex items-center justify-between gap-2 px-3 py-1.5 rounded-lg border text-sm ${style.wrap}`}
+                          >
+                            <span className="flex items-center gap-2 min-w-0">
+                              <span className="text-base shrink-0" aria-hidden>{style.emoji}</span>
+                              <span className="font-medium truncate">{p.nome}</span>
+                            </span>
+                            <span className="text-xs font-semibold tabular-nums shrink-0">
+                              {p.points} pts
+                            </span>
+                          </li>
+                        );
+                      })}
+                    </ol>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }
 
