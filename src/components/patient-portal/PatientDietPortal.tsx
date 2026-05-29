@@ -134,6 +134,14 @@ export function PatientDietPortal({
     loadDietData();
   }, [patientId]);
 
+  // Ao abrir o portal, reavaliar conquistas: consolida o dia anterior (se virou
+  // completo) e estorna conquistas de dia concedidas prematuramente.
+  useEffect(() => {
+    if (patientId) {
+      dietConsumptionService.checkAndUnlockAchievements(patientId).catch(() => {});
+    }
+  }, [patientId]);
+
   useEffect(() => {
     // Carregar refeições consumidas do localStorage
     const today = new Date().toISOString().split('T')[0];
