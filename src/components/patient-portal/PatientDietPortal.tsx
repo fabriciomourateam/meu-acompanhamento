@@ -1209,6 +1209,7 @@ export function PatientDietPortal({
                 patientId={patientId}
                 trainerUserId={trainerUserId}
                 trainerInstagram={portalConfig?.branding?.instagram || ''}
+                shareCaption={portalConfig?.branding?.share_caption || ''}
               />
             ) : (
               <p className="py-12 text-center text-sm text-slate-400">

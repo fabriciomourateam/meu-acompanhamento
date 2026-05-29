@@ -1,14 +1,22 @@
 import html2canvas from 'html2canvas';
 import { CATEGORIES, type CommunityPost } from '@/lib/community-service';
 
+export interface ShareBranding {
+  /** @handle do treinador (sem @). */
+  instagram?: string;
+  /** Frase exibida acima do @ (pode ter quebras de linha). */
+  caption?: string;
+}
+
 // Gera um card de imagem (PNG) a partir de um post para o aluno compartilhar.
-// Inclui o @ do treinador apenas quando configurado (multitenancy: cada
-// treinador define o seu nas configs do /admin).
+// Inclui a frase e o @ do treinador apenas quando configurados (multitenancy:
+// cada treinador define os seus nas configs do /admin).
 export async function generatePostShareImage(
   post: CommunityPost,
-  trainerInstagram: string,
+  branding: ShareBranding,
 ): Promise<Blob> {
-  const handle = (trainerInstagram || '').trim().replace(/^@+/, '');
+  const handle = (branding.instagram || '').trim().replace(/^@+/, '');
+  const caption = (branding.caption || '').trim();
   const category = CATEGORIES.find((c) => c.value === post.category);
 
   const container = document.createElement('div');
@@ -39,9 +47,16 @@ export async function generatePostShareImage(
             ? `<img src="${post.image_url}" crossorigin="anonymous" style="margin-top:40px;width:100%;border-radius:28px;object-fit:cover;max-height:760px;" />`
             : ''
         }
-        <div style="margin-top:56px;display:flex;align-items:center;justify-content:space-between;border-top:1px solid #e2e8f0;padding-top:32px;">
-          <div style="font-size:30px;color:#10b981;font-weight:700;">Minha Comunidade 💪</div>
-          ${handle ? `<div style="font-size:30px;color:#64748b;font-weight:600;">@${safe(handle)}</div>` : ''}
+        <div style="margin-top:56px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-top:1px solid #e2e8f0;padding-top:32px;">
+          <div style="font-size:30px;color:#10b981;font-weight:700;white-space:nowrap;">Minha Comunidade 💪</div>
+          ${
+            caption || handle
+              ? `<div style="text-align:right;">
+                  ${caption ? `<div style="font-size:32px;color:#1e293b;font-weight:700;white-space:pre-line;line-height:1.3;">${safe(caption)}</div>` : ''}
+                  ${handle ? `<div style="font-size:30px;color:#64748b;font-weight:600;margin-top:6px;">@${safe(handle)}</div>` : ''}
+                </div>`
+              : ''
+          }
         </div>
       </div>
     </div>
@@ -65,8 +80,8 @@ export async function generatePostShareImage(
 }
 
 // Compartilha (Web Share API com arquivo quando disponível) ou baixa a imagem.
-export async function sharePostImage(post: CommunityPost, trainerInstagram: string): Promise<void> {
-  const blob = await generatePostShareImage(post, trainerInstagram);
+export async function sharePostImage(post: CommunityPost, branding: ShareBranding): Promise<void> {
+  const blob = await generatePostShareImage(post, branding);
   const file = new File([blob], 'comunidade.png', { type: 'image/png' });
 
   const nav = navigator as Navigator & {

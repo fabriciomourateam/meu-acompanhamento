@@ -15,11 +15,12 @@ interface CommunityFeedProps {
   patientId: string;
   trainerUserId: string;
   trainerInstagram?: string;
+  shareCaption?: string;
 }
 
 type CategoryFilter = CommunityCategory | 'all';
 
-export function CommunityFeed({ patientId, trainerInstagram = '' }: CommunityFeedProps) {
+export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption = '' }: CommunityFeedProps) {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -127,6 +128,7 @@ export function CommunityFeed({ patientId, trainerInstagram = '' }: CommunityFee
               patientId={patientId}
               post={post}
               trainerInstagram={trainerInstagram}
+              shareCaption={shareCaption}
               onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
             />
           ))}

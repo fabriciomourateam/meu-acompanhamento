@@ -5,6 +5,7 @@ import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -389,23 +390,41 @@ function CommunitySettings({
         </button>
       </div>
 
-      {/* Instagram do treinador */}
-      <div className="space-y-2">
-        <Label className="font-semibold text-slate-700">Seu Instagram</Label>
-        <p className="text-xs text-slate-400">
-          Aparecerá nos cards que os alunos compartilharem. Salve para ativar — enquanto vazio, nada é exibido.
-        </p>
-        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
-          <Instagram className="w-4 h-4 text-slate-400 shrink-0" />
-          <span className="text-slate-400">@</span>
-          <Input
-            value={config.branding.instagram}
+      {/* Branding dos compartilhamentos */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="font-semibold text-slate-700">Frase do compartilhamento</Label>
+          <p className="text-xs text-slate-400">
+            Aparece no card que o aluno compartilha, logo acima do seu @. Pode usar várias linhas.
+          </p>
+          <Textarea
+            value={config.branding.share_caption}
             onChange={(e) =>
-              onChange({ ...config, branding: { instagram: normalizeHandle(e.target.value) } })
+              onChange({ ...config, branding: { ...config.branding, share_caption: e.target.value } })
             }
-            placeholder="seuusuario"
-            className="border-0 px-1 focus-visible:ring-0"
+            maxLength={120}
+            placeholder={'Ex.: Time de Resultados!'}
+            className="min-h-[64px] resize-none"
           />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="font-semibold text-slate-700">Seu Instagram</Label>
+          <p className="text-xs text-slate-400">
+            Aparece nos cards que os alunos compartilharem. Salve para ativar — enquanto vazio, nada é exibido.
+          </p>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+            <Instagram className="w-4 h-4 text-slate-400 shrink-0" />
+            <span className="text-slate-400">@</span>
+            <Input
+              value={config.branding.instagram}
+              onChange={(e) =>
+                onChange({ ...config, branding: { ...config.branding, instagram: normalizeHandle(e.target.value) } })
+              }
+              placeholder="seuusuario"
+              className="border-0 px-1 focus-visible:ring-0"
+            />
+          </div>
         </div>
       </div>
 

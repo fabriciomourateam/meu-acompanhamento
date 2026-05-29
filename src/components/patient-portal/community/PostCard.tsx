@@ -35,10 +35,17 @@ interface PostCardProps {
   patientId: string;
   post: CommunityPost;
   trainerInstagram?: string;
+  shareCaption?: string;
   onDeleted: (postId: string) => void;
 }
 
-export function PostCard({ patientId, post: initial, trainerInstagram = '', onDeleted }: PostCardProps) {
+export function PostCard({
+  patientId,
+  post: initial,
+  trainerInstagram = '',
+  shareCaption = '',
+  onDeleted,
+}: PostCardProps) {
   const { toast } = useToast();
   const [post, setPost] = useState<CommunityPost>(initial);
   const [showComments, setShowComments] = useState(false);
@@ -51,7 +58,7 @@ export function PostCard({ patientId, post: initial, trainerInstagram = '', onDe
     if (sharing) return;
     setSharing(true);
     try {
-      await sharePostImage(post, trainerInstagram);
+      await sharePostImage(post, { instagram: trainerInstagram, caption: shareCaption });
     } catch (err) {
       if ((err as Error)?.name !== 'AbortError') {
         console.error('Erro ao compartilhar:', err);
