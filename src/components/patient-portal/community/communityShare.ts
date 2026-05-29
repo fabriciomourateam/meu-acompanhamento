@@ -33,9 +33,11 @@ export async function generatePostShareImage(
     <div style="width:1080px;box-sizing:border-box;padding:72px;background:linear-gradient(135deg,#ecfdf5 0%,#ffffff 60%);">
       <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:40px;padding:64px;box-shadow:0 24px 60px rgba(15,23,42,0.10);">
         <div style="display:flex;align-items:center;gap:24px;margin-bottom:40px;">
-          <div style="width:96px;height:96px;border-radius:9999px;background:#d1fae5;color:#047857;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;">
-            ${safe((post.author_name || '🙂').slice(0, 2).toUpperCase())}
-          </div>
+          ${
+            post.author_photo
+              ? `<img src="${post.author_photo}" crossorigin="anonymous" style="width:96px;height:96px;border-radius:9999px;object-fit:cover;border:2px solid #d1fae5;" />`
+              : `<div style="width:96px;height:96px;border-radius:9999px;background:#d1fae5;color:#047857;display:flex;align-items:center;justify-content:center;font-size:40px;font-weight:700;">${safe((post.author_name || '🙂').slice(0, 2).toUpperCase())}</div>`
+          }
           <div>
             <div style="font-size:36px;font-weight:700;color:#1e293b;">${safe(post.author_name)}</div>
             ${category ? `<div style="font-size:26px;color:#64748b;margin-top:6px;">${category.emoji} ${safe(category.label)}</div>` : ''}
@@ -44,7 +46,7 @@ export async function generatePostShareImage(
         <div style="font-size:40px;line-height:1.45;color:#334155;white-space:pre-wrap;word-break:break-word;">${safe(post.content)}</div>
         ${
           post.image_url
-            ? `<img src="${post.image_url}" crossorigin="anonymous" style="margin-top:40px;width:100%;border-radius:28px;object-fit:cover;max-height:760px;" />`
+            ? `<img src="${post.image_url}" crossorigin="anonymous" style="margin-top:40px;width:100%;border-radius:28px;object-fit:contain;max-height:900px;background:#f1f5f9;" />`
             : ''
         }
         <div style="margin-top:56px;display:flex;align-items:flex-end;justify-content:space-between;gap:24px;border-top:1px solid #e2e8f0;padding-top:32px;">

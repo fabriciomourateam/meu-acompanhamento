@@ -43,10 +43,10 @@ export function ReportDialog({ open, onOpenChange, patientId, targetType, target
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white border-slate-200">
         <DialogHeader>
-          <DialogTitle>Denunciar {targetType === 'post' ? 'publicação' : 'comentário'}</DialogTitle>
-          <DialogDescription>
+          <DialogTitle className="text-slate-800">Denunciar {targetType === 'post' ? 'publicação' : 'comentário'}</DialogTitle>
+          <DialogDescription className="text-slate-500">
             Descreva (opcional) o motivo. O conteúdo será analisado pelo treinador.
           </DialogDescription>
         </DialogHeader>
@@ -55,7 +55,7 @@ export function ReportDialog({ open, onOpenChange, patientId, targetType, target
           onChange={(e) => setReason(e.target.value)}
           maxLength={500}
           placeholder="Motivo da denúncia (opcional)"
-          className="min-h-[80px] resize-none"
+          className="min-h-[80px] resize-none bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
         />
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={submitting}>
