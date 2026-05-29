@@ -5,6 +5,7 @@ export type RankingPeriod = 'weekly' | 'monthly' | 'yearly' | 'all_time';
 export interface LeaderboardEntry {
   patient_id: string;
   patient_name: string;
+  photo_url?: string | null;
   points: number;
   position: number;
   is_current_patient: boolean;
@@ -43,13 +44,16 @@ export const rankingService = {
   ): Promise<LeaderboardEntry[]> {
     const { data: patients, error: patientsError } = await supabase
       .from('patients')
-      .select('id, nome, apelido')
+      .select('id, nome, apelido, foto_perfil')
       .eq('user_id', trainerUserId);
 
     if (patientsError || !patients || patients.length === 0) return [];
 
     const patientMap = new Map(
       patients.map(p => [p.id, p.apelido || p.nome || 'Paciente'])
+    );
+    const photoMap = new Map(
+      patients.map(p => [p.id, (p as any).foto_perfil as string | null])
     );
     const pointsMap = new Map<string, number>();
 
@@ -94,6 +98,7 @@ export const rankingService = {
         entries.push({
           patient_id: patientId,
           patient_name: name,
+          photo_url: photoMap.get(patientId) || null,
           points,
           is_current_patient: patientId === currentPatientId,
         });
