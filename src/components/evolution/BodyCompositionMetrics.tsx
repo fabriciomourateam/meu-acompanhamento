@@ -154,7 +154,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {/* % Gordura */}
           <MetricCard
             tone="fuchsia"
@@ -165,20 +165,6 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
             badge={data.length > 1 && (
               <Badge className={parseFloat(diferencas.gordura) < 0 ? goodBadge : badBadge}>
                 {parseFloat(diferencas.gordura) < 0 ? '↓' : '↑'} {Math.abs(parseFloat(diferencas.gordura))}%
-              </Badge>
-            )}
-          />
-
-          {/* Peso */}
-          <MetricCard
-            tone="blue"
-            icon={<Scale className="w-5 h-5" />}
-            label="Peso Total"
-            value={ultima.peso}
-            unit="kg"
-            badge={data.length > 1 && (
-              <Badge className={neutralBadge}>
-                {parseFloat(diferencas.peso) > 0 ? '↑' : parseFloat(diferencas.peso) < 0 ? '↓' : ''} {Math.abs(parseFloat(diferencas.peso))} kg
               </Badge>
             )}
           />
