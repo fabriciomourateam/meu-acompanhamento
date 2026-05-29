@@ -219,7 +219,7 @@ export function EvolutionExportPage({
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#0f172a',
+        backgroundColor: '#f8fafc',
         logging: false,
       });
 
@@ -263,7 +263,7 @@ export function EvolutionExportPage({
         scale: 2,
         useCORS: true,
         allowTaint: true,
-        backgroundColor: '#0f172a',
+        backgroundColor: '#f8fafc',
         logging: false,
       });
 
@@ -317,7 +317,7 @@ export function EvolutionExportPage({
     textColor: string;
     icon: string;
   }) => (
-    <div className={`relative overflow-hidden rounded-xl p-4 border border-slate-700/50 shadow-lg`} style={{ backgroundColor: bgColor }}>
+    <div className={`relative overflow-hidden rounded-xl p-4 border border-slate-200 shadow-lg`} style={{ backgroundColor: bgColor }}>
       <div className="relative">
         <div className={`text-xs ${textColor} flex items-center gap-2 font-medium mb-2`}>
           <div className={`p-1.5 rounded-lg ${iconBg}`}>
@@ -325,7 +325,7 @@ export function EvolutionExportPage({
           </div>
           {title}
         </div>
-        <div className="text-2xl font-bold text-white tracking-tight">
+        <div className="text-2xl font-bold text-slate-900 tracking-tight">
           {value}
           {unit && <span className={`text-base ml-1 font-normal opacity-80`} style={{ color: textColor }}>{unit}</span>}
         </div>
@@ -381,28 +381,28 @@ export function EvolutionExportPage({
         ref={exportRef}
         className="w-[900px] min-h-screen"
         style={{
-          backgroundColor: '#0f172a',
+          backgroundColor: '#f8fafc',
           fontFamily: 'Inter, system-ui, sans-serif',
         }}
       >
         <div className="p-8 space-y-6">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white flex items-center justify-center gap-3">
+            <h1 className="text-3xl font-bold text-slate-900 flex items-center justify-center gap-3">
               📊 Meu Acompanhamento
             </h1>
-            <p className="text-slate-400 mt-2">Acompanhe seu progresso e conquistas</p>
+            <p className="text-slate-500 mt-2">Acompanhe seu progresso e conquistas</p>
           </div>
 
           {/* Card do Paciente */}
-          <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-slate-700/50">
+          <div className="bg-white backdrop-blur rounded-2xl p-6 border border-slate-200">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl font-bold text-blue-300 border-4 border-blue-500/30">
+              <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center text-2xl font-bold text-blue-700 border-4 border-blue-500/30">
                 {patient.nome?.charAt(0) || 'P'}
               </div>
               <div>
-                <h2 className="text-2xl font-bold text-white">{patient.nome}</h2>
-                <div className="flex gap-4 mt-2 text-slate-300 text-sm">
+                <h2 className="text-2xl font-bold text-slate-900">{patient.nome}</h2>
+                <div className="flex gap-4 mt-2 text-slate-600 text-sm">
                   {checkins.length > 0 ? (
                     <>
                       <span className="flex items-center gap-1">✅ {checkins.length} check-ins</span>
@@ -418,14 +418,14 @@ export function EvolutionExportPage({
 
           {/* Mensagem quando não há check-ins */}
           {checkins.length === 0 && (
-            <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-8 border border-slate-700/50 text-center">
+            <div className="bg-white backdrop-blur rounded-2xl p-8 border border-slate-200 text-center">
               <div className="text-4xl mb-4">🌟</div>
-              <h3 className="text-xl font-bold text-white mb-2">Sua jornada está começando!</h3>
-              <p className="text-slate-400">
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Sua jornada está começando!</h3>
+              <p className="text-slate-500">
                 Complete seu primeiro check-in para começar a acompanhar sua evolução.
               </p>
               {pesoInicial && (
-                <p className="text-emerald-400 mt-4">
+                <p className="text-emerald-600 mt-4">
                   Peso inicial registrado: <strong>{pesoInicial.toFixed(1)} kg</strong>
                 </p>
               )}
@@ -441,7 +441,7 @@ export function EvolutionExportPage({
               subtitle="Total de avaliações"
               bgColor="rgba(37, 99, 235, 0.25)"
               iconBg="bg-blue-500/30"
-              textColor="text-blue-200"
+              textColor="text-blue-700"
               icon="📋"
             />
 
@@ -454,7 +454,7 @@ export function EvolutionExportPage({
                 subtitle="Idade atual"
                 bgColor="rgba(6, 182, 212, 0.25)"
                 iconBg="bg-cyan-500/30"
-                textColor="text-cyan-200"
+                textColor="text-cyan-700"
                 icon="🎂"
               />
             )}
@@ -468,7 +468,7 @@ export function EvolutionExportPage({
                 subtitle="Altura"
                 bgColor="rgba(139, 92, 246, 0.25)"
                 iconBg="bg-violet-500/30"
-                textColor="text-violet-200"
+                textColor="text-violet-700"
                 icon="📏"
               />
             )}
@@ -484,7 +484,7 @@ export function EvolutionExportPage({
                   : (primeiroCheckin?.data_checkin ? formatDate(primeiroCheckin.data_checkin) : '1º Check-in')}
                 bgColor="rgba(16, 185, 129, 0.25)"
                 iconBg="bg-emerald-500/30"
-                textColor="text-emerald-200"
+                textColor="text-emerald-700"
                 icon="⚖️"
               />
             )}
@@ -498,7 +498,7 @@ export function EvolutionExportPage({
                 subtitle={ultimoCheckin?.data_checkin ? formatDate(ultimoCheckin.data_checkin) : ''}
                 bgColor="rgba(99, 102, 241, 0.25)"
                 iconBg="bg-indigo-500/30"
-                textColor="text-indigo-200"
+                textColor="text-indigo-700"
                 icon="🏋️"
               />
             )}
@@ -518,7 +518,7 @@ export function EvolutionExportPage({
                       : 'rgba(245, 158, 11, 0.25)'
                 }
                 iconBg={isNeutral ? 'bg-slate-500/30' : isNegative ? 'bg-emerald-500/30' : 'bg-orange-500/30'}
-                textColor={isNeutral ? 'text-slate-200' : isNegative ? 'text-emerald-200' : 'text-orange-200'}
+                textColor={isNeutral ? 'text-slate-700' : isNegative ? 'text-emerald-700' : 'text-orange-700'}
                 icon={isNegative ? '📉' : variacao > 0 ? '📈' : '➡️'}
               />
             )}
@@ -526,11 +526,11 @@ export function EvolutionExportPage({
 
           {/* Composição Corporal Atual - Mostrar sempre que tiver dados calculáveis */}
           {(lastBodyComp || imc || massaGorda || massaMagra || tmb) && (
-            <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-slate-700/50">
-              <h3 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+            <div className="bg-white backdrop-blur rounded-2xl p-6 border border-slate-200">
+              <h3 className="text-lg font-bold text-slate-900 mb-4 flex items-center gap-2">
                 🏋️ Composição Corporal Atual
                 {lastBodyComp?.date || lastBodyComp?.data_avaliacao ? (
-                  <span className="text-sm font-normal text-slate-400 ml-2">
+                  <span className="text-sm font-normal text-slate-500 ml-2">
                     Última avaliação: {formatDateFull(lastBodyComp.date || lastBodyComp.data_avaliacao || '')}
                   </span>
                 ) : null}
@@ -543,10 +543,10 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-orange-500/30">
                         <span>🔥</span>
                       </div>
-                      <p className="text-orange-200 text-sm font-medium">% Gordura</p>
+                      <p className="text-orange-700 text-sm font-medium">% Gordura</p>
                     </div>
-                    <p className="text-3xl font-bold text-white">{percentualGordura.toFixed(1)}<span className="text-lg">%</span></p>
-                    <p className="text-xs text-orange-300 mt-1">Gordura corporal</p>
+                    <p className="text-3xl font-bold text-slate-900">{percentualGordura.toFixed(1)}<span className="text-lg">%</span></p>
+                    <p className="text-xs text-orange-600 mt-1">Gordura corporal</p>
                   </div>
                 )}
                 
@@ -557,9 +557,9 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-blue-500/30">
                         <span>📊</span>
                       </div>
-                      <p className="text-blue-200 text-sm font-medium">IMC</p>
+                      <p className="text-blue-700 text-sm font-medium">IMC</p>
                     </div>
-                    <p className="text-3xl font-bold text-white">{imc.toFixed(1)}</p>
+                    <p className="text-3xl font-bold text-slate-900">{imc.toFixed(1)}</p>
                     <p className={`text-xs mt-1 ${getIMCClassificacao(imc).cor}`}>{getIMCClassificacao(imc).texto}</p>
                   </div>
                 )}
@@ -571,9 +571,9 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-amber-500/30">
                         <span>⚖️</span>
                       </div>
-                      <p className="text-amber-200 text-sm font-medium">Massa Gorda</p>
+                      <p className="text-amber-700 text-sm font-medium">Massa Gorda</p>
                     </div>
-                    <p className="text-3xl font-bold text-white">{massaGorda.toFixed(1)}<span className="text-lg">kg</span></p>
+                    <p className="text-3xl font-bold text-slate-900">{massaGorda.toFixed(1)}<span className="text-lg">kg</span></p>
                   </div>
                 )}
                 
@@ -584,10 +584,10 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-green-500/30">
                         <span>💪</span>
                       </div>
-                      <p className="text-green-200 text-sm font-medium">Massa Magra</p>
+                      <p className="text-green-700 text-sm font-medium">Massa Magra</p>
                     </div>
-                    <p className="text-3xl font-bold text-white">{massaMagra.toFixed(1)}<span className="text-lg">kg</span></p>
-                    {percentualGordura && <p className="text-xs text-green-300 mt-1">{(100 - percentualGordura).toFixed(1)}% do peso</p>}
+                    <p className="text-3xl font-bold text-slate-900">{massaMagra.toFixed(1)}<span className="text-lg">kg</span></p>
+                    {percentualGordura && <p className="text-xs text-green-600 mt-1">{(100 - percentualGordura).toFixed(1)}% do peso</p>}
                   </div>
                 )}
                 
@@ -598,10 +598,10 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-purple-500/30">
                         <span>⚡</span>
                       </div>
-                      <p className="text-purple-200 text-sm font-medium">TMB</p>
+                      <p className="text-purple-700 text-sm font-medium">TMB</p>
                     </div>
-                    <p className="text-3xl font-bold text-white">{tmb}<span className="text-lg">kcal</span></p>
-                    <p className="text-xs text-purple-300 mt-1">Gasto em repouso/dia</p>
+                    <p className="text-3xl font-bold text-slate-900">{tmb}<span className="text-lg">kcal</span></p>
+                    <p className="text-xs text-purple-600 mt-1">Gasto em repouso/dia</p>
                   </div>
                 )}
                 
@@ -612,9 +612,9 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-red-500/30">
                         <span>⚠️</span>
                       </div>
-                      <p className="text-red-200 text-sm font-medium">Gordura Visceral</p>
+                      <p className="text-red-700 text-sm font-medium">Gordura Visceral</p>
                     </div>
-                    <p className="text-3xl font-bold text-white">{lastBodyComp.visceralFat || lastBodyComp.gordura_visceral}</p>
+                    <p className="text-3xl font-bold text-slate-900">{lastBodyComp.visceralFat || lastBodyComp.gordura_visceral}</p>
                   </div>
                 )}
               </div>
@@ -643,9 +643,9 @@ export function EvolutionExportPage({
               : '';
             
             return (
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-bold text-white mb-2">📈 Evolução do Peso</h3>
-                <p className="text-slate-400 text-sm mb-4">Acompanhamento do peso ao longo do tempo</p>
+              <div className="bg-white backdrop-blur rounded-2xl p-6 border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">📈 Evolução do Peso</h3>
+                <p className="text-slate-500 text-sm mb-4">Acompanhamento do peso ao longo do tempo</p>
                 
                 <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
                   {/* Linhas de grade horizontais */}
@@ -654,7 +654,7 @@ export function EvolutionExportPage({
                     const value = maxPeso - (i / 4) * rangePeso;
                     return (
                       <g key={i}>
-                        <line x1={padding.left} y1={y} x2={svgWidth - padding.right} y2={y} stroke="#334155" strokeWidth="1" strokeDasharray="4" />
+                        <line x1={padding.left} y1={y} x2={svgWidth - padding.right} y2={y} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4" />
                         <text x={padding.left - 8} y={y + 4} fill="#94a3b8" fontSize="11" textAnchor="end">{value.toFixed(0)}</text>
                       </g>
                     );
@@ -667,13 +667,13 @@ export function EvolutionExportPage({
                   {points.map((p, i) => (
                     <g key={i}>
                       <circle cx={p.x} cy={p.y} r={p.isFirst || p.isLast ? 8 : 5} fill={p.isFirst ? '#10b981' : p.isLast ? '#3b82f6' : '#64748b'} stroke="#fff" strokeWidth="2" />
-                      <text x={p.x} y={p.y - 14} fill="#fff" fontSize="11" fontWeight="bold" textAnchor="middle">{p.peso.toFixed(1)}</text>
+                      <text x={p.x} y={p.y - 14} fill="#0f172a" fontSize="11" fontWeight="bold" textAnchor="middle">{p.peso.toFixed(1)}</text>
                       <text x={p.x} y={svgHeight - 8} fill="#94a3b8" fontSize="10" textAnchor="middle">{p.date}</text>
                     </g>
                   ))}
                 </svg>
                 
-                <div className="flex justify-center gap-6 mt-2 text-xs text-slate-400">
+                <div className="flex justify-center gap-6 mt-2 text-xs text-slate-500">
                   <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ backgroundColor: '#10b981' }}></span> Peso Inicial</span>
                   <span className="flex items-center gap-1"><span className="w-3 h-3 rounded" style={{ backgroundColor: '#3b82f6' }}></span> Peso Atual</span>
                 </div>
@@ -703,9 +703,9 @@ export function EvolutionExportPage({
               : '';
             
             return (
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-bold text-white mb-2">🔥 Evolução do % de Gordura Corporal</h3>
-                <p className="text-slate-400 text-sm mb-4">Acompanhamento da composição corporal</p>
+              <div className="bg-white backdrop-blur rounded-2xl p-6 border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">🔥 Evolução do % de Gordura Corporal</h3>
+                <p className="text-slate-500 text-sm mb-4">Acompanhamento da composição corporal</p>
                 
                 <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
                   {/* Linhas de grade horizontais */}
@@ -714,7 +714,7 @@ export function EvolutionExportPage({
                     const value = maxFat - (i / 3) * rangeFat;
                     return (
                       <g key={i}>
-                        <line x1={padding.left} y1={y} x2={svgWidth - padding.right} y2={y} stroke="#334155" strokeWidth="1" strokeDasharray="4" />
+                        <line x1={padding.left} y1={y} x2={svgWidth - padding.right} y2={y} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4" />
                         <text x={padding.left - 8} y={y + 4} fill="#94a3b8" fontSize="11" textAnchor="end">{value.toFixed(0)}%</text>
                       </g>
                     );
@@ -727,7 +727,7 @@ export function EvolutionExportPage({
                   {points.map((p, i) => (
                     <g key={i}>
                       <circle cx={p.x} cy={p.y} r={p.isLast ? 8 : 5} fill={p.isLast ? '#f59e0b' : '#fb923c'} stroke="#fff" strokeWidth="2" />
-                      <text x={p.x} y={p.y - 14} fill="#fff" fontSize="11" fontWeight="bold" textAnchor="middle">{p.value.toFixed(1)}%</text>
+                      <text x={p.x} y={p.y - 14} fill="#0f172a" fontSize="11" fontWeight="bold" textAnchor="middle">{p.value.toFixed(1)}%</text>
                       <text x={p.x} y={svgHeight - 8} fill="#94a3b8" fontSize="10" textAnchor="middle">{p.date}</text>
                     </g>
                   ))}
@@ -774,9 +774,9 @@ export function EvolutionExportPage({
             );
             
             return (
-              <div className="bg-slate-800/60 backdrop-blur rounded-2xl p-6 border border-slate-700/50">
-                <h3 className="text-lg font-bold text-white mb-2">🏆 Evolução das Pontuações</h3>
-                <p className="text-slate-400 text-sm mb-4">Performance em diferentes categorias</p>
+              <div className="bg-white backdrop-blur rounded-2xl p-6 border border-slate-200">
+                <h3 className="text-lg font-bold text-slate-900 mb-2">🏆 Evolução das Pontuações</h3>
+                <p className="text-slate-500 text-sm mb-4">Performance em diferentes categorias</p>
                 
                 <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
                   {/* Linhas de grade horizontais */}
@@ -784,7 +784,7 @@ export function EvolutionExportPage({
                     const y = padding.top + chartHeight - (val / maxScore) * chartHeight;
                     return (
                       <g key={i}>
-                        <line x1={padding.left} y1={y} x2={svgWidth - padding.right} y2={y} stroke="#334155" strokeWidth="1" strokeDasharray="4" />
+                        <line x1={padding.left} y1={y} x2={svgWidth - padding.right} y2={y} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="4" />
                         <text x={padding.left - 8} y={y + 4} fill="#94a3b8" fontSize="11" textAnchor="end">{val}</text>
                       </g>
                     );
@@ -817,7 +817,7 @@ export function EvolutionExportPage({
                 </svg>
                 
                 {/* Legenda com todas as cores */}
-                <div className="flex flex-wrap justify-center gap-3 mt-2 text-xs text-slate-400">
+                <div className="flex flex-wrap justify-center gap-3 mt-2 text-xs text-slate-500">
                   {activeCategories.map(cat => (
                     <span key={cat.key} className="flex items-center gap-1">
                       <span className="w-3 h-3 rounded" style={{ backgroundColor: cat.color }}></span> {cat.name}
@@ -829,7 +829,7 @@ export function EvolutionExportPage({
           })()}
 
           {/* Footer */}
-          <div className="text-center text-slate-400 text-sm py-4 border-t border-slate-700/50">
+          <div className="text-center text-slate-500 text-sm py-4 border-t border-slate-200">
             Relatório gerado em {new Date().toLocaleDateString('pt-BR', { 
               day: '2-digit', 
               month: 'long', 
