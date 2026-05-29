@@ -33,7 +33,6 @@ import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
 import { CommunityFeed } from '@/components/patient-portal/community/CommunityFeed';
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
-import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import { communityService } from '@/lib/community-service';
@@ -1231,13 +1230,6 @@ export function PatientDietPortal({
         <TabsContent value="challenges" className="mt-6 space-y-6">
           <DailyChallengesWidget patientId={patientId} />
           <WeeklyHabitsGrid patientId={patientId} />
-          {trainerUserId && (
-            <CheckinAIWidget
-              patientId={patientId}
-              patientName={patientName}
-              trainerUserId={trainerUserId}
-            />
-          )}
         </TabsContent>
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
