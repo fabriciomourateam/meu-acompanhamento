@@ -124,10 +124,10 @@ export function EvolutionExportPage({
   // Calcular IMC
   const imc = pesoParaCalculo && alturaMetros ? pesoParaCalculo / (alturaMetros * alturaMetros) : null;
   const getIMCClassificacao = (imc: number) => {
-    if (imc < 18.5) return { texto: 'Abaixo do peso', cor: 'text-yellow-400' };
-    if (imc < 25) return { texto: 'Peso normal', cor: 'text-green-400' };
-    if (imc < 30) return { texto: 'Sobrepeso', cor: 'text-orange-400' };
-    return { texto: 'Obesidade', cor: 'text-red-400' };
+    if (imc < 18.5) return { texto: 'Abaixo do peso', cor: 'text-yellow-600' };
+    if (imc < 25) return { texto: 'Peso normal', cor: 'text-green-600' };
+    if (imc < 30) return { texto: 'Sobrepeso', cor: 'text-orange-600' };
+    return { texto: 'Obesidade', cor: 'text-red-600' };
   };
   
   // Percentual de gordura (do paciente ou da última composição corporal)
@@ -327,9 +327,9 @@ export function EvolutionExportPage({
         </div>
         <div className="text-2xl font-bold text-slate-900 tracking-tight">
           {value}
-          {unit && <span className={`text-base ml-1 font-normal opacity-80`} style={{ color: textColor }}>{unit}</span>}
+          {unit && <span className={`text-base ml-1 font-normal ${textColor}`}>{unit}</span>}
         </div>
-        <p className={`text-xs opacity-70 mt-0.5`} style={{ color: textColor }}>{subtitle}</p>
+        <p className={`text-xs mt-0.5 font-medium ${textColor}`}>{subtitle}</p>
       </div>
     </div>
   );
@@ -571,7 +571,7 @@ export function EvolutionExportPage({
                       <div className="p-1.5 rounded-lg bg-amber-500/30">
                         <span>⚖️</span>
                       </div>
-                      <p className="text-amber-700 text-sm font-medium">Massa Gorda</p>
+                      <p className="text-amber-800 text-sm font-medium">Massa Gorda</p>
                     </div>
                     <p className="text-3xl font-bold text-slate-900">{massaGorda.toFixed(1)}<span className="text-lg">kg</span></p>
                   </div>
@@ -793,13 +793,16 @@ export function EvolutionExportPage({
                   {/* Linhas de cada categoria */}
                   {activeCategories.map((cat) => {
                     const points = getPoints(cat.key);
-                    if (points.length < 2) return null;
-                    const linePath = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+                    if (points.length === 0) return null;
+                    // Com 2+ pontos desenha a linha; com 1 ponto mostra só o marcador.
+                    const linePath = points.length >= 2
+                      ? points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ')
+                      : '';
                     return (
                       <g key={cat.key}>
-                        <path d={linePath} fill="none" stroke={cat.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                        {linePath && <path d={linePath} fill="none" stroke={cat.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />}
                         {points.map((p, i) => (
-                          <circle key={i} cx={p.x} cy={p.y} r={4} fill={cat.color} stroke="#1e293b" strokeWidth="1" />
+                          <circle key={i} cx={p.x} cy={p.y} r={points.length === 1 ? 5 : 4} fill={cat.color} stroke="#ffffff" strokeWidth="1.5" />
                         ))}
                       </g>
                     );
