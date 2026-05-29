@@ -2,7 +2,6 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Bell, BellRing, Check, Loader2, Smartphone, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { pushService, type PortalNotification } from '@/lib/push-service';
 
@@ -145,7 +144,7 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
         <span className="font-semibold text-slate-900">Notificações</span>
         <div className="flex items-center gap-3">
           {unread > 0 && (
-            <button onClick={handleMarkAll} className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-900">
+            <button onClick={handleMarkAll} className="flex items-center gap-1 text-xs text-emerald-700 hover:text-emerald-900">
               <Check className="h-3 w-3" /> Marcar lidas
             </button>
           )}
@@ -164,15 +163,17 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
         {busy ? (
           <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
         ) : (
-          <Button
-            size="sm"
-            variant={subscribed ? 'default' : 'outline'}
+          <button
             disabled={iosNeedsInstall}
             onClick={() => handleToggleSubscribe(!subscribed)}
-            className="h-7 px-3 text-xs"
+            className={`h-7 rounded-lg px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
+              subscribed
+                ? 'bg-emerald-600 text-white hover:bg-emerald-700'
+                : 'border border-emerald-300 bg-white text-emerald-700 hover:bg-emerald-50'
+            }`}
           >
             {subscribed ? 'Ativado' : 'Ativar'}
-          </Button>
+          </button>
         )}
       </div>
       {iosNeedsInstall && (
