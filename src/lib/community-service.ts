@@ -186,6 +186,26 @@ export const communityService = {
     if (error) throw error;
   },
 
+  /**
+   * Conta posts novos por categoria desde `since` (exclui os do proprio aluno).
+   * Retorna um mapa { [categoria]: quantidade }.
+   */
+  async getUnreadByCategory(
+    patientId: string,
+    since: string,
+  ): Promise<Record<string, number>> {
+    const { data, error } = await supabase.rpc('community_unread_by_category', {
+      p_patient_id: patientId,
+      p_since: since,
+    });
+    if (error) throw error;
+    const map: Record<string, number> = {};
+    (data || []).forEach((row: { category: string; cnt: number }) => {
+      map[row.category] = Number(row.cnt);
+    });
+    return map;
+  },
+
   /** Upload de imagem do post para o bucket publico patient-photos. */
   async uploadPostImage(patientId: string, file: File): Promise<string> {
     const fileExt = file.name.split('.').pop() || 'jpg';

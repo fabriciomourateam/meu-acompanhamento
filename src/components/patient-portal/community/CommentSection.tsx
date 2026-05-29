@@ -151,7 +151,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
               }}
               maxLength={2000}
               placeholder={`Respondendo ${c.author_name}...`}
-              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
             />
             <Button
               size="icon"
@@ -205,7 +205,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
           }}
           maxLength={2000}
           placeholder="Escreva um comentário..."
-          className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+          className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
         />
         <Button
           size="icon"
