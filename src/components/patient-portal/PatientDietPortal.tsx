@@ -375,11 +375,23 @@ export function PatientDietPortal({
     }
   };
 
+  // Refeições-opção (alternativas) são modeladas como refeições-filhas via
+  // parent_meal_id. A semântica é "coma OU a principal OU a opção", então elas
+  // NÃO devem entrar no somatório de macros/calorias (evita dupla contagem).
+  const isOptionMeal = (meal: any) => {
+    if (meal?.parent_meal_id) return true;
+    if (meal?.exclude_from_macros) return true;
+    const name = (meal?.meal_name || '').toLowerCase();
+    return name.includes('🔁') || name.includes('opção');
+  };
+
   const calcularTotais = (plan: any) => {
     if (!plan || !plan.diet_meals) {
       return { calorias: 0, proteinas: 0, carboidratos: 0, gorduras: 0 };
     }
-    return calcularTotaisPlano(plan);
+    // Somar apenas refeições principais — exclui as refeições-opção
+    const mainMeals = plan.diet_meals.filter((meal: any) => !isOptionMeal(meal));
+    return calcularTotaisPlano({ ...plan, diet_meals: mainMeals });
   };
 
   if (loading) {
@@ -437,7 +449,8 @@ export function PatientDietPortal({
   };
 
   const isSupplement = (g: any) => {
-    if (g.guideline_type === 'supplement' && !isManipulated(g) && !isProtocol(g)) return true;
+    // Tipos explícitos de suplementação (ex.: 'supplement', 'supplement_suplementacao')
+    if (typeof g.guideline_type === 'string' && g.guideline_type.startsWith('supplement') && !isManipulated(g) && !isProtocol(g)) return true;
     const title = (g.title || '').toLowerCase();
     return (title.includes('suplementação') || title.includes('suplemento') || title.includes('junto com')) && !isManipulated(g) && !isProtocol(g);
   };
@@ -750,6 +763,11 @@ export function PatientDietPortal({
                           const mealTotals = calcularTotaisPlano({ diet_meals: [meal] });
                           const isConsumed = consumedMeals.has(meal.id);
                           const isExpanded = expandedMeals.has(meal.id);
+                          const isOption = isOptionMeal(meal);
+                          // Remove o emoji 🔁 do nome — a sinalização passa a ser o badge "Opção"
+                          const displayName = isOption
+                            ? (meal.meal_name || '').replace(/🔁/g, '').trim()
+                            : meal.meal_name;
 
                           return (
                             <Collapsible
@@ -769,14 +787,14 @@ export function PatientDietPortal({
                             >
                               <div
                                 style={{
-                                  backgroundColor: isConsumed ? '#d1fae5' : 'white',
-                                  borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
+                                  backgroundColor: isConsumed ? '#d1fae5' : (isOption ? '#fffbeb' : 'white'),
+                                  borderColor: isConsumed ? '#6ee7b7' : (isOption ? '#fcd34d' : '#e2e8f0'),
                                   color: '#0f172a'
                                 }}
                                 className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
                                   ? 'shadow-sm'
                                   : 'hover:border-emerald-300 hover:shadow-lg'
-                                  }`}
+                                  } ${isOption ? 'ml-4 sm:ml-8' : ''}`}
                               >
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
@@ -784,11 +802,15 @@ export function PatientDietPortal({
                                       <div
                                         className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
                                           ? 'bg-emerald-100 text-emerald-600'
-                                          : '!bg-emerald-50 !text-emerald-500'
+                                          : isOption
+                                            ? 'bg-amber-100 text-amber-600'
+                                            : '!bg-emerald-50 !text-emerald-500'
                                           }`}
                                       >
                                         {isConsumed ? (
                                           <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        ) : isOption ? (
+                                          <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
                                         ) : (
                                           <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
                                         )}
@@ -796,8 +818,14 @@ export function PatientDietPortal({
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                           <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
-                                            {meal.meal_name}
+                                            {displayName}
                                           </h4>
+                                          {isOption && (
+                                            <Badge className="bg-amber-100 text-amber-700 border-amber-300 border text-xs w-fit gap-1">
+                                              <RefreshCw className="w-3 h-3" />
+                                              Opção
+                                            </Badge>
+                                          )}
                                           {meal.suggested_time && (
                                             <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
                                               {meal.suggested_time}
@@ -1057,7 +1085,7 @@ export function PatientDietPortal({
                       </p>
                     </div>
                     <Button
-                      onClick={() => window.open('https://area-de-membros-fabriciomourateam.vercel.app/#/supplements', '_blank')}
+                      onClick={() => window.open('https://area-de-membros-fabriciomourateam.vercel.app/#/suplementos-lista', '_blank')}
                       className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-600 font-bold px-8 py-6 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 group whitespace-nowrap"
                     >
                       <span>Ver Recomendações</span>
