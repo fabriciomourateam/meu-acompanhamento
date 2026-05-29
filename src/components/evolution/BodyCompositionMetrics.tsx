@@ -79,6 +79,16 @@ const TONE_STYLES: Record<MetricCardProps["tone"], {
   },
 };
 
+// Gradiente do número principal por tom
+const VALUE_GRADIENT: Record<MetricCardProps["tone"], string> = {
+  fuchsia: "from-fuchsia-600 to-pink-500",
+  blue: "from-blue-600 to-sky-500",
+  rose: "from-rose-600 to-red-500",
+  emerald: "from-emerald-600 to-teal-500",
+  purple: "from-purple-600 to-violet-500",
+  amber: "from-amber-600 to-orange-500",
+};
+
 function MetricCard({ label, value, unit, subtitle, badge, tone }: MetricCardProps) {
   const t = TONE_STYLES[tone];
   return (
@@ -95,7 +105,7 @@ function MetricCard({ label, value, unit, subtitle, badge, tone }: MetricCardPro
       </div>
 
       {/* Valor principal */}
-      <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${t.value} leading-none`}>
+      <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight leading-none bg-gradient-to-r ${VALUE_GRADIENT[tone]} bg-clip-text text-transparent`}>
         {value}
         {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
       </p>

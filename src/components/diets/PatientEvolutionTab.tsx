@@ -90,6 +90,18 @@ const STAT_TONES: Record<StatTone, { card: string; iconBox: string; value: strin
   },
 };
 
+// Gradiente do número principal por tom
+const VALUE_GRADIENT: Record<StatTone, string> = {
+  blue: 'from-blue-600 to-sky-500',
+  cyan: 'from-cyan-600 to-teal-500',
+  purple: 'from-purple-600 to-violet-500',
+  indigo: 'from-indigo-600 to-blue-500',
+  sky: 'from-sky-600 to-blue-500',
+  emerald: 'from-emerald-600 to-teal-500',
+  rose: 'from-rose-600 to-red-500',
+  slate: 'from-slate-600 to-slate-500',
+};
+
 interface PremiumStatCardProps {
   tone: StatTone;
   icon: React.ReactNode;
@@ -110,7 +122,7 @@ function PremiumStatCard({ tone, icon, label, value, unit, subtitle }: PremiumSt
       <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
         {label}
       </p>
-      <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${t.value} leading-none`}>
+      <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight leading-none bg-gradient-to-r ${VALUE_GRADIENT[tone]} bg-clip-text text-transparent`}>
         {value}
         {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
       </p>
