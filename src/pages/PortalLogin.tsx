@@ -31,6 +31,9 @@ export default function PortalLogin() {
   // automaticamente e redirecionados para /portal-<slug> deles.
   const DEFAULT_TENANT_SLUG = 'fmteam';
 
+  // Rota do dono (/, /portal e /portal-fmteam): exibe a marca FMTeam.
+  const isOwnerRoute = !pathSlug || pathSlug === DEFAULT_TENANT_SLUG;
+
   // Estado inicial vindo do smart routing (location.state) — pula direto pra DOB
   // quando o usuário foi redirecionado de / pra /portal-<slug>.
   const navState = (location.state ?? {}) as LoginNavState;
@@ -406,7 +409,7 @@ export default function PortalLogin() {
                 Meu Acompanhamento
               </CardTitle>
               <CardDescription className="text-slate-400 mt-2">
-                Construindo Resultados
+                {isOwnerRoute ? 'Consultoria Esportiva FMTeam' : 'Construindo Resultados'}
               </CardDescription>
             </div>
           </CardHeader>
