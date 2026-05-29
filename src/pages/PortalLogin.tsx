@@ -26,6 +26,11 @@ export default function PortalLogin() {
     ? location.pathname.slice('/portal-'.length)
     : null;
 
+  // Tenant "dono" da página base (/ e /portal): os alunos deste treinador
+  // permanecem na URL limpa; alunos de outros treinadores são descobertos
+  // automaticamente e redirecionados para /portal-<slug> deles.
+  const DEFAULT_TENANT_SLUG = 'fmteam';
+
   // Estado inicial vindo do smart routing (location.state) — pula direto pra DOB
   // quando o usuário foi redirecionado de / pra /portal-<slug>.
   const navState = (location.state ?? {}) as LoginNavState;
@@ -213,8 +218,9 @@ export default function PortalLogin() {
         return;
       }
 
-      // Smart routing: rota sem slug → vai pro portal do trainer correto
-      if (!pathSlug && trainerSlug) {
+      // Smart routing: na página base, alunos do tenant dono (fmteam) ficam na
+      // própria / ; alunos de outros treinadores vão pro portal correto deles.
+      if (!pathSlug && trainerSlug && trainerSlug !== DEFAULT_TENANT_SLUG) {
         navigate(`/portal-${trainerSlug}`, {
           state: {
             phone: telefone,
