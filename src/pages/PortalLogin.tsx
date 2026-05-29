@@ -388,7 +388,16 @@ export default function PortalLogin() {
               className="w-24 h-24 mx-auto relative"
             >
               <div className="w-full h-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 border border-amber-500/20 overflow-hidden">
-                <img src="/fm-logo.png" alt="Logo" className="w-[85%] h-[85%] object-contain" />
+                <img
+                  src={isOwnerRoute ? '/fmteam-logo.png' : '/fm-logo.png'}
+                  alt="Logo"
+                  className="w-[85%] h-[85%] object-contain"
+                  onError={(e) => {
+                    // Se o logo do dono ainda não foi adicionado, cai no logo padrão.
+                    const img = e.currentTarget;
+                    if (img.src.endsWith('/fmteam-logo.png')) img.src = '/fm-logo.png';
+                  }}
+                />
               </div>
               <motion.div
                 animate={{ rotate: 360 }}
