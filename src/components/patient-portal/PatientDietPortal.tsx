@@ -63,6 +63,7 @@ import {
   FileText,
   Info,
   RefreshCw,
+  ArrowLeftRight,
   Star,
   ExternalLink
 } from 'lucide-react';
@@ -104,7 +105,7 @@ export function PatientDietPortal({
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>('diet');
-  const TAB_ORDER = ['diet', 'substitutions', 'challenges', 'ranking', 'results'];
+  const TAB_ORDER = ['diet', 'challenges', 'ranking', 'results'];
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
@@ -296,12 +297,23 @@ export function PatientDietPortal({
 
   const handleToggleMealConsumed = async (mealId: string) => {
     const newConsumedMeals = new Set(consumedMeals);
+    const willConsume = !newConsumedMeals.has(mealId);
 
-    if (newConsumedMeals.has(mealId)) {
-      newConsumedMeals.delete(mealId);
-    } else {
-      newConsumedMeals.add(mealId);
-    }
+    // Refeições-opção e principal são vinculadas (parent_meal_id): marcar/desmarcar
+    // uma reflete na outra. Reúne os ids vinculados ao alvo.
+    const meals = planDetails?.diet_meals || [];
+    const clicked = meals.find((m: any) => m.id === mealId);
+    const linkedIds = new Set<string>([mealId]);
+    if (clicked?.parent_meal_id) linkedIds.add(clicked.parent_meal_id); // opção → sua principal
+    meals.forEach((m: any) => { if (m.parent_meal_id === mealId) linkedIds.add(m.id); }); // principal → suas opções
+
+    linkedIds.forEach((id) => {
+      if (willConsume) {
+        newConsumedMeals.add(id);
+      } else {
+        newConsumedMeals.delete(id);
+      }
+    });
 
     setConsumedMeals(newConsumedMeals);
 
@@ -431,6 +443,11 @@ export function PatientDietPortal({
 
   const caloriasRestantes = Math.max(0, metaCalorias - caloriasConsumidas);
   const percentualConsumido = metaCalorias > 0 ? Math.min(100, (caloriasConsumidas / metaCalorias) * 100) : 0;
+
+  // Contagem de refeições considera apenas as principais (exclui refeições-opção)
+  const mainMeals = (planDetails?.diet_meals || []).filter((m: any) => !isOptionMeal(m));
+  const mainMealsCount = mainMeals.length;
+  const consumedMainCount = mainMeals.filter((m: any) => consumedMeals.has(m.id)).length;
 
   // Extrair lógica de categorias das guidelines para fora do JSX
   const guidelines = planDetails?.diet_guidelines || [];
@@ -590,9 +607,6 @@ export function PatientDietPortal({
           <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Dieta
           </TabsTrigger>
-          <TabsTrigger value="substitutions" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Substituições
-          </TabsTrigger>
           <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Metas
           </TabsTrigger>
@@ -609,7 +623,7 @@ export function PatientDietPortal({
         {/* Aba: Dieta — sub-tabs Plano Alimentar + Suplementos */}
         <TabsContent value="diet" className="mt-6 space-y-4">
           <Tabs defaultValue="meals" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 rounded-lg h-auto">
+            <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg h-auto">
               <TabsTrigger
                 value="meals"
                 className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
@@ -621,6 +635,12 @@ export function PatientDietPortal({
                 className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
               >
                 Suplementos
+              </TabsTrigger>
+              <TabsTrigger
+                value="substitutions"
+                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+              >
+                Substituições
               </TabsTrigger>
             </TabsList>
 
@@ -733,7 +753,7 @@ export function PatientDietPortal({
                           {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
-                          {consumedMeals.size} de {planDetails.diet_meals.length} refeições consumidas
+                          {consumedMainCount} de {mainMealsCount} refeições consumidas
                         </p>
                       </div>
                       <div className="flex items-center gap-2 text-sm text-slate-400 font-medium">
@@ -744,10 +764,10 @@ export function PatientDietPortal({
 
                     {/* Barra de Progresso Segmentada Moderna */}
                     <div className="mt-4 flex gap-1.5 h-3">
-                      {Array.from({ length: planDetails.diet_meals.length }).map((_, i) => (
+                      {Array.from({ length: mainMealsCount }).map((_, i) => (
                         <div
                           key={i}
-                          className={`flex-1 rounded-full bg-slate-100 transition-all duration-500 border border-transparent ${i < consumedMeals.size
+                          className={`flex-1 rounded-full bg-slate-100 transition-all duration-500 border border-transparent ${i < consumedMainCount
                             ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] border-emerald-200/50'
                             : 'bg-slate-100 border-slate-200'
                             }`}
@@ -787,14 +807,14 @@ export function PatientDietPortal({
                             >
                               <div
                                 style={{
-                                  backgroundColor: isConsumed ? '#d1fae5' : (isOption ? '#fffbeb' : 'white'),
-                                  borderColor: isConsumed ? '#6ee7b7' : (isOption ? '#fcd34d' : '#e2e8f0'),
+                                  backgroundColor: isConsumed ? '#d1fae5' : (isOption ? '#f8fafc' : 'white'),
+                                  borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
                                   color: '#0f172a'
                                 }}
                                 className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
                                   ? 'shadow-sm'
                                   : 'hover:border-emerald-300 hover:shadow-lg'
-                                  } ${isOption ? 'ml-4 sm:ml-8' : ''}`}
+                                  } ${isOption ? 'ml-4 sm:ml-8 border-l-4 border-l-slate-300' : ''}`}
                               >
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
@@ -803,29 +823,29 @@ export function PatientDietPortal({
                                         className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
                                           ? 'bg-emerald-100 text-emerald-600'
                                           : isOption
-                                            ? 'bg-amber-100 text-amber-600'
+                                            ? 'bg-slate-100 text-slate-500'
                                             : '!bg-emerald-50 !text-emerald-500'
                                           }`}
                                       >
                                         {isConsumed ? (
                                           <Check className="w-4 h-4 sm:w-5 sm:h-5" />
                                         ) : isOption ? (
-                                          <RefreshCw className="w-4 h-4 sm:w-5 sm:h-5" />
+                                          <ArrowLeftRight className="w-4 h-4 sm:w-5 sm:h-5" />
                                         ) : (
                                           <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
                                         )}
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
-                                            {displayName}
-                                          </h4>
                                           {isOption && (
-                                            <Badge className="bg-amber-100 text-amber-700 border-amber-300 border text-xs w-fit gap-1">
-                                              <RefreshCw className="w-3 h-3" />
+                                            <Badge className="bg-slate-100 text-slate-600 border-slate-200 border text-xs w-fit gap-1 order-first">
+                                              <ArrowLeftRight className="w-3 h-3" />
                                               Opção
                                             </Badge>
                                           )}
+                                          <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
+                                            {displayName}
+                                          </h4>
                                           {meal.suggested_time && (
                                             <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
                                               {meal.suggested_time}
@@ -949,9 +969,12 @@ export function PatientDietPortal({
                                       <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                                         <p className="text-xs text-amber-700 font-medium mb-1 flex items-center gap-2">
                                           <AlertTriangle className="w-3 h-3" />
-                                          Instruções:
+                                          Observações:
                                         </p>
-                                        <p className="text-sm text-amber-800 leading-relaxed">{meal.instructions}</p>
+                                        <div
+                                          className="text-sm text-amber-800 leading-relaxed prose prose-sm max-w-none prose-p:my-1"
+                                          dangerouslySetInnerHTML={{ __html: meal.instructions }}
+                                        />
                                       </div>
                                     )}
                                   </div>
@@ -1097,12 +1120,11 @@ export function PatientDietPortal({
             </div>
           )}
             </TabsContent>
-          </Tabs>
-        </TabsContent>
 
-        {/* Aba: Substituições */}
-        <TabsContent value="substitutions" className="mt-6 space-y-4">
-          <PatientSubstitutionsTab patientId={patientId} />
+            <TabsContent value="substitutions" className="mt-4 space-y-4">
+              <PatientSubstitutionsTab patientId={patientId} />
+            </TabsContent>
+          </Tabs>
         </TabsContent>
 
         {/* Aba: Metas (com histórico semanal) */}
