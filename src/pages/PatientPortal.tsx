@@ -865,15 +865,7 @@ export default function PatientPortal() {
                     className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                   >
                     <FileText className="w-4 h-4 mr-2 text-emerald-500" />
-                    {exporting ? 'Gerando...' : 'PDF Premium (colorido)'}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem
-                    onClick={handleExportDietPDF}
-                    disabled={exporting}
-                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
-                  >
-                    <FileText className="w-4 h-4 mr-2 text-slate-400" />
-                    {exporting ? 'Gerando...' : 'PDF para impressão'}
+                    {exporting ? 'Gerando...' : 'Exportar'}
                   </DropdownMenuItem>
 
                   {patient && (
@@ -888,18 +880,11 @@ export default function PatientPortal() {
                         Visualizar relatório
                       </DropdownMenuItem>
                       <DropdownMenuItem
-                        onClick={() => handleExportEvolution('png')}
-                        className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
-                      >
-                        <FileImage className="w-4 h-4 mr-2 text-green-500" />
-                        Exportar como imagem
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
                         onClick={() => handleExportEvolution('pdf')}
                         className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                       >
                         <FileText className="w-4 h-4 mr-2 text-purple-500" />
-                        Exportar como PDF
+                        Exportar
                       </DropdownMenuItem>
                     </>
                   )}
