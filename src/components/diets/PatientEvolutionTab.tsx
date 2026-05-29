@@ -103,7 +103,7 @@ function PremiumStatCard({ tone, icon, label, value, unit, subtitle }: PremiumSt
   const t = STAT_TONES[tone];
   return (
     <div className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${t.card} p-4 sm:p-5 shadow-sm hover:shadow-xl transition-all duration-300 group`}>
-      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${t.accentBar}`} />
+      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${t.accentBar}`} />
       <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full text-white ${t.iconBox} group-hover:scale-110 transition-transform duration-300 mb-3 sm:mb-4`}>
         {icon}
       </div>
@@ -115,7 +115,7 @@ function PremiumStatCard({ tone, icon, label, value, unit, subtitle }: PremiumSt
         {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
       </p>
       {subtitle && (
-        <p className={`text-[11px] mt-1.5 truncate ${t.subtitle}`}>{subtitle}</p>
+        <p className={`text-[11px] mt-1.5 leading-snug line-clamp-2 ${t.subtitle}`}>{subtitle}</p>
       )}
     </div>
   );

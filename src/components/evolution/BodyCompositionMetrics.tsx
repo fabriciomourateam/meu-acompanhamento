@@ -84,7 +84,7 @@ function MetricCard({ icon, label, value, unit, subtitle, badge, tone }: MetricC
   return (
     <div className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${t.card} p-4 sm:p-5 shadow-sm hover:shadow-xl transition-all duration-300 group`}>
       {/* Barra de accent superior */}
-      <div className={`absolute inset-x-0 top-0 h-0.5 bg-gradient-to-r ${t.accentBar}`} />
+      <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${t.accentBar}`} />
 
       {/* Linha topo: ícone + badge */}
       <div className="flex items-start justify-between mb-3 sm:mb-4">
@@ -107,7 +107,7 @@ function MetricCard({ icon, label, value, unit, subtitle, badge, tone }: MetricC
 
       {/* Subtítulo */}
       {subtitle && (
-        <p className={`text-[11px] mt-1.5 truncate ${t.subtitle}`}>{subtitle}</p>
+        <p className={`text-[11px] mt-1.5 leading-snug line-clamp-2 ${t.subtitle}`}>{subtitle}</p>
       )}
     </div>
   );
@@ -178,7 +178,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
             unit="kg"
             badge={data.length > 1 && (
               <Badge className={neutralBadge}>
-                {parseFloat(diferencas.peso) > 0 ? '+' : ''}{diferencas.peso} kg
+                {parseFloat(diferencas.peso) > 0 ? '↑' : parseFloat(diferencas.peso) < 0 ? '↓' : ''} {Math.abs(parseFloat(diferencas.peso))} kg
               </Badge>
             )}
           />
@@ -220,7 +220,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
             subtitle={classificarIMC(ultima.imc)}
             badge={data.length > 1 && (
               <Badge className={neutralBadge}>
-                {parseFloat(diferencas.imc) > 0 ? '+' : ''}{diferencas.imc}
+                {parseFloat(diferencas.imc) > 0 ? '↑' : parseFloat(diferencas.imc) < 0 ? '↓' : ''} {Math.abs(parseFloat(diferencas.imc))}
               </Badge>
             )}
           />
@@ -234,7 +234,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
             subtitle="kcal por dia"
             badge={data.length > 1 && (
               <Badge className={neutralBadge}>
-                {parseFloat(diferencas.tmb) > 0 ? '+' : ''}{diferencas.tmb} kcal
+                {parseFloat(diferencas.tmb) > 0 ? '↑' : parseFloat(diferencas.tmb) < 0 ? '↓' : ''} {Math.abs(parseFloat(diferencas.tmb))} kcal
               </Badge>
             )}
           />
