@@ -5,11 +5,13 @@ import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy, Users } from 'lucide-react';
+import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy, Users, Flag, Eye, EyeOff, Instagram, Loader2 } from 'lucide-react';
+import { communityModerationService, type CommunityReport } from '@/lib/community-service';
 
 
 interface Challenge {
@@ -311,6 +313,191 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
         {config.challenges.show_tab ? <ToggleRight className="w-5 h-5 shrink-0" /> : <ToggleLeft className="w-5 h-5 shrink-0 text-slate-400" />}
         Mostrar aba de Metas Diárias
       </button>
+    </div>
+  );
+}
+
+function CommunitySettings({
+  trainerUserId,
+  config,
+  onChange,
+}: {
+  trainerUserId: string;
+  config: PortalConfig;
+  onChange: (c: PortalConfig) => void;
+}) {
+  const { toast } = useToast();
+  const [reports, setReports] = useState<CommunityReport[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const loadReports = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await communityModerationService.listReports(trainerUserId, true);
+      setReports(data);
+    } catch {
+      // silencioso — area de moderacao e secundaria
+    } finally {
+      setLoading(false);
+    }
+  }, [trainerUserId]);
+
+  useEffect(() => {
+    loadReports();
+  }, [loadReports]);
+
+  const normalizeHandle = (raw: string) => raw.trim().replace(/^@+/, '');
+
+  const setHidden = async (r: CommunityReport, hidden: boolean) => {
+    setBusyId(r.report_id);
+    try {
+      await communityModerationService.setHidden(trainerUserId, r.target_type, r.target_id, hidden);
+      toast({ title: hidden ? 'Conteúdo ocultado' : 'Conteúdo reexibido' });
+      await loadReports();
+    } catch {
+      toast({ title: 'Erro ao moderar', variant: 'destructive' });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const resolve = async (r: CommunityReport) => {
+    setBusyId(r.report_id);
+    try {
+      await communityModerationService.resolveReport(trainerUserId, r.report_id);
+      setReports((prev) => prev.filter((x) => x.report_id !== r.report_id));
+    } catch {
+      toast({ title: 'Erro ao resolver', variant: 'destructive' });
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Visibilidade da aba */}
+      <div className="space-y-3">
+        <p className="font-semibold text-slate-700">Aba Comunidade</p>
+        <button
+          onClick={() => onChange({ ...config, community: { show_tab: !config.community.show_tab } })}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
+            config.community.show_tab ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+          }`}
+        >
+          {config.community.show_tab ? <ToggleRight className="w-5 h-5 shrink-0" /> : <ToggleLeft className="w-5 h-5 shrink-0 text-slate-400" />}
+          Mostrar aba Comunidade no portal dos alunos
+        </button>
+      </div>
+
+      {/* Branding dos compartilhamentos */}
+      <div className="space-y-4">
+        <div className="space-y-2">
+          <Label className="font-semibold text-slate-700">Frase do compartilhamento</Label>
+          <p className="text-xs text-slate-400">
+            Aparece no card que o aluno compartilha, logo acima do seu @. Pode usar várias linhas.
+          </p>
+          <Textarea
+            value={config.branding.share_caption}
+            onChange={(e) =>
+              onChange({ ...config, branding: { ...config.branding, share_caption: e.target.value } })
+            }
+            maxLength={120}
+            placeholder={'Ex.: Time de Resultados!'}
+            className="min-h-[64px] resize-none"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label className="font-semibold text-slate-700">Seu Instagram</Label>
+          <p className="text-xs text-slate-400">
+            Aparece nos cards que os alunos compartilharem. Salve para ativar — enquanto vazio, nada é exibido.
+          </p>
+          <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3">
+            <Instagram className="w-4 h-4 text-slate-400 shrink-0" />
+            <span className="text-slate-400">@</span>
+            <Input
+              value={config.branding.instagram}
+              onChange={(e) =>
+                onChange({ ...config, branding: { ...config.branding, instagram: normalizeHandle(e.target.value) } })
+              }
+              placeholder="seuusuario"
+              className="border-0 px-1 focus-visible:ring-0"
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Moderacao */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <p className="font-semibold text-slate-700 flex items-center gap-1.5">
+            <Flag className="w-4 h-4" /> Denúncias em aberto
+          </p>
+          <Button variant="ghost" size="sm" onClick={loadReports} className="text-slate-500">
+            Atualizar
+          </Button>
+        </div>
+
+        {loading ? (
+          <div className="flex justify-center py-6">
+            <Loader2 className="w-5 h-5 animate-spin text-slate-400" />
+          </div>
+        ) : reports.length === 0 ? (
+          <p className="text-sm text-slate-400 py-4 text-center">Nenhuma denúncia em aberto. 🎉</p>
+        ) : (
+          <ul className="space-y-3">
+            {reports.map((r) => (
+              <li key={r.report_id} className="rounded-xl border border-slate-200 bg-white p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <Badge variant="outline" className="text-[10px]">
+                    {r.target_type === 'post' ? 'Publicação' : 'Comentário'}
+                    {r.target_is_hidden ? ' · oculto' : ''}
+                  </Badge>
+                  <span className="text-[11px] text-slate-400">por {r.reporter_name}</span>
+                </div>
+                <p className="mt-2 text-sm text-slate-700 line-clamp-3">
+                  <span className="font-medium text-slate-500">{r.target_author_name}: </span>
+                  {r.target_content || <em className="text-slate-400">(conteúdo removido)</em>}
+                </p>
+                {r.reason && <p className="mt-1 text-xs text-rose-500">Motivo: {r.reason}</p>}
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {r.target_is_hidden ? (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busyId === r.report_id}
+                      onClick={() => setHidden(r, false)}
+                      className="gap-1.5 text-emerald-600 border-emerald-200"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> Reexibir
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      disabled={busyId === r.report_id}
+                      onClick={() => setHidden(r, true)}
+                      className="gap-1.5 text-rose-600 border-rose-200"
+                    >
+                      <EyeOff className="w-3.5 h-3.5" /> Ocultar
+                    </Button>
+                  )}
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={busyId === r.report_id}
+                    onClick={() => resolve(r)}
+                    className="gap-1.5 text-slate-500"
+                  >
+                    <Check className="w-3.5 h-3.5" /> Marcar como resolvida
+                  </Button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
     </div>
   );
 }
@@ -765,6 +952,9 @@ export default function AdminPortal() {
             <TabsTrigger value="visibility" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Visibilidade
             </TabsTrigger>
+            <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              Comunidade
+            </TabsTrigger>
             <TabsTrigger value="points" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Pontos
             </TabsTrigger>
@@ -791,6 +981,18 @@ export default function AdminPortal() {
               <CardContent className="p-6">
                 {config ? (
                   <VisibilitySettings config={config} onChange={setConfig} />
+                ) : (
+                  <div className="py-8 text-center text-slate-400">Carregando...</div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="community" className="mt-4">
+            <Card className="border-slate-200 bg-white">
+              <CardContent className="p-6">
+                {config ? (
+                  <CommunitySettings trainerUserId={trainerUserId} config={config} onChange={setConfig} />
                 ) : (
                   <div className="py-8 text-center text-slate-400">Carregando...</div>
                 )}

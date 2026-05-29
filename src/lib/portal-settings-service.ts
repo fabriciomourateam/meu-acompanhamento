@@ -13,6 +13,15 @@ export interface PortalConfig {
   challenges: {
     show_tab: boolean;
   };
+  community: {
+    show_tab: boolean;
+  };
+  branding: {
+    /** @handle do Instagram do treinador (sem o @). Usado nos compartilhamentos. */
+    instagram: string;
+    /** Frase exibida nos cards compartilhados (acima do @). Aceita quebras de linha. */
+    share_caption: string;
+  };
 }
 
 const DEFAULT_CONFIG: PortalConfig = {
@@ -25,6 +34,13 @@ const DEFAULT_CONFIG: PortalConfig = {
   },
   challenges: {
     show_tab: true,
+  },
+  community: {
+    show_tab: true,
+  },
+  branding: {
+    instagram: '',
+    share_caption: '',
   },
 };
 
@@ -51,6 +67,13 @@ export const portalSettingsService = {
         },
         challenges: {
           show_tab: value?.challenges?.show_tab ?? true,
+        },
+        community: {
+          show_tab: value?.community?.show_tab ?? true,
+        },
+        branding: {
+          instagram: value?.branding?.instagram ?? '',
+          share_caption: value?.branding?.share_caption ?? '',
         },
       };
     } catch {

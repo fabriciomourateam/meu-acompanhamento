@@ -31,6 +31,7 @@ import { PatientEvolutionTab } from '@/components/diets/PatientEvolutionTab';
 import { AdherenceCharts } from '@/components/diets/AdherenceCharts';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
+import { CommunityFeed } from '@/components/patient-portal/community/CommunityFeed';
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
 import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
@@ -105,7 +106,9 @@ export function PatientDietPortal({
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>('diet');
-  const TAB_ORDER = ['diet', 'challenges', 'ranking', 'results'];
+  // Comunidade pode ser desativada pelo treinador no /admin (default: visível).
+  const showCommunity = portalConfig?.community?.show_tab !== false;
+  const TAB_ORDER = ['diet', 'challenges', 'ranking', ...(showCommunity ? ['community'] : []), 'results'];
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
@@ -597,6 +600,7 @@ export function PatientDietPortal({
       <MobileBottomNav
         value={activeTab as any}
         onChange={(v) => goToTab(v)}
+        hidden={showCommunity ? [] : ['community']}
       />
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
@@ -629,6 +633,11 @@ export function PatientDietPortal({
           <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Ranking
           </TabsTrigger>
+          {showCommunity && (
+            <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Comunidade
+            </TabsTrigger>
+          )}
           <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Evolução
           </TabsTrigger>
@@ -1192,6 +1201,23 @@ export function PatientDietPortal({
             <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
           )}
         </TabsContent>
+
+        {showCommunity && (
+          <TabsContent value="community" className="mt-6">
+            {trainerUserId ? (
+              <CommunityFeed
+                patientId={patientId}
+                trainerUserId={trainerUserId}
+                trainerInstagram={portalConfig?.branding?.instagram || ''}
+                shareCaption={portalConfig?.branding?.share_caption || ''}
+              />
+            ) : (
+              <p className="py-12 text-center text-sm text-slate-400">
+                Comunidade indisponível no momento.
+              </p>
+            )}
+          </TabsContent>
+        )}
       </Tabs >
 
       {/* Modal de Substituições */}

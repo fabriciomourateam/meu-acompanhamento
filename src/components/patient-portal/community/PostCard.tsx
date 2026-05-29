@@ -1,0 +1,247 @@
+import { useState } from 'react';
+import { MessageCircle, MoreVertical, Trash2, Flag, SmilePlus, Share2, Loader2 } from 'lucide-react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { useToast } from '@/hooks/use-toast';
+import {
+  communityService,
+  REACTIONS,
+  CATEGORIES,
+  type CommunityPost,
+  type ReactionType,
+} from '@/lib/community-service';
+import { cn } from '@/lib/utils';
+import { CommunityAvatar } from './CommunityAvatar';
+import { CommentSection } from './CommentSection';
+import { ReportDialog } from './ReportDialog';
+import { timeAgo } from './communityTime';
+import { sharePostImage } from './communityShare';
+
+interface PostCardProps {
+  patientId: string;
+  post: CommunityPost;
+  trainerInstagram?: string;
+  shareCaption?: string;
+  onDeleted: (postId: string) => void;
+}
+
+export function PostCard({
+  patientId,
+  post: initial,
+  trainerInstagram = '',
+  shareCaption = '',
+  onDeleted,
+}: PostCardProps) {
+  const { toast } = useToast();
+  const [post, setPost] = useState<CommunityPost>(initial);
+  const [showComments, setShowComments] = useState(false);
+  const [showReactions, setShowReactions] = useState(false);
+  const [reporting, setReporting] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [sharing, setSharing] = useState(false);
+
+  const handleShare = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      await sharePostImage(post, { instagram: trainerInstagram, caption: shareCaption });
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') {
+        console.error('Erro ao compartilhar:', err);
+        toast({ title: 'Erro ao gerar imagem', description: 'Tente novamente.', variant: 'destructive' });
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
+
+  const category = CATEGORIES.find((c) => c.value === post.category);
+
+  const handleReact = async (type: ReactionType) => {
+    setShowReactions(false);
+    const had = post.my_reactions.includes(type);
+    // otimista
+    setPost((p) => {
+      const counts = { ...p.reactions };
+      counts[type] = (counts[type] || 0) + (had ? -1 : 1);
+      if ((counts[type] || 0) <= 0) delete counts[type];
+      return {
+        ...p,
+        reactions: counts,
+        my_reactions: had ? p.my_reactions.filter((r) => r !== type) : [...p.my_reactions, type],
+      };
+    });
+    try {
+      await communityService.toggleReaction(patientId, post.id, type);
+    } catch (err) {
+      console.error('Erro ao reagir:', err);
+      setPost(initial);
+      toast({ title: 'Erro ao reagir', description: 'Tente novamente.', variant: 'destructive' });
+    }
+  };
+
+  const handleDelete = async () => {
+    try {
+      await communityService.deletePost(patientId, post.id);
+      onDeleted(post.id);
+    } catch (err) {
+      console.error('Erro ao excluir post:', err);
+      toast({ title: 'Erro ao excluir', description: 'Tente novamente.', variant: 'destructive' });
+    }
+  };
+
+  const totalReactions = Object.values(post.reactions).reduce((a, b) => a + (b || 0), 0);
+  const activeEmojis = REACTIONS.filter((r) => (post.reactions[r.type] || 0) > 0).map((r) => r.emoji);
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      {/* Cabeçalho */}
+      <div className="flex items-start gap-3">
+        <CommunityAvatar name={post.author_name} photo={post.author_photo} />
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <p className="truncate text-sm font-semibold text-slate-800">{post.author_name}</p>
+            {category && (
+              <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+                {category.emoji} {category.label}
+              </span>
+            )}
+          </div>
+          <p className="text-[11px] text-slate-400">{timeAgo(post.created_at)}</p>
+        </div>
+        <DropdownMenu>
+          <DropdownMenuTrigger className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+            <MoreVertical className="h-4 w-4" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {post.is_own ? (
+              <DropdownMenuItem onClick={() => setConfirmDelete(true)} className="text-rose-600">
+                <Trash2 className="mr-2 h-4 w-4" /> Excluir
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onClick={() => setReporting(true)} className="text-rose-600">
+                <Flag className="mr-2 h-4 w-4" /> Denunciar
+              </DropdownMenuItem>
+            )}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Conteúdo */}
+      <p className="mt-3 whitespace-pre-wrap break-words text-sm text-slate-700">{post.content}</p>
+      {post.image_url && (
+        <img
+          src={post.image_url}
+          alt="Imagem da publicação"
+          className="mt-3 max-h-96 w-full rounded-xl object-cover"
+          loading="lazy"
+        />
+      )}
+
+      {/* Resumo de reações */}
+      {totalReactions > 0 && (
+        <div className="mt-3 flex items-center gap-1 text-xs text-slate-500">
+          <span>{activeEmojis.join(' ')}</span>
+          <span>{totalReactions}</span>
+        </div>
+      )}
+
+      {/* Ações */}
+      <div className="relative mt-2 flex items-center gap-1 border-t border-slate-100 pt-2">
+        <button
+          onClick={() => setShowReactions((v) => !v)}
+          className={cn(
+            'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
+            post.my_reactions.length > 0
+              ? 'text-emerald-600 hover:bg-emerald-50'
+              : 'text-slate-500 hover:bg-slate-100',
+          )}
+        >
+          <SmilePlus className="h-4 w-4" /> Reagir
+        </button>
+        <button
+          onClick={() => setShowComments((v) => !v)}
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100"
+        >
+          <MessageCircle className="h-4 w-4" />
+          {post.comment_count > 0 ? post.comment_count : ''} Comentar
+        </button>
+        <button
+          onClick={handleShare}
+          disabled={sharing}
+          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100"
+          title="Compartilhar como imagem"
+        >
+          {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
+        </button>
+
+        {showReactions && (
+          <div className="absolute -top-12 left-0 z-20 flex gap-1 rounded-full border border-slate-200 bg-white p-1.5 shadow-lg">
+            {REACTIONS.map((r) => (
+              <button
+                key={r.type}
+                onClick={() => handleReact(r.type)}
+                title={r.label}
+                className={cn(
+                  'rounded-full p-1 text-xl transition-transform hover:scale-125',
+                  post.my_reactions.includes(r.type) && 'bg-emerald-100',
+                )}
+              >
+                {r.emoji}
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {showComments && (
+        <CommentSection
+          patientId={patientId}
+          postId={post.id}
+          onCountChange={(delta) =>
+            setPost((p) => ({ ...p, comment_count: Math.max(0, p.comment_count + delta) }))
+          }
+        />
+      )}
+
+      <ReportDialog
+        open={reporting}
+        onOpenChange={setReporting}
+        patientId={patientId}
+        targetType="post"
+        targetId={post.id}
+      />
+
+      <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir publicação?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação não pode ser desfeita. A publicação e seus comentários serão removidos.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-rose-500 hover:bg-rose-600">
+              Excluir
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </div>
+  );
+}
