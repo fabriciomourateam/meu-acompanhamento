@@ -48,11 +48,12 @@ export default function PortalLogin() {
 
   // Buscar uid do trainer pelo checkin_slug pra mostrar atalho admin
   useEffect(() => {
-    if (!pathSlug) return;
+    // Na rota base (/), usa o tenant dono (fmteam) para também mostrar o atalho admin.
+    const slug = pathSlug ?? DEFAULT_TENANT_SLUG;
     supabase
       .from('profiles')
       .select('id')
-      .eq('checkin_slug', pathSlug)
+      .eq('checkin_slug', slug)
       .maybeSingle()
       .then(({ data }) => {
         if (data?.id) setAdminUid(data.id);
