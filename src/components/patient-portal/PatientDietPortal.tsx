@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import DOMPurify from 'dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,7 +23,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { dietService } from '@/lib/diet-service';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { DailyChallengesWidget } from '@/components/diets/DailyChallengesWidget';
-import { formatTextToPlain } from '@/lib/utils';
+import { formatTextToPlain, sanitizeRichHtml } from '@/lib/utils';
 import { WeeklyProgressChart } from '@/components/diets/WeeklyProgressChart';
 import { WeeklyHabitsGrid } from '@/components/diets/WeeklyHabitsGrid';
 import { GamificationWidget } from '@/components/diets/GamificationWidget';
@@ -536,7 +535,7 @@ export function PatientDietPortal({
                       <div className="h-px w-full bg-slate-100 mb-3" />
                       <div
                         className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(guideline.content || '') }}
+                        dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(guideline.content) }}
                       />
                     </div>
                   </CollapsibleContent>
@@ -977,7 +976,7 @@ export function PatientDietPortal({
                                         </p>
                                         <div
                                           className="text-sm text-amber-800 leading-relaxed prose prose-sm max-w-none prose-p:my-1"
-                                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(meal.instructions) }}
+                                          dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(meal.instructions) }}
                                         />
                                       </div>
                                     )}

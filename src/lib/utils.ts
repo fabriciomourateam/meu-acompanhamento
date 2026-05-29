@@ -1,8 +1,66 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import DOMPurify from "dompurify";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
+}
+
+// Regex com grupo de captura para uso em split (mantém a URL como parte separada)
+const URL_SPLIT_REGEX = /(https?:\/\/[^\s<>"']+)/g;
+
+/**
+ * Sanitiza HTML (DOMPurify) e transforma URLs "cruas" (texto puro) em links
+ * clicáveis que abrem em nova aba. Âncoras já existentes também são padronizadas
+ * para abrir externamente com segurança (rel=noopener).
+ */
+export function sanitizeRichHtml(html: string | null | undefined): string {
+  if (!html) return "";
+
+  const clean = DOMPurify.sanitize(html);
+
+  if (typeof window === "undefined" || typeof DOMParser === "undefined") {
+    return clean;
+  }
+
+  const doc = new DOMParser().parseFromString(clean, "text/html");
+
+  // Coletar nós de texto que contêm URLs e não estão dentro de uma âncora
+  const walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT);
+  const targets: Text[] = [];
+  let node: Node | null;
+  while ((node = walker.nextNode())) {
+    const textNode = node as Text;
+    if (textNode.parentElement?.closest("a")) continue;
+    if (textNode.textContent && /https?:\/\//.test(textNode.textContent)) {
+      targets.push(textNode);
+    }
+  }
+
+  for (const textNode of targets) {
+    const frag = doc.createDocumentFragment();
+    for (const part of textNode.textContent!.split(URL_SPLIT_REGEX)) {
+      if (!part) continue;
+      if (/^https?:\/\//.test(part)) {
+        const a = doc.createElement("a");
+        a.setAttribute("href", part);
+        a.textContent = part;
+        frag.appendChild(a);
+      } else {
+        frag.appendChild(doc.createTextNode(part));
+      }
+    }
+    textNode.replaceWith(frag);
+  }
+
+  // Padronizar todas as âncoras
+  doc.querySelectorAll("a").forEach((a) => {
+    a.setAttribute("target", "_blank");
+    a.setAttribute("rel", "noopener noreferrer");
+    a.classList.add("text-emerald-600", "underline", "break-words");
+  });
+
+  return DOMPurify.sanitize(doc.body.innerHTML, { ADD_ATTR: ["target", "rel"] });
 }
 
 // Utilitário para formatar texto que pode conter HTML ou entidades codificadas (ex: &lt;p&gt;)
