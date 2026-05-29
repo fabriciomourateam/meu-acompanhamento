@@ -307,7 +307,7 @@ export const dietConsumptionService = {
     // Buscar conquistas já desbloqueadas
     const { data: existingAchievements, error: achievementsError } = await supabase
       .from('patient_achievements')
-      .select('achievement_type')
+      .select('*')
       .eq('patient_id', patientId);
 
     if (achievementsError) {
@@ -316,6 +316,33 @@ export const dietConsumptionService = {
 
     const unlockedTypes = new Set(existingAchievements?.map(a => a.achievement_type) || []);
     console.log('🏆 Conquistas já desbloqueadas:', unlockedTypes.size);
+
+    // Conquistas de "dia" só valem para dias JÁ ENCERRADOS (passados) que ficaram 100%.
+    // Assim o dia de hoje, em aberto, não trava nada — consolida na virada do dia.
+    const pastDays = consumption.filter(c => c.consumption_date < todayDate);
+    const hasCompletedPastDay = pastDays.some(c => c.completion_percentage === 100);
+    const hasPerfectPastDay = pastDays.some(c =>
+      c.completion_percentage === 100 &&
+      (c.total_protein_consumed || 0) >= ((c.target_protein || 0) * 0.95) &&
+      (c.total_carbs_consumed || 0) >= ((c.target_carbs || 0) * 0.95) &&
+      (c.total_fats_consumed || 0) >= ((c.target_fats || 0) * 0.95)
+    );
+
+    // Reverter conquistas de dia concedidas prematuramente (ex.: marcou tudo hoje e
+    // depois desmarcou). Se não há um dia passado que as justifique, remove e estorna.
+    const dayBasedChecks: Array<{ type: string; ok: boolean }> = [
+      { type: 'day_complete', ok: hasCompletedPastDay },
+      { type: 'perfect_day', ok: hasPerfectPastDay },
+    ];
+    for (const { type, ok } of dayBasedChecks) {
+      if (!ok && unlockedTypes.has(type)) {
+        const earned = existingAchievements?.find(a => a.achievement_type === type);
+        if (earned) {
+          await this.removeAchievement(patientId, earned);
+          unlockedTypes.delete(type);
+        }
+      }
+    }
 
     // Buscar templates de conquistas
     const { data: templates, error: templatesError } = await supabase
@@ -346,9 +373,9 @@ export const dietConsumptionService = {
           break;
 
         case 'day_complete':
-          // Verificar se completou 100% hoje
-          const todayConsumption = consumption.find(c => c.consumption_date === todayDate);
-          shouldUnlock = todayConsumption?.completion_percentage === 100;
+          // Só consolida quando o dia VIRA completo (dia passado 100%).
+          // O dia de hoje, em aberto, não trava a conquista.
+          shouldUnlock = hasCompletedPastDay;
           break;
 
         case 'week_complete':
@@ -373,12 +400,8 @@ export const dietConsumptionService = {
           break;
 
         case 'perfect_day':
-          // Verificar se atingiu 100% de calorias e macros hoje
-          const todayPerfect = consumption.find(c => c.consumption_date === todayDate);
-          shouldUnlock = todayPerfect?.completion_percentage === 100 &&
-            (todayPerfect.total_protein_consumed || 0) >= ((todayPerfect.target_protein || 0) * 0.95) &&
-            (todayPerfect.total_carbs_consumed || 0) >= ((todayPerfect.target_carbs || 0) * 0.95) &&
-            (todayPerfect.total_fats_consumed || 0) >= ((todayPerfect.target_fats || 0) * 0.95);
+          // Igual ao day_complete: só consolida com um dia passado 100% (cal + macros).
+          shouldUnlock = hasPerfectPastDay;
           break;
       }
 
@@ -413,6 +436,54 @@ export const dietConsumptionService = {
     }
 
     return unlocked;
+  },
+
+  /**
+   * Remover uma conquista já desbloqueada e estornar os pontos concedidos por ela.
+   * Usado quando uma conquista de "dia" foi concedida prematuramente.
+   */
+  async removeAchievement(patientId: string, achievement: any): Promise<void> {
+    const { error: delError } = await supabase
+      .from('patient_achievements')
+      .delete()
+      .eq('id', achievement.id);
+
+    if (delError) {
+      console.error('❌ Erro ao remover conquista:', delError);
+      return;
+    }
+
+    const pts = achievement.points_earned || 0;
+    if (pts <= 0) return;
+
+    const { data: pointsData } = await supabase
+      .from('patient_points')
+      .select('*')
+      .eq('patient_id', patientId)
+      .maybeSingle();
+
+    if (!pointsData) return;
+
+    const newTotal = Math.max(0, (pointsData.total_points || 0) - pts);
+    await supabase
+      .from('patient_points')
+      .update({
+        total_points: newTotal,
+        points_achievements: Math.max(0, (pointsData.points_achievements || 0) - pts),
+        current_level: this.calculateLevel(newTotal),
+      })
+      .eq('id', pointsData.id);
+
+    await supabase
+      .from('patient_points_history')
+      .insert({
+        patient_id: patientId,
+        points_id: pointsData.id,
+        points_earned: -pts,
+        action_type: 'achievement_reverted',
+        action_description: `Conquista revertida: ${achievement.achievement_name}`,
+        action_date: getLocalISODate(),
+      });
   },
 
   /**
