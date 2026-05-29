@@ -140,4 +140,62 @@ export const pushService = {
       p_id: id ?? null,
     });
   },
+
+  // ----- Lado do TREINADOR (admin via ?uid=) -----
+  async subscribeTrainer(trainerId: string): Promise<{ ok: boolean; reason?: string }> {
+    if (!this.isSupported()) return { ok: false, reason: 'unsupported' };
+    if (this.isIOS() && !this.isStandalone()) return { ok: false, reason: 'ios-needs-install' };
+
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return { ok: false, reason: 'denied' };
+
+    const { data: publicKey, error: keyErr } = await supabase.rpc('get_push_public_key');
+    if (keyErr || !publicKey) return { ok: false, reason: 'no-key' };
+
+    const reg = await navigator.serviceWorker.ready;
+    let sub = await reg.pushManager.getSubscription();
+    if (!sub) {
+      sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(publicKey as string),
+      });
+    }
+    const json = sub.toJSON();
+    const p256dh = json.keys?.p256dh ?? arrayBufferToBase64(sub.getKey('p256dh'));
+    const auth = json.keys?.auth ?? arrayBufferToBase64(sub.getKey('auth'));
+
+    const { error } = await supabase.rpc('push_save_subscription_trainer', {
+      p_trainer_id: trainerId,
+      p_endpoint: sub.endpoint,
+      p_p256dh: p256dh,
+      p_auth: auth,
+      p_user_agent: navigator.userAgent,
+    });
+    if (error) return { ok: false, reason: error.message };
+    return { ok: true };
+  },
+
+  async getNotificationsTrainer(trainerId: string, limit = 30): Promise<PortalNotification[]> {
+    const { data, error } = await supabase.rpc('notifications_get_trainer', {
+      p_trainer_id: trainerId,
+      p_limit: limit,
+    });
+    if (error) return [];
+    return (data ?? []) as PortalNotification[];
+  },
+
+  async getUnreadCountTrainer(trainerId: string): Promise<number> {
+    const { data, error } = await supabase.rpc('notifications_unread_count_trainer', {
+      p_trainer_id: trainerId,
+    });
+    if (error) return 0;
+    return (data as number) ?? 0;
+  },
+
+  async markReadTrainer(trainerId: string, id?: string): Promise<void> {
+    await supabase.rpc('notifications_mark_read_trainer', {
+      p_trainer_id: trainerId,
+      p_id: id ?? null,
+    });
+  },
 };

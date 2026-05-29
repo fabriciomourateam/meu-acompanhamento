@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
+import { NotificationSettingsPanel } from '@/components/admin/NotificationSettingsPanel';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -1014,6 +1015,9 @@ export default function AdminPortal() {
             <TabsTrigger value="points" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Pontos
             </TabsTrigger>
+            <TabsTrigger value="notifications" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              Notificações
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="challenges" className="mt-4">
@@ -1058,6 +1062,10 @@ export default function AdminPortal() {
 
           <TabsContent value="points" className="mt-4">
             <PointsManager trainerUserId={trainerUserId} />
+          </TabsContent>
+
+          <TabsContent value="notifications" className="mt-4">
+            <NotificationSettingsPanel trainerUserId={trainerUserId} />
           </TabsContent>
         </Tabs>
       </div>
