@@ -22,9 +22,11 @@ interface MobileBottomNavProps {
   onChange: (v: TabValue) => void;
   /** Abas a ocultar (ex.: quando o treinador desativa a Comunidade). */
   hidden?: TabValue[];
+  /** Contadores de "novos" por aba (ex.: posts novos na Comunidade). */
+  badges?: Partial<Record<TabValue, number>>;
 }
 
-export function MobileBottomNav({ value, onChange, hidden = [] }: MobileBottomNavProps) {
+export function MobileBottomNav({ value, onChange, hidden = [], badges = {} }: MobileBottomNavProps) {
   const items = NAV_ITEMS.filter((item) => !hidden.includes(item.value));
   const nav = (
     <nav className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden">
@@ -50,6 +52,11 @@ export function MobileBottomNav({ value, onChange, hidden = [] }: MobileBottomNa
                     }`}
                     strokeWidth={isActive ? 2.4 : 1.8}
                   />
+                  {(badges[v] ?? 0) > 0 && (
+                    <span className="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[9px] font-bold leading-none text-white ring-2 ring-white">
+                      {(badges[v] ?? 0) > 9 ? '9+' : badges[v]}
+                    </span>
+                  )}
                 </span>
                 <span
                   className={`relative z-10 text-[9px] leading-none font-medium tracking-tight whitespace-nowrap transition-colors duration-200 ${

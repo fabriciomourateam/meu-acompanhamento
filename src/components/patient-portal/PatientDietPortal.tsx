@@ -36,6 +36,7 @@ import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutio
 import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
+import { communityService } from '@/lib/community-service';
 import {
   Check,
   Plus,
@@ -167,6 +168,24 @@ export function PatientDietPortal({
       setActiveTab(TAB_ORDER[0]);
     }
   }, [portalConfig]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Selo de "novos" da Comunidade: posts novos desde a última visita (mesma
+  // chave de localStorage usada pelo feed). Aparece no menu/aba mesmo fora dela.
+  const [communityUnread, setCommunityUnread] = useState(0);
+  useEffect(() => {
+    if (!patientId) return;
+    const lastSeen = localStorage.getItem(`community_last_seen_${patientId}`);
+    if (!lastSeen) return; // primeira visita: sem selo
+    communityService
+      .getUnreadByCategory(patientId, lastSeen)
+      .then((m) => setCommunityUnread(Object.values(m).reduce((a, b) => a + b, 0)))
+      .catch(() => {});
+  }, [patientId]);
+
+  // Ao abrir a Comunidade, zera o selo (o próprio feed atualiza a "última visita").
+  useEffect(() => {
+    if (activeTab === 'community') setCommunityUnread(0);
+  }, [activeTab]);
 
   useEffect(() => {
     loadDietData();
@@ -635,6 +654,7 @@ export function PatientDietPortal({
         value={activeTab as any}
         onChange={(v) => goToTab(v)}
         hidden={hiddenNavTabs as any}
+        badges={{ community: communityUnread }}
       />
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
@@ -674,8 +694,13 @@ export function PatientDietPortal({
             </TabsTrigger>
           )}
           {showCommunity && (
-            <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            <TabsTrigger value="community" className="relative flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center gap-1.5">
               Comunidade
+              {communityUnread > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
+                  {communityUnread > 9 ? '9+' : communityUnread}
+                </span>
+              )}
             </TabsTrigger>
           )}
           {showResults && (
