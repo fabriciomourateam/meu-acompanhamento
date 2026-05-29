@@ -73,7 +73,7 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
 
       {/* Filtros */}
       <div className="flex items-center justify-between gap-2">
-        <div className="flex flex-1 gap-1.5 overflow-x-auto pb-1">
+        <div className="scrollbar-emerald flex flex-1 gap-1.5 overflow-x-auto pb-1">
           <button
             onClick={() => setCategory('all')}
             className={cn(

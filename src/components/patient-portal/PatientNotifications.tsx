@@ -27,7 +27,7 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
   const [unread, setUnread] = useState(0);
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [pos, setPos] = useState<{ top: number; right: number }>({ top: 64, right: 16 });
+  const [pos, setPos] = useState<{ top: number; right: number; width: number }>({ top: 64, right: 16, width: 320 });
   const btnRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +52,12 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
   // Calcula a posição do painel a partir do botão (portal -> fixed).
   const reposition = useCallback(() => {
     const r = btnRef.current?.getBoundingClientRect();
-    if (r) setPos({ top: r.bottom + 8, right: Math.max(8, window.innerWidth - r.right) });
+    if (!r) return;
+    const width = Math.min(320, window.innerWidth - 16);
+    // Garante que o painel nunca saia da tela (esquerda nem direita), com margem de 8px.
+    const maxRight = Math.max(8, window.innerWidth - width - 8);
+    const right = Math.min(Math.max(window.innerWidth - r.right, 8), maxRight);
+    setPos({ top: r.bottom + 8, right, width });
   }, []);
 
   const toggleOpen = () => {
@@ -137,8 +142,8 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
   const panel = (
     <div
       ref={panelRef}
-      style={{ position: 'fixed', top: pos.top, right: pos.right, zIndex: 2147483000 }}
-      className="w-80 max-w-[calc(100vw-16px)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
+      style={{ position: 'fixed', top: pos.top, right: pos.right, width: pos.width, zIndex: 2147483000 }}
+      className="max-w-[calc(100vw-16px)] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl"
     >
       <div className="flex items-center justify-between border-b px-4 py-3">
         <span className="font-semibold text-slate-900">Notificações</span>

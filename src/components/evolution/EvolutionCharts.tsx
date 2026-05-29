@@ -507,7 +507,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                           boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                         }}
                       />
-                      <Legend content={<CustomLegend />} />
+                      <Legend content={<CustomLegend />} verticalAlign="top" />
                       <Line
                         type="monotone"
                         dataKey="treino"
@@ -614,7 +614,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                           boxShadow: '0 4px 12px rgba(0,0,0,0.08)'
                         }}
                       />
-                      <Legend content={<CustomLegend />} />
+                      <Legend content={<CustomLegend />} verticalAlign="top" />
                       <Line
                         type="monotone"
                         dataKey="treino"

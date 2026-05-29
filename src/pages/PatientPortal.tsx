@@ -837,13 +837,13 @@ export default function PatientPortal() {
               </div>
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
+              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                <MembersAreaButton />
+              )}
               {patientId && <PatientNotifications patientId={patientId} />}
               {/* Em mobile, esses botões ficam só no menu pra liberar espaço */}
               <div className="hidden sm:flex gap-2 items-center">
                 <InstallPWAButton />
-                {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                  <MembersAreaButton />
-                )}
               </div>
 
               {/* Menu de ações */}

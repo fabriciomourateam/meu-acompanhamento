@@ -11,6 +11,26 @@
   display: none;  /* Chrome, Safari and Opera */
 }
 
+/* Scrollbar horizontal em tom emerald (listas que arrastam pro lado) */
+.scrollbar-emerald {
+  scrollbar-width: thin;
+  scrollbar-color: #10b981 transparent;
+}
+.scrollbar-emerald::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+.scrollbar-emerald::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-emerald::-webkit-scrollbar-thumb {
+  background: linear-gradient(90deg, #34d399, #10b981);
+  border-radius: 9999px;
+}
+.scrollbar-emerald::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(90deg, #10b981, #059669);
+}
+
 /* Modern Personal Trainer Dashboard Design System */
 @layer base {
   :root {

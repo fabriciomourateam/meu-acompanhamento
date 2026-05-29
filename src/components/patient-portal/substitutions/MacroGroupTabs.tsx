@@ -18,8 +18,7 @@ export function MacroGroupTabs({ active, onChange, favoritesCount, counts }: Mac
   return (
     <nav
       aria-label="Categorias de alimentos"
-      className="-mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1"
-      style={{ scrollbarWidth: "thin" }}
+      className="scrollbar-emerald -mx-1 flex snap-x snap-mandatory gap-2 overflow-x-auto px-1 pb-1"
       onTouchStart={stopSwipePropagation}
       onTouchMove={stopSwipePropagation}
       onTouchEnd={stopSwipePropagation}

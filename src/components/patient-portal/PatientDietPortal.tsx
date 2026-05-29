@@ -680,19 +680,6 @@ export function PatientDietPortal({
         value={activeTab}
         onValueChange={goToTab}
         className="w-full"
-        onTouchStart={(e) => {
-          touchStartX.current = e.touches[0].clientX;
-          touchStartY.current = e.touches[0].clientY;
-        }}
-        onTouchEnd={(e) => {
-          if (touchStartX.current === null || touchStartY.current === null) return;
-          handleSwipe(
-            touchStartX.current - e.changedTouches[0].clientX,
-            touchStartY.current - e.changedTouches[0].clientY,
-          );
-          touchStartX.current = null;
-          touchStartY.current = null;
-        }}
       >
         {/* Desktop: abas em linha */}
         <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
