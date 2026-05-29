@@ -59,6 +59,7 @@ function PodiumBlock({
       bg: 'bg-amber-400/40 border-amber-500/60',
       text: 'text-amber-800',
       avatarBg: 'bg-amber-200 border-amber-500',
+      avatarSize: 'w-14 h-14',
       order: 'order-2',
     },
     2: {
@@ -67,6 +68,7 @@ function PodiumBlock({
       bg: 'bg-slate-300/70 border-slate-400/70',
       text: 'text-slate-700',
       avatarBg: 'bg-slate-200 border-slate-400',
+      avatarSize: 'w-12 h-12',
       order: 'order-1',
     },
     3: {
@@ -75,6 +77,7 @@ function PodiumBlock({
       bg: 'bg-orange-300/40 border-orange-400/60',
       text: 'text-orange-800',
       avatarBg: 'bg-orange-100 border-orange-400',
+      avatarSize: 'w-12 h-12',
       order: 'order-3',
     },
   };
@@ -86,7 +89,7 @@ function PodiumBlock({
     <div className={`flex flex-col items-center gap-1.5 flex-1 ${c.order}`}>
       {entry ? (
         <div
-          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden transition-all ${
+          className={`${c.avatarSize} rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden transition-all ${
             isCurrent
               ? 'bg-emerald-200 border-emerald-500 text-emerald-800 ring-2 ring-emerald-400'
               : `${c.avatarBg} ${c.text}`
@@ -99,7 +102,7 @@ function PodiumBlock({
           )}
         </div>
       ) : (
-        <div className="w-12 h-12 rounded-full border-2 border-slate-300 bg-slate-200 flex items-center justify-center text-slate-500">
+        <div className={`${c.avatarSize} rounded-full border-2 border-slate-300 bg-slate-200 flex items-center justify-center text-slate-500`}>
           —
         </div>
       )}
