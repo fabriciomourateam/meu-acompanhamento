@@ -49,7 +49,7 @@ import {
   Share2,
   LogOut,
   Utensils,
-  Sandwich,
+  Apple,
   Activity,
   Clock,
   Dumbbell,
@@ -765,7 +765,7 @@ export function PatientDietPortal({
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="text-slate-900 flex items-center gap-2">
-                          <Sandwich className="w-5 h-5 text-emerald-500" />
+                          <Apple className="w-5 h-5 text-emerald-500" />
                           {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
