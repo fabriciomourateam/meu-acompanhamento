@@ -92,14 +92,14 @@ const STAT_TONES: Record<StatTone, { card: string; iconBox: string; value: strin
 
 // Gradiente do número principal por tom
 const VALUE_GRADIENT: Record<StatTone, string> = {
-  blue: 'from-blue-600 to-sky-500',
-  cyan: 'from-cyan-600 to-teal-500',
-  purple: 'from-purple-600 to-violet-500',
-  indigo: 'from-indigo-600 to-blue-500',
-  sky: 'from-sky-600 to-blue-500',
-  emerald: 'from-emerald-600 to-teal-500',
-  rose: 'from-rose-600 to-red-500',
-  slate: 'from-slate-600 to-slate-500',
+  blue: 'from-blue-600 to-cyan-400',
+  cyan: 'from-cyan-600 to-emerald-400',
+  purple: 'from-purple-600 to-fuchsia-400',
+  indigo: 'from-indigo-600 to-sky-400',
+  sky: 'from-sky-600 to-cyan-400',
+  emerald: 'from-emerald-600 to-teal-400',
+  rose: 'from-rose-600 to-orange-400',
+  slate: 'from-slate-700 to-slate-400',
 };
 
 interface PremiumStatCardProps {
