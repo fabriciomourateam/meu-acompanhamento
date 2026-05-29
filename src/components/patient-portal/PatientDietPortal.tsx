@@ -99,11 +99,21 @@ export function PatientDietPortal({
   const [consumedMeals, setConsumedMeals] = useState<Set<string>>(new Set());
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
   // Grupos de refeições-opção recolhidos (por id da refeição principal). Vazio = todas expandidas.
-  const [collapsedOptionGroups, setCollapsedOptionGroups] = useState<Set<string>>(new Set());
+  // Persistido por paciente neste aparelho (localStorage).
+  const collapsedOptionsKey = `diet_collapsed_options_${patientId}`;
+  const [collapsedOptionGroups, setCollapsedOptionGroups] = useState<Set<string>>(() => {
+    try {
+      const raw = localStorage.getItem(`diet_collapsed_options_${patientId}`);
+      return raw ? new Set<string>(JSON.parse(raw)) : new Set<string>();
+    } catch {
+      return new Set<string>();
+    }
+  });
   const toggleOptionGroup = (mainMealId: string) => {
     setCollapsedOptionGroups(prev => {
       const next = new Set(prev);
       if (next.has(mainMealId)) next.delete(mainMealId); else next.add(mainMealId);
+      try { localStorage.setItem(collapsedOptionsKey, JSON.stringify([...next])); } catch { /* ignora */ }
       return next;
     });
   };
@@ -1101,7 +1111,8 @@ export function PatientDietPortal({
                                 {!isOption && optionCount > 0 && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); toggleOptionGroup(meal.id); }}
-                                    className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 px-4 py-2 text-xs font-medium text-emerald-600 hover:bg-emerald-50/60 transition-colors rounded-b-xl"
+                                    style={{ background: 'radial-gradient(ellipse 65% 140% at 50% 50%, rgba(16,185,129,0.18), rgba(16,185,129,0) 72%)' }}
+                                    className="flex w-full items-center justify-center gap-1.5 border-t border-emerald-100/70 px-4 py-2 text-xs font-semibold text-emerald-600 transition-all duration-200 rounded-b-xl hover:text-emerald-700"
                                   >
                                     <RefreshCw className="w-3 h-3" />
                                     {optionsCollapsed
