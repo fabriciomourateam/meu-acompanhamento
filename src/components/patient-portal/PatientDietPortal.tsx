@@ -98,6 +98,15 @@ export function PatientDietPortal({
   const [loading, setLoading] = useState(true);
   const [consumedMeals, setConsumedMeals] = useState<Set<string>>(new Set());
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
+  // Grupos de refeições-opção recolhidos (por id da refeição principal). Vazio = todas expandidas.
+  const [collapsedOptionGroups, setCollapsedOptionGroups] = useState<Set<string>>(new Set());
+  const toggleOptionGroup = (mainMealId: string) => {
+    setCollapsedOptionGroups(prev => {
+      const next = new Set(prev);
+      if (next.has(mainMealId)) next.delete(mainMealId); else next.add(mainMealId);
+      return next;
+    });
+  };
   const [substitutionsModalOpen, setSubstitutionsModalOpen] = useState(false);
   const [selectedFoodSubstitutions, setSelectedFoodSubstitutions] = useState<{
     foodName: string;
@@ -883,6 +892,15 @@ export function PatientDietPortal({
                           const isConsumed = consumedMeals.has(meal.id);
                           const isExpanded = expandedMeals.has(meal.id);
                           const isOption = isOptionMeal(meal);
+                          // Refeição-opção dentro de um grupo recolhido: não renderiza.
+                          if (isOption && collapsedOptionGroups.has(meal.parent_meal_id)) {
+                            return null;
+                          }
+                          // Quantas opções esta refeição principal possui (para o botão recolher).
+                          const optionCount = !isOption
+                            ? planDetails.diet_meals.filter((m: any) => m.parent_meal_id === meal.id).length
+                            : 0;
+                          const optionsCollapsed = collapsedOptionGroups.has(meal.id);
                           // Remove o emoji 🔁 do nome — a sinalização passa a ser o badge "Opção"
                           const displayName = isOption
                             ? (meal.meal_name || '').replace(/🔁/g, '').trim()
@@ -1078,6 +1096,22 @@ export function PatientDietPortal({
                                     )}
                                   </div>
                                 </CollapsibleContent>
+
+                                {/* Recolher/expandir as refeições-opção desta principal */}
+                                {!isOption && optionCount > 0 && (
+                                  <button
+                                    onClick={(e) => { e.stopPropagation(); toggleOptionGroup(meal.id); }}
+                                    className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 px-4 py-2 text-xs font-medium text-emerald-600 hover:bg-emerald-50/60 transition-colors rounded-b-xl"
+                                  >
+                                    <RefreshCw className="w-3 h-3" />
+                                    {optionsCollapsed
+                                      ? `Ver ${optionCount} ${optionCount === 1 ? 'opção' : 'opções'}`
+                                      : `Ocultar ${optionCount === 1 ? 'opção' : 'opções'}`}
+                                    <ChevronRight
+                                      className={`w-3.5 h-3.5 transition-transform duration-200 ${optionsCollapsed ? '' : 'rotate-90'}`}
+                                    />
+                                  </button>
+                                )}
                               </div>
                             </Collapsible>
                           );
