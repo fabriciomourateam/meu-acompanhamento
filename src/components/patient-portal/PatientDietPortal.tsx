@@ -839,7 +839,7 @@ export function PatientDietPortal({
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                           {isOption && (
                                             <Badge className="bg-slate-100 text-slate-600 border-slate-200 border text-xs w-fit gap-1 order-first">
-                                              <ArrowLeftRight className="w-3 h-3" />
+                                              <RefreshCw className="w-3 h-3" />
                                               Opção
                                             </Badge>
                                           )}
