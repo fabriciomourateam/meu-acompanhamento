@@ -417,7 +417,13 @@ export default function PortalLogin() {
               <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
                 Meu Acompanhamento
               </CardTitle>
-              <CardDescription className="text-slate-400 mt-2">
+              <CardDescription
+                className={
+                  isOwnerRoute
+                    ? 'mt-2 font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600'
+                    : 'text-slate-400 mt-2'
+                }
+              >
                 {isOwnerRoute ? 'Consultoria Esportiva FMTeam' : 'Construindo Resultados'}
               </CardDescription>
             </div>
