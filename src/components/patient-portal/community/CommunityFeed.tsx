@@ -26,6 +26,25 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
   const [refreshing, setRefreshing] = useState(false);
   const [category, setCategory] = useState<CategoryFilter>('all');
   const [sort, setSort] = useState<FeedSort>('recent');
+  // Contadores de posts novos por categoria desde a ultima visita (localStorage).
+  const [unread, setUnread] = useState<Record<string, number>>({});
+
+  useEffect(() => {
+    if (!patientId) return;
+    const key = `community_last_seen_${patientId}`;
+    const lastSeen = localStorage.getItem(key);
+    // Primeira visita: nao inunda com "novos"; apenas marca o ponto de partida.
+    if (lastSeen) {
+      communityService
+        .getUnreadByCategory(patientId, lastSeen)
+        .then(setUnread)
+        .catch(() => setUnread({}));
+    }
+    // Marca esta visita como referencia para a proxima.
+    localStorage.setItem(key, new Date().toISOString());
+  }, [patientId]);
+
+  const totalUnread = Object.values(unread).reduce((a, b) => a + b, 0);
 
   const load = useCallback(
     async (showSpinner = true) => {
@@ -58,22 +77,24 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
           <button
             onClick={() => setCategory('all')}
             className={cn(
-              'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              category === 'all' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+              'relative shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+              category === 'all' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
             )}
           >
             Tudo
+            <UnreadDot count={totalUnread} active={category === 'all'} />
           </button>
           {CATEGORIES.map((c) => (
             <button
               key={c.value}
               onClick={() => setCategory(c.value)}
               className={cn(
-                'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                category === c.value ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                'relative shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                category === c.value ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
               )}
             >
               {c.emoji} {c.label}
+              <UnreadDot count={unread[c.value] || 0} active={category === c.value} />
             </button>
           ))}
         </div>
@@ -135,5 +156,20 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
         </div>
       )}
     </div>
+  );
+}
+
+// Contador de posts novos (desde a ultima visita) exibido no canto do chip.
+function UnreadDot({ count, active }: { count: number; active: boolean }) {
+  if (count <= 0) return null;
+  return (
+    <span
+      className={cn(
+        'absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none shadow-sm',
+        active ? 'bg-white text-emerald-600' : 'bg-emerald-500 text-white',
+      )}
+    >
+      {count > 9 ? '9+' : count}
+    </span>
   );
 }
