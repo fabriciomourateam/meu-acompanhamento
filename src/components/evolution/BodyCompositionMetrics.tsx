@@ -79,25 +79,20 @@ const TONE_STYLES: Record<MetricCardProps["tone"], {
   },
 };
 
-function MetricCard({ icon, label, value, unit, subtitle, badge, tone }: MetricCardProps) {
+function MetricCard({ label, value, unit, subtitle, badge, tone }: MetricCardProps) {
   const t = TONE_STYLES[tone];
   return (
     <div className={`relative overflow-hidden rounded-2xl border bg-gradient-to-br ${t.card} p-4 sm:p-5 shadow-sm hover:shadow-xl transition-all duration-300 group`}>
       {/* Barra de accent superior */}
       <div className={`absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${t.accentBar}`} />
 
-      {/* Linha topo: ícone + badge */}
-      <div className="flex items-start justify-between mb-3 sm:mb-4">
-        <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full text-white ${t.iconBox} group-hover:scale-110 transition-transform duration-300`}>
-          {icon}
-        </div>
-        {badge && <div className="pt-1">{badge}</div>}
+      {/* Linha topo: label + badge de variação */}
+      <div className="flex items-center justify-between gap-2 mb-3 min-h-[22px]">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+          {label}
+        </p>
+        {badge && <div className="shrink-0">{badge}</div>}
       </div>
-
-      {/* Label */}
-      <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
-        {label}
-      </p>
 
       {/* Valor principal */}
       <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${t.value} leading-none`}>
