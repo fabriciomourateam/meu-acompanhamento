@@ -803,6 +803,16 @@ export default function PatientPortal() {
             className="rounded-2xl bg-white border border-slate-200 shadow-sm px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
+              {patientId && (
+                <ProfileAvatar
+                  patientId={patientId}
+                  name={patient?.nome}
+                  photoUrl={(patient as any)?.foto_perfil}
+                  onChange={(newUrl) =>
+                    setPatient((prev) => (prev ? ({ ...prev, foto_perfil: newUrl } as any) : prev))
+                  }
+                />
+              )}
               <div className="min-w-0 flex-1">
                 {patientId ? (
                   <StreakHeader
@@ -817,16 +827,6 @@ export default function PatientPortal() {
                   </div>
                 )}
               </div>
-              {patientId && (
-                <ProfileAvatar
-                  patientId={patientId}
-                  name={patient?.nome}
-                  photoUrl={(patient as any)?.foto_perfil}
-                  onChange={(newUrl) =>
-                    setPatient((prev) => (prev ? ({ ...prev, foto_perfil: newUrl } as any) : prev))
-                  }
-                />
-              )}
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
               {/* Em mobile, esses botões ficam só no menu pra liberar espaço */}
