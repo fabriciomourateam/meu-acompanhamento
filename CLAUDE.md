@@ -18,6 +18,10 @@ próprio ecossistema (ver `public/fm-myshape-logo.png`).
 
 ### Modelo de dados da dieta (Supabase)
 - `patients` (coluna do nome é `nome`, não `name`)
+  - `foto_perfil` (text): URL pública da foto de perfil/avatar do paciente (bucket
+    público `patient-photos`). O paciente faz upload pelo próprio portal (avatar ao
+    lado do nome) e a foto aparece no ranking. Não confundir com as fotos de
+    evolução (`foto_inicial_*` / `foto_atual_*`).
 - `diet_plans` → `diet_meals` → `diet_foods`
 - `diet_guidelines` (orientações gerais **e** suplementação — diferenciadas por `guideline_type`)
 

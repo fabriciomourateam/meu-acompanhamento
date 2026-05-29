@@ -27,6 +27,24 @@ function initials(name: string): string {
     .join('');
 }
 
+function RankAvatar({ entry }: { entry: LeaderboardEntry }) {
+  return (
+    <div
+      className={`w-8 h-8 rounded-full overflow-hidden border flex items-center justify-center text-[10px] font-bold shrink-0 ${
+        entry.is_current_patient
+          ? 'border-emerald-400 bg-emerald-200 text-emerald-800'
+          : 'border-slate-300 bg-slate-200 text-slate-500'
+      }`}
+    >
+      {entry.photo_url ? (
+        <img src={entry.photo_url} alt={entry.patient_name} className="w-full h-full object-cover" />
+      ) : (
+        initials(entry.patient_name)
+      )}
+    </div>
+  );
+}
+
 function PodiumBlock({
   entry,
   rank,
@@ -68,13 +86,17 @@ function PodiumBlock({
     <div className={`flex flex-col items-center gap-1.5 flex-1 ${c.order}`}>
       {entry ? (
         <div
-          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 transition-all ${
+          className={`w-12 h-12 rounded-full border-2 flex items-center justify-center text-sm font-bold shrink-0 overflow-hidden transition-all ${
             isCurrent
               ? 'bg-emerald-200 border-emerald-500 text-emerald-800 ring-2 ring-emerald-400'
               : `${c.avatarBg} ${c.text}`
           }`}
         >
-          {initials(entry.patient_name)}
+          {entry.photo_url ? (
+            <img src={entry.photo_url} alt={entry.patient_name} className="w-full h-full object-cover" />
+          ) : (
+            initials(entry.patient_name)
+          )}
         </div>
       ) : (
         <div className="w-12 h-12 rounded-full border-2 border-slate-300 bg-slate-200 flex items-center justify-center text-slate-500">
@@ -187,6 +209,7 @@ function LeaderboardList({
               <span className="text-sm font-bold w-7 text-center shrink-0 text-slate-500">
                 {entry.position}°
               </span>
+              <RankAvatar entry={entry} />
               <span
                 className={`flex-1 text-sm font-semibold truncate ${
                   entry.is_current_patient ? 'text-emerald-800' : 'text-slate-700'
@@ -221,6 +244,7 @@ function LeaderboardList({
             <span className="text-sm font-bold w-7 text-center shrink-0 text-emerald-700">
               {currentEntry.position}°
             </span>
+            <RankAvatar entry={currentEntry} />
             <span className="flex-1 text-sm font-semibold truncate text-emerald-800">
               {currentEntry.patient_name}
               <span className="ml-1.5 text-xs text-emerald-600 font-normal">(você)</span>

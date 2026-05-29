@@ -60,6 +60,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { WeightInput } from '@/components/evolution/WeightInput';
 import { StreakHeader } from '@/components/patient-portal/StreakHeader';
+import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
 import { motion } from 'framer-motion';
 import type { Database } from '@/integrations/supabase/types';
 
@@ -801,18 +802,30 @@ export default function PatientPortal() {
             transition={{ duration: 0.5 }}
             className="rounded-2xl bg-white border border-slate-200 shadow-sm px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
-            <div className="flex-1 min-w-0">
-              {patientId ? (
-                <StreakHeader
+            <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
+              <div className="min-w-0 flex-1">
+                {patientId ? (
+                  <StreakHeader
+                    patientId={patientId}
+                    patientName={patient?.nome || 'Meu Acompanhamento'}
+                  />
+                ) : (
+                  <div>
+                    <h1 className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                      📊 Meu Acompanhamento
+                    </h1>
+                  </div>
+                )}
+              </div>
+              {patientId && (
+                <ProfileAvatar
                   patientId={patientId}
-                  patientName={patient?.nome || 'Meu Acompanhamento'}
+                  name={patient?.nome}
+                  photoUrl={(patient as any)?.foto_perfil}
+                  onChange={(newUrl) =>
+                    setPatient((prev) => (prev ? ({ ...prev, foto_perfil: newUrl } as any) : prev))
+                  }
                 />
-              ) : (
-                <div>
-                  <h1 className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
-                    📊 Meu Acompanhamento
-                  </h1>
-                </div>
               )}
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
