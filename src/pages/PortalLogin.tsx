@@ -417,13 +417,31 @@ export default function PortalLogin() {
               <CardTitle className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600">
                 Meu Acompanhamento
               </CardTitle>
-              <CardDescription className="text-slate-400 mt-2">
+              <CardDescription
+                className={
+                  isOwnerRoute
+                    ? 'mt-2 font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600'
+                    : 'text-slate-400 mt-2'
+                }
+              >
                 {isOwnerRoute ? 'Consultoria Esportiva FMTeam' : 'Construindo Resultados'}
               </CardDescription>
             </div>
           </CardHeader>
 
           <CardContent style={{ padding: '0 2rem 2.5rem 2rem', position: 'relative', zIndex: 10 }}>
+            {adminUid && (
+              <div className="mb-4 flex justify-end">
+                <button
+                  onClick={() => navigate(`/admin?uid=${adminUid}`)}
+                  className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-700/30"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  Painel admin
+                </button>
+              </div>
+            )}
+
             {step === 'phone' ? (
               <form onSubmit={handlePhoneSubmit} className="space-y-6">
                 <div className="space-y-2">
@@ -575,18 +593,6 @@ export default function PortalLogin() {
                 Constância é o segredo dos resultados!
               </p>
             </div>
-
-            {adminUid && (
-              <div className="mt-4 flex justify-center">
-                <button
-                  onClick={() => navigate(`/admin?uid=${adminUid}`)}
-                  className="flex items-center gap-1.5 text-xs text-slate-600 hover:text-slate-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-700/30"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  Painel admin
-                </button>
-              </div>
-            )}
           </CardContent>
         </Card>
 
