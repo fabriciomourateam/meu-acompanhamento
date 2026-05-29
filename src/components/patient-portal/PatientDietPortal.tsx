@@ -37,7 +37,6 @@ import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import {
-  Calendar,
   Check,
   Plus,
   X,
@@ -764,10 +763,6 @@ export function PatientDietPortal({
                         <p className="text-sm text-slate-500 mt-1">
                           {consumedMainCount} de {mainMealsCount} refeições consumidas
                         </p>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-400 font-medium">
-                        <Calendar className="w-4 h-4 text-emerald-400/70" />
-                        <span>{new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
                       </div>
                     </div>
 
