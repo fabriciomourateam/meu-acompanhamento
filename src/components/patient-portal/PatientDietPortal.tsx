@@ -106,7 +106,9 @@ export function PatientDietPortal({
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>('diet');
-  const TAB_ORDER = ['diet', 'challenges', 'ranking', 'community', 'results'];
+  // Comunidade pode ser desativada pelo treinador no /admin (default: visível).
+  const showCommunity = portalConfig?.community?.show_tab !== false;
+  const TAB_ORDER = ['diet', 'challenges', 'ranking', ...(showCommunity ? ['community'] : []), 'results'];
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
@@ -598,6 +600,7 @@ export function PatientDietPortal({
       <MobileBottomNav
         value={activeTab as any}
         onChange={(v) => goToTab(v)}
+        hidden={showCommunity ? [] : ['community']}
       />
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
@@ -630,9 +633,11 @@ export function PatientDietPortal({
           <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Ranking
           </TabsTrigger>
-          <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Comunidade
-          </TabsTrigger>
+          {showCommunity && (
+            <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Comunidade
+            </TabsTrigger>
+          )}
           <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
             Evolução
           </TabsTrigger>
@@ -1197,15 +1202,21 @@ export function PatientDietPortal({
           )}
         </TabsContent>
 
-        <TabsContent value="community" className="mt-6">
-          {trainerUserId ? (
-            <CommunityFeed patientId={patientId} trainerUserId={trainerUserId} />
-          ) : (
-            <p className="py-12 text-center text-sm text-slate-400">
-              Comunidade indisponível no momento.
-            </p>
-          )}
-        </TabsContent>
+        {showCommunity && (
+          <TabsContent value="community" className="mt-6">
+            {trainerUserId ? (
+              <CommunityFeed
+                patientId={patientId}
+                trainerUserId={trainerUserId}
+                trainerInstagram={portalConfig?.branding?.instagram || ''}
+              />
+            ) : (
+              <p className="py-12 text-center text-sm text-slate-400">
+                Comunidade indisponível no momento.
+              </p>
+            )}
+          </TabsContent>
+        )}
       </Tabs >
 
       {/* Modal de Substituições */}

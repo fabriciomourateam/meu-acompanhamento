@@ -44,12 +44,26 @@ export interface CommunityPost {
 
 export interface CommunityComment {
   id: string;
+  parent_comment_id: string | null;
   author_patient_id: string;
   author_name: string;
   author_photo: string | null;
   content: string;
   created_at: string;
   is_own: boolean;
+}
+
+export interface CommunityReport {
+  report_id: string;
+  target_type: 'post' | 'comment';
+  target_id: string;
+  reason: string | null;
+  resolved: boolean;
+  reporter_name: string;
+  created_at: string;
+  target_content: string | null;
+  target_is_hidden: boolean;
+  target_author_name: string | null;
 }
 
 function reactionsObject(raw: unknown): Partial<Record<ReactionType, number>> {
@@ -117,11 +131,17 @@ export const communityService = {
     return (data || []) as CommunityComment[];
   },
 
-  async addComment(patientId: string, postId: string, content: string): Promise<string> {
+  async addComment(
+    patientId: string,
+    postId: string,
+    content: string,
+    parentCommentId: string | null = null,
+  ): Promise<string> {
     const { data, error } = await supabase.rpc('community_add_comment', {
       p_patient_id: patientId,
       p_post_id: postId,
       p_content: content,
+      p_parent_comment_id: parentCommentId,
     });
     if (error) throw error;
     return data as string;
@@ -178,5 +198,44 @@ export const communityService = {
       .from('patient-photos')
       .getPublicUrl(filePath);
     return publicUrl;
+  },
+};
+
+// ---------------------------------------------------------------------------
+// Moderacao — usado pelo painel do treinador (/admin). Escopado por treinador.
+// ---------------------------------------------------------------------------
+export const communityModerationService = {
+  async listReports(trainerUserId: string, onlyOpen = true): Promise<CommunityReport[]> {
+    const { data, error } = await supabase.rpc('community_list_reports', {
+      p_trainer_user_id: trainerUserId,
+      p_only_open: onlyOpen,
+    });
+    if (error) throw error;
+    return (data || []) as CommunityReport[];
+  },
+
+  async setHidden(
+    trainerUserId: string,
+    targetType: 'post' | 'comment',
+    targetId: string,
+    hidden: boolean,
+  ): Promise<boolean> {
+    const { data, error } = await supabase.rpc('community_moderate_set_hidden', {
+      p_trainer_user_id: trainerUserId,
+      p_target_type: targetType,
+      p_target_id: targetId,
+      p_hidden: hidden,
+    });
+    if (error) throw error;
+    return Boolean(data);
+  },
+
+  async resolveReport(trainerUserId: string, reportId: string): Promise<boolean> {
+    const { data, error } = await supabase.rpc('community_resolve_report', {
+      p_trainer_user_id: trainerUserId,
+      p_report_id: reportId,
+    });
+    if (error) throw error;
+    return Boolean(data);
   },
 };

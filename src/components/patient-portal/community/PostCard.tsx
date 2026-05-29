@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MessageCircle, MoreVertical, Trash2, Flag, SmilePlus } from 'lucide-react';
+import { MessageCircle, MoreVertical, Trash2, Flag, SmilePlus, Share2, Loader2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,20 +29,38 @@ import { CommunityAvatar } from './CommunityAvatar';
 import { CommentSection } from './CommentSection';
 import { ReportDialog } from './ReportDialog';
 import { timeAgo } from './communityTime';
+import { sharePostImage } from './communityShare';
 
 interface PostCardProps {
   patientId: string;
   post: CommunityPost;
+  trainerInstagram?: string;
   onDeleted: (postId: string) => void;
 }
 
-export function PostCard({ patientId, post: initial, onDeleted }: PostCardProps) {
+export function PostCard({ patientId, post: initial, trainerInstagram = '', onDeleted }: PostCardProps) {
   const { toast } = useToast();
   const [post, setPost] = useState<CommunityPost>(initial);
   const [showComments, setShowComments] = useState(false);
   const [showReactions, setShowReactions] = useState(false);
   const [reporting, setReporting] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [sharing, setSharing] = useState(false);
+
+  const handleShare = async () => {
+    if (sharing) return;
+    setSharing(true);
+    try {
+      await sharePostImage(post, trainerInstagram);
+    } catch (err) {
+      if ((err as Error)?.name !== 'AbortError') {
+        console.error('Erro ao compartilhar:', err);
+        toast({ title: 'Erro ao gerar imagem', description: 'Tente novamente.', variant: 'destructive' });
+      }
+    } finally {
+      setSharing(false);
+    }
+  };
 
   const category = CATEGORIES.find((c) => c.value === post.category);
 
@@ -154,6 +172,14 @@ export function PostCard({ patientId, post: initial, onDeleted }: PostCardProps)
         >
           <MessageCircle className="h-4 w-4" />
           {post.comment_count > 0 ? post.comment_count : ''} Comentar
+        </button>
+        <button
+          onClick={handleShare}
+          disabled={sharing}
+          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100"
+          title="Compartilhar como imagem"
+        >
+          {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
         </button>
 
         {showReactions && (

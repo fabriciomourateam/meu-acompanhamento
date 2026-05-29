@@ -20,15 +20,18 @@ const NAV_ITEMS: NavItem[] = [
 interface MobileBottomNavProps {
   value: TabValue;
   onChange: (v: TabValue) => void;
+  /** Abas a ocultar (ex.: quando o treinador desativa a Comunidade). */
+  hidden?: TabValue[];
 }
 
-export function MobileBottomNav({ value, onChange }: MobileBottomNavProps) {
+export function MobileBottomNav({ value, onChange, hidden = [] }: MobileBottomNavProps) {
+  const items = NAV_ITEMS.filter((item) => !hidden.includes(item.value));
   const nav = (
     <nav className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden">
       {/* Glass bar */}
       <div className="bg-white/95 backdrop-blur-xl border-t border-slate-200 shadow-[0_-4px_24px_rgba(15,23,42,0.08)] px-1 pt-2 pb-[max(0.5rem,env(safe-area-inset-bottom))]">
         <div className="flex items-stretch justify-around gap-0">
-          {NAV_ITEMS.map(({ value: v, label, Icon }) => {
+          {items.map(({ value: v, label, Icon }) => {
             const isActive = value === v;
             return (
               <button

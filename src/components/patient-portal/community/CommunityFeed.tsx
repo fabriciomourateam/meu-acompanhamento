@@ -14,11 +14,12 @@ import { PostCard } from './PostCard';
 interface CommunityFeedProps {
   patientId: string;
   trainerUserId: string;
+  trainerInstagram?: string;
 }
 
 type CategoryFilter = CommunityCategory | 'all';
 
-export function CommunityFeed({ patientId }: CommunityFeedProps) {
+export function CommunityFeed({ patientId, trainerInstagram = '' }: CommunityFeedProps) {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -125,6 +126,7 @@ export function CommunityFeed({ patientId }: CommunityFeedProps) {
               key={post.id}
               patientId={patientId}
               post={post}
+              trainerInstagram={trainerInstagram}
               onDeleted={(id) => setPosts((prev) => prev.filter((p) => p.id !== id))}
             />
           ))}

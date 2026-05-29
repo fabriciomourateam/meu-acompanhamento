@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Loader2, Send, Trash2, Flag } from 'lucide-react';
+import { Loader2, Send, Trash2, Flag, CornerDownRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { communityService, type CommunityComment } from '@/lib/community-service';
@@ -19,6 +19,9 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
   const [loading, setLoading] = useState(true);
   const [text, setText] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [replyTo, setReplyTo] = useState<{ id: string; name: string } | null>(null);
+  const [replyText, setReplyText] = useState('');
+  const [replySubmitting, setReplySubmitting] = useState(false);
   const [reportId, setReportId] = useState<string | null>(null);
   const mounted = useRef(true);
 
@@ -59,16 +62,110 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
     }
   };
 
+  const handleReply = async () => {
+    const content = replyText.trim();
+    if (!content || !replyTo || replySubmitting) return;
+    try {
+      setReplySubmitting(true);
+      await communityService.addComment(patientId, postId, content, replyTo.id);
+      setReplyText('');
+      setReplyTo(null);
+      onCountChange(1);
+      await load();
+    } catch (err) {
+      console.error('Erro ao responder:', err);
+      toast({ title: 'Erro ao responder', description: 'Tente novamente.', variant: 'destructive' });
+    } finally {
+      setReplySubmitting(false);
+    }
+  };
+
   const handleDelete = async (commentId: string) => {
     try {
       await communityService.deleteComment(patientId, commentId);
-      setComments((prev) => prev.filter((c) => c.id !== commentId));
-      onCountChange(-1);
+      // remove o comentário e (se for raiz) suas respostas, ajustando o contador
+      const removedIds = new Set<string>([commentId]);
+      comments.forEach((c) => {
+        if (c.parent_comment_id === commentId) removedIds.add(c.id);
+      });
+      setComments((prev) => prev.filter((c) => !removedIds.has(c.id)));
+      onCountChange(-removedIds.size);
     } catch (err) {
       console.error('Erro ao excluir comentário:', err);
       toast({ title: 'Erro ao excluir', description: 'Tente novamente.', variant: 'destructive' });
     }
   };
+
+  const roots = comments.filter((c) => !c.parent_comment_id);
+  const repliesOf = (id: string) => comments.filter((c) => c.parent_comment_id === id);
+
+  const renderActions = (c: CommunityComment, canReply: boolean) => (
+    <div className="mt-1 flex items-center gap-3 pl-1 text-[11px] text-slate-400">
+      <span>{timeAgo(c.created_at)}</span>
+      {canReply && (
+        <button
+          onClick={() => {
+            setReplyTo({ id: c.id, name: c.author_name });
+            setReplyText('');
+          }}
+          className="flex items-center gap-1 hover:text-emerald-600"
+        >
+          <CornerDownRight className="h-3 w-3" /> Responder
+        </button>
+      )}
+      {c.is_own ? (
+        <button onClick={() => handleDelete(c.id)} className="flex items-center gap-1 hover:text-rose-500">
+          <Trash2 className="h-3 w-3" /> Excluir
+        </button>
+      ) : (
+        <button onClick={() => setReportId(c.id)} className="flex items-center gap-1 hover:text-rose-500">
+          <Flag className="h-3 w-3" /> Denunciar
+        </button>
+      )}
+    </div>
+  );
+
+  const renderComment = (c: CommunityComment, isReply: boolean) => (
+    <li key={c.id} className="flex gap-2">
+      <CommunityAvatar name={c.author_name} photo={c.author_photo} className={isReply ? 'h-6 w-6' : 'h-7 w-7'} />
+      <div className="flex-1">
+        <div className="rounded-2xl bg-slate-100 px-3 py-2">
+          <p className="text-xs font-semibold text-slate-700">{c.author_name}</p>
+          <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{c.content}</p>
+        </div>
+        {renderActions(c, !isReply)}
+
+        {/* Caixa de resposta inline (apenas em raiz) */}
+        {!isReply && replyTo?.id === c.id && (
+          <div className="mt-2 flex items-center gap-2">
+            <input
+              autoFocus
+              value={replyText}
+              onChange={(e) => setReplyText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                  e.preventDefault();
+                  handleReply();
+                }
+                if (e.key === 'Escape') setReplyTo(null);
+              }}
+              maxLength={2000}
+              placeholder={`Respondendo ${c.author_name}...`}
+              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+            />
+            <Button
+              size="icon"
+              onClick={handleReply}
+              disabled={!replyText.trim() || replySubmitting}
+              className="h-8 w-8 shrink-0 rounded-full bg-emerald-500 hover:bg-emerald-600"
+            >
+              {replySubmitting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />}
+            </Button>
+          </div>
+        )}
+      </div>
+    </li>
+  );
 
   return (
     <div className="mt-3 border-t border-slate-100 pt-3">
@@ -78,36 +175,19 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
         </div>
       ) : (
         <ul className="space-y-3">
-          {comments.map((c) => (
-            <li key={c.id} className="flex gap-2">
-              <CommunityAvatar name={c.author_name} photo={c.author_photo} className="h-7 w-7" />
-              <div className="flex-1">
-                <div className="rounded-2xl bg-slate-100 px-3 py-2">
-                  <p className="text-xs font-semibold text-slate-700">{c.author_name}</p>
-                  <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{c.content}</p>
-                </div>
-                <div className="mt-1 flex items-center gap-3 pl-1 text-[11px] text-slate-400">
-                  <span>{timeAgo(c.created_at)}</span>
-                  {c.is_own ? (
-                    <button
-                      onClick={() => handleDelete(c.id)}
-                      className="flex items-center gap-1 hover:text-rose-500"
-                    >
-                      <Trash2 className="h-3 w-3" /> Excluir
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => setReportId(c.id)}
-                      className="flex items-center gap-1 hover:text-rose-500"
-                    >
-                      <Flag className="h-3 w-3" /> Denunciar
-                    </button>
-                  )}
-                </div>
-              </div>
+          {roots.map((root) => (
+            <li key={root.id}>
+              <ul className="space-y-3">
+                {renderComment(root, false)}
+                {repliesOf(root.id).length > 0 && (
+                  <ul className="ml-6 space-y-3 border-l border-slate-100 pl-3">
+                    {repliesOf(root.id).map((reply) => renderComment(reply, true))}
+                  </ul>
+                )}
+              </ul>
             </li>
           ))}
-          {comments.length === 0 && (
+          {roots.length === 0 && (
             <p className="py-1 text-center text-xs text-slate-400">Seja o primeiro a comentar.</p>
           )}
         </ul>
