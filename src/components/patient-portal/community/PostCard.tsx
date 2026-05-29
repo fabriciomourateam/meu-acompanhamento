@@ -127,13 +127,19 @@ export function PostCard({
           <DropdownMenuTrigger className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
             <MoreVertical className="h-4 w-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700">
             {post.is_own ? (
-              <DropdownMenuItem onClick={() => setConfirmDelete(true)} className="text-rose-600">
+              <DropdownMenuItem
+                onClick={() => setConfirmDelete(true)}
+                className="text-rose-600 focus:bg-rose-50 focus:text-rose-700"
+              >
                 <Trash2 className="mr-2 h-4 w-4" /> Excluir
               </DropdownMenuItem>
             ) : (
-              <DropdownMenuItem onClick={() => setReporting(true)} className="text-rose-600">
+              <DropdownMenuItem
+                onClick={() => setReporting(true)}
+                className="text-rose-600 focus:bg-rose-50 focus:text-rose-700"
+              >
                 <Flag className="mr-2 h-4 w-4" /> Denunciar
               </DropdownMenuItem>
             )}
@@ -147,7 +153,7 @@ export function PostCard({
         <img
           src={post.image_url}
           alt="Imagem da publicação"
-          className="mt-3 max-h-96 w-full rounded-xl object-cover"
+          className="mt-3 max-h-[500px] w-full rounded-xl object-contain bg-slate-50"
           loading="lazy"
         />
       )}
@@ -227,16 +233,18 @@ export function PostCard({
       />
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white border-slate-200">
           <AlertDialogHeader>
-            <AlertDialogTitle>Excluir publicação?</AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogTitle className="text-slate-800">Excluir publicação?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500">
               Esta ação não pode ser desfeita. A publicação e seus comentários serão removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-rose-500 hover:bg-rose-600">
+            <AlertDialogCancel className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-rose-500 text-white hover:bg-rose-600">
               Excluir
             </AlertDialogAction>
           </AlertDialogFooter>
