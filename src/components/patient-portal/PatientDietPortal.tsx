@@ -49,7 +49,7 @@ import {
   Share2,
   LogOut,
   Utensils,
-  Apple,
+  Sandwich,
   Activity,
   Clock,
   Dumbbell,
@@ -58,6 +58,7 @@ import {
   Pill,
   FlaskConical,
   ListChecks,
+  ClipboardList,
   AlertTriangle,
   FileText,
   Info,
@@ -764,7 +765,7 @@ export function PatientDietPortal({
                     <div className="flex items-center justify-between">
                       <div>
                         <CardTitle className="text-slate-900 flex items-center gap-2">
-                          <Utensils className="w-5 h-5 text-emerald-500" />
+                          <Sandwich className="w-5 h-5 text-emerald-500" />
                           {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
@@ -1023,7 +1024,7 @@ export function PatientDietPortal({
                     {renderCategory(
                       nutritionGuidelines,
                       "Orientações Nutricionais",
-                      Apple,
+                      ClipboardList,
                       "text-emerald-500",
                       "bg-emerald-500/10",
                       "border-emerald-100"
