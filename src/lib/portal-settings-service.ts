@@ -16,6 +16,17 @@ export interface PortalConfig {
   community: {
     show_tab: boolean;
   };
+  // Visibilidade de abas/subabas do portal do aluno (default: tudo visível).
+  // Obs.: aba Metas usa `challenges.show_tab` e aba Comunidade usa
+  // `community.show_tab` — aqui ficam as demais abas e as subabas da Dieta.
+  visibility: {
+    tab_diet: boolean;
+    tab_ranking: boolean;
+    tab_results: boolean; // Evolução
+    diet_meals: boolean; // subaba Plano Alimentar
+    diet_supplements: boolean; // subaba Suplementos
+    diet_substitutions: boolean; // subaba Substituições
+  };
   branding: {
     /** @handle do Instagram do treinador (sem o @). Usado nos compartilhamentos. */
     instagram: string;
@@ -37,6 +48,14 @@ const DEFAULT_CONFIG: PortalConfig = {
   },
   community: {
     show_tab: true,
+  },
+  visibility: {
+    tab_diet: true,
+    tab_ranking: true,
+    tab_results: true,
+    diet_meals: true,
+    diet_supplements: true,
+    diet_substitutions: true,
   },
   branding: {
     instagram: '',
@@ -70,6 +89,14 @@ export const portalSettingsService = {
         },
         community: {
           show_tab: value?.community?.show_tab ?? true,
+        },
+        visibility: {
+          tab_diet: value?.visibility?.tab_diet ?? true,
+          tab_ranking: value?.visibility?.tab_ranking ?? true,
+          tab_results: value?.visibility?.tab_results ?? true,
+          diet_meals: value?.visibility?.diet_meals ?? true,
+          diet_supplements: value?.visibility?.diet_supplements ?? true,
+          diet_substitutions: value?.visibility?.diet_substitutions ?? true,
         },
         branding: {
           instagram: value?.branding?.instagram ?? '',

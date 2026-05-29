@@ -106,9 +106,36 @@ export function PatientDietPortal({
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
   const [activeTab, setActiveTab] = useState<string>('diet');
-  // Comunidade pode ser desativada pelo treinador no /admin (default: visível).
+  // Visibilidade configurável pelo treinador no /admin (default: tudo visível).
+  const showDiet = portalConfig?.visibility?.tab_diet !== false;
+  const showChallenges = portalConfig?.challenges?.show_tab !== false;
+  const showRanking = portalConfig?.visibility?.tab_ranking !== false;
   const showCommunity = portalConfig?.community?.show_tab !== false;
-  const TAB_ORDER = ['diet', 'challenges', 'ranking', ...(showCommunity ? ['community'] : []), 'results'];
+  const showResults = portalConfig?.visibility?.tab_results !== false;
+  // Subabas da Dieta
+  const showMeals = portalConfig?.visibility?.diet_meals !== false;
+  const showSupplements = portalConfig?.visibility?.diet_supplements !== false;
+  const showSubstitutions = portalConfig?.visibility?.diet_substitutions !== false;
+
+  const mainTabVisible: Record<string, boolean> = {
+    diet: showDiet,
+    challenges: showChallenges,
+    ranking: showRanking,
+    community: showCommunity,
+    results: showResults,
+  };
+  const ALL_MAIN_TABS = ['diet', 'challenges', 'ranking', 'community', 'results'] as const;
+  const TAB_ORDER = ALL_MAIN_TABS.filter((t) => mainTabVisible[t]);
+  const hiddenNavTabs = ALL_MAIN_TABS.filter((t) => !mainTabVisible[t]);
+  // Primeira subaba visível da Dieta (para o defaultValue do Tabs aninhado)
+  const firstDietSubtab = showMeals
+    ? 'meals'
+    : showSupplements
+      ? 'supplements'
+      : showSubstitutions
+        ? 'substitutions'
+        : '__none__';
+  const visibleDietSubtabs = [showMeals, showSupplements, showSubstitutions].filter(Boolean).length;
   const touchStartX = useRef<number | null>(null);
   const touchStartY = useRef<number | null>(null);
 
@@ -133,6 +160,13 @@ export function PatientDietPortal({
       portalSettingsService.getConfig(trainerUserId).then(setPortalConfig);
     }
   }, [trainerUserId]);
+
+  // Se a aba ativa foi ocultada pelo treinador, cair na primeira aba visível.
+  useEffect(() => {
+    if (TAB_ORDER.length > 0 && !TAB_ORDER.includes(activeTab as any)) {
+      setActiveTab(TAB_ORDER[0]);
+    }
+  }, [portalConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     loadDietData();
@@ -600,7 +634,7 @@ export function PatientDietPortal({
       <MobileBottomNav
         value={activeTab as any}
         onChange={(v) => goToTab(v)}
-        hidden={showCommunity ? [] : ['community']}
+        hidden={hiddenNavTabs as any}
       />
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
@@ -624,50 +658,70 @@ export function PatientDietPortal({
       >
         {/* Desktop: abas em linha */}
         <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
-          <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Dieta
-          </TabsTrigger>
-          <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Metas
-          </TabsTrigger>
-          <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Ranking
-          </TabsTrigger>
+          {showDiet && (
+            <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Dieta
+            </TabsTrigger>
+          )}
+          {showChallenges && (
+            <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Metas
+            </TabsTrigger>
+          )}
+          {showRanking && (
+            <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Ranking
+            </TabsTrigger>
+          )}
           {showCommunity && (
             <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Comunidade
             </TabsTrigger>
           )}
-          <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-            Evolução
-          </TabsTrigger>
+          {showResults && (
+            <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Evolução
+            </TabsTrigger>
+          )}
         </TabsList>
 
         {/* Mobile: navegação via MobileBottomNav (fora deste bloco) */}
 
         {/* Aba: Dieta — sub-tabs Plano Alimentar + Suplementos */}
         <TabsContent value="diet" className="mt-6 space-y-4">
-          <Tabs defaultValue="meals" className="w-full">
-            <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg h-auto">
-              <TabsTrigger
-                value="meals"
-                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+          <Tabs defaultValue={firstDietSubtab} className="w-full">
+            {visibleDietSubtabs > 1 && (
+              <TabsList
+                className={`grid w-full bg-slate-100 p-1 rounded-lg h-auto ${
+                  visibleDietSubtabs === 2 ? 'grid-cols-2' : 'grid-cols-3'
+                }`}
               >
-                Plano Alimentar
-              </TabsTrigger>
-              <TabsTrigger
-                value="supplements"
-                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
-              >
-                Suplementos
-              </TabsTrigger>
-              <TabsTrigger
-                value="substitutions"
-                className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
-              >
-                Substituições
-              </TabsTrigger>
-            </TabsList>
+                {showMeals && (
+                  <TabsTrigger
+                    value="meals"
+                    className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+                  >
+                    Plano Alimentar
+                  </TabsTrigger>
+                )}
+                {showSupplements && (
+                  <TabsTrigger
+                    value="supplements"
+                    className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+                  >
+                    Suplementos
+                  </TabsTrigger>
+                )}
+                {showSubstitutions && (
+                  <TabsTrigger
+                    value="substitutions"
+                    className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all"
+                  >
+                    Substituições
+                  </TabsTrigger>
+                )}
+              </TabsList>
+            )}
 
             <TabsContent value="meals" className="mt-4 space-y-6">
           {!hasActivePlan ? (

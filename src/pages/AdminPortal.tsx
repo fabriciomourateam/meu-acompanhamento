@@ -300,19 +300,75 @@ function RankingSettings({ config, onChange }: { config: PortalConfig; onChange:
   );
 }
 
-function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChange: (c: PortalConfig) => void }) {
+function VisibilityToggle({ on, label, onToggle }: { on: boolean; label: string; onToggle: () => void }) {
   return (
-    <div className="space-y-3">
-      <p className="font-semibold text-slate-700">Abas e seções visíveis no portal</p>
-      <button
-        onClick={() => onChange({ ...config, challenges: { show_tab: !config.challenges.show_tab } })}
-        className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
-          config.challenges.show_tab ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'
-        }`}
-      >
-        {config.challenges.show_tab ? <ToggleRight className="w-5 h-5 shrink-0" /> : <ToggleLeft className="w-5 h-5 shrink-0 text-slate-400" />}
-        Mostrar aba de Metas Diárias
-      </button>
+    <button
+      onClick={onToggle}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
+        on ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+      }`}
+    >
+      {on ? <ToggleRight className="w-5 h-5 shrink-0" /> : <ToggleLeft className="w-5 h-5 shrink-0 text-slate-400" />}
+      {label}
+    </button>
+  );
+}
+
+function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChange: (c: PortalConfig) => void }) {
+  const setVis = (patch: Partial<PortalConfig['visibility']>) =>
+    onChange({ ...config, visibility: { ...config.visibility, ...patch } });
+
+  return (
+    <div className="space-y-6">
+      <div className="space-y-3">
+        <p className="font-semibold text-slate-700">Abas principais</p>
+        <p className="text-xs text-slate-400 -mt-1">Ligue/desligue cada aba do portal do aluno.</p>
+        <VisibilityToggle
+          on={config.visibility.tab_diet}
+          label="Aba Dieta"
+          onToggle={() => setVis({ tab_diet: !config.visibility.tab_diet })}
+        />
+        <VisibilityToggle
+          on={config.challenges.show_tab}
+          label="Aba Metas"
+          onToggle={() => onChange({ ...config, challenges: { show_tab: !config.challenges.show_tab } })}
+        />
+        <VisibilityToggle
+          on={config.visibility.tab_ranking}
+          label="Aba Ranking"
+          onToggle={() => setVis({ tab_ranking: !config.visibility.tab_ranking })}
+        />
+        <VisibilityToggle
+          on={config.community.show_tab}
+          label="Aba Comunidade"
+          onToggle={() => onChange({ ...config, community: { show_tab: !config.community.show_tab } })}
+        />
+        <VisibilityToggle
+          on={config.visibility.tab_results}
+          label="Aba Evolução"
+          onToggle={() => setVis({ tab_results: !config.visibility.tab_results })}
+        />
+      </div>
+
+      <div className="space-y-3">
+        <p className="font-semibold text-slate-700">Subabas da Dieta</p>
+        <p className="text-xs text-slate-400 -mt-1">Controla o que aparece dentro da aba Dieta.</p>
+        <VisibilityToggle
+          on={config.visibility.diet_meals}
+          label="Plano Alimentar"
+          onToggle={() => setVis({ diet_meals: !config.visibility.diet_meals })}
+        />
+        <VisibilityToggle
+          on={config.visibility.diet_supplements}
+          label="Suplementos"
+          onToggle={() => setVis({ diet_supplements: !config.visibility.diet_supplements })}
+        />
+        <VisibilityToggle
+          on={config.visibility.diet_substitutions}
+          label="Substituições"
+          onToggle={() => setVis({ diet_substitutions: !config.visibility.diet_substitutions })}
+        />
+      </div>
     </div>
   );
 }
@@ -404,7 +460,7 @@ function CommunitySettings({
             }
             maxLength={120}
             placeholder={'Ex.: Time de Resultados!'}
-            className="min-h-[64px] resize-none"
+            className="min-h-[64px] resize-none bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-emerald-200 focus-visible:ring-1 focus-visible:ring-emerald-300/40 focus-visible:ring-offset-0"
           />
         </div>
 
@@ -422,7 +478,7 @@ function CommunitySettings({
                 onChange({ ...config, branding: { ...config.branding, instagram: normalizeHandle(e.target.value) } })
               }
               placeholder="seuusuario"
-              className="border-0 px-1 focus-visible:ring-0"
+              className="border-0 bg-white px-1 text-slate-900 placeholder:text-slate-400 focus-visible:ring-0"
             />
           </div>
         </div>
