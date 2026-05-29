@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import DOMPurify from 'dompurify';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -36,7 +37,6 @@ import { CheckinAIWidget } from '@/components/diets/CheckinAIWidget';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import {
-  Calendar,
   Check,
   Plus,
   X,
@@ -431,6 +431,8 @@ export function PatientDietPortal({
 
   if (hasActivePlan && planDetails?.diet_meals && consumedMeals.size > 0) {
     planDetails.diet_meals.forEach((meal: any) => {
+      // Refeições-opção não entram na soma (evita dupla contagem com a principal)
+      if (isOptionMeal(meal)) return;
       if (consumedMeals.has(meal.id)) {
         const mealTotals = calcularTotaisPlano({ diet_meals: [meal] });
         caloriasConsumidas += mealTotals.calorias;
@@ -450,7 +452,13 @@ export function PatientDietPortal({
   const consumedMainCount = mainMeals.filter((m: any) => consumedMeals.has(m.id)).length;
 
   // Extrair lógica de categorias das guidelines para fora do JSX
-  const guidelines = planDetails?.diet_guidelines || [];
+  // Ordena igual ao MyShape: por priority (asc) e, em empate, por created_at (asc)
+  const guidelines = [...(planDetails?.diet_guidelines || [])].sort((a: any, b: any) => {
+    const pa = a.priority ?? 0;
+    const pb = b.priority ?? 0;
+    if (pa !== pb) return pa - pb;
+    return new Date(a.created_at || 0).getTime() - new Date(b.created_at || 0).getTime();
+  });
 
   // Utility para checar tipo explícito OU palavras-chave no título (para retrocompatibilidade)
   const isManipulated = (g: any) => {
@@ -528,7 +536,7 @@ export function PatientDietPortal({
                       <div className="h-px w-full bg-slate-100 mb-3" />
                       <div
                         className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
-                        dangerouslySetInnerHTML={{ __html: guideline.content || '' }}
+                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(guideline.content || '') }}
                       />
                     </div>
                   </CollapsibleContent>
@@ -756,10 +764,6 @@ export function PatientDietPortal({
                           {consumedMainCount} de {mainMealsCount} refeições consumidas
                         </p>
                       </div>
-                      <div className="flex items-center gap-2 text-sm text-slate-400 font-medium">
-                        <Calendar className="w-4 h-4 text-emerald-400/70" />
-                        <span>{new Date().toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</span>
-                      </div>
                     </div>
 
                     {/* Barra de Progresso Segmentada Moderna */}
@@ -839,7 +843,7 @@ export function PatientDietPortal({
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                           {isOption && (
                                             <Badge className="bg-slate-100 text-slate-600 border-slate-200 border text-xs w-fit gap-1 order-first">
-                                              <ArrowLeftRight className="w-3 h-3" />
+                                              <RefreshCw className="w-3 h-3" />
                                               Opção
                                             </Badge>
                                           )}
@@ -973,7 +977,7 @@ export function PatientDietPortal({
                                         </p>
                                         <div
                                           className="text-sm text-amber-800 leading-relaxed prose prose-sm max-w-none prose-p:my-1"
-                                          dangerouslySetInnerHTML={{ __html: meal.instructions }}
+                                          dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(meal.instructions) }}
                                         />
                                       </div>
                                     )}

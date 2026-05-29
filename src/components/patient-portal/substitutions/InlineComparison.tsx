@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { AlertTriangle } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import type { PatientFood } from "@/lib/patient-substitutions-service";
 import { formatHouseholdMeasure } from "@/lib/patient-substitutions-service";
 
@@ -115,12 +116,14 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
     >
       {/* Aviso de grupos diferentes */}
       {!sameGroup && (
-        <div className="flex items-start gap-2 bg-amber-50 px-4 py-2.5 text-xs text-amber-800">
-          <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-          <span>
-            <strong>Atenção:</strong> grupos nutricionais diferentes — equivalência apenas calórica.
-            Verifique com seu nutricionista antes de substituir.
-          </span>
+        <div className="px-4 pt-3">
+          <Badge className="flex w-full items-start gap-2 whitespace-normal rounded-xl border border-amber-300 bg-amber-100 px-3 py-2 text-left text-xs font-medium text-amber-800">
+            <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+            <span>
+              <strong>Atenção:</strong> grupos nutricionais diferentes — equivalência apenas calórica.
+              Verifique com seu nutricionista antes de substituir.
+            </span>
+          </Badge>
         </div>
       )}
 
