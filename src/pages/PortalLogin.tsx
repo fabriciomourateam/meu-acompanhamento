@@ -329,6 +329,17 @@ export default function PortalLogin() {
         animation: 'gradientShift 15s ease infinite',
       }}
     >
+      {/* Atalho do painel admin no canto superior direito da página */}
+      {adminUid && (
+        <button
+          onClick={() => navigate(`/admin?uid=${adminUid}`)}
+          className="fixed top-4 right-4 z-20 flex items-center gap-1.5 text-xs text-slate-400 hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg bg-zinc-900/70 border border-amber-500/20 backdrop-blur-sm hover:bg-zinc-800/80"
+        >
+          <Settings className="w-3.5 h-3.5" />
+          Painel admin
+        </button>
+      )}
+
       {/* Orbs decorativos âmbar */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-96 h-96 rounded-full blur-3xl animate-pulse bg-amber-500/10" />
@@ -430,18 +441,6 @@ export default function PortalLogin() {
           </CardHeader>
 
           <CardContent style={{ padding: '0 2rem 2.5rem 2rem', position: 'relative', zIndex: 10 }}>
-            {adminUid && (
-              <div className="mb-4 flex justify-end">
-                <button
-                  onClick={() => navigate(`/admin?uid=${adminUid}`)}
-                  className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-amber-400 transition-colors px-3 py-1.5 rounded-lg hover:bg-slate-700/30"
-                >
-                  <Settings className="w-3.5 h-3.5" />
-                  Painel admin
-                </button>
-              </div>
-            )}
-
             {step === 'phone' ? (
               <form onSubmit={handlePhoneSubmit} className="space-y-6">
                 <div className="space-y-2">
