@@ -835,7 +835,7 @@ export function PatientDietPortal({
                                         className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
                                           ? 'bg-emerald-100 text-emerald-600'
                                           : isOption
-                                            ? 'bg-slate-100 text-slate-500'
+                                            ? '!bg-emerald-50 !text-emerald-500'
                                             : '!bg-emerald-50 !text-emerald-500'
                                           }`}
                                       >
@@ -850,7 +850,7 @@ export function PatientDietPortal({
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
                                           {isOption && (
-                                            <Badge className="bg-slate-100 text-slate-600 border-slate-200 border text-xs w-fit gap-1 order-first">
+                                            <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 border text-xs w-fit gap-1 order-first">
                                               <RefreshCw className="w-3 h-3" />
                                               Opção
                                             </Badge>
