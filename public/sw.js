@@ -95,3 +95,50 @@ self.addEventListener('message', (event) => {
   }
 });
 
+// ---------------------------------------------------------------------------
+// Web Push: exibe a notificação recebida.
+// ---------------------------------------------------------------------------
+self.addEventListener('push', (event) => {
+  let payload = {};
+  try {
+    payload = event.data ? event.data.json() : {};
+  } catch (e) {
+    payload = { title: 'Meu Acompanhamento', body: event.data ? event.data.text() : '' };
+  }
+
+  const title = payload.title || 'Meu Acompanhamento';
+  const options = {
+    body: payload.body || '',
+    icon: '/fmteam-icon.png',
+    badge: '/fmteam-icon.png',
+    tag: payload.type || 'geral',
+    renotify: true,
+    data: { url: payload.url || '/', ...(payload.data || {}) }
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+// Ao clicar na notificação: foca uma aba existente do app ou abre uma nova.
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  const targetUrl = (event.notification.data && event.notification.data.url) || '/';
+
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      for (const client of clientList) {
+        if ('focus' in client) {
+          client.focus();
+          if ('navigate' in client && targetUrl && targetUrl !== '/') {
+            client.navigate(targetUrl).catch(() => {});
+          }
+          return;
+        }
+      }
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetUrl);
+      }
+    })
+  );
+});
+

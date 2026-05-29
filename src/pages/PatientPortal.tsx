@@ -60,6 +60,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { WeightInput } from '@/components/evolution/WeightInput';
 import { StreakHeader } from '@/components/patient-portal/StreakHeader';
+import { PatientNotifications } from '@/components/patient-portal/PatientNotifications';
 import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
 import { motion } from 'framer-motion';
 import type { Database } from '@/integrations/supabase/types';
@@ -836,6 +837,7 @@ export default function PatientPortal() {
               </div>
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
+              {patientId && <PatientNotifications patientId={patientId} />}
               {/* Em mobile, esses botões ficam só no menu pra liberar espaço */}
               <div className="hidden sm:flex gap-2 items-center">
                 <InstallPWAButton />
