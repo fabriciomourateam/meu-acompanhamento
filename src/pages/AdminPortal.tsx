@@ -332,6 +332,11 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
           onToggle={() => setVis({ tab_diet: !config.visibility.tab_diet })}
         />
         <VisibilityToggle
+          on={config.visibility.tab_workout}
+          label="Aba Treino"
+          onToggle={() => setVis({ tab_workout: !config.visibility.tab_workout })}
+        />
+        <VisibilityToggle
           on={config.challenges.show_tab}
           label="Aba Metas"
           onToggle={() => onChange({ ...config, challenges: { show_tab: !config.challenges.show_tab } })}
