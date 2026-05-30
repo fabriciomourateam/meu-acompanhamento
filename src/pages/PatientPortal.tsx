@@ -924,6 +924,7 @@ export default function PatientPortal() {
                 bodyCompositions={bodyCompositions}
                 achievements={achievements}
                 refreshTrigger={chartsRefreshTrigger}
+                token={token}
               />
             </motion.div>
           )}

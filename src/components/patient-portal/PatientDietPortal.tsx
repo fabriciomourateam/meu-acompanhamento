@@ -34,6 +34,7 @@ import { LeaderboardWidget } from '@/components/diets/LeaderboardWidget';
 import { CommunityFeed } from '@/components/patient-portal/community/CommunityFeed';
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
+import { WorkoutTab } from '@/components/patient-portal/workout/WorkoutTab';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import { communityService } from '@/lib/community-service';
 import {
@@ -80,6 +81,7 @@ interface PatientDietPortalProps {
   bodyCompositions?: any[];
   achievements?: any[];
   refreshTrigger?: number; // Trigger para forçar atualização dos gráficos
+  token?: string; // Token do portal — usado pelas RPCs *_by_token (Treino)
 }
 
 export function PatientDietPortal({
@@ -89,7 +91,8 @@ export function PatientDietPortal({
   patient,
   bodyCompositions,
   achievements,
-  refreshTrigger
+  refreshTrigger,
+  token
 }: PatientDietPortalProps) {
   console.log("VERSION: EMERALD REF 3.0 LOADED"); // DEBUG LOG
   const { toast } = useToast();
@@ -127,6 +130,7 @@ export function PatientDietPortal({
   const [activeTab, setActiveTab] = useState<string>('diet');
   // Visibilidade configurável pelo treinador no /admin (default: tudo visível).
   const showDiet = portalConfig?.visibility?.tab_diet !== false;
+  const showWorkout = portalConfig?.visibility?.tab_workout !== false && !!token;
   const showChallenges = portalConfig?.challenges?.show_tab !== false;
   const showRanking = portalConfig?.visibility?.tab_ranking !== false;
   const showCommunity = portalConfig?.community?.show_tab !== false;
@@ -138,12 +142,13 @@ export function PatientDietPortal({
 
   const mainTabVisible: Record<string, boolean> = {
     diet: showDiet,
+    workout: showWorkout,
     challenges: showChallenges,
     ranking: showRanking,
     community: showCommunity,
     results: showResults,
   };
-  const ALL_MAIN_TABS = ['diet', 'challenges', 'ranking', 'community', 'results'] as const;
+  const ALL_MAIN_TABS = ['diet', 'workout', 'challenges', 'ranking', 'community', 'results'] as const;
   const TAB_ORDER = ALL_MAIN_TABS.filter((t) => mainTabVisible[t]);
   const hiddenNavTabs = ALL_MAIN_TABS.filter((t) => !mainTabVisible[t]);
   // Primeira subaba visível da Dieta (para o defaultValue do Tabs aninhado)
@@ -686,6 +691,11 @@ export function PatientDietPortal({
           {showDiet && (
             <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Dieta
+            </TabsTrigger>
+          )}
+          {showWorkout && (
+            <TabsTrigger value="workout" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Treino
             </TabsTrigger>
           )}
           {showChallenges && (
@@ -1257,6 +1267,13 @@ export function PatientDietPortal({
             </TabsContent>
           </Tabs>
         </TabsContent>
+
+        {/* Aba: Treino — sessão do dia + logging de séries (RPCs *_by_token) */}
+        {showWorkout && token && (
+          <TabsContent value="workout" className="mt-6 space-y-4">
+            <WorkoutTab token={token} active={activeTab === 'workout'} />
+          </TabsContent>
+        )}
 
         {/* Aba: Metas (com histórico semanal) */}
         <TabsContent value="challenges" className="mt-6 space-y-6">

@@ -32,6 +32,7 @@ export interface PortalConfig {
   // `community.show_tab` — aqui ficam as demais abas e as subabas da Dieta.
   visibility: {
     tab_diet: boolean;
+    tab_workout: boolean; // Aba Treino (logging de séries Heavy-style)
     tab_ranking: boolean;
     tab_results: boolean; // Evolução
     diet_meals: boolean; // subaba Plano Alimentar
@@ -68,6 +69,7 @@ const DEFAULT_CONFIG: PortalConfig = {
   },
   visibility: {
     tab_diet: true,
+    tab_workout: true,
     tab_ranking: true,
     tab_results: true,
     diet_meals: true,
@@ -115,6 +117,7 @@ export const portalSettingsService = {
         },
         visibility: {
           tab_diet: value?.visibility?.tab_diet ?? true,
+          tab_workout: value?.visibility?.tab_workout ?? true,
           tab_ranking: value?.visibility?.tab_ranking ?? true,
           tab_results: value?.visibility?.tab_results ?? true,
           diet_meals: value?.visibility?.diet_meals ?? true,
