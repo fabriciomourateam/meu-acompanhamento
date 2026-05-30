@@ -61,6 +61,7 @@ import {
 import { WeightInput } from '@/components/evolution/WeightInput';
 import { StreakHeader } from '@/components/patient-portal/StreakHeader';
 import { PatientNotifications } from '@/components/patient-portal/PatientNotifications';
+import { EnableNotificationsBanner } from '@/components/patient-portal/EnableNotificationsBanner';
 import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
 import { motion } from 'framer-motion';
 import type { Database } from '@/integrations/supabase/types';
@@ -905,6 +906,8 @@ export default function PatientPortal() {
             </div>
           </motion.div>
 
+          {/* Convite para ativar lembretes/avisos por push */}
+          {patientId && <EnableNotificationsBanner patientId={patientId} />}
 
           {/* Plano Alimentar, Metas e Progresso */}
           {patientId && (

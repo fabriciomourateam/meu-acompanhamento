@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
 import { NotificationSettingsPanel } from '@/components/admin/NotificationSettingsPanel';
+import { BrandSettingsPanel } from '@/components/admin/BrandSettingsPanel';
 import { THEME_PRESET_4, THEME_PRESET_8, getCurrentWeeklyTheme } from '@/lib/community-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1158,6 +1159,9 @@ export default function AdminPortal() {
             <TabsTrigger value="notifications" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Notificações
             </TabsTrigger>
+            <TabsTrigger value="brand" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              Marca
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="challenges" className="mt-4">
@@ -1206,6 +1210,10 @@ export default function AdminPortal() {
 
           <TabsContent value="notifications" className="mt-4">
             <NotificationSettingsPanel trainerUserId={trainerUserId} />
+          </TabsContent>
+
+          <TabsContent value="brand" className="mt-4">
+            <BrandSettingsPanel trainerUserId={trainerUserId} />
           </TabsContent>
         </Tabs>
       </div>

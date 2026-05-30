@@ -320,7 +320,7 @@ export function InstallPWAButton() {
                   </li>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-white flex-shrink-0 mt-0.5" />
-                    <span>Notificações push (em breve)</span>
+                    <span>Lembretes e avisos por notificação</span>
                   </li>
                 </ul>
                 

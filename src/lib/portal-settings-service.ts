@@ -144,4 +144,31 @@ export const portalSettingsService = {
       );
     if (error) throw error;
   },
+
+  /** Marca do treinador (logo/cor/frase) exibida na tela de login dos alunos. */
+  async getBrand(trainerUserId: string): Promise<{ logoUrl: string; primaryColor: string; tagline: string }> {
+    const { data } = await supabase
+      .from('profiles')
+      .select('brand_logo_url, brand_primary_color, brand_tagline')
+      .eq('id', trainerUserId)
+      .maybeSingle();
+    return {
+      logoUrl: (data?.brand_logo_url as string) || '',
+      primaryColor: (data?.brand_primary_color as string) || '',
+      tagline: (data?.brand_tagline as string) || '',
+    };
+  },
+
+  async saveBrand(
+    trainerUserId: string,
+    brand: { logoUrl: string; primaryColor: string; tagline: string },
+  ): Promise<void> {
+    const { error } = await supabase.rpc('update_trainer_brand', {
+      p_trainer_id: trainerUserId,
+      p_logo_url: brand.logoUrl,
+      p_primary_color: brand.primaryColor,
+      p_tagline: brand.tagline,
+    });
+    if (error) throw error;
+  },
 };
