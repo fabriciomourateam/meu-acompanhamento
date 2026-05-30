@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Loader2, RefreshCw, Clock, Flame, Users, Sparkles } from 'lucide-react';
+import { Loader2, RefreshCw, Clock, Flame, Users, Sparkles, ChevronDown } from 'lucide-react';
 import {
   communityService,
   CATEGORIES,
@@ -10,6 +10,7 @@ import {
 import { cn } from '@/lib/utils';
 import { PostComposer } from './PostComposer';
 import { PostCard } from './PostCard';
+import { getCurrentWeeklyTheme, type WeeklyTheme } from '@/lib/community-themes';
 
 interface CommunityFeedProps {
   patientId: string;
@@ -20,6 +21,10 @@ interface CommunityFeedProps {
   announcement?: string;
   announcementEmoji?: string;
   announcementEnabled?: boolean;
+  /** Rotação automática de temas semanais (tem prioridade sobre o aviso manual). */
+  themeRotationEnabled?: boolean;
+  themeStartDate?: string;
+  themeSchedule?: WeeklyTheme[];
 }
 
 type CategoryFilter = CommunityCategory | 'all';
@@ -31,6 +36,9 @@ export function CommunityFeed({
   announcement = '',
   announcementEmoji = '📌',
   announcementEnabled = false,
+  themeRotationEnabled = false,
+  themeStartDate = '',
+  themeSchedule = [],
 }: CommunityFeedProps) {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,13 +89,21 @@ export function CommunityFeed({
     load(true);
   }, [load]);
 
+  // Tema vigente: rotação automática tem prioridade; senão, o aviso manual.
+  const rotatingTheme = themeRotationEnabled
+    ? getCurrentWeeklyTheme(themeSchedule, themeStartDate)
+    : null;
+  const bannerEmoji = rotatingTheme ? (rotatingTheme.emoji || '📌') : (announcementEmoji || '📌');
+  const bannerText = rotatingTheme ? rotatingTheme.text : announcement;
+  const showBanner = rotatingTheme ? !!bannerText.trim() : (announcementEnabled && announcement.trim().length > 0);
+
   return (
     <div className="space-y-4">
-      {/* Aviso/tema fixado do treinador */}
-      {announcementEnabled && announcement.trim() && (
+      {/* Aviso / tema da semana (rotação automática ou aviso fixo) */}
+      {showBanner && (
         <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-3.5 shadow-sm">
-          <span className="text-xl leading-none">{announcementEmoji || '📌'}</span>
-          <p className="flex-1 whitespace-pre-line text-sm leading-relaxed text-slate-700">{announcement}</p>
+          <span className="text-xl leading-none">{bannerEmoji}</span>
+          <p className="flex-1 whitespace-pre-line text-sm leading-relaxed text-slate-700">{bannerText}</p>
         </div>
       )}
 
@@ -102,7 +118,25 @@ export function CommunityFeed({
 
       {/* Filtros */}
       <div className="flex items-center justify-between gap-2">
-        <div className="scrollbar-emerald flex flex-1 gap-1.5 overflow-x-auto pb-1">
+        {/* Mobile: select de categoria (evita a barra escondida) */}
+        <div className="relative flex-1 sm:hidden">
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as CategoryFilter)}
+            className="w-full appearance-none rounded-full border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-slate-700 focus:border-emerald-400 focus:outline-none"
+          >
+            <option value="all">📋 Tudo{totalUnread > 0 ? ` (${totalUnread})` : ''}</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.emoji} {c.label}{unread[c.value] ? ` (${unread[c.value]})` : ''}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+        </div>
+
+        {/* Desktop: chips de categoria */}
+        <div className="hidden flex-1 gap-1.5 overflow-x-auto pb-1 sm:flex scrollbar-emerald">
           <button
             onClick={() => setCategory('all')}
             className={cn(

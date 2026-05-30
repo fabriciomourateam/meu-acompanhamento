@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import {
   communityService,
-  CATEGORIES,
+  POST_CATEGORIES,
   type CommunityCategory,
 } from '@/lib/community-service';
 import { cn } from '@/lib/utils';
@@ -99,7 +99,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
       )}
 
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
-        {CATEGORIES.map((c) => (
+        {POST_CATEGORIES.map((c) => (
           <button
             key={c.value}
             onClick={() => setCategory(c.value)}

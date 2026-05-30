@@ -1316,6 +1316,9 @@ export function PatientDietPortal({
                 announcement={portalConfig?.community?.announcement || ''}
                 announcementEmoji={portalConfig?.community?.announcement_emoji || '📌'}
                 announcementEnabled={portalConfig?.community?.announcement_enabled || false}
+                themeRotationEnabled={portalConfig?.community?.theme_rotation_enabled || false}
+                themeStartDate={portalConfig?.community?.theme_start_date || ''}
+                themeSchedule={portalConfig?.community?.theme_schedule || []}
               />
             ) : (
               <p className="py-12 text-center text-sm text-slate-400">

@@ -19,6 +19,13 @@ export interface PortalConfig {
     announcement?: string;
     announcement_emoji?: string;
     announcement_enabled?: boolean;
+    /** Rotação automática de temas semanais. Quando ligada, o tema da semana
+     *  vem de `theme_schedule` (em vez do announcement manual). */
+    theme_rotation_enabled?: boolean;
+    /** Data (ISO yyyy-mm-dd) da segunda-feira em que a semana 1 começa. */
+    theme_start_date?: string;
+    /** Lista ordenada de temas; um por semana, rotaciona ao chegar no fim. */
+    theme_schedule?: { emoji: string; text: string }[];
   };
   // Visibilidade de abas/subabas do portal do aluno (default: tudo visível).
   // Obs.: aba Metas usa `challenges.show_tab` e aba Comunidade usa
@@ -55,6 +62,9 @@ const DEFAULT_CONFIG: PortalConfig = {
     announcement: '',
     announcement_emoji: '📌',
     announcement_enabled: false,
+    theme_rotation_enabled: false,
+    theme_start_date: '',
+    theme_schedule: [],
   },
   visibility: {
     tab_diet: true,
@@ -99,6 +109,9 @@ export const portalSettingsService = {
           announcement: value?.community?.announcement ?? '',
           announcement_emoji: value?.community?.announcement_emoji ?? '📌',
           announcement_enabled: value?.community?.announcement_enabled ?? false,
+          theme_rotation_enabled: value?.community?.theme_rotation_enabled ?? false,
+          theme_start_date: value?.community?.theme_start_date ?? '',
+          theme_schedule: Array.isArray(value?.community?.theme_schedule) ? value.community.theme_schedule : [],
         },
         visibility: {
           tab_diet: value?.visibility?.tab_diet ?? true,

@@ -27,6 +27,10 @@ export const CATEGORIES: { value: CommunityCategory; label: string; emoji: strin
   { value: 'duvida',    label: 'Dúvida',    emoji: '❓' },
 ];
 
+// Categorias oferecidas ao aluno na hora de postar (sem "Dúvida").
+// `CATEGORIES` continua completo para exibir/filtrar posts já existentes.
+export const POST_CATEGORIES = CATEGORIES.filter((c) => c.value !== 'duvida');
+
 export interface CommunityPost {
   id: string;
   author_patient_id: string;

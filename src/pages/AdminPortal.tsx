@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
 import { NotificationSettingsPanel } from '@/components/admin/NotificationSettingsPanel';
+import { THEME_PRESET_4, THEME_PRESET_8, getCurrentWeeklyTheme } from '@/lib/community-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -481,6 +482,107 @@ function CommunitySettings({
               placeholder={'Ex.: 📸 Tema da semana: poste seu treino de hoje!'}
               className="min-h-[72px] resize-none bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-emerald-200 focus-visible:ring-1 focus-visible:ring-emerald-300/40 focus-visible:ring-offset-0"
             />
+          </div>
+        )}
+      </div>
+
+      {/* Temas da semana (rotação automática) */}
+      <div className="space-y-3">
+        <p className="font-semibold text-slate-700">Temas da semana (rotação automática)</p>
+        <p className="text-xs text-slate-400">
+          Carregue um cronograma de temas — o app mostra um por semana automaticamente e recomeça do início ao terminar a lista.
+          Quando ligada, a rotação tem prioridade sobre o aviso fixado acima.
+        </p>
+        <button
+          onClick={() => onChange({ ...config, community: { ...config.community, theme_rotation_enabled: !config.community.theme_rotation_enabled } })}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
+            config.community.theme_rotation_enabled ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+          }`}
+        >
+          {config.community.theme_rotation_enabled ? <ToggleRight className="w-5 h-5 shrink-0" /> : <ToggleLeft className="w-5 h-5 shrink-0 text-slate-400" />}
+          Ativar rotação automática de temas
+        </button>
+
+        {config.community.theme_rotation_enabled && (
+          <div className="space-y-3">
+            {/* Presets */}
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => onChange({ ...config, community: { ...config.community, theme_schedule: THEME_PRESET_4 } })}
+                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+              >
+                Sugerir 4 semanas
+              </button>
+              <button
+                onClick={() => onChange({ ...config, community: { ...config.community, theme_schedule: THEME_PRESET_8 } })}
+                className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700 hover:bg-emerald-100"
+              >
+                Sugerir 8 semanas
+              </button>
+              <button
+                onClick={() => onChange({ ...config, community: { ...config.community, theme_schedule: [...(config.community.theme_schedule || []), { emoji: '✨', text: '' }] } })}
+                className="rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-50"
+              >
+                + Adicionar semana
+              </button>
+            </div>
+
+            {/* Data de início */}
+            <label className="flex items-center gap-2 text-xs text-slate-600">
+              Semana 1 começa em:
+              <input
+                type="date"
+                value={config.community.theme_start_date || ''}
+                onChange={(e) => onChange({ ...config, community: { ...config.community, theme_start_date: e.target.value } })}
+                className="rounded-lg border border-slate-200 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+              />
+            </label>
+
+            {/* Lista editável */}
+            <div className="space-y-2">
+              {(config.community.theme_schedule || []).map((t, i) => {
+                const current = getCurrentWeeklyTheme(config.community.theme_schedule, config.community.theme_start_date);
+                const isCurrent = current === (config.community.theme_schedule || [])[i];
+                return (
+                  <div key={i} className={`flex items-center gap-2 rounded-lg border p-2 ${isCurrent ? 'border-emerald-300 bg-emerald-50/50' : 'border-slate-100 bg-slate-50'}`}>
+                    <span className="w-12 shrink-0 text-center text-[10px] font-semibold text-slate-400">S{i + 1}</span>
+                    <input
+                      value={t.emoji}
+                      onChange={(e) => {
+                        const next = [...(config.community.theme_schedule || [])];
+                        next[i] = { ...next[i], emoji: e.target.value };
+                        onChange({ ...config, community: { ...config.community, theme_schedule: next } });
+                      }}
+                      maxLength={2}
+                      className="w-10 shrink-0 rounded-md border border-slate-200 px-1 py-1 text-center text-base focus:border-emerald-400 focus:outline-none"
+                    />
+                    <input
+                      value={t.text}
+                      onChange={(e) => {
+                        const next = [...(config.community.theme_schedule || [])];
+                        next[i] = { ...next[i], text: e.target.value };
+                        onChange({ ...config, community: { ...config.community, theme_schedule: next } });
+                      }}
+                      placeholder="Texto do tema desta semana"
+                      className="flex-1 rounded-md border border-slate-200 px-2 py-1 text-xs focus:border-emerald-400 focus:outline-none"
+                    />
+                    <button
+                      onClick={() => {
+                        const next = (config.community.theme_schedule || []).filter((_, idx) => idx !== i);
+                        onChange({ ...config, community: { ...config.community, theme_schedule: next } });
+                      }}
+                      className="shrink-0 rounded-md p-1 text-slate-400 hover:bg-rose-50 hover:text-rose-500"
+                      aria-label="Remover semana"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
+              {(config.community.theme_schedule || []).length === 0 && (
+                <p className="text-xs text-slate-400">Nenhum tema ainda — use um preset acima ou adicione semanas.</p>
+              )}
+            </div>
           </div>
         )}
       </div>
