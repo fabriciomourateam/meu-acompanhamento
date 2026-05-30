@@ -139,7 +139,7 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
 
   if (!today?.plan) {
     return (
-      <Card className="border-slate-200">
+      <Card className="bg-white border-slate-200 shadow-sm">
         <CardContent className="p-8 text-center space-y-3">
           <Dumbbell className="w-12 h-12 mx-auto text-slate-300" />
           <h3 className="font-semibold text-slate-700">Nenhum treino liberado</h3>
@@ -151,7 +151,7 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
 
   if (!today.session) {
     return (
-      <Card className="border-slate-200">
+      <Card className="bg-white border-slate-200 shadow-sm">
         <CardContent className="p-8 text-center space-y-2">
           <h3 className="font-semibold text-slate-700">{today.plan.name}</h3>
           <p className="text-sm text-slate-500">Plano sem sessões cadastradas.</p>
