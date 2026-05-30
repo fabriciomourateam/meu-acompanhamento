@@ -447,6 +447,44 @@ function CommunitySettings({
         </button>
       </div>
 
+      {/* Aviso fixado / Tema da semana */}
+      <div className="space-y-3">
+        <p className="font-semibold text-slate-700">Aviso fixado / Tema da semana</p>
+        <p className="text-xs text-slate-400">
+          Aparece em destaque no topo do feed da comunidade. Use para dar o tom, lançar um tema da semana ou um aviso.
+        </p>
+        <button
+          onClick={() => onChange({ ...config, community: { ...config.community, announcement_enabled: !config.community.announcement_enabled } })}
+          className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
+            config.community.announcement_enabled ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'
+          }`}
+        >
+          {config.community.announcement_enabled ? <ToggleRight className="w-5 h-5 shrink-0" /> : <ToggleLeft className="w-5 h-5 shrink-0 text-slate-400" />}
+          Mostrar aviso fixado no feed
+        </button>
+        {config.community.announcement_enabled && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                value={config.community.announcement_emoji ?? '📌'}
+                onChange={(e) => onChange({ ...config, community: { ...config.community, announcement_emoji: e.target.value } })}
+                maxLength={2}
+                aria-label="Emoji do aviso"
+                className="w-14 rounded-lg border border-slate-200 px-3 py-2 text-center text-lg focus:border-emerald-400 focus:outline-none"
+              />
+              <span className="text-xs text-slate-400">Emoji do destaque</span>
+            </div>
+            <Textarea
+              value={config.community.announcement ?? ''}
+              onChange={(e) => onChange({ ...config, community: { ...config.community, announcement: e.target.value } })}
+              maxLength={400}
+              placeholder={'Ex.: 📸 Tema da semana: poste seu treino de hoje!'}
+              className="min-h-[72px] resize-none bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:border-emerald-200 focus-visible:ring-1 focus-visible:ring-emerald-300/40 focus-visible:ring-offset-0"
+            />
+          </div>
+        )}
+      </div>
+
       {/* Branding dos compartilhamentos */}
       <div className="space-y-4">
         <div className="space-y-2">

@@ -16,11 +16,22 @@ interface CommunityFeedProps {
   trainerUserId: string;
   trainerInstagram?: string;
   shareCaption?: string;
+  /** Aviso/tema fixado configurado pelo treinador no /admin. */
+  announcement?: string;
+  announcementEmoji?: string;
+  announcementEnabled?: boolean;
 }
 
 type CategoryFilter = CommunityCategory | 'all';
 
-export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption = '' }: CommunityFeedProps) {
+export function CommunityFeed({
+  patientId,
+  trainerInstagram = '',
+  shareCaption = '',
+  announcement = '',
+  announcementEmoji = '📌',
+  announcementEnabled = false,
+}: CommunityFeedProps) {
   const [posts, setPosts] = useState<CommunityPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -28,6 +39,9 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
   const [sort, setSort] = useState<FeedSort>('recent');
   // Contadores de posts novos por categoria desde a ultima visita (localStorage).
   const [unread, setUnread] = useState<Record<string, number>>({});
+  const [composerCategory, setComposerCategory] = useState<CommunityCategory>('geral');
+  const composerRef = useRef<HTMLDivElement>(null);
+  const scrollToComposer = () => composerRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
   useEffect(() => {
     if (!patientId) return;
