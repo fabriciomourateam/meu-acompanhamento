@@ -3,6 +3,7 @@ import { Loader2, RefreshCw, Clock, Flame, Users, Sparkles, ChevronDown } from '
 import {
   communityService,
   CATEGORIES,
+  POST_CATEGORIES,
   type CommunityPost,
   type CommunityCategory,
   type FeedSort,
@@ -126,7 +127,7 @@ export function CommunityFeed({
             className="w-full appearance-none rounded-full border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-slate-700 focus:border-emerald-400 focus:outline-none"
           >
             <option value="all">📋 Tudo{totalUnread > 0 ? ` (${totalUnread})` : ''}</option>
-            {CATEGORIES.map((c) => (
+            {POST_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.emoji} {c.label}{unread[c.value] ? ` (${unread[c.value]})` : ''}
               </option>
@@ -147,7 +148,7 @@ export function CommunityFeed({
             Tudo
             <UnreadDot count={totalUnread} active={category === 'all'} />
           </button>
-          {CATEGORIES.map((c) => (
+          {POST_CATEGORIES.map((c) => (
             <button
               key={c.value}
               onClick={() => setCategory(c.value)}
