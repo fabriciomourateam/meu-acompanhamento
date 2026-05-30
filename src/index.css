@@ -31,6 +31,13 @@
   background: linear-gradient(90deg, #10b981, #059669);
 }
 
+/* Zoom-out sutil só no mobile (mais "ar"/premium, sem prejudicar o desktop) */
+@media (max-width: 640px) {
+  .portal-zoom {
+    zoom: 0.94;
+  }
+}
+
 /* Modern Personal Trainer Dashboard Design System */
 @layer base {
   :root {

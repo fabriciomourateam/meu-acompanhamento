@@ -788,21 +788,17 @@ export default function PatientPortal() {
 
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
-      {/* Background branco estilizado: glows emerald suaves + grade pontilhada sutil (CSS puro) */}
-      <div className="absolute inset-0 bg-white">
-        {/* brilho inferior direito (existente) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_85%_95%,rgba(16,185,129,0.16),transparent_55%)]" />
-        {/* brilho superior esquerdo */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_8%_-5%,rgba(16,185,129,0.10),transparent_45%)]" />
-        {/* brilho superior direito (teal) */}
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_98%_0%,rgba(45,212,191,0.08),transparent_42%)]" />
-        {/* grade pontilhada bem leve */}
-        <div className="absolute inset-0 opacity-60 [background-image:radial-gradient(rgba(16,185,129,0.07)_1px,transparent_1px)] [background-size:22px_22px]" />
+      {/* Fundo "clean com respiro verde": base clara + brilho emerald descendo do topo */}
+      <div className="absolute inset-0 bg-slate-50">
+        {/* respiro verde vindo do topo (conversa com o header) */}
+        <div className="absolute inset-0 bg-[radial-gradient(120%_55%_at_50%_-8%,rgba(16,185,129,0.16),transparent_60%)]" />
+        {/* leve profundidade teal no rodapé */}
+        <div className="absolute inset-0 bg-[radial-gradient(100%_42%_at_50%_108%,rgba(45,212,191,0.06),transparent_60%)]" />
       </div>
 
       {/* Conteúdo com z-index */}
       <div className="relative z-10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-5 space-y-4 sm:space-y-5">
+        <div className="portal-zoom max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-5 space-y-4 sm:space-y-5">
           {/* Header do Portal */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
