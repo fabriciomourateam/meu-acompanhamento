@@ -42,6 +42,8 @@ export default function PortalLogin() {
   const [loading, setLoading] = useState(false);
   const hasRedirected = useRef(false);
   const [adminUid, setAdminUid] = useState<string | null>(null);
+  // Marca personalizada do treinador (tenants que não são o dono FMTeam).
+  const [brand, setBrand] = useState<{ logoUrl: string | null; primaryColor: string | null; tagline: string | null } | null>(null);
 
   // Fluxo: phone → dob
   const [step, setStep] = useState<'phone' | 'dob'>(navState.step ?? 'phone');
@@ -49,19 +51,27 @@ export default function PortalLogin() {
   const [firstTimeDob, setFirstTimeDob] = useState(navState.firstTimeDob ?? false);
   const phonePatternRef = useRef<string>(navState.pattern ?? '');
 
-  // Buscar uid do trainer pelo checkin_slug pra mostrar atalho admin
+  // Buscar uid + marca do trainer pelo checkin_slug (atalho admin e branding)
   useEffect(() => {
     // Na rota base (/), usa o tenant dono (fmteam) para também mostrar o atalho admin.
     const slug = pathSlug ?? DEFAULT_TENANT_SLUG;
     supabase
       .from('profiles')
-      .select('id')
+      .select('id, brand_logo_url, brand_primary_color, brand_tagline')
       .eq('checkin_slug', slug)
       .maybeSingle()
       .then(({ data }) => {
         if (data?.id) setAdminUid(data.id);
+        // Só aplica marca personalizada fora da rota dona (FMTeam mantém seu visual fixo).
+        if (data && !isOwnerRoute) {
+          setBrand({
+            logoUrl: data.brand_logo_url || null,
+            primaryColor: data.brand_primary_color || null,
+            tagline: data.brand_tagline || null,
+          });
+        }
       });
-  }, [pathSlug]);
+  }, [pathSlug, isOwnerRoute]);
 
   // Salva rota de login (PWA fixa o portal do trainer; rota genérica só salva
   // se ainda não houver nada salvo)
@@ -400,13 +410,13 @@ export default function PortalLogin() {
             >
               <div className="w-full h-full bg-gradient-to-br from-zinc-800 via-zinc-900 to-black rounded-full flex items-center justify-center shadow-lg shadow-amber-500/30 border border-amber-500/20 overflow-hidden">
                 <img
-                  src={isOwnerRoute ? '/fmteam-logo.png' : '/fm-logo.png'}
+                  src={isOwnerRoute ? '/fmteam-logo.png' : (brand?.logoUrl || '/fm-logo.png')}
                   alt="Logo"
                   className="w-[85%] h-[85%] object-contain"
                   onError={(e) => {
-                    // Se o logo do dono ainda não foi adicionado, cai no logo padrão.
+                    // Se o logo (do dono ou personalizado) falhar, cai no logo padrão.
                     const img = e.currentTarget;
-                    if (img.src.endsWith('/fmteam-logo.png')) img.src = '/fm-logo.png';
+                    if (!img.src.endsWith('/fm-logo.png')) img.src = '/fm-logo.png';
                   }}
                 />
               </div>
@@ -432,10 +442,11 @@ export default function PortalLogin() {
                 className={
                   isOwnerRoute
                     ? 'mt-2 font-bold tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600'
-                    : 'text-slate-400 mt-2'
+                    : 'mt-2 font-semibold tracking-wide text-slate-300'
                 }
+                style={!isOwnerRoute && brand?.primaryColor ? { color: brand.primaryColor } : undefined}
               >
-                {isOwnerRoute ? 'Consultoria Esportiva FMTeam' : 'Construindo Resultados'}
+                {isOwnerRoute ? 'Consultoria Esportiva FMTeam' : (brand?.tagline || 'Construindo Resultados')}
               </CardDescription>
             </div>
           </CardHeader>
