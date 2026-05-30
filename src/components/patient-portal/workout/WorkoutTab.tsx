@@ -165,20 +165,20 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white p-4 shadow-md"
+        className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4"
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-xs uppercase tracking-wide opacity-90">Hoje</p>
-            <h2 className="text-xl font-bold leading-tight truncate">{today.session.name}</h2>
-            {today.session.focus ? <p className="text-sm opacity-90">{today.session.focus}</p> : null}
-            <p className="text-xs opacity-80 mt-1">{today.plan.name}</p>
+            <p className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold">Hoje</p>
+            <h2 className="text-xl font-bold leading-tight text-slate-900 truncate">{today.session.name}</h2>
+            {today.session.focus ? <p className="text-sm text-slate-600">{today.session.focus}</p> : null}
+            <p className="text-xs text-slate-400 mt-1">{today.plan.name}</p>
           </div>
-          <div className="flex flex-col items-end gap-2 shrink-0">
-            <div className="flex items-center gap-1 bg-white/15 rounded-full px-2.5 py-1 text-xs font-semibold">
+          <div className="flex flex-col items-end gap-1.5 shrink-0">
+            <div className="flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-1 text-xs font-semibold">
               <Flame className="w-3.5 h-3.5" /> {streak} dia{streak === 1 ? '' : 's'}
             </div>
-            <div className="flex items-center gap-1 bg-white/15 rounded-full px-2.5 py-1 text-xs font-semibold">
+            <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-1 text-xs font-semibold">
               <Trophy className="w-3.5 h-3.5" /> {doneSetsCount}/{(today.exercises || []).reduce((a, e) => a + (e.sets || 0), 0)} séries
             </div>
           </div>
@@ -186,11 +186,11 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
 
         {sessionLogId ? (
           <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="opacity-90">Volume: <strong className="tabular-nums">{totalVolume.toFixed(0)} kg</strong></span>
+            <span className="text-slate-600">Volume: <strong className="tabular-nums text-slate-900">{totalVolume.toFixed(0)} kg</strong></span>
             <Button
               size="sm"
               onClick={() => setFinishOpen(true)}
-              className="bg-white text-emerald-700 hover:bg-emerald-50 font-semibold"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
             >
               <CheckCircle2 className="w-4 h-4 mr-1.5" /> Finalizar
             </Button>
@@ -199,7 +199,7 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
           <Button
             onClick={handleStart}
             disabled={starting}
-            className="mt-3 w-full bg-white text-emerald-700 hover:bg-emerald-50 font-semibold h-11"
+            className="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11"
           >
             <PlayCircle className="w-5 h-5 mr-1.5" /> {starting ? 'Iniciando…' : 'Começar treino'}
           </Button>
