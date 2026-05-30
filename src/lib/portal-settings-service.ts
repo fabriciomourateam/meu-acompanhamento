@@ -15,6 +15,10 @@ export interface PortalConfig {
   };
   community: {
     show_tab: boolean;
+    /** Aviso/tema fixado exibido no topo do feed da comunidade. */
+    announcement?: string;
+    announcement_emoji?: string;
+    announcement_enabled?: boolean;
   };
   // Visibilidade de abas/subabas do portal do aluno (default: tudo visível).
   // Obs.: aba Metas usa `challenges.show_tab` e aba Comunidade usa
@@ -48,6 +52,9 @@ const DEFAULT_CONFIG: PortalConfig = {
   },
   community: {
     show_tab: true,
+    announcement: '',
+    announcement_emoji: '📌',
+    announcement_enabled: false,
   },
   visibility: {
     tab_diet: true,
@@ -89,6 +96,9 @@ export const portalSettingsService = {
         },
         community: {
           show_tab: value?.community?.show_tab ?? true,
+          announcement: value?.community?.announcement ?? '',
+          announcement_emoji: value?.community?.announcement_emoji ?? '📌',
+          announcement_enabled: value?.community?.announcement_enabled ?? false,
         },
         visibility: {
           tab_diet: value?.visibility?.tab_diet ?? true,

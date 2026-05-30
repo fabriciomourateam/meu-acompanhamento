@@ -1313,6 +1313,9 @@ export function PatientDietPortal({
                 trainerUserId={trainerUserId}
                 trainerInstagram={portalConfig?.branding?.instagram || ''}
                 shareCaption={portalConfig?.branding?.share_caption || ''}
+                announcement={portalConfig?.community?.announcement || ''}
+                announcementEmoji={portalConfig?.community?.announcement_emoji || '📌'}
+                announcementEnabled={portalConfig?.community?.announcement_enabled || false}
               />
             ) : (
               <p className="py-12 text-center text-sm text-slate-400">

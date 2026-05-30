@@ -13,13 +13,18 @@ import { cn } from '@/lib/utils';
 interface PostComposerProps {
   patientId: string;
   onPosted: () => void;
+  /** Categoria controlada externamente (ex.: CTA "postar em X"). Opcional. */
+  category?: CommunityCategory;
+  onCategoryChange?: (c: CommunityCategory) => void;
 }
 
-export function PostComposer({ patientId, onPosted }: PostComposerProps) {
+export function PostComposer({ patientId, onPosted, category: categoryProp, onCategoryChange }: PostComposerProps) {
   const { toast } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [content, setContent] = useState('');
-  const [category, setCategory] = useState<CommunityCategory>('geral');
+  const [categoryInternal, setCategoryInternal] = useState<CommunityCategory>('geral');
+  const category = categoryProp ?? categoryInternal;
+  const setCategory = onCategoryChange ?? setCategoryInternal;
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);

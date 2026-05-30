@@ -342,7 +342,7 @@ function VisibilitySettings({ config, onChange }: { config: PortalConfig; onChan
         <VisibilityToggle
           on={config.community.show_tab}
           label="Aba Comunidade"
-          onToggle={() => onChange({ ...config, community: { show_tab: !config.community.show_tab } })}
+          onToggle={() => onChange({ ...config, community: { ...config.community, show_tab: !config.community.show_tab } })}
         />
         <VisibilityToggle
           on={config.visibility.tab_results}
@@ -437,7 +437,7 @@ function CommunitySettings({
       <div className="space-y-3">
         <p className="font-semibold text-slate-700">Aba Comunidade</p>
         <button
-          onClick={() => onChange({ ...config, community: { show_tab: !config.community.show_tab } })}
+          onClick={() => onChange({ ...config, community: { ...config.community, show_tab: !config.community.show_tab } })}
           className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl border text-sm text-left transition-all ${
             config.community.show_tab ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-slate-50 border-slate-200 text-slate-500'
           }`}

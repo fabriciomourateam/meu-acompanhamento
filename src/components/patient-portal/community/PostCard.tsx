@@ -108,7 +108,12 @@ export function PostCard({
   const activeEmojis = REACTIONS.filter((r) => (post.reactions[r.type] || 0) > 0).map((r) => r.emoji);
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className={cn(
+      'rounded-2xl border p-4 shadow-sm',
+      isConquista
+        ? 'border-amber-300 bg-gradient-to-br from-amber-50/70 to-white ring-1 ring-amber-200'
+        : 'border-slate-200 bg-white',
+    )}>
       {/* Cabeçalho */}
       <div className="flex items-start gap-3">
         <CommunityAvatar name={post.author_name} photo={post.author_photo} />
@@ -116,7 +121,10 @@ export function PostCard({
           <div className="flex items-center gap-2">
             <p className="truncate text-sm font-semibold text-slate-800">{post.author_name}</p>
             {category && (
-              <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-medium text-slate-500">
+              <span className={cn(
+                'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium',
+                isConquista ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' : 'bg-slate-100 text-slate-500',
+              )}>
                 {category.emoji} {category.label}
               </span>
             )}

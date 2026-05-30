@@ -1,5 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
-import { Loader2, RefreshCw, Clock, Flame, Users } from 'lucide-react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Loader2, RefreshCw, Clock, Flame, Users, Sparkles } from 'lucide-react';
 import {
   communityService,
   CATEGORIES,
@@ -69,7 +69,22 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
 
   return (
     <div className="space-y-4">
-      <PostComposer patientId={patientId} onPosted={() => load(false)} />
+      {/* Aviso/tema fixado do treinador */}
+      {announcementEnabled && announcement.trim() && (
+        <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-3.5 shadow-sm">
+          <span className="text-xl leading-none">{announcementEmoji || '📌'}</span>
+          <p className="flex-1 whitespace-pre-line text-sm leading-relaxed text-slate-700">{announcement}</p>
+        </div>
+      )}
+
+      <div ref={composerRef}>
+        <PostComposer
+          patientId={patientId}
+          category={composerCategory}
+          onCategoryChange={setComposerCategory}
+          onPosted={() => load(false)}
+        />
+      </div>
 
       {/* Filtros */}
       <div className="flex items-center justify-between gap-2">
@@ -136,11 +151,43 @@ export function CommunityFeed({ patientId, trainerInstagram = '', shareCaption =
           <Loader2 className="h-6 w-6 animate-spin text-emerald-500" />
         </div>
       ) : posts.length === 0 ? (
-        <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
-          <Users className="h-8 w-8 text-slate-300" />
-          <p className="text-sm font-medium text-slate-500">Nenhuma publicação ainda</p>
-          <p className="text-xs text-slate-400">Seja o primeiro a compartilhar algo com a comunidade!</p>
-        </div>
+        category === 'all' ? (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
+            <Users className="h-8 w-8 text-slate-300" />
+            <div>
+              <p className="text-sm font-medium text-slate-600">Nenhuma publicação ainda</p>
+              <p className="text-xs text-slate-400">Seja o primeiro a compartilhar algo com a comunidade!</p>
+            </div>
+            <button
+              onClick={scrollToComposer}
+              className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-600"
+            >
+              <Sparkles className="h-3.5 w-3.5" /> Criar o primeiro post
+            </button>
+          </div>
+        ) : (
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
+            <Users className="h-8 w-8 text-slate-300" />
+            <p className="text-sm font-medium text-slate-600">
+              Nenhum post em {CATEGORIES.find((c) => c.value === category)?.emoji}{' '}
+              {CATEGORIES.find((c) => c.value === category)?.label} ainda
+            </p>
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                onClick={() => { setComposerCategory(category as CommunityCategory); scrollToComposer(); }}
+                className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-emerald-600"
+              >
+                <Sparkles className="h-3.5 w-3.5" /> Postar em {CATEGORIES.find((c) => c.value === category)?.label}
+              </button>
+              <button
+                onClick={() => setCategory('all')}
+                className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+              >
+                Ver tudo
+              </button>
+            </div>
+          </div>
+        )
       ) : (
         <div className="space-y-3">
           {posts.map((post) => (
