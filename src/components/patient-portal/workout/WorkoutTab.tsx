@@ -22,6 +22,7 @@ import { WorkoutSessionRunner } from './WorkoutSessionRunner';
 interface WorkoutTabProps {
   token: string;
   active: boolean;
+  patientName?: string;
 }
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -33,7 +34,7 @@ function sessionBadge(namingStyle: 'numeric' | 'letter' | null, index: number, d
   return base;
 }
 
-export function WorkoutTab({ token, active }: WorkoutTabProps) {
+export function WorkoutTab({ token, active, patientName }: WorkoutTabProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [hub, setHub] = useState<WorkoutHub | null>(null);
@@ -177,7 +178,7 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-3">
-          <AnalyticsSubtab token={token} planId={plan.id} />
+          <AnalyticsSubtab token={token} planId={plan.id} patientName={patientName} />
         </TabsContent>
       </Tabs>
     </div>

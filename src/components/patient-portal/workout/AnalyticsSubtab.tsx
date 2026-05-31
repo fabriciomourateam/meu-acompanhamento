@@ -6,29 +6,95 @@ import {
   LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
 } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Share2 } from 'lucide-react';
+import { workoutExtrasService, type TrainerProfile } from '@/lib/workout/workout-extras-service';
+import { ShareableProgressCard } from '../ShareableProgressCard';
 
 interface AnalyticsSubtabProps {
   token: string;
   planId: string;
+  patientName?: string;
 }
 
-export function AnalyticsSubtab({ token, planId }: AnalyticsSubtabProps) {
+export function AnalyticsSubtab({ token, planId, patientName }: AnalyticsSubtabProps) {
   const [tab, setTab] = useState<'calendar' | 'volume' | 'rpe' | 'adherence'>('calendar');
 
   return (
-    <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-      <TabsList className="grid w-full grid-cols-4">
-        <TabsTrigger value="calendar">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
-        <TabsTrigger value="volume">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
-        <TabsTrigger value="rpe">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
-        <TabsTrigger value="adherence">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
-      </TabsList>
-      <TabsContent value="calendar" className="mt-3"><CalendarView token={token} /></TabsContent>
-      <TabsContent value="volume" className="mt-3"><VolumeChart token={token} /></TabsContent>
-      <TabsContent value="rpe" className="mt-3"><RpeChart token={token} /></TabsContent>
-      <TabsContent value="adherence" className="mt-3"><AdherenceChart token={token} planId={planId} /></TabsContent>
-    </Tabs>
+    <div className="space-y-3">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
+        <TabsList className="grid w-full grid-cols-4">
+          <TabsTrigger value="calendar">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
+          <TabsTrigger value="volume">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
+          <TabsTrigger value="rpe">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
+          <TabsTrigger value="adherence">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
+        </TabsList>
+        <TabsContent value="calendar" className="mt-3"><CalendarView token={token} /></TabsContent>
+        <TabsContent value="volume" className="mt-3"><VolumeChart token={token} /></TabsContent>
+        <TabsContent value="rpe" className="mt-3"><RpeChart token={token} /></TabsContent>
+        <TabsContent value="adherence" className="mt-3"><AdherenceChart token={token} planId={planId} /></TabsContent>
+      </Tabs>
+
+      <ShareProgressSection token={token} planId={planId} patientName={patientName} />
+    </div>
+  );
+}
+
+// ITEM 11 — botão "Compartilhar progresso". Por decisão de privacidade, NÃO
+// publica peso nem % de gordura: só semanas treinando + adesão média.
+function ShareProgressSection({ token, planId, patientName }: { token: string; planId: string; patientName?: string }) {
+  const [open, setOpen] = useState(false);
+  const [trainer, setTrainer] = useState<TrainerProfile | null>(null);
+  const [stats, setStats] = useState<{ weeks: number; avgAdherence?: number } | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  const handleOpen = async () => {
+    setOpen(true);
+    if (stats) return;
+    setLoading(true);
+    try {
+      const [profile, adh] = await Promise.all([
+        workoutExtrasService.getTrainerProfile(token),
+        workoutExtrasService.getWeeklyAdherence(token, planId, 12),
+      ]);
+      setTrainer(profile ?? { name: null, avatar_url: null, share_logo_url: null, share_brand_name: null, share_brand_color: null });
+      const weeks = adh.length;
+      const avgAdherence = adh.length > 0
+        ? Math.round(adh.reduce((s, w) => s + Number(w.adherence_pct), 0) / adh.length)
+        : undefined;
+      setStats({ weeks: Math.max(1, weeks), avgAdherence });
+    } catch (err) {
+      console.error('Erro ao preparar compartilhamento:', err);
+      setStats({ weeks: 1 });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <>
+      <Button onClick={() => void handleOpen()} variant="outline" className="w-full">
+        <Share2 className="mr-1.5 h-4 w-4" /> Compartilhar progresso
+      </Button>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Compartilhar progresso</DialogTitle>
+          </DialogHeader>
+          {loading || !stats || !trainer ? (
+            <p className="py-8 text-center text-sm text-slate-400">Preparando…</p>
+          ) : (
+            <ShareableProgressCard
+              trainerProfile={trainer}
+              patientName={patientName ?? 'Aluno(a)'}
+              stats={stats}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
