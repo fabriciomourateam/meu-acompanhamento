@@ -1,7 +1,7 @@
 // Execução de uma sessão de treino: iniciar, registrar séries (ITEM 8 — grid por
 // série já é o ExerciseCard/SetRow existente), cronômetro de descanso (ITEM 9),
 // substituir exercício no dia (ITEM 10) e finalizar.
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { PlayCircle, CheckCircle2, Trophy } from 'lucide-react';
@@ -25,16 +25,75 @@ interface Props {
   onFinished: () => void;
 }
 
+// Rascunho persistido em localStorage: garante que o aluno não perca nada se
+// fechar/recarregar o app no meio do treino (carga digitada, séries marcadas,
+// substituições e o próprio sessionLogId em andamento). Keyed por sessão.
+interface RunnerDraft {
+  sessionLogId: string | null;
+  sets: SetMap;
+  subs: SubMap;
+  updatedAt: number;
+}
+const DRAFT_PREFIX = 'workout-runner-draft:';
+const DRAFT_TTL_MS = 1000 * 60 * 60 * 24; // 24h — descarta rascunho velho de mais
+
+function draftKey(plannedSessionId: string) {
+  return `${DRAFT_PREFIX}${plannedSessionId}`;
+}
+
+function loadDraft(plannedSessionId: string): RunnerDraft | null {
+  try {
+    const raw = localStorage.getItem(draftKey(plannedSessionId));
+    if (!raw) return null;
+    const d = JSON.parse(raw) as RunnerDraft;
+    if (!d || typeof d !== 'object') return null;
+    if (Date.now() - (d.updatedAt ?? 0) > DRAFT_TTL_MS) {
+      localStorage.removeItem(draftKey(plannedSessionId));
+      return null;
+    }
+    return d;
+  } catch {
+    return null;
+  }
+}
+
+function clearDraft(plannedSessionId: string) {
+  try { localStorage.removeItem(draftKey(plannedSessionId)); } catch { /* ignore */ }
+}
+
 export function WorkoutSessionRunner({ token, plan, session, onFinished }: Props) {
   const { toast } = useToast();
-  const [sessionLogId, setSessionLogId] = useState<string | null>(null);
+  // Hidrata o estado inicial a partir do rascunho salvo (se houver).
+  const initial = useMemo(() => loadDraft(session.id), [session.id]);
+  const [sessionLogId, setSessionLogId] = useState<string | null>(initial?.sessionLogId ?? null);
   const [starting, setStarting] = useState(false);
-  const [sets, setSets] = useState<SetMap>({});
-  const [subs, setSubs] = useState<SubMap>({});
+  const [sets, setSets] = useState<SetMap>(initial?.sets ?? {});
+  const [subs, setSubs] = useState<SubMap>(initial?.subs ?? {});
   const [restSeconds, setRestSeconds] = useState<number | null>(null);
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [subFor, setSubFor] = useState<{ plannedId: string; exerciseId: string; name: string } | null>(null);
+  const [restored] = useState(() => initial != null && (initial.sessionLogId != null || Object.keys(initial.sets ?? {}).length > 0));
+
+  // Persiste o rascunho sempre que algo relevante muda (debounce leve via microtask
+  // não é necessário: writes em localStorage são síncronos e baratos pro volume aqui).
+  useEffect(() => {
+    const hasContent = sessionLogId != null || Object.keys(sets).length > 0 || Object.keys(subs).length > 0;
+    if (!hasContent) return;
+    try {
+      const draft: RunnerDraft = { sessionLogId, sets, subs, updatedAt: Date.now() };
+      localStorage.setItem(draftKey(session.id), JSON.stringify(draft));
+    } catch { /* quota/privado: silencioso */ }
+  }, [session.id, sessionLogId, sets, subs]);
+
+  // Avisa que recuperamos o treino em andamento (uma vez, ao montar).
+  const announcedRef = useRef(false);
+  useEffect(() => {
+    if (restored && !announcedRef.current) {
+      announcedRef.current = true;
+      toast({ title: 'Treino recuperado 💪', description: 'Continuamos de onde você parou.' });
+    }
+  }, [restored, toast]);
 
   const handleStart = async () => {
     setStarting(true);
@@ -103,6 +162,7 @@ export function WorkoutSessionRunner({ token, plan, session, onFinished }: Props
     try {
       await workoutService.finishSession(token, sessionLogId, notes || null, rating);
       toast({ title: 'Treino finalizado! 🎉', description: `${doneSetsCount} séries · ${totalVolume.toFixed(0)} kg de volume.` });
+      clearDraft(session.id);
       setSessionLogId(null);
       setSets({});
       setSubs({});

@@ -115,6 +115,11 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
             )}
 
             <div className="space-y-2">
+              <p className="px-1 text-xs text-slate-500">
+                {totalSets === 1
+                  ? 'Preencha a carga e as reps que você fez e toque no ✓.'
+                  : <>Preencha a carga de cada uma das <strong className="text-slate-700">{totalSets} séries</strong> e toque no ✓ a cada série feita.</>}
+              </p>
               <div className="grid grid-cols-[28px_1fr_1fr_72px_44px] sm:grid-cols-[32px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 <span className="text-center">#</span>
                 <span className="text-center">Peso (kg)</span>

@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { HeartPulse, Plus, Trash2 } from 'lucide-react';
+import { HeartPulse, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CardioSubtabProps {
   token: string;
@@ -21,11 +21,13 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
   const [totals, setTotals] = useState<CardioTotals | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Mês exibido no histórico (1º dia do mês). Começa no mês atual.
+  const [month, setMonth] = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
 
   const reload = useCallback(async () => {
-    const now = new Date();
-    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
-    const monthEnd = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
+    const monthStart = new Date(month.getFullYear(), month.getMonth(), 1).toISOString().slice(0, 10);
+    const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0).toISOString().slice(0, 10);
+    setLoading(true);
     try {
       const [l, t] = await Promise.all([
         workoutExtrasService.listCardio(token, monthStart, monthEnd),
@@ -38,9 +40,16 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
     } finally {
       setLoading(false);
     }
-  }, [token]);
+  }, [token, month]);
 
   useEffect(() => { void reload(); }, [reload]);
+
+  const isCurrentMonth = (() => {
+    const n = new Date();
+    return month.getFullYear() === n.getFullYear() && month.getMonth() === n.getMonth();
+  })();
+  const monthLabel = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+  const shiftMonth = (delta: number) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
 
   const handleDelete = async (id: string) => {
     if (!confirm('Excluir este cardio?')) return;
@@ -84,12 +93,28 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
       </Button>
 
       <div>
-        <h3 className="mb-2 text-sm font-semibold text-slate-800">Histórico (este mês)</h3>
+        <div className="mb-2 flex items-center justify-between">
+          <h3 className="text-sm font-semibold text-slate-800">Histórico</h3>
+          <div className="flex items-center gap-1">
+            <button onClick={() => shiftMonth(-1)} className="rounded p-1 text-slate-500 hover:bg-slate-100" aria-label="Mês anterior">
+              <ChevronLeft className="h-4 w-4" />
+            </button>
+            <span className="min-w-[7.5rem] text-center text-xs font-medium capitalize text-slate-600">{monthLabel}</span>
+            <button
+              onClick={() => shiftMonth(1)}
+              disabled={isCurrentMonth}
+              className="rounded p-1 text-slate-500 hover:bg-slate-100 disabled:opacity-30"
+              aria-label="Próximo mês"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
         {loading ? (
           <p className="py-4 text-center text-sm text-slate-400">Carregando…</p>
         ) : logs.length === 0 ? (
           <p className="py-4 text-center text-sm italic text-slate-500">
-            Nenhum cardio registrado ainda este mês.
+            Nenhum cardio registrado neste mês.
           </p>
         ) : (
           <div className="space-y-1.5">

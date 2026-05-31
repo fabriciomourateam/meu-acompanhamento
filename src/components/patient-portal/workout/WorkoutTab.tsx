@@ -29,7 +29,8 @@ const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 function sessionBadge(namingStyle: 'numeric' | 'letter' | null, index: number, dayOfWeek: number | null): string {
   const base = namingStyle === 'letter' ? `Treino ${String.fromCharCode(65 + index)}` : `T${index + 1}`;
-  // day_of_week no banco: 0=Dom..6=Sáb (mesma convenção do calendário)
+  // day_of_week: convenção DOW do Postgres (0=Dom..6=Sáb), igual ao JS getDay().
+  // Mesma base usada pelo calendário e pela RPC get_today_workout_by_token.
   if (dayOfWeek != null && dayOfWeek >= 0 && dayOfWeek <= 6) return `${DAYS[dayOfWeek]} · ${base}`;
   return base;
 }
