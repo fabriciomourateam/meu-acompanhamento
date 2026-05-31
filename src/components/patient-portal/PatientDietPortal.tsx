@@ -214,6 +214,14 @@ export function PatientDietPortal({
     loadDietData();
   }, [patientId]);
 
+  // Lembrar a dieta que o aluno deixou aberta (por aparelho), para reabri-la por
+  // padrao na proxima visita quando ele tem 2+ dietas ativas (semana/fim de semana).
+  useEffect(() => {
+    if (patientId && activePlan?.id) {
+      localStorage.setItem(`diet-last-plan-${patientId}`, activePlan.id);
+    }
+  }, [patientId, activePlan?.id]);
+
   // Ao abrir o portal, reavaliar conquistas: consolida o dia anterior (se virou
   // completo) e estorna conquistas de dia concedidas prematuramente.
   useEffect(() => {
