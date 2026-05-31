@@ -3,9 +3,21 @@
 // pelas RPCs SECURITY DEFINER que resolvem o patient_id internamente.
 
 import { supabase } from '@/integrations/supabase/client';
-import type { TodayWorkout, WorkoutHistoryRow } from './types';
+import type { TodayWorkout, WorkoutHistoryRow, WorkoutHub } from './types';
 
 export const workoutService = {
+  // Hub completo: plano ativo + TODAS as sessões (com session_type) + exercícios.
+  // Usado pela aba Treino nova (sub-abas Treinos/Cardios/Análise).
+  async getHub(token: string): Promise<WorkoutHub> {
+    const { data, error } = await supabase.rpc('get_workout_hub_by_token' as any, { p_token: token });
+    if (error) throw error;
+    const parsed = (data as any) || { plan: null, sessions: [] };
+    return {
+      plan: parsed.plan ?? null,
+      sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+    };
+  },
+
   async getTodayWorkout(token: string): Promise<TodayWorkout> {
     const { data, error } = await supabase.rpc('get_today_workout_by_token' as any, { p_token: token });
     if (error) throw error;
