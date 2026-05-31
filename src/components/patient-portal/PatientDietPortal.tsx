@@ -273,11 +273,15 @@ export function PatientDietPortal({
       const released = plans.filter((p: any) => p.is_released === true);
       setReleasedPlans(released);
 
+      // Preferência: a última dieta que o aluno deixou aberta (por aparelho).
+      const savedId = localStorage.getItem(`diet-last-plan-${patientId}`);
+      const saved = savedId ? released.find((p: any) => p.id === savedId) : null;
+
       // Encontrar plano ativo entre os liberados
       const active = released.find((p: any) => p.status === 'active' || p.active);
 
-      // Se não houver plano ativo, pegar o primeiro liberado
-      const selectedPlan = active || released[0];
+      // Ordem de escolha: última aberta → ativo → primeiro liberado
+      const selectedPlan = saved || active || released[0];
 
       if (selectedPlan) {
         setActivePlan(selectedPlan);
@@ -644,8 +648,8 @@ export function PatientDietPortal({
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-slate-900 mb-0.5">Plano Alimentar Ativo</p>
-                <p className="text-xs text-slate-500">Você tem {releasedPlans.length} planos disponíveis</p>
+                <p className="text-sm font-semibold text-slate-900 mb-0.5">Suas dietas</p>
+                <p className="text-xs text-slate-500">Você tem {releasedPlans.length} dietas ativas — escolha qual seguir hoje</p>
               </div>
               <Select value={activePlan?.id} onValueChange={handleChangePlan}>
                 <SelectTrigger className="w-full sm:w-[280px] bg-white border-slate-300 text-slate-700 min-h-[44px]">
