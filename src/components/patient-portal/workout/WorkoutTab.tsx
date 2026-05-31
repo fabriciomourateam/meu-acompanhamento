@@ -1,46 +1,62 @@
+// Aba TREINO — hub do aluno (Ondas 2-4):
+//  • Banner "Orientações importantes" (ITEM 6) + Banner de fase (ITEM 7)
+//  • Sub-abas Treinos / Cardios / Análise (ITEM 2)
+//  • Sessions filtradas por session_type (ITEM 1)
+//  • Badge T1/Treino A conforme session_naming_style (ITEM 3)
+//  • Execução (ITEM 8/9/10) via WorkoutSessionRunner
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
-import { Dumbbell, Flame, Trophy, PlayCircle, CheckCircle2 } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Dumbbell, HeartPulse, BarChart3, ChevronLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
-import type { TodayWorkout } from '@/lib/workout/types';
-import { ExerciseCard, type CommitSetArgs } from './ExerciseCard';
-import { type SetRowValue } from './SetRow';
-import { RestTimer } from './RestTimer';
-import { FinishSessionDialog } from './FinishSessionDialog';
+import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
+import type { WorkoutHub, HubSession } from '@/lib/workout/types';
+import { GuidelinesBanner } from './GuidelinesBanner';
+import { PhaseAdvanceBanner } from './PhaseAdvanceBanner';
+import { CardioSubtab } from './CardioSubtab';
+import { AnalyticsSubtab } from './AnalyticsSubtab';
+import { WorkoutSessionRunner } from './WorkoutSessionRunner';
 
 interface WorkoutTabProps {
   token: string;
   active: boolean;
+  patientName?: string;
+  patientId?: string;
 }
 
-type SetMap = Record<string, SetRowValue[]>; // plannedExerciseId -> linhas
+const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
-export function WorkoutTab({ token, active }: WorkoutTabProps) {
+function sessionBadge(namingStyle: 'numeric' | 'letter' | null, index: number, dayOfWeek: number | null): string {
+  const base = namingStyle === 'letter' ? `Treino ${String.fromCharCode(65 + index)}` : `T${index + 1}`;
+  // day_of_week: convenção DOW do Postgres (0=Dom..6=Sáb), igual ao JS getDay().
+  // Mesma base usada pelo calendário e pela RPC get_today_workout_by_token.
+  if (dayOfWeek != null && dayOfWeek >= 0 && dayOfWeek <= 6) return `${DAYS[dayOfWeek]} · ${base}`;
+  return base;
+}
+
+export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTabProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
-  const [today, setToday] = useState<TodayWorkout | null>(null);
-  const [streak, setStreak] = useState<number>(0);
-  const [sessionLogId, setSessionLogId] = useState<string | null>(null);
-  const [starting, setStarting] = useState(false);
-  const [sets, setSets] = useState<SetMap>({});
-  const [restSeconds, setRestSeconds] = useState<number | null>(null);
-  const [finishOpen, setFinishOpen] = useState(false);
-  const [finishing, setFinishing] = useState(false);
+  const [hub, setHub] = useState<WorkoutHub | null>(null);
+  const [generalNotes, setGeneralNotes] = useState<string | null>(null);
+  const [subtab, setSubtab] = useState<'workouts' | 'cardios' | 'analytics'>('workouts');
+  const [openSessionId, setOpenSessionId] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
-      const [t, s] = await Promise.all([
-        workoutService.getTodayWorkout(token),
-        workoutService.getStreak(token).catch(() => 0),
-      ]);
-      setToday(t);
-      setStreak(s);
+      const h = await workoutService.getHub(token);
+      setHub(h);
+      if (h.plan?.periodization_template_id) {
+        workoutExtrasService.getPeriodizationGeneralNotes(token, h.plan.periodization_template_id)
+          .then(setGeneralNotes)
+          .catch(() => setGeneralNotes(null));
+      } else {
+        setGeneralNotes(null);
+      }
     } catch (err: any) {
       console.error('Erro ao carregar treino:', err);
       toast({ title: 'Erro', description: 'Não foi possível carregar seu treino', variant: 'destructive' });
@@ -50,94 +66,35 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
   }, [token, toast]);
 
   useEffect(() => {
-    if (active) load();
+    if (active) void load();
   }, [active, load]);
 
-  const handleStart = async () => {
-    if (!today?.session?.id) return;
-    setStarting(true);
-    try {
-      const id = await workoutService.startSession(token, today.session.id);
-      setSessionLogId(id);
-      toast({ title: 'Bora! 💪', description: 'Sessão iniciada — registre cada série conforme for fazendo.' });
-    } catch (err: any) {
-      toast({ title: 'Erro', description: err.message || 'Falha ao iniciar sessão', variant: 'destructive' });
-    } finally {
-      setStarting(false);
-    }
-  };
+  const { workoutSessions, cardioSessions, guidelinesSessions } = useMemo(() => {
+    const all = hub?.sessions ?? [];
+    return {
+      workoutSessions: all.filter((s) => (s.session_type ?? 'workout') === 'workout'),
+      cardioSessions: all.filter((s) => s.session_type === 'cardio'),
+      guidelinesSessions: all.filter((s) => s.session_type === 'guidelines'),
+    };
+  }, [hub]);
 
-  const handleSetChange = (plannedId: string, idx: number, v: SetRowValue) => {
-    setSets((prev) => {
-      const arr = prev[plannedId] ? [...prev[plannedId]] : [];
-      arr[idx] = v;
-      return { ...prev, [plannedId]: arr };
-    });
-  };
-
-  const handleCommit = async ({ plannedExerciseId, setIndex, value, restSeconds: rs }: CommitSetArgs) => {
-    if (!sessionLogId) {
-      toast({ title: 'Inicie a sessão primeiro', description: 'Toque em "Começar treino" no topo.', variant: 'destructive' });
-      throw new Error('no session');
-    }
-    try {
-      await workoutService.logSet(token, {
-        sessionLogId,
-        plannedExerciseId,
-        setIndex,
-        reps: value.reps,
-        weightKg: value.weightKg,
-        rpe: value.rpe,
-      });
-      if (rs && rs > 0) setRestSeconds(rs);
-    } catch (err: any) {
-      toast({ title: 'Erro ao salvar série', description: err.message || 'Tente novamente', variant: 'destructive' });
-      throw err;
-    }
-  };
-
-  const { doneSetsCount, totalVolume } = useMemo(() => {
-    let count = 0;
-    let vol = 0;
-    Object.values(sets).forEach((arr) =>
-      arr.forEach((s) => {
-        if (s.done) {
-          count += 1;
-          vol += (s.weightKg ?? 0) * (s.reps ?? 0);
-        }
-      }),
-    );
-    return { doneSetsCount: count, totalVolume: vol };
-  }, [sets]);
-
-  const handleFinish = async (rating: number | null, notes: string) => {
-    if (!sessionLogId) return;
-    setFinishing(true);
-    try {
-      await workoutService.finishSession(token, sessionLogId, notes || null, rating);
-      toast({ title: 'Treino finalizado! 🎉', description: `${doneSetsCount} séries · ${totalVolume.toFixed(0)} kg de volume.` });
-      setSessionLogId(null);
-      setSets({});
-      load();
-    } catch (err: any) {
-      toast({ title: 'Erro ao finalizar', description: err.message || 'Tente novamente', variant: 'destructive' });
-    } finally {
-      setFinishing(false);
-    }
-  };
+  const openSession = useMemo<HubSession | null>(
+    () => workoutSessions.find((s) => s.id === openSessionId) ?? null,
+    [workoutSessions, openSessionId],
+  );
 
   if (loading) {
     return (
       <div className="space-y-3">
-        <Skeleton className="h-24 w-full" />
-        <Skeleton className="h-20 w-full" />
+        <Skeleton className="h-16 w-full" />
+        <Skeleton className="h-10 w-full" />
         <Skeleton className="h-20 w-full" />
         <Skeleton className="h-20 w-full" />
       </div>
     );
   }
 
-  if (!today?.plan) {
+  if (!hub?.plan) {
     return (
       <Card className="bg-white border-slate-200 shadow-sm">
         <CardContent className="p-8 text-center space-y-3">
@@ -149,86 +106,83 @@ export function WorkoutTab({ token, active }: WorkoutTabProps) {
     );
   }
 
-  if (!today.session) {
+  const plan = hub.plan;
+
+  // Modo execução: uma sessão aberta ocupa a tela toda.
+  if (openSession) {
     return (
-      <Card className="bg-white border-slate-200 shadow-sm">
-        <CardContent className="p-8 text-center space-y-2">
-          <h3 className="font-semibold text-slate-700">{today.plan.name}</h3>
-          <p className="text-sm text-slate-500">Plano sem sessões cadastradas.</p>
-        </CardContent>
-      </Card>
+      <div className="space-y-3">
+        <button
+          onClick={() => setOpenSessionId(null)}
+          className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900"
+        >
+          <ChevronLeft className="h-4 w-4" /> Voltar pros treinos
+        </button>
+        <WorkoutSessionRunner token={token} plan={plan} session={openSession} patientId={patientId} onFinished={() => { setOpenSessionId(null); void load(); }} />
+      </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="rounded-2xl bg-white border border-slate-200 shadow-sm p-4"
-      >
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold">Hoje</p>
-            <h2 className="text-xl font-bold leading-tight text-slate-900 truncate">{today.session.name}</h2>
-            {today.session.focus ? <p className="text-sm text-slate-600">{today.session.focus}</p> : null}
-            <p className="text-xs text-slate-400 mt-1">{today.plan.name}</p>
-          </div>
-          <div className="flex flex-col items-end gap-1.5 shrink-0">
-            <div className="flex items-center gap-1 bg-amber-50 text-amber-700 border border-amber-200 rounded-full px-2.5 py-1 text-xs font-semibold">
-              <Flame className="w-3.5 h-3.5" /> {streak} dia{streak === 1 ? '' : 's'}
-            </div>
-            <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-1 text-xs font-semibold">
-              <Trophy className="w-3.5 h-3.5" /> {doneSetsCount}/{(today.exercises || []).reduce((a, e) => a + (e.sets || 0), 0)} séries
-            </div>
-          </div>
-        </div>
+    <div className="space-y-3">
+      <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} />
 
-        {sessionLogId ? (
-          <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="text-slate-600">Volume: <strong className="tabular-nums text-slate-900">{totalVolume.toFixed(0)} kg</strong></span>
-            <Button
-              size="sm"
-              onClick={() => setFinishOpen(true)}
-              className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
-            >
-              <CheckCircle2 className="w-4 h-4 mr-1.5" /> Finalizar
-            </Button>
-          </div>
-        ) : (
-          <Button
-            onClick={handleStart}
-            disabled={starting}
-            className="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11"
-          >
-            <PlayCircle className="w-5 h-5 mr-1.5" /> {starting ? 'Iniciando…' : 'Começar treino'}
-          </Button>
-        )}
-      </motion.div>
-
-      <div className="space-y-2.5">
-        {(today.exercises || []).map((ex) => (
-          <ExerciseCard
-            key={ex.id}
-            exercise={ex}
-            values={sets[ex.id] || []}
-            onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
-            onCommit={handleCommit}
-          />
-        ))}
-      </div>
-
-      {restSeconds != null ? (
-        <RestTimer seconds={restSeconds} onDone={() => setRestSeconds(null)} />
-      ) : null}
-
-      <FinishSessionDialog
-        open={finishOpen}
-        onOpenChange={(v) => !finishing && setFinishOpen(v)}
-        doneSets={doneSetsCount}
-        totalVolumeKg={totalVolume}
-        onConfirm={handleFinish}
+      <PhaseAdvanceBanner
+        token={token}
+        planId={plan.id}
+        planCreatedAt={plan.created_at}
+        onPhaseChanged={() => void load()}
       />
+
+      <Tabs value={subtab} onValueChange={(v) => setSubtab(v as typeof subtab)}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="workouts">
+            <Dumbbell className="h-4 w-4 mr-1.5" />
+            Treinos
+            {workoutSessions.length > 0 && <span className="ml-1 text-xs opacity-70">{workoutSessions.length}</span>}
+          </TabsTrigger>
+          <TabsTrigger value="cardios">
+            <HeartPulse className="h-4 w-4 mr-1.5" />
+            Cardios
+            {cardioSessions.length > 0 && <span className="ml-1 text-xs opacity-70">{cardioSessions.length}</span>}
+          </TabsTrigger>
+          <TabsTrigger value="analytics">
+            <BarChart3 className="h-4 w-4 mr-1.5" />
+            Análise
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="workouts" className="mt-3 space-y-2.5">
+          {workoutSessions.length === 0 ? (
+            <p className="py-6 text-center text-sm italic text-slate-500">Nenhum treino cadastrado neste plano.</p>
+          ) : (
+            workoutSessions.map((s, i) => (
+              <button
+                key={s.id}
+                onClick={() => setOpenSessionId(s.id)}
+                className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-blue-300 hover:shadow"
+              >
+                <span className="inline-flex shrink-0 items-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-2.5 py-1 text-xs font-bold text-white">
+                  {sessionBadge(plan.session_naming_style, i, s.day_of_week)}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate font-semibold text-slate-800">{s.name}</div>
+                  {s.focus && <div className="truncate text-xs text-slate-500">{s.focus}</div>}
+                </div>
+                <span className="shrink-0 text-xs text-slate-400">{s.exercises.length} exec.</span>
+              </button>
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="cardios" className="mt-3">
+          <CardioSubtab token={token} prescribedSessions={cardioSessions} />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-3">
+          <AnalyticsSubtab token={token} planId={plan.id} patientName={patientName} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

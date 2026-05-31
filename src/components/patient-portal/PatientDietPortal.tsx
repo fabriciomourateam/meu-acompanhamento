@@ -1283,7 +1283,7 @@ export function PatientDietPortal({
         {/* Aba: Treino — sessão do dia + logging de séries (RPCs *_by_token) */}
         {showWorkout && token && (
           <TabsContent value="workout" className="mt-6 space-y-4">
-            <WorkoutTab token={token} active={activeTab === 'workout'} />
+            <WorkoutTab token={token} active={activeTab === 'workout'} patientName={patientName} patientId={patientId} />
           </TabsContent>
         )}
 

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Dumbbell, Clock, Info } from 'lucide-react';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle } from 'lucide-react';
 import type { WorkoutExerciseFull } from '@/lib/workout/types';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
 import { SetRow, type SetRowValue } from './SetRow';
@@ -20,11 +20,15 @@ interface ExerciseCardProps {
   values: SetRowValue[];
   onChange: (idx: number, v: SetRowValue) => void;
   onCommit: (args: CommitSetArgs) => Promise<void>;
+  /** ITEM 10 — quando presente, mostra botão "Substituir por hoje". */
+  onRequestSubstitute?: () => void;
+  /** Nome do substituto ativo (se o aluno trocou nesta execução). */
+  substitutedName?: string | null;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, values, onChange, onCommit }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSubstitute, substitutedName }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const totalSets = Math.max(1, exercise.sets || 1);
   const rows = useMemo(() => {
@@ -55,7 +59,12 @@ export function ExerciseCard({ exercise, values, onChange, onCommit }: ExerciseC
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
               <span className="text-xs font-bold text-slate-400">{(exercise.exercise_order ?? 0) + 1}.</span>
-              <h3 className="font-semibold text-slate-800 truncate">{exercise.exercise_name}</h3>
+              <h3 className="font-semibold text-slate-800 truncate">{substitutedName || exercise.exercise_name}</h3>
+              {substitutedName && (
+                <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                  trocado
+                </span>
+              )}
             </div>
             <div className="mt-1 flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
               <span className="font-medium text-slate-700">
@@ -96,7 +105,21 @@ export function ExerciseCard({ exercise, values, onChange, onCommit }: ExerciseC
               </div>
             )}
 
+            {onRequestSubstitute && (
+              <button
+                onClick={onRequestSubstitute}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
+              >
+                <Shuffle className="h-3.5 w-3.5" /> Substituir por hoje
+              </button>
+            )}
+
             <div className="space-y-2">
+              <p className="px-1 text-xs text-slate-500">
+                {totalSets === 1
+                  ? 'Preencha a carga e as reps que você fez e toque no ✓.'
+                  : <>Preencha a carga de cada uma das <strong className="text-slate-700">{totalSets} séries</strong> e toque no ✓ a cada série feita.</>}
+              </p>
               <div className="grid grid-cols-[28px_1fr_1fr_72px_44px] sm:grid-cols-[32px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 <span className="text-center">#</span>
                 <span className="text-center">Peso (kg)</span>
