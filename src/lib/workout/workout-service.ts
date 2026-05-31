@@ -79,13 +79,15 @@ export const workoutService = {
     return data as string;
   },
 
-  async finishSession(token: string, sessionLogId: string, notes?: string | null, rating?: number | null): Promise<void> {
-    const { error } = await supabase.rpc('finish_workout_session_by_token' as any, {
+  async finishSession(token: string, sessionLogId: string, notes?: string | null, rating?: number | null): Promise<number> {
+    const { data, error } = await supabase.rpc('finish_workout_session_by_token' as any, {
       p_token: token,
       p_session_log_id: sessionLogId,
       p_notes: notes ?? null,
       p_rating: rating ?? null,
     });
     if (error) throw error;
+    // Retorna a duração da sessão em minutos (started_at -> ended_at).
+    return typeof data === 'number' ? data : Number(data ?? 0);
   },
 };

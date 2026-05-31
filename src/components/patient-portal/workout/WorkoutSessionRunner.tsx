@@ -13,6 +13,10 @@ import { type SetRowValue } from './SetRow';
 import { RestTimer } from './RestTimer';
 import { FinishSessionDialog } from './FinishSessionDialog';
 import { SubstituteExerciseDialog } from './SubstituteExerciseDialog';
+import { dailyChallengesService } from '@/lib/daily-challenges-service';
+
+// Treino conta como meta "Atividade física" do dia a partir deste tempo.
+const ACTIVITY_GOAL_MIN = 30;
 
 type SetMap = Record<string, SetRowValue[]>;
 // Substituições do dia: plannedExerciseId -> catalog id/nome do substituto
@@ -22,6 +26,7 @@ interface Props {
   token: string;
   plan: WorkoutPlanFull;
   session: HubSession;
+  patientId?: string;
   onFinished: () => void;
 }
 
@@ -61,7 +66,7 @@ function clearDraft(plannedSessionId: string) {
   try { localStorage.removeItem(draftKey(plannedSessionId)); } catch { /* ignore */ }
 }
 
-export function WorkoutSessionRunner({ token, plan, session, onFinished }: Props) {
+export function WorkoutSessionRunner({ token, plan, session, patientId, onFinished }: Props) {
   const { toast } = useToast();
   // Hidrata o estado inicial a partir do rascunho salvo (se houver).
   const initial = useMemo(() => loadDraft(session.id), [session.id]);
@@ -160,8 +165,19 @@ export function WorkoutSessionRunner({ token, plan, session, onFinished }: Props
     if (!sessionLogId) return;
     setFinishing(true);
     try {
-      await workoutService.finishSession(token, sessionLogId, notes || null, rating);
+      const durationMin = await workoutService.finishSession(token, sessionLogId, notes || null, rating);
       toast({ title: 'Treino finalizado! 🎉', description: `${doneSetsCount} séries · ${totalVolume.toFixed(0)} kg de volume.` });
+
+      // Treino de 30min+ marca a meta "Atividade física" do dia (mesma da aba Metas).
+      // Best-effort: não bloqueia nem falha o fluxo de finalizar se der erro.
+      if (patientId && durationMin >= ACTIVITY_GOAL_MIN) {
+        dailyChallengesService.completeChallenge(patientId, 'atividade_fisica')
+          .then(() => {
+            toast({ title: 'Meta concluída ✅', description: `Atividade física do dia marcada (${durationMin}min de treino).` });
+          })
+          .catch((e) => console.error('Falha ao marcar meta de atividade física:', e));
+      }
+
       clearDraft(session.id);
       setSessionLogId(null);
       setSets({});

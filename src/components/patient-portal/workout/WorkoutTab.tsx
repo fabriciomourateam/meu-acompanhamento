@@ -23,6 +23,7 @@ interface WorkoutTabProps {
   token: string;
   active: boolean;
   patientName?: string;
+  patientId?: string;
 }
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
@@ -35,7 +36,7 @@ function sessionBadge(namingStyle: 'numeric' | 'letter' | null, index: number, d
   return base;
 }
 
-export function WorkoutTab({ token, active, patientName }: WorkoutTabProps) {
+export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTabProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [hub, setHub] = useState<WorkoutHub | null>(null);
@@ -117,7 +118,7 @@ export function WorkoutTab({ token, active, patientName }: WorkoutTabProps) {
         >
           <ChevronLeft className="h-4 w-4" /> Voltar pros treinos
         </button>
-        <WorkoutSessionRunner token={token} plan={plan} session={openSession} onFinished={() => { setOpenSessionId(null); void load(); }} />
+        <WorkoutSessionRunner token={token} plan={plan} session={openSession} patientId={patientId} onFinished={() => { setOpenSessionId(null); void load(); }} />
       </div>
     );
   }
