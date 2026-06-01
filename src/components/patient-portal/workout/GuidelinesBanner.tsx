@@ -16,8 +16,7 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes }: Props) {
   const hasNotes = hasText(generalNotes);
   const hasPlanNotes = hasText(planNotes);
   const hasContent = sessions.length > 0 || hasNotes || hasPlanNotes;
-  // Começa aberto quando há observações gerais do plano (antes ficavam "invisíveis").
-  const [expanded, setExpanded] = useState(hasPlanNotes);
+  const [expanded, setExpanded] = useState(false);
   if (!hasContent) return null;
 
   const totalCount = sessions.length + (hasNotes ? 1 : 0) + (hasPlanNotes ? 1 : 0);
