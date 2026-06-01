@@ -258,10 +258,11 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       >
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold">Sessão</p>
-            <h2 className="text-xl font-bold leading-tight text-slate-900 truncate">{session.name}</h2>
-            {session.focus ? <p className="text-sm text-slate-600">{session.focus}</p> : null}
-            <p className="text-xs text-slate-400 mt-1">{plan.name}</p>
+            <p className="text-[10px] uppercase tracking-wider text-emerald-600 font-semibold">Sessão · {plan.name}</p>
+            <h2 className="text-xl font-bold leading-tight text-slate-900">{session.name}</h2>
+            {session.focus && session.focus.trim().toLowerCase() !== session.name.trim().toLowerCase() ? (
+              <p className="text-sm text-slate-600">{session.focus}</p>
+            ) : null}
           </div>
           <div className="flex flex-col items-end gap-1 shrink-0">
             <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-1 text-xs font-semibold">
