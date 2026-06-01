@@ -56,7 +56,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
   const baseInput =
     'h-11 text-center font-semibold tabular-nums bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 placeholder:font-normal ' +
     'focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400';
-  const stepBtn = 'h-11 w-9 p-0 shrink-0 border-slate-300 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900';
+  const stepBtn = 'hidden sm:inline-flex h-11 w-9 p-0 shrink-0 border-slate-300 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900';
 
   return (
     <div

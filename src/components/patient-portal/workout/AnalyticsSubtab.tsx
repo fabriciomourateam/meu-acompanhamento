@@ -1,6 +1,7 @@
 // ITEM 5 — Sub-aba Análise: calendário (treinos + cardios) + gráficos volume/RPE/adesão.
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { DayPicker } from 'react-day-picker';
+import { ptBR } from 'date-fns/locale';
 import 'react-day-picker/dist/style.css';
 import {
   LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
@@ -135,25 +136,29 @@ function CalendarView({ token }: { token: string }) {
       <div className="sm:border-r sm:border-slate-100 sm:pr-3">
         <DayPicker
           mode="single"
+          locale={ptBR}
           selected={selected}
           onSelect={(d) => d && setSelected(d)}
           month={month}
           onMonthChange={setMonth}
+          formatters={{
+            formatCaption: (date) => {
+              const s = date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+              return s.charAt(0).toUpperCase() + s.slice(1);
+            },
+          }}
           modifiers={{ treinou: workoutDays, cardio: cardioDays }}
           modifiersClassNames={{
-            treinou: 'bg-emerald-100 text-emerald-700 font-bold rounded-md',
-            cardio: 'ring-2 ring-blue-400 ring-inset rounded-md',
+            treinou: 'bg-emerald-100 text-emerald-800 font-bold rounded-md',
+            // cardio = pontinho azul embaixo do dia (em vez de um anel grosso)
+            cardio: 'relative after:absolute after:bottom-1 after:left-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:rounded-full after:bg-blue-500',
           }}
-          styles={{
-            caption_label: { color: '#0f172a', fontWeight: 600 },
-            head_cell: { color: '#64748b' },
-            day: { color: '#334155' },
-            nav_button: { color: '#475569' },
-          }}
+          style={{ '--rdp-accent-color': '#059669', '--rdp-accent-background-color': '#d1fae5' } as CSSProperties}
+          styles={{ day: { color: '#334155' }, head_cell: { color: '#64748b' } }}
         />
         <div className="mt-2 flex gap-3 text-xs text-slate-600">
           <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-emerald-100" /> Treinou</span>
-          <span className="flex items-center gap-1"><span className="h-3 w-3 rounded ring-2 ring-blue-400" /> Cardio</span>
+          <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> Cardio</span>
         </div>
       </div>
 
