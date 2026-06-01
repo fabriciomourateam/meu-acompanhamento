@@ -4,9 +4,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, CheckCircle2, Trophy } from 'lucide-react';
+import { PlayCircle, CheckCircle2, Trophy, Clock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
+import { workoutExtrasService, type LastLoad } from '@/lib/workout/workout-extras-service';
 import type { HubSession, WorkoutPlanFull } from '@/lib/workout/types';
 import { ExerciseCard, type CommitSetArgs } from './ExerciseCard';
 import { type SetRowValue } from './SetRow';
@@ -37,7 +38,18 @@ interface RunnerDraft {
   sessionLogId: string | null;
   sets: SetMap;
   subs: SubMap;
+  startedAt: number | null;
   updatedAt: number;
+}
+
+function formatDuration(totalSec: number): string {
+  const s = Math.max(0, totalSec);
+  const h = Math.floor(s / 3600);
+  const m = Math.floor((s % 3600) / 60);
+  const sec = s % 60;
+  const mm = String(m).padStart(2, '0');
+  const ss = String(sec).padStart(2, '0');
+  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 const DRAFT_PREFIX = 'workout-runner-draft:';
 const DRAFT_TTL_MS = 1000 * 60 * 60 * 24; // 24h — descarta rascunho velho de mais
@@ -74,6 +86,9 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [starting, setStarting] = useState(false);
   const [sets, setSets] = useState<SetMap>(initial?.sets ?? {});
   const [subs, setSubs] = useState<SubMap>(initial?.subs ?? {});
+  const [startedAt, setStartedAt] = useState<number | null>(initial?.startedAt ?? null);
+  const [lastLoads, setLastLoads] = useState<Record<string, LastLoad>>({});
+  const [nowTs, setNowTs] = useState(() => Date.now());
   const [restSeconds, setRestSeconds] = useState<number | null>(null);
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishing, setFinishing] = useState(false);
@@ -86,10 +101,33 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     const hasContent = sessionLogId != null || Object.keys(sets).length > 0 || Object.keys(subs).length > 0;
     if (!hasContent) return;
     try {
-      const draft: RunnerDraft = { sessionLogId, sets, subs, updatedAt: Date.now() };
+      const draft: RunnerDraft = { sessionLogId, sets, subs, startedAt, updatedAt: Date.now() };
       localStorage.setItem(draftKey(session.id), JSON.stringify(draft));
     } catch { /* quota/privado: silencioso */ }
-  }, [session.id, sessionLogId, sets, subs]);
+  }, [session.id, sessionLogId, sets, subs, startedAt]);
+
+  // Última carga registrada por exercício (sugestão de peso na execução).
+  useEffect(() => {
+    workoutExtrasService.getLastLoads(token, plan.id)
+      .then((rows) => {
+        const m: Record<string, LastLoad> = {};
+        for (const r of rows) m[r.planned_exercise_id] = r;
+        setLastLoads(m);
+      })
+      .catch((e) => console.error('Erro ao buscar última carga:', e));
+  }, [token, plan.id]);
+
+  // Cronômetro da sessão: tica a cada 1s enquanto houver treino em andamento.
+  useEffect(() => {
+    if (!sessionLogId || !startedAt) return;
+    const t = setInterval(() => setNowTs(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, [sessionLogId, startedAt]);
+
+  // Recupera o cronômetro de rascunhos antigos (sessão iniciada sem startedAt salvo).
+  useEffect(() => {
+    if (sessionLogId && startedAt == null) setStartedAt(Date.now());
+  }, [sessionLogId, startedAt]);
 
   // Avisa que recuperamos o treino em andamento (uma vez, ao montar).
   const announcedRef = useRef(false);
@@ -105,6 +143,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     try {
       const id = await workoutService.startSession(token, session.id);
       setSessionLogId(id);
+      setStartedAt(Date.now());
       toast({ title: 'Bora! 💪', description: 'Sessão iniciada — registre cada série conforme for fazendo.' });
     } catch (err: any) {
       toast({ title: 'Erro', description: err.message || 'Falha ao iniciar sessão', variant: 'destructive' });
@@ -161,6 +200,9 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     [session.exercises],
   );
 
+  const progressPct = totalPlannedSets > 0 ? Math.round((doneSetsCount / totalPlannedSets) * 100) : 0;
+  const elapsedSec = startedAt ? Math.floor((nowTs - startedAt) / 1000) : 0;
+
   const handleFinish = async (rating: number | null, notes: string) => {
     if (!sessionLogId) return;
     setFinishing(true);
@@ -180,6 +222,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
 
       clearDraft(session.id);
       setSessionLogId(null);
+      setStartedAt(null);
       setSets({});
       setSubs({});
       setFinishOpen(false);
@@ -205,9 +248,27 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             {session.focus ? <p className="text-sm text-slate-600">{session.focus}</p> : null}
             <p className="text-xs text-slate-400 mt-1">{plan.name}</p>
           </div>
-          <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-1 text-xs font-semibold shrink-0">
-            <Trophy className="w-3.5 h-3.5" /> {doneSetsCount}/{totalPlannedSets} séries
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <div className="flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full px-2.5 py-1 text-xs font-semibold">
+              <Trophy className="w-3.5 h-3.5" /> {doneSetsCount}/{totalPlannedSets} séries
+            </div>
+            {sessionLogId && startedAt ? (
+              <div className="flex items-center gap-1 text-xs font-semibold tabular-nums text-slate-500">
+                <Clock className="w-3.5 h-3.5" /> {formatDuration(elapsedSec)}
+              </div>
+            ) : null}
           </div>
+        </div>
+
+        {/* Barra de progresso da sessão */}
+        <div className="mt-3">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-full rounded-full bg-emerald-500 transition-all duration-500"
+              style={{ width: `${progressPct}%` }}
+            />
+          </div>
+          <p className="mt-1 text-[11px] text-slate-400">{progressPct}% concluído</p>
         </div>
 
         {sessionLogId ? (
@@ -233,6 +294,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
             onCommit={handleCommit}
             substitutedName={subs[ex.id]?.name ?? null}
+            lastLoad={lastLoads[ex.id] ?? null}
             onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
           />
         ))}

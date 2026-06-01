@@ -55,6 +55,14 @@ export interface Periodization {
   phases: PeriodizationPhase[];
 }
 
+export interface LastLoad {
+  planned_exercise_id: string;
+  weight_kg: number | null;
+  reps: number | null;
+  rpe: number | null;
+  logged_at: string;
+}
+
 export interface ExerciseVariation {
   id: string;
   name: string;
@@ -151,6 +159,15 @@ export const workoutExtrasService = {
     });
     if (error) throw error;
     return (data as Array<{ logged_at: string; weight_kg: number | null; reps: number | null; rpe: number | null }>) ?? [];
+  },
+
+  // Última carga registrada por exercício planejado — pra sugerir o peso na execução.
+  async getLastLoads(token: string, planId: string): Promise<LastLoad[]> {
+    const { data, error } = await supabase.rpc('get_last_loads_by_token' as any, {
+      p_token: token, p_plan_id: planId,
+    });
+    if (error) throw error;
+    return (data as LastLoad[]) ?? [];
   },
 
   async getWeeklyAdherence(token: string, planId: string, weeksBack = 2): Promise<AdherenceWeek[]> {

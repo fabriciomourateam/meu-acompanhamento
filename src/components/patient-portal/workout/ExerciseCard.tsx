@@ -26,11 +26,13 @@ interface ExerciseCardProps {
   onRequestSubstitute?: () => void;
   /** Nome do substituto ativo (se o aluno trocou nesta execução). */
   substitutedName?: string | null;
+  /** Última carga registrada pra este exercício (sugestão de peso). */
+  lastLoad?: { weight_kg: number | null; reps: number | null; rpe: number | null } | null;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSubstitute, substitutedName }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSubstitute, substitutedName, lastLoad }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const [showRpeHelp, setShowRpeHelp] = useState(false);
   const totalSets = Math.max(1, exercise.sets || 1);
@@ -60,6 +62,9 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
 
   // RPE alvo para o resumo do cabeçalho (por série tem prioridade sobre o único).
   const rpeSummary = exercise.rpe_per_set || (exercise.rpe != null ? String(exercise.rpe) : null);
+
+  // Sugestão de peso: usa a última carga registrada; se não houver, a prescrição.
+  const suggestedWeight = lastLoad?.weight_kg ?? exercise.load_kg ?? null;
 
   return (
     <motion.div
@@ -162,6 +167,26 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                   ? 'Preencha a carga e as reps que você fez e toque no ✓.'
                   : <>Preencha a carga de cada uma das <strong className="text-slate-700">{totalSets} séries</strong> e toque no ✓ a cada série feita.</>}
               </p>
+
+              {/* Sugestão: última carga registrada + meta de carga da fase atual */}
+              {(lastLoad?.weight_kg != null || exercise.load_kg != null) && (
+                <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs">
+                  {lastLoad?.weight_kg != null ? (
+                    <span className="text-slate-600">
+                      <span className="text-slate-400">Última vez:</span>{' '}
+                      <strong className="tabular-nums text-slate-800">{lastLoad.weight_kg}kg</strong>
+                      {lastLoad.reps != null ? <span className="text-slate-400"> × {lastLoad.reps}</span> : null}
+                      {lastLoad.rpe != null ? <span className="text-slate-400"> · RPE {lastLoad.rpe}</span> : null}
+                    </span>
+                  ) : null}
+                  {exercise.load_kg != null ? (
+                    <span className="text-slate-600">
+                      <span className="text-slate-400">Meta da fase:</span>{' '}
+                      <strong className="tabular-nums text-slate-800">{exercise.load_kg}kg</strong>
+                    </span>
+                  ) : null}
+                </div>
+              )}
               <div className="grid grid-cols-[28px_1fr_1fr_72px_44px] sm:grid-cols-[32px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                 <span className="text-center">#</span>
                 <span className="text-center">Peso (kg)</span>
@@ -198,7 +223,7 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                       index={i}
                       value={row}
                       defaultReps={repsTargetForSet(i)}
-                      defaultWeight={exercise.load_kg}
+                      defaultWeight={suggestedWeight}
                       defaultRpe={rpeTargetForSet(i)}
                       onChange={(v) => onChange(i, v)}
                       onCommit={async (v) => {
@@ -216,9 +241,14 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                         key={t.technique_id}
                         className={cn('rounded-lg border px-2.5 py-1.5 text-xs', techniqueColors(t.color).banner)}
                       >
-                        <span className="font-semibold">⚠️ {t.emoji} {t.name}</span>
-                        {t.description && <span className="ml-1">{t.description}</span>}
-                        {t.notes && <div className="mt-0.5 italic opacity-80">{t.notes}</div>}
+                        <div className="flex items-center gap-1.5 font-semibold">
+                          <span>{t.emoji ?? '⚡'} {t.name}</span>
+                          <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                            aplicar nesta série ({i + 1}/{totalSets})
+                          </span>
+                        </div>
+                        {t.description && <p className="mt-0.5">{t.description}</p>}
+                        {t.notes && <p className="mt-0.5 italic opacity-80">{t.notes}</p>}
                       </div>
                     ))}
                   </div>

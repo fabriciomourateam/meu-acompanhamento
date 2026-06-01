@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
-import { HeartPulse, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
+import { HeartPulse, Plus, Trash2, ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
 interface CardioSubtabProps {
   token: string;
@@ -270,6 +270,17 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // Cronômetro do cardio: o aluno pode medir o tempo direto no app.
+  const [swSec, setSwSec] = useState(0);
+  const [swRunning, setSwRunning] = useState(false);
+  useEffect(() => {
+    if (!swRunning) return;
+    const t = setInterval(() => setSwSec((s) => s + 1), 1000);
+    return () => clearInterval(t);
+  }, [swRunning]);
+  const swLabel = `${String(Math.floor(swSec / 60)).padStart(2, '0')}:${String(swSec % 60).padStart(2, '0')}`;
+  const swMinutes = Math.max(1, Math.round(swSec / 60));
+
   const handleSave = async () => {
     setSaving(true);
     try {
@@ -297,18 +308,45 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
+          {/* Cronômetro — mede o tempo do cardio e preenche a duração */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-slate-700">
+                <Timer className="h-4 w-4 text-cyan-600" />
+                <span className="text-2xl font-bold tabular-nums">{swLabel}</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <Button type="button" size="sm" variant="outline" onClick={() => setSwRunning((r) => !r)} className="border-slate-300 bg-white">
+                  {swRunning ? <><Pause className="mr-1 h-4 w-4" /> Pausar</> : <><Play className="mr-1 h-4 w-4" /> Iniciar</>}
+                </Button>
+                <Button type="button" size="sm" variant="ghost" onClick={() => { setSwRunning(false); setSwSec(0); }} aria-label="Zerar cronômetro">
+                  <RotateCcw className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            {swSec > 0 && (
+              <button
+                type="button"
+                onClick={() => setDuration(String(swMinutes))}
+                className="mt-2 text-xs font-medium text-cyan-700 hover:text-cyan-800"
+              >
+                Usar {swMinutes} min como duração
+              </button>
+            )}
+          </div>
+
           <div>
             <Label>Duração (min) *</Label>
-            <Input type="number" min={1} value={duration} onChange={(e) => setDuration(e.target.value)} className="mt-1" />
+            <Input type="number" min={1} value={duration} onChange={(e) => setDuration(e.target.value)} className="mt-1 bg-white border-slate-300" />
           </div>
           <div>
             <Label>Modalidade</Label>
-            <Input value={modality} onChange={(e) => setModality(e.target.value)} placeholder="Esteira, bike, corrida..." className="mt-1" />
+            <Input value={modality} onChange={(e) => setModality(e.target.value)} placeholder="Esteira, bike, corrida..." className="mt-1 bg-white border-slate-300" />
           </div>
           <div>
             <Label>Intensidade</Label>
             <Select value={intensity} onValueChange={(v) => setIntensity(v as typeof intensity)}>
-              <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1 bg-white border-slate-300"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="leve">😌 Leve</SelectItem>
                 <SelectItem value="moderado">🚶 Moderado</SelectItem>
@@ -319,11 +357,11 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
           </div>
           <div>
             <Label>Data</Label>
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1" />
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 bg-white border-slate-300" />
           </div>
           <div>
             <Label>Observações</Label>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" className="mt-1" />
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" className="mt-1 bg-white border-slate-300" />
           </div>
         </div>
         <DialogFooter>
