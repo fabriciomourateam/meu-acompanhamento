@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { workoutExtrasService, type Periodization } from '@/lib/workout/workout-extras-service';
+import { workoutExtrasService, type Periodization, type PeriodizationPhase } from '@/lib/workout/workout-extras-service';
 import { cn } from '@/lib/utils';
 
 const PHASE_COLORS: Record<string, string> = {
@@ -25,6 +25,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const [periodization, setPeriodization] = useState<Periodization | null>(null);
   const [sessionsInPhase, setSessionsInPhase] = useState(0);
   const [showModal, setShowModal] = useState(false);
+  const [showAllPhases, setShowAllPhases] = useState(false);
   const [adherence, setAdherence] = useState(0);
   const [busy, setBusy] = useState(false);
 
@@ -61,6 +62,17 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const sessionsLeft = (currentPhase.duration_sessions ?? 0) - sessionsInPhase;
   const readyToAdvance = sessionsLeft <= 0 && !!nextPhase;
   const color = PHASE_COLORS[(currentPhase.preset ?? 'custom').toLowerCase()] ?? PHASE_COLORS.custom;
+
+  // Resumo curto dos parâmetros de uma fase (séries/reps/cargas/RPE).
+  const phaseSummary = (ph: PeriodizationPhase) =>
+    [
+      ph.sets_override ? `${ph.sets_override} séries` : null,
+      ph.reps_override ? `${ph.reps_override} reps` : null,
+      ph.load_pct_change ? `cargas ${ph.load_pct_change > 0 ? '+' : ''}${ph.load_pct_change}%` : null,
+      ph.rpe_per_set_override ? `RPE ${ph.rpe_per_set_override}` : null,
+    ]
+      .filter(Boolean)
+      .join(' · ');
 
   const handleAdvanceClick = async () => {
     if (!nextPhase) return;
@@ -121,8 +133,71 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
         )}
       </div>
 
+      {/* Prévia da periodização completa — todas as fases já vêm no payload */}
+      {periodization.phases.length > 1 && (
+        <div className="mt-2">
+          <button
+            onClick={() => setShowAllPhases((v) => !v)}
+            className="text-xs font-medium text-purple-700 hover:text-purple-800"
+          >
+            {showAllPhases ? '▾ Ocultar periodização' : '▸ Ver periodização completa'} ({periodization.phases.length} fases)
+          </button>
+
+          {showAllPhases && (
+            <ol className="mt-2 space-y-1.5">
+              {periodization.phases.map((ph, i) => {
+                const status =
+                  i < periodization.current_phase_index
+                    ? 'done'
+                    : i === periodization.current_phase_index
+                      ? 'current'
+                      : 'upcoming';
+                const summary = phaseSummary(ph);
+                return (
+                  <li
+                    key={ph.id}
+                    className={cn(
+                      'flex items-start gap-2 rounded-lg border p-2 text-xs',
+                      status === 'current' ? 'border-purple-300 bg-purple-50' : 'border-slate-200 bg-white',
+                      status === 'done' && 'opacity-60',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
+                        status === 'done'
+                          ? 'bg-emerald-500 text-white'
+                          : status === 'current'
+                            ? 'bg-purple-600 text-white'
+                            : 'bg-slate-200 text-slate-600',
+                      )}
+                    >
+                      {status === 'done' ? '✓' : i + 1}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-1.5 font-semibold text-slate-800">
+                        {ph.label}
+                        {status === 'current' && (
+                          <span className="rounded bg-purple-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-purple-700">
+                            Atual
+                          </span>
+                        )}
+                        {ph.duration_sessions ? (
+                          <span className="font-normal text-slate-400">· {ph.duration_sessions} treinos</span>
+                        ) : null}
+                      </div>
+                      {summary && <div className="mt-0.5 text-slate-500">{summary}</div>}
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </div>
+      )}
+
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent>
+        <DialogContent className="bg-white border-slate-200 text-slate-900">
           <DialogHeader>
             <DialogTitle>Pronto pra avançar pra {nextPhase?.label}?</DialogTitle>
           </DialogHeader>

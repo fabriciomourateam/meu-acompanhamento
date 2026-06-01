@@ -81,7 +81,7 @@ function ShareProgressSection({ token, planId, patientName }: { token: string; p
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white border-slate-200 text-slate-900">
           <DialogHeader>
             <DialogTitle>Compartilhar progresso</DialogTitle>
           </DialogHeader>

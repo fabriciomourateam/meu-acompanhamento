@@ -30,7 +30,7 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md bg-white border-slate-200 text-slate-900">
         <DialogHeader>
           <DialogTitle>Finalizar treino?</DialogTitle>
           <DialogDescription>

@@ -290,7 +290,7 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent>
+      <DialogContent className="bg-white border-slate-200 text-slate-900">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <HeartPulse className="h-5 w-5 text-cyan-600" /> Registrar cardio

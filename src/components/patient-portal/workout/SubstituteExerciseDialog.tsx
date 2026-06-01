@@ -42,7 +42,7 @@ export function SubstituteExerciseDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl bg-white border-slate-200 text-slate-900">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Shuffle className="h-5 w-5 text-amber-600" />
