@@ -1,6 +1,6 @@
 // ITEM 4 — Sub-aba Cardios: prescritos pelo trainer + registro livre + histórico.
 import { useCallback, useEffect, useState } from 'react';
-import { workoutExtrasService, type CardioLog, type CardioTotals } from '@/lib/workout/workout-extras-service';
+import { workoutExtrasService, type CardioLog, type CardioTotals, type PrescribedCardio } from '@/lib/workout/workout-extras-service';
 import type { HubSession } from '@/lib/workout/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,8 +21,16 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
   const [totals, setTotals] = useState<CardioTotals | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [prescribed, setPrescribed] = useState<PrescribedCardio | null>(null);
   // Mês exibido no histórico (1º dia do mês). Começa no mês atual.
   const [month, setMonth] = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
+
+  // Pilar 1 — cardio prescrito na ficha (1:1 com o plano).
+  useEffect(() => {
+    void workoutExtrasService.getPrescribedCardio(token)
+      .then(setPrescribed)
+      .catch((err) => console.error('Erro ao carregar cardio prescrito:', err));
+  }, [token]);
 
   const reload = useCallback(async () => {
     const monthStart = new Date(month.getFullYear(), month.getMonth(), 1).toISOString().slice(0, 10);
@@ -63,6 +71,9 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
 
   return (
     <div className="space-y-4">
+      {/* Pilar 1 — cardio prescrito no topo */}
+      {prescribed && <PrescribedCardioCard cardio={prescribed} />}
+
       {totals && (
         <div className="grid grid-cols-4 gap-2">
           <TotalCard label="Hoje" min={totals.today_min} />
@@ -145,6 +156,59 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
           onClose={() => setShowForm(false)}
           onSaved={() => { setShowForm(false); void reload(); }}
         />
+      )}
+    </div>
+  );
+}
+
+const DOW_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+
+// Pilar 1 — bloco "Cardio prescrito": modalidade/intensidade, pills dos dias
+// (destaca hoje), tempo do dia atual e observações.
+function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
+  const todayDow = new Date().getDay();
+  const isToday = cardio.dias_semana?.includes(todayDow);
+  const tempoHoje = cardio.modo === 'mesmo'
+    ? cardio.tempo_padrao
+    : cardio.tempo_por_dia?.[String(todayDow)] ?? null;
+  const subtitle = [cardio.modalidade, cardio.intensidade].filter(Boolean).join(' · ');
+
+  return (
+    <div className="rounded-xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-sky-50/40 p-3">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-cyan-900">
+          🫀 Cardio prescrito
+        </h3>
+        {isToday && tempoHoje != null && (
+          <span className="rounded-full bg-cyan-600 px-2 py-0.5 text-xs font-bold text-white">
+            Hoje: {tempoHoje}{cardio.unidade}
+          </span>
+        )}
+      </div>
+      {subtitle && <p className="mt-0.5 text-xs capitalize text-cyan-700">{subtitle}</p>}
+
+      <div className="mt-2 flex flex-wrap gap-1">
+        {DOW_LABELS.map((lbl, dow) => {
+          const active = cardio.dias_semana?.includes(dow);
+          const today = dow === todayDow;
+          if (!active) return null;
+          const tempo = cardio.modo === 'mesmo' ? cardio.tempo_padrao : cardio.tempo_por_dia?.[String(dow)] ?? null;
+          return (
+            <span
+              key={dow}
+              className={
+                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ' +
+                (today ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-cyan-200 bg-white text-cyan-800')
+              }
+            >
+              {lbl}{tempo != null ? ` ${tempo}${cardio.unidade}` : ''}
+            </span>
+          );
+        })}
+      </div>
+
+      {cardio.observacoes && (
+        <p className="mt-2 text-xs italic text-cyan-700">{cardio.observacoes}</p>
       )}
     </div>
   );

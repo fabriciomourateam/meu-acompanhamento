@@ -3,10 +3,12 @@ import { motion } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
 import { ChevronDown, Dumbbell, Clock, Info, Shuffle } from 'lucide-react';
-import type { WorkoutExerciseFull } from '@/lib/workout/types';
+import type { WorkoutExerciseFull, ExerciseTechnique } from '@/lib/workout/types';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
 import { SetRow, type SetRowValue } from './SetRow';
 import { getThumbnail } from '@/lib/workout/video-url';
+import { humanizeAppliesTo, techniquesForSet, techniqueColors } from '@/lib/workout/techniques';
+import { cn } from '@/lib/utils';
 
 export interface CommitSetArgs {
   plannedExerciseId: string;
@@ -16,7 +18,7 @@ export interface CommitSetArgs {
 }
 
 interface ExerciseCardProps {
-  exercise: WorkoutExerciseFull;
+  exercise: WorkoutExerciseFull & { techniques?: ExerciseTechnique[] };
   values: SetRowValue[];
   onChange: (idx: number, v: SetRowValue) => void;
   onCommit: (args: CommitSetArgs) => Promise<void>;
@@ -31,6 +33,7 @@ const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: fa
 export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSubstitute, substitutedName }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const totalSets = Math.max(1, exercise.sets || 1);
+  const techniques = exercise.techniques ?? [];
   const rows = useMemo(() => {
     const arr: SetRowValue[] = [];
     for (let i = 0; i < totalSets; i++) arr.push(values[i] ?? EMPTY_SET);
@@ -82,6 +85,21 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                 </Badge>
               ) : null}
             </div>
+            {/* Pilar 2 — badges de técnicas avançadas */}
+            {techniques.length > 0 && (
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                {techniques.map((t) => (
+                  <span
+                    key={t.technique_id}
+                    className={cn('inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-semibold', techniqueColors(t.color).badge)}
+                  >
+                    {t.emoji && <span>{t.emoji}</span>}
+                    {t.name}
+                    <span className="font-normal opacity-75">· {humanizeAppliesTo(t.applies_to, totalSets)}</span>
+                  </span>
+                ))}
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full px-2 py-0.5">
@@ -127,24 +145,39 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                 <span className="text-center">RPE</span>
                 <span />
               </div>
-              {rows.map((row, i) => (
-                <SetRow
-                  key={i}
-                  index={i}
-                  value={row}
-                  defaultReps={defaultReps}
-                  defaultWeight={exercise.load_kg}
-                  onChange={(v) => onChange(i, v)}
-                  onCommit={async (v) => {
-                    await onCommit({
-                      plannedExerciseId: exercise.id,
-                      setIndex: i + 1,
-                      value: v,
-                      restSeconds: exercise.rest_seconds,
-                    });
-                  }}
-                />
-              ))}
+              {rows.map((row, i) => {
+                const setTechs = techniquesForSet(techniques, i + 1, totalSets);
+                return (
+                  <div key={i} className="space-y-1.5">
+                    <SetRow
+                      index={i}
+                      value={row}
+                      defaultReps={defaultReps}
+                      defaultWeight={exercise.load_kg}
+                      onChange={(v) => onChange(i, v)}
+                      onCommit={async (v) => {
+                        await onCommit({
+                          plannedExerciseId: exercise.id,
+                          setIndex: i + 1,
+                          value: v,
+                          restSeconds: exercise.rest_seconds,
+                        });
+                      }}
+                    />
+                    {/* Pilar 2 — banner da técnica na série em que ela aplica */}
+                    {setTechs.map((t) => (
+                      <div
+                        key={t.technique_id}
+                        className={cn('rounded-lg border px-2.5 py-1.5 text-xs', techniqueColors(t.color).banner)}
+                      >
+                        <span className="font-semibold">⚠️ {t.emoji} {t.name}</span>
+                        {t.description && <span className="ml-1">{t.description}</span>}
+                        {t.notes && <div className="mt-0.5 italic opacity-80">{t.notes}</div>}
+                      </div>
+                    ))}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </CollapsibleContent>

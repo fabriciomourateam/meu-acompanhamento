@@ -72,6 +72,22 @@ export interface TrainerProfile {
   share_brand_color: string | null;
 }
 
+// Cardio prescrito na ficha (workout_plan_cardio, 1:1 com o plano).
+export interface PrescribedCardio {
+  modalidade: string | null;
+  frequencia: 'semanal' | 'diario' | string;
+  unidade: 'min' | 'h' | string;
+  dias_semana: number[];               // DOW 0=dom..6=sáb
+  modo: 'mesmo' | 'individual' | string;
+  tempo_padrao: number | null;          // minutos quando modo='mesmo'
+  tempo_por_dia: Record<string, number>; // quando modo='individual'
+  intensidade: string | null;
+  observacoes: string | null;
+}
+
+// Volume por grupamento muscular: { "Peitoral": { volume, category }, ... }
+export type VolumeByGroup = Record<string, { volume: number; category: string | null }>;
+
 export const workoutExtrasService = {
   // ─── CARDIO ────────────────────────────────────────────
   async listCardio(token: string, from: string, to: string): Promise<CardioLog[]> {
@@ -192,5 +208,20 @@ export const workoutExtrasService = {
     if (error) throw error;
     const row = Array.isArray(data) ? data[0] : data;
     return (row as TrainerProfile) ?? null;
+  },
+
+  // ─── CARDIO PRESCRITO (workout_plan_cardio) ────────────
+  async getPrescribedCardio(token: string): Promise<PrescribedCardio | null> {
+    const { data, error } = await supabase.rpc('get_workout_plan_cardio_by_token' as any, { p_token: token });
+    if (error) throw error;
+    const cardio = (data as { cardio: PrescribedCardio | null } | null)?.cardio ?? null;
+    return cardio;
+  },
+
+  // ─── VOLUME POR GRUPAMENTO MUSCULAR ────────────────────
+  async getVolumeByGroup(token: string): Promise<VolumeByGroup> {
+    const { data, error } = await supabase.rpc('get_workout_volume_by_token' as any, { p_token: token });
+    if (error) throw error;
+    return (data as VolumeByGroup) ?? {};
   },
 };
