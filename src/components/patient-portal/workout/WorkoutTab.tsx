@@ -8,7 +8,9 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dumbbell, HeartPulse, BarChart3, ChevronLeft } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
@@ -43,18 +45,36 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
   const [generalNotes, setGeneralNotes] = useState<string | null>(null);
   const [subtab, setSubtab] = useState<'workouts' | 'cardios' | 'analytics'>('workouts');
   const [openSessionId, setOpenSessionId] = useState<string | null>(null);
+  // Portão de adesão antes de uma fase de Força (<50% na fase anterior).
+  const [forcaGate, setForcaGate] = useState<{ planId: string; adherence: number } | null>(null);
+  const [gateBusy, setGateBusy] = useState(false);
 
   const load = useCallback(async () => {
     if (!token) return;
     setLoading(true);
     try {
       let h = await workoutService.getHub(token);
-      // Auto-avanço de fase por tempo: se a periodização já deveria ter avançado
-      // (semanas decorridas), aplica no banco e recarrega o hub com as cargas novas.
-      if (h.plan?.id && h.plan.periodization_template_id) {
+      // Auto-avanço de fase por tempo. Se for entrar numa fase de Força, a RPC
+      // segura (needs_forca_confirmation): checamos a adesão — >=50% avança
+      // direto; <50% abre o portão pra o aluno decidir (avançar ou repetir).
+      const planId = h.plan?.id;
+      if (planId && h.plan?.periodization_template_id) {
         try {
-          const res = await workoutExtrasService.autoAdvancePhase(token, h.plan.id);
-          if (res.advanced) h = await workoutService.getHub(token);
+          const res = await workoutExtrasService.autoAdvancePhase(token, planId);
+          if (res.needs_forca_confirmation) {
+            const adh = await workoutExtrasService.getWeeklyAdherence(token, planId, 2);
+            const avg = adh.length
+              ? Math.round(adh.reduce((s, w) => s + Number(w.adherence_pct), 0) / adh.length)
+              : 0;
+            if (avg >= 50) {
+              await workoutExtrasService.autoAdvancePhase(token, planId, true);
+            } else {
+              setForcaGate({ planId, adherence: avg });
+            }
+            h = await workoutService.getHub(token);
+          } else if (res.advanced) {
+            h = await workoutService.getHub(token);
+          }
         } catch (e) {
           console.error('Falha no auto-avanço de fase:', e);
         }
@@ -78,6 +98,37 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
   useEffect(() => {
     if (active) void load();
   }, [active, load]);
+
+  // Aluno optou por avançar pra Força mesmo com adesão baixa.
+  const handleConfirmForca = async () => {
+    if (!forcaGate) return;
+    setGateBusy(true);
+    try {
+      await workoutExtrasService.autoAdvancePhase(token, forcaGate.planId, true);
+      setForcaGate(null);
+      await load();
+    } catch (e) {
+      console.error('Erro ao confirmar Força:', e);
+    } finally {
+      setGateBusy(false);
+    }
+  };
+
+  // Aluno optou por repetir a fase atual por mais uma semana.
+  const handleRepeatPhase = async () => {
+    if (!forcaGate) return;
+    setGateBusy(true);
+    try {
+      await workoutExtrasService.repeatCurrentPhase(token, forcaGate.planId);
+      setForcaGate(null);
+      await load();
+      toast({ title: 'Beleza!', description: 'Você fica mais uma semana na fase atual antes de avançar.' });
+    } catch (e) {
+      console.error('Erro ao repetir fase:', e);
+    } finally {
+      setGateBusy(false);
+    }
+  };
 
   const { workoutSessions, cardioSessions, guidelinesSessions } = useMemo(() => {
     const all = hub?.sessions ?? [];
@@ -193,6 +244,43 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           <AnalyticsSubtab token={token} planId={plan.id} patientName={patientName} />
         </TabsContent>
       </Tabs>
+
+      {/* Portão de adesão antes de uma fase de Força */}
+      <Dialog open={!!forcaGate} onOpenChange={(o) => !o && !gateBusy && setForcaGate(null)}>
+        <DialogContent className="bg-white border-slate-200 text-slate-900">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" /> Pronto pra avançar pra Força?
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 text-sm text-slate-600">
+            <p>
+              Sua adesão nas últimas semanas foi de <strong className="text-slate-900">{forcaGate?.adherence ?? 0}%</strong>.
+            </p>
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900">
+              ⚠️ Você completou menos de 50% dos treinos previstos. A fase de Força aumenta a carga (+10%) —
+              recomendamos repetir a fase atual por mais uma semana antes de avançar.
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => void handleRepeatPhase()}
+              disabled={gateBusy}
+              className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+            >
+              Repetir a semana
+            </Button>
+            <Button
+              onClick={() => void handleConfirmForca()}
+              disabled={gateBusy}
+              className="bg-rose-600 text-white hover:bg-rose-700"
+            >
+              🚀 Avançar pra Força
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
