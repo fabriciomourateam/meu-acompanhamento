@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp } from 'lucide-react';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check } from 'lucide-react';
 import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
@@ -49,6 +49,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   }, [values, totalSets]);
 
   const doneCount = rows.filter((r) => r.done).length;
+  const allDone = totalSets > 0 && doneCount >= totalSets;
   const thumb = getThumbnail(exercise.video_url, exercise.thumbnail_url);
 
   // Alvos por série: reps e RPE podem vir como valor único ("15"), faixa ("8-12")
@@ -75,10 +76,13 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden"
+      className={cn(
+        'rounded-xl border shadow-sm overflow-hidden transition-colors',
+        allDone ? 'border-emerald-300 bg-emerald-50/60' : 'border-slate-200 bg-white',
+      )}
     >
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className="w-full text-left p-3 flex items-center gap-3 hover:bg-slate-50 transition-colors">
+        <CollapsibleTrigger className={cn('w-full text-left p-3 flex items-center gap-3 transition-colors', allDone ? 'hover:bg-emerald-100/40' : 'hover:bg-slate-50')}>
           <div className="w-14 h-14 rounded-lg bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
             {thumb ? (
               <img src={thumb} alt={exercise.exercise_name} className="w-full h-full object-cover" loading="lazy" />
@@ -136,7 +140,13 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
             )}
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            <span className="text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-full px-2 py-0.5">
+            <span
+              className={cn(
+                'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
+                allDone ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700',
+              )}
+            >
+              {allDone && <Check className="h-3 w-3" />}
               {doneCount}/{totalSets}
             </span>
             <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
