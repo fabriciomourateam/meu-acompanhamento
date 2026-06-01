@@ -192,8 +192,8 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   ) : null}
                 </div>
               )}
-              <div className="grid grid-cols-[28px_1fr_1fr_72px_44px] sm:grid-cols-[32px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                <span className="text-center">#</span>
+              <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                <span className="text-center">Série</span>
                 <span className="text-center">Peso (kg)</span>
                 <span className="text-center">Reps</span>
                 <button

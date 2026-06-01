@@ -58,11 +58,23 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
 
   return (
     <div
-      className={`grid grid-cols-[28px_1fr_1fr_72px_44px] sm:grid-cols-[32px_1fr_1fr_88px_56px] items-center gap-1.5 sm:gap-2 rounded-lg p-1.5 ${
+      className={`grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] items-center gap-1.5 sm:gap-2 rounded-lg p-1.5 ${
         value.done ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200'
       }`}
     >
-      <span className="text-xs font-bold text-slate-500 text-center">{index + 1}</span>
+      {/* Mini-cartão da série: número + alvo de reps (estilo MyShape) */}
+      <div className="flex flex-col items-center justify-center leading-none">
+        <span
+          className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
+            value.done ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-300'
+          }`}
+        >
+          {index + 1}
+        </span>
+        {defaultReps != null && (
+          <span className="mt-1 text-[9px] font-medium text-blue-500">alvo {defaultReps}</span>
+        )}
+      </div>
 
       {/* Peso */}
       <div className="flex items-center gap-1 min-w-0">
