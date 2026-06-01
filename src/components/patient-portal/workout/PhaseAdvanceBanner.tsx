@@ -14,6 +14,16 @@ const PHASE_COLORS: Record<string, string> = {
   custom: 'border-slate-300 bg-slate-50 text-slate-900',
 };
 
+// Cor do marcador (bolinha) de cada fase na timeline, por preset.
+const PHASE_DOT: Record<string, string> = {
+  base: 'bg-emerald-500',
+  forca: 'bg-rose-500',
+  força: 'bg-rose-500',
+  regenerativo: 'bg-sky-500',
+  deload: 'bg-amber-500',
+  custom: 'bg-slate-400',
+};
+
 interface Props {
   token: string;
   planId: string;
@@ -63,16 +73,22 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const readyToAdvance = sessionsLeft <= 0 && !!nextPhase;
   const color = PHASE_COLORS[(currentPhase.preset ?? 'custom').toLowerCase()] ?? PHASE_COLORS.custom;
 
-  // Resumo curto dos parâmetros de uma fase (séries/reps/cargas/RPE).
+  // Resumo curto dos parâmetros de uma fase (séries/reps/RPE — a carga vai num pill à parte).
   const phaseSummary = (ph: PeriodizationPhase) =>
     [
       ph.sets_override ? `${ph.sets_override} séries` : null,
       ph.reps_override ? `${ph.reps_override} reps` : null,
-      ph.load_pct_change ? `cargas ${ph.load_pct_change > 0 ? '+' : ''}${ph.load_pct_change}%` : null,
       ph.rpe_per_set_override ? `RPE ${ph.rpe_per_set_override}` : null,
     ]
       .filter(Boolean)
       .join(' · ');
+
+  const phaseDuration = (ph: PeriodizationPhase) =>
+    ph.duration_weeks
+      ? `${ph.duration_weeks} ${ph.duration_weeks === 1 ? 'semana' : 'semanas'}`
+      : ph.duration_sessions
+        ? `${ph.duration_sessions} treinos`
+        : null;
 
   const handleAdvanceClick = async () => {
     if (!nextPhase) return;
@@ -144,7 +160,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           </button>
 
           {showAllPhases && (
-            <ol className="mt-2 space-y-1.5">
+            <ol className="relative mt-3 space-y-2 before:absolute before:left-[10px] before:top-2 before:bottom-2 before:w-px before:bg-slate-200">
               {periodization.phases.map((ph, i) => {
                 const status =
                   i < periodization.current_phase_index
@@ -153,38 +169,41 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                       ? 'current'
                       : 'upcoming';
                 const summary = phaseSummary(ph);
+                const duration = phaseDuration(ph);
+                const dot = PHASE_DOT[(ph.preset ?? 'custom').toLowerCase()] ?? PHASE_DOT.custom;
                 return (
-                  <li
-                    key={ph.id}
-                    className={cn(
-                      'flex items-start gap-2 rounded-lg border p-2 text-xs',
-                      status === 'current' ? 'border-purple-300 bg-purple-50' : 'border-slate-200 bg-white',
-                      status === 'done' && 'opacity-60',
-                    )}
-                  >
+                  <li key={ph.id} className="relative flex items-start gap-2.5 pl-0">
                     <span
                       className={cn(
-                        'flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
-                        status === 'done'
-                          ? 'bg-emerald-500 text-white'
-                          : status === 'current'
-                            ? 'bg-purple-600 text-white'
-                            : 'bg-slate-200 text-slate-600',
+                        'z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-white',
+                        status === 'done' ? 'bg-emerald-500 text-white' : status === 'current' ? `${dot} text-white` : 'bg-slate-200 text-slate-500',
                       )}
                     >
                       {status === 'done' ? '✓' : i + 1}
                     </span>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-1.5 font-semibold text-slate-800">
-                        {ph.label}
+                    <div
+                      className={cn(
+                        'min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-xs',
+                        status === 'current' ? 'border-purple-300 bg-purple-50' : 'border-slate-200 bg-white',
+                        status === 'done' && 'opacity-70',
+                      )}
+                    >
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <span className="font-semibold text-slate-800">{ph.label}</span>
+                        {duration && <span className="text-slate-400">· {duration}</span>}
                         {status === 'current' && (
-                          <span className="rounded bg-purple-100 px-1.5 py-0.5 text-[9px] font-bold uppercase text-purple-700">
-                            Atual
+                          <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">Atual</span>
+                        )}
+                        {ph.load_pct_change != null && ph.load_pct_change !== 0 && (
+                          <span
+                            className={cn(
+                              'rounded px-1.5 py-0.5 text-[10px] font-bold',
+                              ph.load_pct_change > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700',
+                            )}
+                          >
+                            {ph.load_pct_change > 0 ? '↑' : '↓'} carga {ph.load_pct_change > 0 ? '+' : ''}{ph.load_pct_change}%
                           </span>
                         )}
-                        {ph.duration_sessions ? (
-                          <span className="font-normal text-slate-400">· {ph.duration_sessions} treinos</span>
-                        ) : null}
                       </div>
                       {summary && <div className="mt-0.5 text-slate-500">{summary}</div>}
                     </div>
@@ -224,8 +243,14 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
             )}
           </div>
           <DialogFooter>
-            {adherence < 50 && <Button variant="outline" onClick={() => setShowModal(false)}>Repetir fase atual</Button>}
-            <Button onClick={() => void handleConfirmAdvance()} disabled={busy}>🚀 Confirmar avanço</Button>
+            {adherence < 50 && (
+              <Button variant="outline" onClick={() => setShowModal(false)} className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100">
+                Repetir fase atual
+              </Button>
+            )}
+            <Button onClick={() => void handleConfirmAdvance()} disabled={busy} className="bg-purple-600 text-white hover:bg-purple-700">
+              🚀 Confirmar avanço
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

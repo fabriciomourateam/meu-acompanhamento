@@ -10,6 +10,13 @@ export interface SetRowValue {
   done: boolean;
 }
 
+/** Extrai o primeiro número do RPE alvo ("8" ou "8-9" → 8) pra pré-preencher. */
+function parseRpe(v: number | string | null | undefined): number | null {
+  if (v == null || v === '') return null;
+  const m = String(v).match(/(\d+(?:[.,]\d+)?)/);
+  return m ? Number(m[1].replace(',', '.')) : null;
+}
+
 interface SetRowProps {
   index: number;
   value: SetRowValue;
@@ -32,7 +39,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
     const next: SetRowValue = {
       weightKg: value.weightKg ?? defaultWeight ?? 0,
       reps: value.reps ?? defaultReps ?? 0,
-      rpe: value.rpe,
+      rpe: value.rpe ?? parseRpe(defaultRpe),
       done: true,
     };
     onChange(next);

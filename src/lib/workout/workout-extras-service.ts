@@ -41,10 +41,12 @@ export interface PeriodizationPhase {
   label: string;
   preset: string | null;
   duration_sessions: number | null;
+  duration_weeks: number | null;
   sets_override: number | null;
   reps_override: string | null;
   load_pct_change: number | null;
   rpe_per_set_override: string | null;
+  color: string | null;
 }
 
 export interface Periodization {

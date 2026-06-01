@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Share2 } from 'lucide-react';
-import { workoutExtrasService, type TrainerProfile, type VolumeByGroup } from '@/lib/workout/workout-extras-service';
+import { workoutExtrasService, type TrainerProfile, type VolumeByGroup, type CardioLog } from '@/lib/workout/workout-extras-service';
 import { ShareableProgressCard } from '../ShareableProgressCard';
 
 interface AnalyticsSubtabProps {
@@ -76,7 +76,7 @@ function ShareProgressSection({ token, planId, patientName }: { token: string; p
 
   return (
     <>
-      <Button onClick={() => void handleOpen()} variant="outline" className="w-full">
+      <Button onClick={() => void handleOpen()} variant="outline" className="w-full border-slate-300 bg-white text-slate-700 hover:bg-slate-100">
         <Share2 className="mr-1.5 h-4 w-4" /> Compartilhar progresso
       </Button>
 
@@ -100,11 +100,13 @@ function ShareProgressSection({ token, planId, patientName }: { token: string; p
   );
 }
 
+const dayKey = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+
 function CalendarView({ token }: { token: string }) {
   const [month, setMonth] = useState(new Date());
-  const [workoutDays, setWorkoutDays] = useState<Date[]>([]);
-  const [cardioDays, setCardioDays] = useState<Date[]>([]);
-  const [selected, setSelected] = useState<Date | undefined>();
+  const [workoutLogs, setWorkoutLogs] = useState<Array<{ started_at: string }>>([]);
+  const [cardioLogs, setCardioLogs] = useState<CardioLog[]>([]);
+  const [selected, setSelected] = useState<Date>(new Date());
 
   useEffect(() => {
     const fromDate = new Date(month.getFullYear(), month.getMonth(), 1);
@@ -115,34 +117,74 @@ function CalendarView({ token }: { token: string }) {
       workoutExtrasService.listSessionLogs(token, fromDate.toISOString(), new Date(toDate.getTime() + 86400000).toISOString()),
       workoutExtrasService.listCardio(token, from, to),
     ]).then(([w, c]) => {
-      setWorkoutDays(w.map((l) => new Date(l.started_at)));
-      setCardioDays(c.map((l) => new Date(l.performed_at + 'T00:00:00')));
+      setWorkoutLogs(w);
+      setCardioLogs(c);
     }).catch((err) => console.error('Erro no calendário:', err));
   }, [month, token]);
 
+  const workoutDays = workoutLogs.map((l) => new Date(l.started_at));
+  const cardioDays = cardioLogs.map((l) => new Date(l.performed_at + 'T00:00:00'));
+
+  const selKey = dayKey(selected);
+  const dayWorkouts = workoutLogs.filter((l) => dayKey(new Date(l.started_at)) === selKey);
+  const dayCardios = cardioLogs.filter((l) => l.performed_at === selKey);
+  const selLabel = selected.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <DayPicker
-        mode="single"
-        selected={selected}
-        onSelect={setSelected}
-        month={month}
-        onMonthChange={setMonth}
-        modifiers={{ treinou: workoutDays, cardio: cardioDays }}
-        modifiersClassNames={{
-          treinou: 'bg-emerald-100 text-emerald-700 font-bold rounded-md',
-          cardio: 'ring-2 ring-blue-400 ring-inset rounded-md',
-        }}
-        styles={{
-          caption_label: { color: '#0f172a', fontWeight: 600 },
-          head_cell: { color: '#64748b' },
-          day: { color: '#334155' },
-          nav_button: { color: '#475569' },
-        }}
-      />
-      <div className="mt-2 flex gap-3 text-xs text-slate-600">
-        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-emerald-100" /> Treinou</span>
-        <span className="flex items-center gap-1"><span className="h-3 w-3 rounded ring-2 ring-blue-400" /> Cardio</span>
+    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:flex-row">
+      <div className="sm:border-r sm:border-slate-100 sm:pr-3">
+        <DayPicker
+          mode="single"
+          selected={selected}
+          onSelect={(d) => d && setSelected(d)}
+          month={month}
+          onMonthChange={setMonth}
+          modifiers={{ treinou: workoutDays, cardio: cardioDays }}
+          modifiersClassNames={{
+            treinou: 'bg-emerald-100 text-emerald-700 font-bold rounded-md',
+            cardio: 'ring-2 ring-blue-400 ring-inset rounded-md',
+          }}
+          styles={{
+            caption_label: { color: '#0f172a', fontWeight: 600 },
+            head_cell: { color: '#64748b' },
+            day: { color: '#334155' },
+            nav_button: { color: '#475569' },
+          }}
+        />
+        <div className="mt-2 flex gap-3 text-xs text-slate-600">
+          <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-emerald-100" /> Treinou</span>
+          <span className="flex items-center gap-1"><span className="h-3 w-3 rounded ring-2 ring-blue-400" /> Cardio</span>
+        </div>
+      </div>
+
+      {/* Painel do dia selecionado — tira o calendário da sensação de "isolado" */}
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-semibold capitalize text-slate-800">{selLabel}</p>
+        <div className="mt-2 space-y-1.5">
+          {dayWorkouts.length === 0 && dayCardios.length === 0 ? (
+            <p className="py-4 text-center text-xs italic text-slate-400">Nada registrado neste dia.</p>
+          ) : (
+            <>
+              {dayWorkouts.map((w, i) => (
+                <div key={`w${i}`} className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs">
+                  <span>✅</span>
+                  <span className="font-medium text-emerald-800">Treino realizado</span>
+                  <span className="ml-auto tabular-nums text-emerald-600">
+                    {new Date(w.started_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                </div>
+              ))}
+              {dayCardios.map((c) => (
+                <div key={c.id} className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs">
+                  <span>🫀</span>
+                  <span className="font-medium capitalize text-blue-800">{c.modality || 'Cardio'}</span>
+                  {c.intensity && <span className="capitalize text-blue-500">· {c.intensity}</span>}
+                  <span className="ml-auto tabular-nums text-blue-600">{c.duration_min} min</span>
+                </div>
+              ))}
+            </>
+          )}
+        </div>
       </div>
     </div>
   );

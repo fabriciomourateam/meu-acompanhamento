@@ -69,7 +69,7 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
         </div>
 
         <div className="flex gap-2 justify-end">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={busy}>Cancelar</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={busy} className="text-slate-600 hover:bg-slate-100 hover:text-slate-900">Cancelar</Button>
           <Button onClick={handle} disabled={busy} className="bg-emerald-600 hover:bg-emerald-700 text-white">
             {busy ? 'Salvando…' : 'Finalizar'}
           </Button>

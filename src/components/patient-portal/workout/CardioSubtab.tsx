@@ -123,7 +123,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId }: CardioSub
               <div key={s.id} className="rounded-lg border border-cyan-200 bg-cyan-50/40 p-3">
                 <div className="font-medium text-cyan-900">{s.name}</div>
                 {s.notes && (
-                  <div className="mt-1 text-xs text-cyan-800" dangerouslySetInnerHTML={{ __html: s.notes }} />
+                  <div className="mt-1 whitespace-pre-line text-xs text-cyan-800" dangerouslySetInnerHTML={{ __html: s.notes }} />
                 )}
               </div>
             ))}
@@ -244,7 +244,7 @@ function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
       </div>
 
       {cardio.observacoes && (
-        <p className="mt-2 text-xs italic text-cyan-700">{cardio.observacoes}</p>
+        <p className="mt-2 whitespace-pre-line text-xs italic text-cyan-700">{cardio.observacoes}</p>
       )}
     </div>
   );
@@ -280,6 +280,11 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
   }, [swRunning]);
   const swLabel = `${String(Math.floor(swSec / 60)).padStart(2, '0')}:${String(swSec % 60).padStart(2, '0')}`;
   const swMinutes = Math.max(1, Math.round(swSec / 60));
+  // Enquanto o cronômetro roda, a duração acompanha o tempo medido (evita salvar
+  // o valor padrão de 30min sem querer). Depois de parar, o último valor fica.
+  useEffect(() => {
+    if (swRunning) setDuration(String(swMinutes));
+  }, [swSec, swRunning, swMinutes]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -325,13 +330,9 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
               </div>
             </div>
             {swSec > 0 && (
-              <button
-                type="button"
-                onClick={() => setDuration(String(swMinutes))}
-                className="mt-2 text-xs font-medium text-cyan-700 hover:text-cyan-800"
-              >
-                Usar {swMinutes} min como duração
-              </button>
+              <p className="mt-2 text-xs text-slate-500">
+                Duração registrada: <strong className="text-slate-700">{swMinutes} min</strong> (ajustável abaixo)
+              </p>
             )}
           </div>
 
@@ -365,8 +366,10 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={() => void handleSave()} disabled={saving || !duration}>Salvar</Button>
+          <Button variant="outline" onClick={onClose} className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100">Cancelar</Button>
+          <Button onClick={() => void handleSave()} disabled={saving || !duration} className="bg-cyan-600 text-white hover:bg-cyan-700">
+            {saving ? 'Salvando…' : 'Salvar'}
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
