@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal-settings-service';
 import { NotificationSettingsPanel } from '@/components/admin/NotificationSettingsPanel';
+import { TrainerNotifications } from '@/components/admin/TrainerNotifications';
 import { BrandSettingsPanel } from '@/components/admin/BrandSettingsPanel';
 import { THEME_PRESET_4, THEME_PRESET_8, getCurrentWeeklyTheme } from '@/lib/community-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1133,6 +1134,7 @@ export default function AdminPortal() {
             <p className="text-sm text-slate-500 mt-0.5">Configure o portal dos seus alunos</p>
           </div>
           <div className="flex items-center gap-2">
+            {trainerUserId && <TrainerNotifications trainerId={trainerUserId} />}
             <Button onClick={handleSave} disabled={saving || !config} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5">
               <Save className="w-4 h-4" />
               {saving ? 'Salvando...' : 'Salvar'}

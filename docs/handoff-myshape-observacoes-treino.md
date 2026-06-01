@@ -1,3 +1,9 @@
+> ⚠️ **STATUS: NÃO É MAIS NECESSÁRIO NO MYSHAPE.** O sino de notificações do
+> treinador foi implementado direto no **meu-acompanhamento** (Painel Admin,
+> componente `TrainerNotifications`), reaproveitando o pipeline de push e as RPCs
+> `*_trainer` que já existiam. Como o Fabrício acessa o Painel Admin por aqui, não
+> há trabalho a fazer no MyShape. Este documento fica só como referência do contrato.
+
 # Handoff → MyShape (`controle-de-pacientes`): destacar observações de treino do aluno
 
 > Documento escrito pelo Claude do **meu-acompanhamento** (front-end do aluno) para
