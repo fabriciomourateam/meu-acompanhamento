@@ -27,6 +27,18 @@ export interface WorkoutSession {
 
 export type SessionType = 'workout' | 'cardio' | 'guidelines';
 
+// Técnica avançada (drop set, cluster, etc.) aplicada a um exercício.
+// Vem embutida em cada exercício do hub/today (array `techniques`).
+export interface ExerciseTechnique {
+  technique_id: string;
+  name: string;
+  emoji: string | null;
+  color: string | null;
+  description: string | null;
+  applies_to: string; // 'all' | 'last' | '1' | '2,3' ...
+  notes: string | null;
+}
+
 // Sessão retornada pelo hub (get_workout_hub_by_token): inclui session_type e os
 // exercícios já embutidos (com campos de execução por série).
 export interface HubExercise extends WorkoutExerciseFull {
@@ -36,6 +48,7 @@ export interface HubExercise extends WorkoutExerciseFull {
   warmup_sets: number | null;
   warmup_reps: string | null;
   warmup_rpe: number | null;
+  techniques?: ExerciseTechnique[];
 }
 
 export interface HubSession {

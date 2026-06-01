@@ -3,13 +3,13 @@ import { useEffect, useState } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/dist/style.css';
 import {
-  LineChart, Line, BarChart, Bar, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
+  LineChart, Line, BarChart, Bar, Cell, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid,
 } from 'recharts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Share2 } from 'lucide-react';
-import { workoutExtrasService, type TrainerProfile } from '@/lib/workout/workout-extras-service';
+import { workoutExtrasService, type TrainerProfile, type VolumeByGroup } from '@/lib/workout/workout-extras-service';
 import { ShareableProgressCard } from '../ShareableProgressCard';
 
 interface AnalyticsSubtabProps {
@@ -19,19 +19,21 @@ interface AnalyticsSubtabProps {
 }
 
 export function AnalyticsSubtab({ token, planId, patientName }: AnalyticsSubtabProps) {
-  const [tab, setTab] = useState<'calendar' | 'volume' | 'rpe' | 'adherence'>('calendar');
+  const [tab, setTab] = useState<'calendar' | 'volume' | 'groups' | 'rpe' | 'adherence'>('calendar');
 
   return (
     <div className="space-y-3">
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="calendar">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
           <TabsTrigger value="volume">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
+          <TabsTrigger value="groups">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
           <TabsTrigger value="rpe">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
           <TabsTrigger value="adherence">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
         </TabsList>
         <TabsContent value="calendar" className="mt-3"><CalendarView token={token} /></TabsContent>
         <TabsContent value="volume" className="mt-3"><VolumeChart token={token} /></TabsContent>
+        <TabsContent value="groups" className="mt-3"><VolumeByGroupChart token={token} /></TabsContent>
         <TabsContent value="rpe" className="mt-3"><RpeChart token={token} /></TabsContent>
         <TabsContent value="adherence" className="mt-3"><AdherenceChart token={token} planId={planId} /></TabsContent>
       </Tabs>
@@ -180,6 +182,70 @@ function VolumeChart({ token }: { token: string }) {
         <Bar dataKey="sets" fill="#3b82f6" name="Séries" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ChartShell>
+  );
+}
+
+// Pilar 3 — Volume por grupamento muscular (barras horizontais).
+const CATEGORY_COLORS: Record<string, string> = {
+  superior: '#3b82f6', // blue
+  inferior: '#10b981', // emerald
+  core: '#f59e0b',     // amber
+};
+function categoryColor(cat: string | null): string {
+  return CATEGORY_COLORS[cat ?? ''] ?? '#64748b'; // slate fallback
+}
+
+function VolumeByGroupChart({ token }: { token: string }) {
+  const [data, setData] = useState<Array<{ group: string; volume: number; category: string | null }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    void workoutExtrasService.getVolumeByGroup(token)
+      .then((vol) => {
+        const rows = Object.entries(vol)
+          .map(([group, v]) => ({ group, volume: Number(v.volume) || 0, category: v.category }))
+          .filter((r) => r.volume > 0)
+          .sort((a, b) => b.volume - a.volume);
+        setData(rows);
+      })
+      .catch((err) => console.error('Erro no volume por grupo:', err))
+      .finally(() => setLoading(false));
+  }, [token]);
+
+  // altura proporcional ao nº de grupos (cada barra ~34px)
+  const height = Math.max(160, data.length * 34 + 20);
+
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-3">
+      <h4 className="mb-1 text-sm font-semibold text-slate-700">Volume por grupamento (plano atual)</h4>
+      <p className="mb-2 text-[11px] text-slate-400">séries × reps médias × ativação</p>
+      {loading ? (
+        <p className="py-6 text-center text-sm text-slate-400">Carregando…</p>
+      ) : data.length === 0 ? (
+        <p className="py-6 text-center text-sm italic text-slate-500">Sem dados de volume ainda</p>
+      ) : (
+        <>
+          <ResponsiveContainer width="100%" height={height}>
+            <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
+              <XAxis type="number" tick={{ fontSize: 11 }} />
+              <YAxis type="category" dataKey="group" tick={{ fontSize: 11 }} width={80} />
+              <Tooltip formatter={(v: number) => [`${v}`, 'Volume']} />
+              <Bar dataKey="volume" radius={[0, 4, 4, 0]}>
+                {data.map((d) => (
+                  <Cell key={d.group} fill={categoryColor(d.category)} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-600">
+            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded" style={{ background: CATEGORY_COLORS.superior }} /> Superior</span>
+            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded" style={{ background: CATEGORY_COLORS.inferior }} /> Inferior</span>
+            <span className="flex items-center gap-1"><span className="h-3 w-3 rounded" style={{ background: CATEGORY_COLORS.core }} /> Core</span>
+          </div>
+        </>
+      )}
+    </div>
   );
 }
 
