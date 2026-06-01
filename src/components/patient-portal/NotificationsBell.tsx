@@ -15,7 +15,7 @@ interface Props {
 }
 
 // Cor do banner por tipo (doc seção 5): advance=positivo, skipped=atenção,
-// completed=celebração. Fallback neutro pra tipos futuros.
+// completed=celebração, pr_achieved=conquista (dourado). Fallback neutro.
 function typeStyles(type: string): string {
   switch (type) {
     case 'periodization_advance':
@@ -24,6 +24,8 @@ function typeStyles(type: string): string {
       return 'border-amber-200 bg-amber-50';
     case 'periodization_completed':
       return 'border-violet-200 bg-violet-50';
+    case 'pr_achieved':
+      return 'border-yellow-300 bg-gradient-to-br from-yellow-50 to-amber-50';
     default:
       return 'border-slate-200 bg-slate-50';
   }

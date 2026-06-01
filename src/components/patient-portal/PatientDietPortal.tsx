@@ -657,7 +657,8 @@ export function PatientDietPortal({
           <NotificationsBell
             token={token}
             onNavigate={(n) => {
-              if (typeof n.type === 'string' && n.type.startsWith('periodization')) goToTab('workout');
+              // Notificações de treino (periodização + PRs) levam pro hub de treino.
+              if (typeof n.type === 'string' && (n.type.startsWith('periodization') || n.type === 'pr_achieved')) goToTab('workout');
             }}
           />
         </div>
