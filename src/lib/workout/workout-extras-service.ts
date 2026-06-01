@@ -206,6 +206,15 @@ export const workoutExtrasService = {
     return data === true;
   },
 
+  // Avanço automático de fase por semanas decorridas. Idempotente; retorna se avançou.
+  async autoAdvancePhase(token: string, planId: string): Promise<{ advanced: boolean; from?: number; to?: number }> {
+    const { data, error } = await supabase.rpc('auto_advance_plan_phase_by_token' as any, {
+      p_token: token, p_plan_id: planId,
+    });
+    if (error) throw error;
+    return (data as { advanced: boolean; from?: number; to?: number }) ?? { advanced: false };
+  },
+
   async applyPhaseChange(token: string, planId: string, targetPhaseIndex: number, progressIncrementPct = 5) {
     const { data, error } = await supabase.rpc('apply_phase_change_by_token' as any, {
       p_token: token, p_plan_id: planId, p_target_phase_index: targetPhaseIndex,

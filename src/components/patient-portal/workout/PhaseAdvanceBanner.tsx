@@ -1,7 +1,8 @@
-// ITEM 7 — Banner da fase atual + transição de fase (com modal de confirmação).
+// ITEM 7 — Banner da fase atual + prévia da periodização.
+// O avanço de fase é AUTOMÁTICO por tempo (semanas decorridas): aplicado no
+// servidor por auto_advance_plan_phase_by_token e disparado ao carregar o Treino.
+// Aqui só exibimos a fase atual, a estimativa da próxima e a timeline completa.
 import { useCallback, useEffect, useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
 import { workoutExtrasService, type Periodization, type PeriodizationPhase } from '@/lib/workout/workout-extras-service';
 import { cn } from '@/lib/utils';
 
@@ -28,38 +29,25 @@ interface Props {
   token: string;
   planId: string;
   planCreatedAt: string;
-  onPhaseChanged: () => void;
+  /** Mantido por compatibilidade — o avanço agora é automático ao carregar o Treino. */
+  onPhaseChanged?: () => void;
 }
 
-export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChanged }: Props) {
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function PhaseAdvanceBanner({ token, planId, planCreatedAt }: Props) {
   const [periodization, setPeriodization] = useState<Periodization | null>(null);
-  const [sessionsInPhase, setSessionsInPhase] = useState(0);
-  const [showModal, setShowModal] = useState(false);
   const [showAllPhases, setShowAllPhases] = useState(false);
-  const [adherence, setAdherence] = useState(0);
-  const [busy, setBusy] = useState(false);
 
   const reload = useCallback(async () => {
     try {
       const p = await workoutExtrasService.getPlanPeriodization(token, planId);
-      if (!p) { setPeriodization(null); return; }
-      setPeriodization(p);
-
-      const since = p.phase_started_at ?? planCreatedAt;
-      const [count, adh] = await Promise.all([
-        workoutExtrasService.countSessionsInPhase(token, planId, since),
-        workoutExtrasService.getWeeklyAdherence(token, planId, 2),
-      ]);
-      setSessionsInPhase(count);
-      if (adh.length > 0) {
-        const avg = adh.reduce((s, w) => s + Number(w.adherence_pct), 0) / adh.length;
-        setAdherence(Math.round(avg));
-      }
+      setPeriodization(p ?? null);
     } catch (err) {
       console.error('Erro ao carregar periodização:', err);
       setPeriodization(null);
     }
-  }, [token, planId, planCreatedAt]);
+  }, [token, planId]);
 
   useEffect(() => { void reload(); }, [reload]);
 
@@ -69,8 +57,6 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const nextPhase = periodization.phases[periodization.current_phase_index + 1];
   if (!currentPhase) return null;
 
-  const sessionsLeft = (currentPhase.duration_sessions ?? 0) - sessionsInPhase;
-  const readyToAdvance = sessionsLeft <= 0 && !!nextPhase;
   const color = PHASE_COLORS[(currentPhase.preset ?? 'custom').toLowerCase()] ?? PHASE_COLORS.custom;
 
   // Resumo curto dos parâmetros de uma fase (séries/reps/RPE — a carga vai num pill à parte).
@@ -90,38 +76,13 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
         ? `${ph.duration_sessions} treinos`
         : null;
 
-  const handleAdvanceClick = async () => {
-    if (!nextPhase) return;
-    const nextIdx = periodization.current_phase_index + 1;
-    setBusy(true);
-    try {
-      const hasDiff = await workoutExtrasService.phaseChangeHasVisibleDiff(token, planId, nextIdx);
-      if (!hasDiff) {
-        await workoutExtrasService.applyPhaseChange(token, planId, nextIdx);
-        await reload();
-        onPhaseChanged();
-        return;
-      }
-      setShowModal(true);
-    } catch (err) {
-      console.error('Erro ao avançar fase:', err);
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleConfirmAdvance = async () => {
-    const nextIdx = periodization.current_phase_index + 1;
-    setBusy(true);
-    try {
-      await workoutExtrasService.applyPhaseChange(token, planId, nextIdx);
-      setShowModal(false);
-      await reload();
-      onPhaseChanged();
-    } finally {
-      setBusy(false);
-    }
-  };
+  // Estimativa de quando a próxima fase entra (semanas desde o início do plano).
+  const elapsedWeeks = Math.max(0, Math.floor((Date.now() - new Date(planCreatedAt).getTime()) / WEEK_MS));
+  let cumThroughCurrent = 0;
+  for (let i = 0; i <= periodization.current_phase_index; i++) {
+    cumThroughCurrent += periodization.phases[i].duration_weeks ?? 1;
+  }
+  const weeksLeft = Math.max(0, cumThroughCurrent - elapsedWeeks);
 
   return (
     <>
@@ -133,19 +94,12 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
           {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
         </div>
-        {nextPhase && !readyToAdvance && (
+        {nextPhase ? (
           <div className="mt-1 text-[11px] italic opacity-80">
-            Faltam {sessionsLeft} treino{sessionsLeft !== 1 ? 's' : ''} pra próxima fase ({nextPhase.label})
+            Próxima: {nextPhase.label} {weeksLeft <= 0 ? '(em breve)' : `em ~${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'}`} · avança sozinho
           </div>
-        )}
-        {readyToAdvance && (
-          <button
-            onClick={() => void handleAdvanceClick()}
-            disabled={busy}
-            className="mt-2 rounded bg-purple-600 px-3 py-1.5 text-xs font-bold text-white shadow hover:bg-purple-700 disabled:opacity-60"
-          >
-            🚀 Avançar pra {nextPhase.label}
-          </button>
+        ) : (
+          <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
         )}
       </div>
 
@@ -214,46 +168,6 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           )}
         </div>
       )}
-
-      <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="bg-white border-slate-200 text-slate-900">
-          <DialogHeader>
-            <DialogTitle>Pronto pra avançar pra {nextPhase?.label}?</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-3">
-            <p className="text-sm">Você completou {sessionsInPhase} treinos da fase {currentPhase.label}.</p>
-            <p className="text-sm">Adesão das últimas 2 semanas: <strong>{adherence}%</strong></p>
-
-            {adherence < 50 && (
-              <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
-                ⚠️ Você completou menos de 50% dos treinos previstos. Recomendamos repetir a fase atual antes de avançar.
-              </div>
-            )}
-
-            {nextPhase && (
-              <div className="rounded-lg border bg-slate-50 p-3 text-sm">
-                <div className="mb-2 font-semibold">O que vai mudar:</div>
-                <ul className="space-y-1 text-xs">
-                  {nextPhase.sets_override && <li>• Séries: {currentPhase.sets_override ?? 'atual'} → <strong>{nextPhase.sets_override}</strong></li>}
-                  {nextPhase.reps_override && <li>• Reps: {currentPhase.reps_override ?? 'atual'} → <strong>{nextPhase.reps_override}</strong></li>}
-                  {nextPhase.load_pct_change && <li>• Cargas: <strong>{nextPhase.load_pct_change > 0 ? '+' : ''}{nextPhase.load_pct_change}%</strong></li>}
-                  {nextPhase.rpe_per_set_override && <li>• RPE: <strong>{nextPhase.rpe_per_set_override}</strong></li>}
-                </ul>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            {adherence < 50 && (
-              <Button variant="outline" onClick={() => setShowModal(false)} className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100">
-                Repetir fase atual
-              </Button>
-            )}
-            <Button onClick={() => void handleConfirmAdvance()} disabled={busy} className="bg-purple-600 text-white hover:bg-purple-700">
-              🚀 Confirmar avanço
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </>
   );
 }

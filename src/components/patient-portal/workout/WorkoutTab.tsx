@@ -48,7 +48,17 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
     if (!token) return;
     setLoading(true);
     try {
-      const h = await workoutService.getHub(token);
+      let h = await workoutService.getHub(token);
+      // Auto-avanço de fase por tempo: se a periodização já deveria ter avançado
+      // (semanas decorridas), aplica no banco e recarrega o hub com as cargas novas.
+      if (h.plan?.id && h.plan.periodization_template_id) {
+        try {
+          const res = await workoutExtrasService.autoAdvancePhase(token, h.plan.id);
+          if (res.advanced) h = await workoutService.getHub(token);
+        } catch (e) {
+          console.error('Falha no auto-avanço de fase:', e);
+        }
+      }
       setHub(h);
       if (h.plan?.periodization_template_id) {
         workoutExtrasService.getPeriodizationGeneralNotes(token, h.plan.periodization_template_id)
