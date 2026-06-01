@@ -2,8 +2,8 @@ import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Dumbbell, Clock, Info, Shuffle } from 'lucide-react';
-import type { WorkoutExerciseFull, ExerciseTechnique } from '@/lib/workout/types';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge } from 'lucide-react';
+import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
 import { SetRow, type SetRowValue } from './SetRow';
 import { getThumbnail } from '@/lib/workout/video-url';
@@ -18,7 +18,7 @@ export interface CommitSetArgs {
 }
 
 interface ExerciseCardProps {
-  exercise: WorkoutExerciseFull & { techniques?: ExerciseTechnique[] };
+  exercise: HubExercise & { techniques?: ExerciseTechnique[] };
   values: SetRowValue[];
   onChange: (idx: number, v: SetRowValue) => void;
   onCommit: (args: CommitSetArgs) => Promise<void>;
@@ -32,6 +32,7 @@ const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: fa
 
 export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSubstitute, substitutedName }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
+  const [showRpeHelp, setShowRpeHelp] = useState(false);
   const totalSets = Math.max(1, exercise.sets || 1);
   const techniques = exercise.techniques ?? [];
   const rows = useMemo(() => {
@@ -42,7 +43,23 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
 
   const doneCount = rows.filter((r) => r.done).length;
   const thumb = getThumbnail(exercise.video_url, exercise.thumbnail_url);
-  const defaultReps = parseDefaultReps(exercise.reps);
+
+  // Alvos por série: reps e RPE podem vir como valor único ("15"), faixa ("8-12")
+  // ou por série separados por "/" ou "," ("12/10/8"). Repete o último se faltar.
+  const repsParts = splitPerSet(exercise.reps);
+  const rpeParts = splitPerSet(exercise.rpe_per_set ?? (exercise.rpe != null ? String(exercise.rpe) : null));
+  const repsTargetForSet = (i: number) => parseDefaultReps(perSetAt(repsParts, i) ?? exercise.reps);
+  const rpeTargetForSet = (i: number) => perSetAt(rpeParts, i);
+
+  // Descanso: mostra a faixa (ex.: 60–120s) quando há mínimo e máximo distintos.
+  const restLabel = exercise.rest_seconds
+    ? exercise.rest_seconds_max && exercise.rest_seconds_max > exercise.rest_seconds
+      ? `${exercise.rest_seconds}–${exercise.rest_seconds_max}s`
+      : `${exercise.rest_seconds}s`
+    : null;
+
+  // RPE alvo para o resumo do cabeçalho (por série tem prioridade sobre o único).
+  const rpeSummary = exercise.rpe_per_set || (exercise.rpe != null ? String(exercise.rpe) : null);
 
   return (
     <motion.div
@@ -61,7 +78,9 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-bold text-slate-400">{(exercise.exercise_order ?? 0) + 1}.</span>
+              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[11px] font-bold text-blue-700">
+                {(exercise.exercise_order ?? 0) + 1}
+              </span>
               <h3 className="font-semibold text-slate-800 truncate">{substitutedName || exercise.exercise_name}</h3>
               {substitutedName && (
                 <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
@@ -74,9 +93,14 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                 {exercise.sets}×{exercise.reps || '-'}
                 {exercise.load_kg ? ` @ ${exercise.load_kg}kg` : ''}
               </span>
-              {exercise.rest_seconds ? (
+              {rpeSummary ? (
+                <span className="flex items-center gap-1 text-slate-600">
+                  <Gauge className="w-3 h-3" /> RPE {rpeSummary}
+                </span>
+              ) : null}
+              {restLabel ? (
                 <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {exercise.rest_seconds}s
+                  <Clock className="w-3 h-3" /> {restLabel}
                 </span>
               ) : null}
               {exercise.muscle_group ? (
@@ -142,9 +166,30 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                 <span className="text-center">#</span>
                 <span className="text-center">Peso (kg)</span>
                 <span className="text-center">Reps</span>
-                <span className="text-center">RPE</span>
+                <button
+                  type="button"
+                  onClick={() => setShowRpeHelp((v) => !v)}
+                  className="flex items-center justify-center gap-0.5 text-slate-400 hover:text-blue-600"
+                  aria-label="O que é RPE?"
+                >
+                  RPE <Info className="h-3 w-3" />
+                </button>
                 <span />
               </div>
+
+              {showRpeHelp && (
+                <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5 text-xs leading-relaxed text-slate-700">
+                  <p className="mb-1 font-semibold text-slate-900">RPE — Esforço Percebido</p>
+                  <p>Mede o quão difícil foi a série, numa escala de 0 a 10:</p>
+                  <ul className="mt-1 space-y-0.5">
+                    <li><strong>10</strong> — falha total, sem mais nenhuma rep</li>
+                    <li><strong>9</strong> — daria pra fazer +1 rep</li>
+                    <li><strong>8</strong> — daria pra fazer +2 reps</li>
+                    <li><strong>7</strong> — daria pra fazer +3 reps</li>
+                  </ul>
+                  <p className="mt-1 text-slate-500">O número cinza no campo é o RPE alvo da série. Anote o que você sentiu.</p>
+                </div>
+              )}
               {rows.map((row, i) => {
                 const setTechs = techniquesForSet(techniques, i + 1, totalSets);
                 return (
@@ -152,8 +197,9 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                     <SetRow
                       index={i}
                       value={row}
-                      defaultReps={defaultReps}
+                      defaultReps={repsTargetForSet(i)}
                       defaultWeight={exercise.load_kg}
+                      defaultRpe={rpeTargetForSet(i)}
                       onChange={(v) => onChange(i, v)}
                       onCommit={async (v) => {
                         await onCommit({
@@ -187,8 +233,23 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
 }
 
 /** "8-12" → 8; "AMRAP" → null; "10" → 10 */
-function parseDefaultReps(reps: string | null): number | null {
+function parseDefaultReps(reps: string | null | undefined): number | null {
   if (!reps) return null;
-  const m = reps.match(/(\d+)/);
+  const m = String(reps).match(/(\d+)/);
   return m ? Number(m[1]) : null;
+}
+
+/** Quebra valores por série: "12/10/8" ou "12,10,8" → ['12','10','8']; "15" → ['15']. */
+function splitPerSet(value: string | null | undefined): string[] {
+  if (!value) return [];
+  return String(value)
+    .split(/[/,]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/** Valor da série i; se a lista acabou, repete o último (prescrição única vale pra todas). */
+function perSetAt(parts: string[], i: number): string | null {
+  if (parts.length === 0) return null;
+  return parts[i] ?? parts[parts.length - 1];
 }

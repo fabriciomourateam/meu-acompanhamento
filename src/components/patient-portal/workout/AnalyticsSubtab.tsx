@@ -133,6 +133,12 @@ function CalendarView({ token }: { token: string }) {
           treinou: 'bg-emerald-100 text-emerald-700 font-bold rounded-md',
           cardio: 'ring-2 ring-blue-400 ring-inset rounded-md',
         }}
+        styles={{
+          caption_label: { color: '#0f172a', fontWeight: 600 },
+          head_cell: { color: '#64748b' },
+          day: { color: '#334155' },
+          nav_button: { color: '#475569' },
+        }}
       />
       <div className="mt-2 flex gap-3 text-xs text-slate-600">
         <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-emerald-100" /> Treinou</span>

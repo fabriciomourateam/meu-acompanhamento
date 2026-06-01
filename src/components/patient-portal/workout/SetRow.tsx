@@ -15,12 +15,13 @@ interface SetRowProps {
   value: SetRowValue;
   defaultReps?: number | null;
   defaultWeight?: number | null;
+  defaultRpe?: number | string | null;
   onChange: (v: SetRowValue) => void;
   onCommit: (v: SetRowValue) => void | Promise<void>;
   saving?: boolean;
 }
 
-export function SetRow({ index, value, defaultReps, defaultWeight, onChange, onCommit, saving }: SetRowProps) {
+export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving }: SetRowProps) {
   const [localBusy, setLocalBusy] = useState(false);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
@@ -43,8 +44,9 @@ export function SetRow({ index, value, defaultReps, defaultWeight, onChange, onC
     }
   };
 
-  const baseInput = 'h-11 text-center font-semibold tabular-nums';
-  const stepBtn = 'h-11 w-9 p-0 shrink-0';
+  const baseInput =
+    'h-11 text-center font-semibold tabular-nums bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 placeholder:font-normal';
+  const stepBtn = 'h-11 w-9 p-0 shrink-0 border-slate-300 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900';
 
   return (
     <div
@@ -100,7 +102,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, onChange, onC
       <Input
         inputMode="decimal"
         value={value.rpe ?? ''}
-        placeholder="RPE"
+        placeholder={defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : 'RPE'}
         onChange={(e) => {
           const n = e.target.value.replace(',', '.');
           patch({ rpe: n === '' ? null : Number(n) });
