@@ -291,7 +291,7 @@ declare
   v_mg text;
   v_trainer_id uuid;
 begin
-  perform 1 from patients where id = v_patient_id; -- valida token
+  perform 1 from patients p where p.id = v_patient_id; -- valida token (qualificado p/ evitar colisão com OUT id)
   select ed.muscle_group into v_mg from exercise_database ed where ed.id = p_exercise_id;
   if v_mg is null then
     return;
@@ -303,7 +303,7 @@ begin
   where wp.patient_id = v_patient_id and wp.status = 'active'
   order by wp.released_at desc nulls last, wp.created_at desc limit 1;
   if v_trainer_id is null then
-    select user_id into v_trainer_id from patients where id = v_patient_id;
+    select pt.user_id into v_trainer_id from patients pt where pt.id = v_patient_id;
   end if;
 
   return query
