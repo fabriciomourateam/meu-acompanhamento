@@ -2,8 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check } from 'lucide-react';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check, PlayCircle } from 'lucide-react';
 import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
@@ -40,6 +39,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   const [open, setOpen] = useState(false);
   const [showRpeHelp, setShowRpeHelp] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [showVideo, setShowVideo] = useState(false);
   const totalSets = Math.max(1, exercise.sets || 1);
   const techniques = exercise.techniques ?? [];
   const rows = useMemo(() => {
@@ -118,9 +118,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 </span>
               ) : null}
               {exercise.muscle_group ? (
-                <Badge variant="outline" className="text-[10px] py-0 px-1.5 h-4 border-slate-200 text-slate-500">
-                  {exercise.muscle_group.replace(/^exercise_group_/, '')}
-                </Badge>
+                <span className="capitalize text-slate-400">{exercise.muscle_group.replace(/^exercise_group_/, '')}</span>
               ) : null}
             </div>
             {/* Pilar 2 — badges de técnicas avançadas */}
@@ -155,7 +153,24 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
 
         <CollapsibleContent>
           <div className="border-t border-slate-100 p-3 space-y-3">
-            {exercise.video_url ? <SmartVideoPlayer url={exercise.video_url} /> : null}
+            {/* Vídeo recolhível: por padrão fica fechado pra não empurrar os campos */}
+            {exercise.video_url ? (
+              showVideo ? (
+                <div className="space-y-1">
+                  <SmartVideoPlayer url={exercise.video_url} />
+                  <button onClick={() => setShowVideo(false)} className="text-[11px] font-medium text-slate-400 hover:text-slate-600">
+                    Ocultar vídeo
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setShowVideo(true)}
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
+                >
+                  <PlayCircle className="h-4 w-4 text-red-500" /> Ver execução (vídeo)
+                </button>
+              )
+            ) : null}
 
             {(exercise.instructions || exercise.tips) && (
               <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2 flex gap-2">
@@ -165,15 +180,6 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   {exercise.tips ? <p className="text-slate-500 italic">{exercise.tips}</p> : null}
                 </div>
               </div>
-            )}
-
-            {onRequestSubstitute && (
-              <button
-                onClick={onRequestSubstitute}
-                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 py-2 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
-              >
-                <Shuffle className="h-3.5 w-3.5" /> Substituir por hoje
-              </button>
             )}
 
             <div className="space-y-2">
@@ -277,16 +283,26 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               })}
             </div>
 
-            {/* Progressão de carga — mini-gráfico (lazy) */}
+            {/* Rodapé: progressão (lazy) + substituir (discreto) */}
             <div>
-              <button
-                type="button"
-                onClick={() => setShowHistory((v) => !v)}
-                className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700"
-              >
-                <TrendingUp className="h-3.5 w-3.5" />
-                {showHistory ? 'Ocultar progressão' : 'Ver progressão de carga'}
-              </button>
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  type="button"
+                  onClick={() => setShowHistory((v) => !v)}
+                  className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700"
+                >
+                  <TrendingUp className="h-3.5 w-3.5" />
+                  {showHistory ? 'Ocultar progressão' : 'Ver progressão de carga'}
+                </button>
+                {onRequestSubstitute && (
+                  <button
+                    onClick={onRequestSubstitute}
+                    className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-amber-700"
+                  >
+                    <Shuffle className="h-3 w-3" /> Substituir
+                  </button>
+                )}
+              </div>
               {showHistory && (
                 <div className="mt-2 rounded-lg border border-slate-200 bg-white p-2">
                   <LoadHistoryChart token={token} plannedExerciseId={exercise.id} />
