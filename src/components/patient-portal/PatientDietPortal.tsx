@@ -50,7 +50,13 @@ export function PatientDietPortal({
   // Toda a lógica/estado da Dieta vive no hook; o pai só orquestra abas.
   const diet = useDietData(patientId);
   const [portalConfig, setPortalConfig] = useState<PortalConfig | null>(null);
-  const [activeTab, setActiveTab] = useState<string>('diet');
+  // Persistir a aba ativa por paciente: ao recarregar a página, o aluno
+  // continua na aba em que estava (Treino, Ranking, etc.) em vez de cair na Dieta.
+  const activeTabStorageKey = `portal_active_tab_${patientId}`;
+  const [activeTab, setActiveTab] = useState<string>(() => {
+    if (typeof window === 'undefined') return 'diet';
+    return localStorage.getItem(activeTabStorageKey) || 'diet';
+  });
   // Visibilidade configurável pelo treinador no /admin (default: tudo visível).
   const showDiet = portalConfig?.visibility?.tab_diet !== false;
   const showWorkout = portalConfig?.visibility?.tab_workout !== false && !!token;
@@ -88,6 +94,11 @@ export function PatientDietPortal({
 
   const goToTab = (tab: string) => {
     setActiveTab(tab);
+    try {
+      localStorage.setItem(activeTabStorageKey, tab);
+    } catch {
+      /* localStorage indisponível (ex.: modo privado) — ignora */
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 

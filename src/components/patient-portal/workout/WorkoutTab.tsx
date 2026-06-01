@@ -135,18 +135,18 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
       />
 
       <Tabs value={subtab} onValueChange={(v) => setSubtab(v as typeof subtab)}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="workouts">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg h-auto">
+          <TabsTrigger value="workouts" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
             <Dumbbell className="h-4 w-4 mr-1.5" />
             Treinos
             {workoutSessions.length > 0 && <span className="ml-1 text-xs opacity-70">{workoutSessions.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="cardios">
+          <TabsTrigger value="cardios" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
             <HeartPulse className="h-4 w-4 mr-1.5" />
             Cardios
             {cardioSessions.length > 0 && <span className="ml-1 text-xs opacity-70">{cardioSessions.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="analytics">
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
             <BarChart3 className="h-4 w-4 mr-1.5" />
             Análise
           </TabsTrigger>

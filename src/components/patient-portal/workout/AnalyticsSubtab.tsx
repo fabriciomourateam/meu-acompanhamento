@@ -24,12 +24,12 @@ export function AnalyticsSubtab({ token, planId, patientName }: AnalyticsSubtabP
   return (
     <div className="space-y-3">
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="calendar">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
-          <TabsTrigger value="volume">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
-          <TabsTrigger value="groups">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
-          <TabsTrigger value="rpe">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
-          <TabsTrigger value="adherence">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 bg-slate-100 p-1 rounded-lg h-auto">
+          <TabsTrigger value="calendar" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
+          <TabsTrigger value="volume" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
+          <TabsTrigger value="groups" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
+          <TabsTrigger value="rpe" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
+          <TabsTrigger value="adherence" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
         </TabsList>
         <TabsContent value="calendar" className="mt-3"><CalendarView token={token} /></TabsContent>
         <TabsContent value="volume" className="mt-3"><VolumeChart token={token} /></TabsContent>
