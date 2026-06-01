@@ -223,7 +223,19 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               {rows.map((row, i) => {
                 const setTechs = techniquesForSet(techniques, i + 1, totalSets);
                 return (
-                  <div key={i} className="space-y-1.5">
+                  <div key={i} className={cn('space-y-1', setTechs.length > 0 && 'rounded-lg bg-slate-50 p-1.5')}>
+                    {setTechs.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 px-0.5">
+                        {setTechs.map((t) => (
+                          <span
+                            key={t.technique_id}
+                            className={cn('inline-flex items-center gap-1 rounded-full border px-1.5 py-0.5 text-[10px] font-bold', techniqueColors(t.color).badge)}
+                          >
+                            {t.emoji ?? '⚡'} {t.name}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     <SetRow
                       index={i}
                       value={row}
@@ -240,22 +252,15 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                         });
                       }}
                     />
-                    {/* Pilar 2 — banner da técnica na série em que ela aplica */}
-                    {setTechs.map((t) => (
-                      <div
-                        key={t.technique_id}
-                        className={cn('rounded-lg border px-2.5 py-1.5 text-xs', techniqueColors(t.color).banner)}
-                      >
-                        <div className="flex items-center gap-1.5 font-semibold">
-                          <span>{t.emoji ?? '⚡'} {t.name}</span>
-                          <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
-                            aplicar nesta série ({i + 1}/{totalSets})
-                          </span>
-                        </div>
-                        {t.description && <p className="mt-0.5">{t.description}</p>}
-                        {t.notes && <p className="mt-0.5 italic opacity-80">{t.notes}</p>}
-                      </div>
-                    ))}
+                    {/* Descrição da técnica desta série (a badge fica acima, dentro da própria série) */}
+                    {setTechs.map((t) =>
+                      t.description || t.notes ? (
+                        <p key={t.technique_id} className="px-1 text-[11px] leading-snug text-slate-500">
+                          {t.description}
+                          {t.notes ? <span className="italic"> — {t.notes}</span> : null}
+                        </p>
+                      ) : null,
+                    )}
                   </div>
                 );
               })}
