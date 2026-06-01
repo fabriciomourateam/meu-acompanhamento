@@ -276,6 +276,10 @@ $function$;
 
 
 -- ─── SUBSTITUIR EXERCÍCIO NO DIA (variações por grupo muscular) ──────────────
+-- NOTA: filtra por owner_user_id pra não vazar customs de outros trainers agora
+-- que exercise_database é multitenant. Resolve o trainer do aluno (mesma lógica
+-- de get_trainer_profile_by_token) e mostra só globais + customs desse trainer.
+-- (fix aplicado no banco; ver controle-de-pacientes branch claude/elegant-gates-cQH5r)
 CREATE OR REPLACE FUNCTION public.suggest_variations_by_token(p_token text, p_exercise_id uuid, p_limit integer DEFAULT 12)
  RETURNS TABLE(id uuid, name text, muscle_group text, thumbnail_url text, video_url text, priority integer)
  LANGUAGE plpgsql
@@ -285,18 +289,33 @@ AS $function$
 declare
   v_patient_id uuid := _workout_patient_from_token(p_token);
   v_mg text;
+  v_trainer_id uuid;
 begin
   perform 1 from patients where id = v_patient_id; -- valida token
   select ed.muscle_group into v_mg from exercise_database ed where ed.id = p_exercise_id;
   if v_mg is null then
     return;
   end if;
+
+  -- Resolve trainer do aluno (mesma lógica de get_trainer_profile_by_token)
+  select wp.user_id into v_trainer_id
+  from workout_plans wp
+  where wp.patient_id = v_patient_id and wp.status = 'active'
+  order by wp.released_at desc nulls last, wp.created_at desc limit 1;
+  if v_trainer_id is null then
+    select user_id into v_trainer_id from patients where id = v_patient_id;
+  end if;
+
   return query
   select ed.id, ed.name, ed.muscle_group, ed.thumbnail_url, ed.video_url, ed.priority
   from exercise_database ed
   where ed.muscle_group = v_mg
     and ed.is_active = true
     and ed.id <> p_exercise_id
+    and (
+      ed.owner_user_id is null              -- globais
+      or ed.owner_user_id = v_trainer_id    -- customs do trainer do aluno
+    )
   order by ed.priority asc nulls last, ed.name
   limit p_limit;
 end;
