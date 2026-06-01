@@ -35,6 +35,7 @@ import { CommunityFeed } from '@/components/patient-portal/community/CommunityFe
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { WorkoutTab } from '@/components/patient-portal/workout/WorkoutTab';
+import { NotificationsBell } from '@/components/patient-portal/NotificationsBell';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import { communityService } from '@/lib/community-service';
 import {
@@ -650,6 +651,18 @@ export function PatientDietPortal({
 
   return (
     <div className="space-y-5">
+      {/* Sino de notificações (auto-avanço de periodização etc.) */}
+      {token && (
+        <div className="flex justify-end">
+          <NotificationsBell
+            token={token}
+            onNavigate={(n) => {
+              if (typeof n.type === 'string' && n.type.startsWith('periodization')) goToTab('workout');
+            }}
+          />
+        </div>
+      )}
+
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
       {releasedPlans.length > 1 && (
         <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">

@@ -88,6 +88,17 @@ export interface PrescribedCardio {
 // Volume por grupamento muscular: { "Peitoral": { volume, category }, ... }
 export type VolumeByGroup = Record<string, { volume: number; category: string | null }>;
 
+// Notificação do aluno (auto-avanço de periodização etc.).
+export interface PatientNotification {
+  id: string;
+  type: string;
+  title: string;
+  body: string;
+  meta: Record<string, any> | null;
+  created_at: string;
+  read_at: string | null;
+}
+
 export const workoutExtrasService = {
   // ─── CARDIO ────────────────────────────────────────────
   async listCardio(token: string, from: string, to: string): Promise<CardioLog[]> {
@@ -223,5 +234,21 @@ export const workoutExtrasService = {
     const { data, error } = await supabase.rpc('get_workout_volume_by_token' as any, { p_token: token });
     if (error) throw error;
     return (data as VolumeByGroup) ?? {};
+  },
+
+  // ─── NOTIFICAÇÕES (auto-avanço de periodização etc.) ───
+  async listNotifications(token: string, limit = 20): Promise<PatientNotification[]> {
+    const { data, error } = await supabase.rpc('list_patient_notifications_by_token' as any, {
+      p_token: token, p_limit: limit,
+    });
+    if (error) throw error;
+    return (data as PatientNotification[]) ?? [];
+  },
+
+  async markNotificationRead(token: string, notificationId: string): Promise<void> {
+    const { error } = await supabase.rpc('mark_notification_read_by_token' as any, {
+      p_token: token, p_notification_id: notificationId,
+    });
+    if (error) throw error;
   },
 };
