@@ -1,17 +1,18 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Star } from 'lucide-react';
+import { Star, Trophy } from 'lucide-react';
 
 interface FinishSessionDialogProps {
   open: boolean;
   onOpenChange: (v: boolean) => void;
   doneSets: number;
   totalVolumeKg: number;
+  prs?: Array<{ name: string; weight: number; prev: number }>;
   onConfirm: (rating: number | null, notes: string) => Promise<void>;
 }
 
-export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeKg, onConfirm }: FinishSessionDialogProps) {
+export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeKg, prs = [], onConfirm }: FinishSessionDialogProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
@@ -39,6 +40,24 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
         </DialogHeader>
 
         <div className="space-y-4 py-2">
+          {prs.length > 0 && (
+            <div className="rounded-xl border border-amber-200 bg-gradient-to-br from-amber-50 to-yellow-50 p-3">
+              <p className="flex items-center gap-1.5 text-sm font-bold text-amber-800">
+                <Trophy className="h-4 w-4 text-amber-500" /> Você superou a última vez! 🎉
+              </p>
+              <ul className="mt-1.5 space-y-1">
+                {prs.map((p) => (
+                  <li key={p.name} className="flex items-center justify-between gap-2 text-xs">
+                    <span className="truncate text-slate-700">{p.name}</span>
+                    <span className="shrink-0 font-semibold tabular-nums text-amber-700">
+                      {p.prev}kg → {p.weight}kg
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           <div>
             <p className="text-sm font-medium text-slate-700 mb-2">Como foi o treino?</p>
             <div className="flex gap-1">

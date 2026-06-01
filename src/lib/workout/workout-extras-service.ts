@@ -172,6 +172,15 @@ export const workoutExtrasService = {
     return (data as LastLoad[]) ?? [];
   },
 
+  // Histórico de carga (top set por sessão) de um exercício — pro mini-gráfico.
+  async getExerciseLoadHistory(token: string, plannedExerciseId: string, limit = 12): Promise<Array<{ logged_at: string; top_weight: number }>> {
+    const { data, error } = await supabase.rpc('get_exercise_load_history_by_token' as any, {
+      p_token: token, p_planned_exercise_id: plannedExerciseId, p_limit: limit,
+    });
+    if (error) throw error;
+    return (data as Array<{ logged_at: string; top_weight: number }>) ?? [];
+  },
+
   async getWeeklyAdherence(token: string, planId: string, weeksBack = 2): Promise<AdherenceWeek[]> {
     const { data, error } = await supabase.rpc('get_weekly_adherence_by_token' as any, {
       p_token: token, p_plan_id: planId, p_weeks_back: weeksBack,
@@ -218,6 +227,14 @@ export const workoutExtrasService = {
     });
     if (error) throw error;
     return (data as any) ?? { advanced: false };
+  },
+
+  // Avisa o aluno no sino alguns dias antes de uma fase de Força (idempotente).
+  async maybeNotifyUpcomingForca(token: string, planId: string, days = 5): Promise<void> {
+    const { error } = await supabase.rpc('maybe_notify_upcoming_forca_by_token' as any, {
+      p_token: token, p_plan_id: planId, p_days: days,
+    });
+    if (error) throw error;
   },
 
   // Adia a Força em 1 semana (aluno opta por repetir a fase atual).

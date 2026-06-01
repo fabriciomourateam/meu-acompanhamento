@@ -58,6 +58,9 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt }: Props) {
   if (!currentPhase) return null;
 
   const color = PHASE_COLORS[(currentPhase.preset ?? 'custom').toLowerCase()] ?? PHASE_COLORS.custom;
+  const isDeload =
+    (currentPhase.preset ?? '').toLowerCase() === 'regenerativo' ||
+    (currentPhase.load_pct_change ?? 0) < 0;
 
   // Resumo curto dos parâmetros de uma fase (séries/reps/RPE — a carga vai num pill à parte).
   const phaseSummary = (ph: PeriodizationPhase) =>
@@ -94,6 +97,11 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt }: Props) {
           {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
           {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
         </div>
+        {isDeload && (
+          <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900">
+            🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
+          </div>
+        )}
         {nextPhase ? (
           <div className="mt-1 text-[11px] italic opacity-80">
             Próxima: {nextPhase.label} {weeksLeft <= 0 ? '(em breve)' : `em ~${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'}`} · avança sozinho

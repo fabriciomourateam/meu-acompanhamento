@@ -91,7 +91,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         </Button>
         <Input
           inputMode="numeric"
-          value={value.reps ?? ''}
+          value={value.reps ?? (defaultReps != null ? defaultReps : '')}
           placeholder={defaultReps != null ? String(defaultReps) : 'reps'}
           onChange={(e) => {
             const n = e.target.value.replace(/[^0-9]/g, '');
@@ -108,7 +108,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
       {/* RPE */}
       <Input
         inputMode="decimal"
-        value={value.rpe ?? ''}
+        value={value.rpe ?? (parseRpe(defaultRpe) ?? '')}
         placeholder={defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : 'RPE'}
         onChange={(e) => {
           const n = e.target.value.replace(',', '.');

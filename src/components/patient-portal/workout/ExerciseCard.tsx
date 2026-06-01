@@ -1,9 +1,11 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Badge } from '@/components/ui/badge';
-import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge } from 'lucide-react';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp } from 'lucide-react';
 import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
+import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
 import { SetRow, type SetRowValue } from './SetRow';
 import { getThumbnail } from '@/lib/workout/video-url';
@@ -19,6 +21,8 @@ export interface CommitSetArgs {
 
 interface ExerciseCardProps {
   exercise: HubExercise & { techniques?: ExerciseTechnique[] };
+  /** Token do portal — usado pra carregar o histórico de carga do exercício. */
+  token: string;
   values: SetRowValue[];
   onChange: (idx: number, v: SetRowValue) => void;
   onCommit: (args: CommitSetArgs) => Promise<void>;
@@ -32,9 +36,10 @@ interface ExerciseCardProps {
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSubstitute, substitutedName, lastLoad }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, lastLoad }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const [showRpeHelp, setShowRpeHelp] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
   const totalSets = Math.max(1, exercise.sets || 1);
   const techniques = exercise.techniques ?? [];
   const rows = useMemo(() => {
@@ -255,10 +260,77 @@ export function ExerciseCard({ exercise, values, onChange, onCommit, onRequestSu
                 );
               })}
             </div>
+
+            {/* Progressão de carga — mini-gráfico (lazy) */}
+            <div>
+              <button
+                type="button"
+                onClick={() => setShowHistory((v) => !v)}
+                className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700"
+              >
+                <TrendingUp className="h-3.5 w-3.5" />
+                {showHistory ? 'Ocultar progressão' : 'Ver progressão de carga'}
+              </button>
+              {showHistory && (
+                <div className="mt-2 rounded-lg border border-slate-200 bg-white p-2">
+                  <LoadHistoryChart token={token} plannedExerciseId={exercise.id} />
+                </div>
+              )}
+            </div>
           </div>
         </CollapsibleContent>
       </Collapsible>
     </motion.div>
+  );
+}
+
+// Mini-gráfico da evolução do top set (carga) ao longo das sessões.
+function LoadHistoryChart({ token, plannedExerciseId }: { token: string; plannedExerciseId: string }) {
+  const [data, setData] = useState<Array<{ date: string; kg: number }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let alive = true;
+    setLoading(true);
+    workoutExtrasService
+      .getExerciseLoadHistory(token, plannedExerciseId, 12)
+      .then((rows) => {
+        if (alive) setData(rows.map((r) => ({ date: r.logged_at.slice(5, 10), kg: Number(r.top_weight) })));
+      })
+      .catch((e) => console.error('Erro no histórico de carga:', e))
+      .finally(() => alive && setLoading(false));
+    return () => {
+      alive = false;
+    };
+  }, [token, plannedExerciseId]);
+
+  if (loading) return <p className="py-4 text-center text-xs text-slate-400">Carregando…</p>;
+  if (data.length < 2) {
+    return <p className="py-4 text-center text-xs italic text-slate-400">Registre este exercício por mais sessões pra ver a evolução. 📈</p>;
+  }
+
+  const first = data[0].kg;
+  const last = data[data.length - 1].kg;
+  const delta = +(last - first).toFixed(1);
+
+  return (
+    <>
+      <div className="mb-1 flex items-center justify-between px-1 text-[11px]">
+        <span className="font-semibold text-slate-700">Top set por sessão</span>
+        <span className={cn('font-bold', delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-rose-600' : 'text-slate-400')}>
+          {delta > 0 ? `+${delta}` : delta} kg
+        </span>
+      </div>
+      <ResponsiveContainer width="100%" height={130}>
+        <LineChart data={data} margin={{ top: 5, right: 8, left: -22, bottom: 0 }}>
+          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+          <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+          <YAxis tick={{ fontSize: 10 }} width={34} domain={['dataMin - 2', 'dataMax + 2']} />
+          <Tooltip formatter={(v: number) => [`${v} kg`, 'Top set']} labelClassName="text-xs" />
+          <Line type="monotone" dataKey="kg" stroke="#2563eb" strokeWidth={2} dot={{ r: 3 }} />
+        </LineChart>
+      </ResponsiveContainer>
+    </>
   );
 }
 

@@ -203,6 +203,21 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const progressPct = totalPlannedSets > 0 ? Math.round((doneSetsCount / totalPlannedSets) * 100) : 0;
   const elapsedSec = startedAt ? Math.floor((nowTs - startedAt) / 1000) : 0;
 
+  // PRs / comparação com a última vez: exercícios em que a maior carga feita
+  // hoje superou a última carga registrada (lastLoads, capturado no início).
+  const prs = useMemo(() => {
+    const out: Array<{ name: string; weight: number; prev: number }> = [];
+    for (const ex of session.exercises) {
+      const arr = sets[ex.id] || [];
+      const maxDone = arr.reduce((m, s) => (s.done && s.weightKg != null ? Math.max(m, s.weightKg) : m), 0);
+      const prev = lastLoads[ex.id]?.weight_kg ?? null;
+      if (maxDone > 0 && prev != null && maxDone > prev) {
+        out.push({ name: subs[ex.id]?.name ?? ex.exercise_name, weight: maxDone, prev });
+      }
+    }
+    return out;
+  }, [sets, lastLoads, subs, session.exercises]);
+
   const handleFinish = async (rating: number | null, notes: string) => {
     if (!sessionLogId) return;
     setFinishing(true);
@@ -290,6 +305,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
           <ExerciseCard
             key={ex.id}
             exercise={ex}
+            token={token}
             values={sets[ex.id] || []}
             onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
             onCommit={handleCommit}
@@ -309,6 +325,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         onOpenChange={(v) => !finishing && setFinishOpen(v)}
         doneSets={doneSetsCount}
         totalVolumeKg={totalVolume}
+        prs={prs}
         onConfirm={handleFinish}
       />
 

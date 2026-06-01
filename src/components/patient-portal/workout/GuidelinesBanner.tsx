@@ -1,20 +1,26 @@
-// ITEM 6 — Banner colapsável "Orientações importantes": sessions guidelines + general_notes.
+// ITEM 6 — Banner colapsável "Orientações importantes":
+// observações gerais do plano + general_notes da periodização + notas de sessão.
 import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface Props {
   sessions: Array<{ id: string; name: string; notes: string | null }>;
   generalNotes: string | null;
+  /** Observações gerais do plano (workout_plans.notes) — escritas no MyShape. */
+  planNotes?: string | null;
 }
 
-export function GuidelinesBanner({ sessions, generalNotes }: Props) {
-  const [expanded, setExpanded] = useState(false);
+const hasText = (html: string | null | undefined) => !!(html && html.replace(/<[^>]+>/g, '').trim());
 
-  const hasNotes = !!(generalNotes && generalNotes.replace(/<[^>]+>/g, '').trim());
-  const hasContent = sessions.length > 0 || hasNotes;
+export function GuidelinesBanner({ sessions, generalNotes, planNotes }: Props) {
+  const hasNotes = hasText(generalNotes);
+  const hasPlanNotes = hasText(planNotes);
+  const hasContent = sessions.length > 0 || hasNotes || hasPlanNotes;
+  // Começa aberto quando há observações gerais do plano (antes ficavam "invisíveis").
+  const [expanded, setExpanded] = useState(hasPlanNotes);
   if (!hasContent) return null;
 
-  const totalCount = sessions.length + (hasNotes ? 1 : 0);
+  const totalCount = sessions.length + (hasNotes ? 1 : 0) + (hasPlanNotes ? 1 : 0);
 
   return (
     <div className="rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/50 overflow-hidden">
@@ -30,16 +36,22 @@ export function GuidelinesBanner({ sessions, generalNotes }: Props) {
       </button>
       {expanded && (
         <div className="space-y-2 border-t border-amber-200 p-3 text-sm">
+          {hasPlanNotes && (
+            <div className="rounded border border-amber-300/50 bg-white/60 p-2">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Observações gerais</div>
+              <div className="text-amber-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: planNotes! }} />
+            </div>
+          )}
           {hasNotes && (
             <div className="rounded border border-amber-300/50 bg-white/60 p-2">
               <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Periodização</div>
-              <div className="text-amber-950" dangerouslySetInnerHTML={{ __html: generalNotes! }} />
+              <div className="text-amber-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: generalNotes! }} />
             </div>
           )}
           {sessions.map((s) => (
             <div key={s.id} className="rounded border border-amber-300/50 bg-white/60 p-2">
               <div className="mb-1 text-sm font-semibold text-amber-900">{s.name}</div>
-              {s.notes && <div className="text-xs text-amber-950" dangerouslySetInnerHTML={{ __html: s.notes }} />}
+              {s.notes && <div className="text-xs text-amber-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: s.notes }} />}
             </div>
           ))}
         </div>

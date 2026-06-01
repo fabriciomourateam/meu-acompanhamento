@@ -75,6 +75,8 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           } else if (res.advanced) {
             h = await workoutService.getHub(token);
           }
+          // Aviso no sino alguns dias antes de uma fase de Força (idempotente).
+          workoutExtrasService.maybeNotifyUpcomingForca(token, planId, 5).catch(() => {});
         } catch (e) {
           console.error('Falha no auto-avanço de fase:', e);
         }
@@ -186,7 +188,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
   return (
     <div className="space-y-3">
-      <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} />
+      <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} planNotes={plan.notes} />
 
       <PhaseAdvanceBanner
         token={token}
