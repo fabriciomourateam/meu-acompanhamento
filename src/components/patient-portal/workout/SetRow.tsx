@@ -26,9 +26,11 @@ interface SetRowProps {
   onChange: (v: SetRowValue) => void;
   onCommit: (v: SetRowValue) => void | Promise<void>;
   saving?: boolean;
+  /** Sem borda própria / só canto superior arredondado — pra encaixar dentro de um card maior. */
+  flush?: boolean;
 }
 
-export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving }: SetRowProps) {
+export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, flush }: SetRowProps) {
   const [localBusy, setLocalBusy] = useState(false);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
@@ -58,8 +60,10 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
 
   return (
     <div
-      className={`grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] items-center gap-1.5 sm:gap-2 rounded-lg p-1.5 ${
-        value.done ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50 border border-slate-200'
+      className={`grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] items-center gap-1.5 sm:gap-2 p-1.5 ${
+        flush
+          ? `rounded-t-lg ${value.done ? 'bg-emerald-50' : 'bg-slate-50'}`
+          : `rounded-lg border ${value.done ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`
       }`}
     >
       {/* Mini-cartão da série: número + alvo de reps (estilo MyShape) */}

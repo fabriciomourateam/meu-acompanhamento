@@ -222,30 +222,36 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               )}
               {rows.map((row, i) => {
                 const setTechs = techniquesForSet(techniques, i + 1, totalSets);
+                const hasTech = setTechs.length > 0;
+                const setRow = (
+                  <SetRow
+                    index={i}
+                    value={row}
+                    defaultReps={repsTargetForSet(i)}
+                    defaultWeight={suggestedWeight}
+                    defaultRpe={rpeTargetForSet(i)}
+                    flush={hasTech}
+                    onChange={(v) => onChange(i, v)}
+                    onCommit={async (v) => {
+                      await onCommit({
+                        plannedExerciseId: exercise.id,
+                        setIndex: i + 1,
+                        value: v,
+                        restSeconds: exercise.rest_seconds,
+                      });
+                    }}
+                  />
+                );
+                if (!hasTech) return <div key={i}>{setRow}</div>;
+                // Card da série "abraçando" o card da técnica: tudo num único container.
                 return (
-                  <div key={i} className="space-y-1.5">
-                    <SetRow
-                      index={i}
-                      value={row}
-                      defaultReps={repsTargetForSet(i)}
-                      defaultWeight={suggestedWeight}
-                      defaultRpe={rpeTargetForSet(i)}
-                      onChange={(v) => onChange(i, v)}
-                      onCommit={async (v) => {
-                        await onCommit({
-                          plannedExerciseId: exercise.id,
-                          setIndex: i + 1,
-                          value: v,
-                          restSeconds: exercise.rest_seconds,
-                        });
-                      }}
-                    />
-                    {/* Card da técnica — dentro do bloco da série que a aplica, abaixo da linha */}
+                  <div
+                    key={i}
+                    className={cn('overflow-hidden rounded-lg border', row.done ? 'border-emerald-200' : 'border-slate-200')}
+                  >
+                    {setRow}
                     {setTechs.map((t) => (
-                      <div
-                        key={t.technique_id}
-                        className={cn('rounded-lg border px-2.5 py-2 text-xs', techniqueColors(t.color).banner)}
-                      >
+                      <div key={t.technique_id} className={cn('border-t px-2.5 py-2 text-xs', techniqueColors(t.color).banner)}>
                         <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                           <span>{t.emoji ?? '⚡'} {t.name}</span>
                           <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
