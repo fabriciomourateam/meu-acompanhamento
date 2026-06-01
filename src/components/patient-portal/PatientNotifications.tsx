@@ -9,6 +9,23 @@ interface PatientNotificationsProps {
   patientId: string;
 }
 
+// Destaque por tipo (barra lateral). Periodização/PR vêm espelhadas da
+// tabela patient_notifications; ganham cor pra diferenciar de avisos comuns.
+function typeAccent(type: string): string {
+  switch (type) {
+    case 'periodization_advance':
+      return 'border-l-2 border-emerald-400';
+    case 'periodization_skipped':
+      return 'border-l-2 border-amber-400';
+    case 'periodization_completed':
+      return 'border-l-2 border-violet-400';
+    case 'pr_achieved':
+      return 'border-l-2 border-yellow-400';
+    default:
+      return '';
+  }
+}
+
 function timeAgo(iso: string): string {
   const diff = Date.now() - new Date(iso).getTime();
   const min = Math.floor(diff / 60000);
@@ -196,7 +213,7 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
               <li key={n.id}>
                 <button
                   onClick={() => handleClickItem(n)}
-                  className={`flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-slate-50 ${
+                  className={`flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-slate-50 ${typeAccent(n.type)} ${
                     n.read ? '' : 'bg-emerald-50/60'
                   }`}
                 >

@@ -176,7 +176,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
         </TabsContent>
 
         <TabsContent value="cardios" className="mt-3">
-          <CardioSubtab token={token} prescribedSessions={cardioSessions} />
+          <CardioSubtab token={token} prescribedSessions={cardioSessions} patientId={patientId} />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-3">

@@ -8,14 +8,17 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
+import { dailyChallengesService } from '@/lib/daily-challenges-service';
 import { HeartPulse, Plus, Trash2, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface CardioSubtabProps {
   token: string;
   prescribedSessions: HubSession[];
+  /** Necessário pra marcar a meta "Atividade física" do dia ao registrar cardio. */
+  patientId?: string;
 }
 
-export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
+export function CardioSubtab({ token, prescribedSessions, patientId }: CardioSubtabProps) {
   const { toast } = useToast();
   const [logs, setLogs] = useState<CardioLog[]>([]);
   const [totals, setTotals] = useState<CardioTotals | null>(null);
@@ -58,6 +61,35 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
   })();
   const monthLabel = month.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
   const shiftMonth = (delta: number) => setMonth((m) => new Date(m.getFullYear(), m.getMonth() + delta, 1));
+
+  // Tempo de cardio prescrito pra hoje (se houver), pra decidir quando a meta
+  // do dia é atingida. null = sem prescrição pra hoje → qualquer cardio conta.
+  const prescribedTodayMin = (() => {
+    if (!prescribed) return null;
+    const dow = new Date().getDay();
+    if (!prescribed.dias_semana?.includes(dow)) return null;
+    const t = prescribed.modo === 'mesmo'
+      ? prescribed.tempo_padrao
+      : prescribed.tempo_por_dia?.[String(dow)] ?? null;
+    // Só compara quando a unidade é minutos (a meta é por tempo).
+    return prescribed.unidade === 'min' && typeof t === 'number' ? t : null;
+  })();
+
+  // Espelha o runner de treino: ao registrar um cardio DE HOJE que atinja o
+  // tempo prescrito (ou qualquer cardio, se não houver prescrição em minutos),
+  // marca a meta "Atividade física" do dia. completeChallenge é idempotente
+  // (não duplica se já estiver marcada). Best-effort: nunca quebra o fluxo.
+  const maybeCompleteGoal = (durationMin: number, performedAt: string) => {
+    if (!patientId) return;
+    const today = new Date().toISOString().slice(0, 10);
+    if (performedAt !== today) return;
+    if (prescribedTodayMin != null && durationMin < prescribedTodayMin) return;
+    dailyChallengesService.completeChallenge(patientId, 'atividade_fisica')
+      .then(() => {
+        toast({ title: 'Meta concluída ✅', description: `Atividade física do dia marcada (${durationMin}min de cardio).` });
+      })
+      .catch((e) => console.error('Falha ao marcar meta de atividade física (cardio):', e));
+  };
 
   const handleDelete = async (id: string) => {
     if (!confirm('Excluir este cardio?')) return;
@@ -154,7 +186,11 @@ export function CardioSubtab({ token, prescribedSessions }: CardioSubtabProps) {
         <CardioLogDialog
           token={token}
           onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); void reload(); }}
+          onSaved={(durationMin, performedAt) => {
+            setShowForm(false);
+            void reload();
+            maybeCompleteGoal(durationMin, performedAt);
+          }}
         />
       )}
     </div>
@@ -225,7 +261,7 @@ function TotalCard({ label, min }: { label: string; min: number }) {
   );
 }
 
-function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: () => void; onSaved: () => void }) {
+function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: () => void; onSaved: (durationMin: number, performedAt: string) => void }) {
   const { toast } = useToast();
   const [duration, setDuration] = useState('30');
   const [modality, setModality] = useState('');
@@ -244,7 +280,7 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
         notes: notes || undefined,
         performed_at: date,
       });
-      onSaved();
+      onSaved(Number(duration), date);
     } catch (err: any) {
       toast({ title: 'Erro', description: err.message || 'Não foi possível salvar', variant: 'destructive' });
     } finally {

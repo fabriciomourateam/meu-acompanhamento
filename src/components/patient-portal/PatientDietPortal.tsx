@@ -35,7 +35,6 @@ import { CommunityFeed } from '@/components/patient-portal/community/CommunityFe
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { WorkoutTab } from '@/components/patient-portal/workout/WorkoutTab';
-import { NotificationsBell } from '@/components/patient-portal/NotificationsBell';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import { communityService } from '@/lib/community-service';
 import {
@@ -651,18 +650,9 @@ export function PatientDietPortal({
 
   return (
     <div className="space-y-5">
-      {/* Sino de notificações (auto-avanço de periodização etc.) */}
-      {token && (
-        <div className="flex justify-end">
-          <NotificationsBell
-            token={token}
-            onNavigate={(n) => {
-              // Notificações de treino (periodização + PRs) levam pro hub de treino.
-              if (typeof n.type === 'string' && (n.type.startsWith('periodization') || n.type === 'pr_achieved')) goToTab('workout');
-            }}
-          />
-        </div>
-      )}
+      {/* Notificações: sino único no cabeçalho do portal (PatientNotifications).
+          As de periodização/PR são espelhadas pra tabela `notifications` por
+          trigger no banco, então caem nesse mesmo sino — não há mais sino aqui. */}
 
       {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
       {releasedPlans.length > 1 && (
