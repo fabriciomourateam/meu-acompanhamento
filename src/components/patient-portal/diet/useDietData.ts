@@ -39,6 +39,26 @@ export function useDietData(patientId: string) {
       return next;
     });
   };
+  // Escolha do dia: qual refeição de cada grupo (principal + opções) está "em uso"
+  // hoje. Mapa { principalMealId -> mealIdEscolhido }. Persistido por dia; some ao
+  // virar o dia (chave com a data). Default = a própria principal.
+  const [primaryChoices, setPrimaryChoices] = useState<Record<string, string>>({});
+  const setPrimaryChoice = (principalMealId: string, chosenMealId: string) => {
+    setPrimaryChoices((prev) => {
+      const next = { ...prev };
+      if (chosenMealId === principalMealId) {
+        delete next[principalMealId]; // voltou à principal → remove a escolha
+      } else {
+        next[principalMealId] = chosenMealId;
+      }
+      try {
+        const today = new Date().toISOString().split('T')[0];
+        localStorage.setItem(`diet_primary_choice_${patientId}_${today}`, JSON.stringify(next));
+      } catch { /* ignora */ }
+      return next;
+    });
+  };
+
   const [substitutionsModalOpen, setSubstitutionsModalOpen] = useState(false);
   const [selectedFoodSubstitutions, setSelectedFoodSubstitutions] = useState<{
     foodName: string;
@@ -84,6 +104,14 @@ export function useDietData(patientId: string) {
         setConsumedFoods(new Set(JSON.parse(savedFoods)));
       } catch (e) {
         console.error('Erro ao carregar alimentos consumidos:', e);
+      }
+    }
+    const savedChoices = localStorage.getItem(`diet_primary_choice_${patientId}_${today}`);
+    if (savedChoices) {
+      try {
+        setPrimaryChoices(JSON.parse(savedChoices) || {});
+      } catch (e) {
+        console.error('Erro ao carregar escolha do dia:', e);
       }
     }
   }, [patientId]);
@@ -221,6 +249,7 @@ export function useDietData(patientId: string) {
         // Limpar refeições consumidas ao trocar de plano
         setConsumedMeals(new Set());
         setConsumedFoods(new Set());
+        setPrimaryChoices({});
 
         toast({
           title: 'Plano alterado',
@@ -365,6 +394,8 @@ export function useDietData(patientId: string) {
     setExpandedMeals,
     collapsedOptionGroups,
     toggleOptionGroup,
+    primaryChoices,
+    setPrimaryChoice,
     substitutionsModalOpen,
     setSubstitutionsModalOpen,
     selectedFoodSubstitutions,

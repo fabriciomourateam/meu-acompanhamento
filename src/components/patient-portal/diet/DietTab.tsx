@@ -57,15 +57,6 @@ function isOptionMeal(meal: any) {
   return name.includes('🔁') || name.includes('opção');
 }
 
-function calcularTotais(plan: any) {
-  if (!plan || !plan.diet_meals) {
-    return { calorias: 0, proteinas: 0, carboidratos: 0, gorduras: 0 };
-  }
-  // Somar apenas refeições principais — exclui as refeições-opção
-  const mainMeals = plan.diet_meals.filter((meal: any) => !isOptionMeal(meal));
-  return calcularTotaisPlano({ ...plan, diet_meals: mainMeals });
-}
-
 export function DietTab({
   diet,
   patientId,
@@ -86,6 +77,8 @@ export function DietTab({
     setExpandedMeals,
     collapsedOptionGroups,
     toggleOptionGroup,
+    primaryChoices,
+    setPrimaryChoice,
     substitutionsModalOpen,
     setSubstitutionsModalOpen,
     selectedFoodSubstitutions,
@@ -94,10 +87,27 @@ export function DietTab({
     handleToggleFoodConsumed,
   } = diet;
 
+  // Refeição "em uso" de cada grupo (principal + opções): default a principal,
+  // sobrescrita pela escolha do dia. Exatamente UMA por grupo conta nos macros.
+  const mealIdSet = new Set((planDetails?.diet_meals || []).map((m: any) => m.id));
+  const activeIdOfGroup = (principalId: string) => {
+    const chosen = primaryChoices[principalId];
+    // Se a escolha do dia aponta pra refeição inexistente (plano mudou), volta à principal.
+    return chosen && mealIdSet.has(chosen) ? chosen : principalId;
+  };
+  const isCountedMeal = (meal: any) => {
+    // opção "solta" (sem parent, marcada por nome/flag) nunca entra na soma
+    if (!meal.parent_meal_id && isOptionMeal(meal)) return false;
+    const principalId = meal.parent_meal_id || meal.id;
+    return meal.id === activeIdOfGroup(principalId);
+  };
+
   // Remover o return early - mostrar abas mesmo sem plano ativo
   const hasActivePlan = activePlan && planDetails;
 
-  const totais = hasActivePlan ? calcularTotais(planDetails) : { calorias: 0, carboidratos: 0, proteinas: 0, gorduras: 0 };
+  const totais = hasActivePlan
+    ? calcularTotaisPlano({ ...planDetails, diet_meals: (planDetails.diet_meals || []).filter(isCountedMeal) })
+    : { calorias: 0, carboidratos: 0, proteinas: 0, gorduras: 0 };
   const metaCalorias = totais.calorias;
   const metaCarboidratos = totais.carboidratos;
   const metaProteinas = totais.proteinas;
@@ -110,8 +120,8 @@ export function DietTab({
 
   if (hasActivePlan && planDetails?.diet_meals) {
     planDetails.diet_meals.forEach((meal: any) => {
-      // Refeições-opção não entram na soma (evita dupla contagem com a principal)
-      if (isOptionMeal(meal)) return;
+      // Só a refeição "em uso" do grupo entra na soma (evita dupla contagem).
+      if (!isCountedMeal(meal)) return;
       const foods = meal.diet_foods || [];
       if (foods.length > 0) {
         // Soma alimento a alimento: consumo parcial conta proporcional.
@@ -140,8 +150,8 @@ export function DietTab({
 
   const percentualConsumido = metaCalorias > 0 ? Math.min(100, (caloriasConsumidas / metaCalorias) * 100) : 0;
 
-  // Contagem de refeições considera apenas as principais (exclui refeições-opção)
-  const mainMeals = (planDetails?.diet_meals || []).filter((m: any) => !isOptionMeal(m));
+  // Contagem considera só a refeição "em uso" de cada grupo (1 por grupo)
+  const mainMeals = (planDetails?.diet_meals || []).filter(isCountedMeal);
   const mainMealsCount = mainMeals.length;
   const consumedMainCount = mainMeals.filter((m: any) => consumedMeals.has(m.id)).length;
 
@@ -420,14 +430,23 @@ export function DietTab({
                             : (isConsumed ? (mealTotals.calorias || 0) : 0);
                           const isExpanded = expandedMeals.has(meal.id);
                           const isOption = isOptionMeal(meal);
-                          // Refeição-opção dentro de um grupo recolhido: não renderiza.
-                          if (isOption && collapsedOptionGroups.has(meal.parent_meal_id)) {
+                          // Escolha do dia: refeição "em uso" do grupo (default = principal).
+                          const principalId = meal.parent_meal_id || meal.id;
+                          const isActive = isCountedMeal(meal);
+                          const groupSwapped = activeIdOfGroup(principalId) !== principalId;
+                          // Mostra estilo de "opção" quando não é a refeição em uso do grupo
+                          // (inclui a principal rebaixada após uma troca).
+                          const showAsOption = !isActive;
+                          // Opção dentro de um grupo recolhido só some se NÃO for a em uso hoje.
+                          if (isOption && !isActive && collapsedOptionGroups.has(meal.parent_meal_id)) {
                             return null;
                           }
                           // Quantas opções esta refeição principal possui (para o botão recolher).
                           const optionCount = !isOption
                             ? planDetails.diet_meals.filter((m: any) => m.parent_meal_id === meal.id).length
                             : 0;
+                          // Faz parte de um grupo com alternativas (principal c/ opções, ou uma opção).
+                          const inSwappableGroup = !!meal.parent_meal_id || optionCount > 0;
                           const optionsCollapsed = collapsedOptionGroups.has(meal.id);
                           // Remove o emoji 🔁 do nome — a sinalização passa a ser o badge "Opção"
                           const displayName = isOption
@@ -452,14 +471,14 @@ export function DietTab({
                             >
                               <div
                                 style={{
-                                  backgroundColor: isConsumed ? '#d1fae5' : (isOption ? '#f8fafc' : 'white'),
+                                  backgroundColor: isConsumed ? '#d1fae5' : (showAsOption ? '#f8fafc' : 'white'),
                                   borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
                                   color: '#0f172a'
                                 }}
                                 className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
                                   ? 'shadow-sm'
                                   : 'hover:border-emerald-300 hover:shadow-lg'
-                                  } ${isOption ? 'ml-4 sm:ml-8 border-l-4 border-l-slate-300' : ''}`}
+                                  } ${showAsOption ? 'ml-4 sm:ml-8 border-l-4 border-l-slate-300' : ''}`}
                               >
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
@@ -474,7 +493,7 @@ export function DietTab({
                                       >
                                         {isConsumed ? (
                                           <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        ) : isOption ? (
+                                        ) : showAsOption ? (
                                           <ArrowLeftRight className="w-4 h-4 sm:w-5 sm:h-5" />
                                         ) : (
                                           <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -482,7 +501,13 @@ export function DietTab({
                                       </div>
                                       <div className="flex-1 min-w-0">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                          {isOption && (
+                                          {isActive && groupSwapped && (
+                                            <Badge className="bg-emerald-500 text-white border-emerald-600 border text-xs w-fit gap-1 order-first">
+                                              <Check className="w-3 h-3" />
+                                              Em uso hoje
+                                            </Badge>
+                                          )}
+                                          {showAsOption && (
                                             <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 border text-xs w-fit gap-1 order-first">
                                               <RefreshCw className="w-3 h-3" />
                                               Opção
@@ -530,6 +555,31 @@ export function DietTab({
                                     </div>
                                   </div>
                                 </CollapsibleTrigger>
+
+                                {/* Troca opção↔principal do dia (zera ao virar o dia) */}
+                                {inSwappableGroup && !isConsumed && (
+                                  <div className="flex items-center justify-end gap-2 px-3 sm:px-4 pb-2 -mt-1">
+                                    {!isActive ? (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, meal.id); }}
+                                        className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                                      >
+                                        <ArrowLeftRight className="w-3 h-3" />
+                                        Usar como principal hoje
+                                      </button>
+                                    ) : groupSwapped ? (
+                                      <button
+                                        type="button"
+                                        onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, principalId); }}
+                                        className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50"
+                                      >
+                                        <RefreshCw className="w-3 h-3" />
+                                        Voltar à refeição original
+                                      </button>
+                                    ) : null}
+                                  </div>
+                                )}
 
                                 <CollapsibleContent>
                                   <div className={`px-4 pb-4 space-y-3 transition-all duration-300 ${isConsumed ? 'opacity-75' : ''}`}>
