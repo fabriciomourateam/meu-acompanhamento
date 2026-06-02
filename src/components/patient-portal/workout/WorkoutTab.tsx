@@ -30,6 +30,26 @@ interface WorkoutTabProps {
 
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
+// Cabeçalho premium do plano: separa o título (antes do ":") da frequência
+// (depois do ":") — ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana".
+function PlanHeader({ name }: { name: string }) {
+  const raw = name.trim();
+  const ci = raw.indexOf(':');
+  const title = ci > 0 ? raw.slice(0, ci).trim() : raw;
+  const freq = ci > 0 ? raw.slice(ci + 1).trim() : '';
+  return (
+    <div className="rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-3 text-center shadow-md ring-1 ring-white/10">
+      <div className="text-sm font-bold tracking-wide text-white sm:text-base">{title}</div>
+      {freq && (
+        <span className="mt-1.5 inline-block rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium text-white/90">
+          {freq}
+        </span>
+      )}
+    </div>
+  );
+}
+
+
 function sessionBadge(namingStyle: 'numeric' | 'letter' | null, index: number, dayOfWeek: number | null): string {
   const base = namingStyle === 'letter' ? `Treino ${String.fromCharCode(65 + index)}` : `T${index + 1}`;
   // day_of_week: convenção DOW do Postgres (0=Dom..6=Sáb), igual ao JS getDay().
@@ -259,11 +279,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
         <TabsContent value="workouts" className="mt-3 space-y-2.5">
           {/* Cabeçalho do plano (puxa o nome do treino, ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana") */}
-          {plan.name && (
-            <div className="rounded-lg border border-slate-300 bg-slate-100 px-3 py-2 text-center text-sm font-semibold text-slate-800">
-              {plan.name}
-            </div>
-          )}
+          {plan.name && <PlanHeader name={plan.name} />}
           {workoutSessions.length === 0 ? (
             <p className="py-6 text-center text-sm italic text-slate-500">Nenhum treino cadastrado neste plano.</p>
           ) : (
