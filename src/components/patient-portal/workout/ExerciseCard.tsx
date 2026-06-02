@@ -16,6 +16,7 @@ export interface CommitSetArgs {
   setIndex: number;
   value: SetRowValue;
   restSeconds: number | null;
+  restSecondsMax: number | null;
 }
 
 interface ExerciseCardProps {
@@ -38,11 +39,13 @@ interface ExerciseCardProps {
   note?: string;
   /** Salva a observação (chamado no blur). */
   onSaveNote?: (note: string) => void;
+  /** Recorde all-time deste exercício (snapshot no início da sessão) — pra medalha. */
+  prBaseline?: { max_weight_kg: number | null; estimated_1rm: number | null } | null;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const [showRpeHelp, setShowRpeHelp] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -258,7 +261,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     defaultReps={repsTargetForSet(i)}
                     defaultWeight={suggestedWeight}
                     defaultRpe={rpeTargetForSet(i)}
-                    prevTopWeight={lastLoad?.weight_kg ?? null}
+                    prevBest={{ weight: prBaseline?.max_weight_kg ?? null, oneRm: prBaseline?.estimated_1rm ?? null }}
                     flush={hasTech}
                     onChange={(v) => onChange(i, v)}
                     onCommit={async (v) => {
@@ -267,6 +270,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                         setIndex: i + 1,
                         value: v,
                         restSeconds: exercise.rest_seconds,
+                        restSecondsMax: exercise.rest_seconds_max,
                       });
                     }}
                   />

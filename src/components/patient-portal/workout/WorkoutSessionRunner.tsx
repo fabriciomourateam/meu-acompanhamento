@@ -90,7 +90,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [startedAt, setStartedAt] = useState<number | null>(initial?.startedAt ?? null);
   const [lastLoads, setLastLoads] = useState<Record<string, LastLoad>>({});
   const [nowTs, setNowTs] = useState(() => Date.now());
-  const [restSeconds, setRestSeconds] = useState<number | null>(null);
+  const [rest, setRest] = useState<{ min: number; max: number | null } | null>(null);
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [subFor, setSubFor] = useState<{ plannedId: string; exerciseId: string; name: string } | null>(null);
@@ -123,6 +123,16 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     });
     workoutExtrasService.setExerciseNote(token, key, note).catch((e) => console.error('Erro ao salvar observação:', e));
   };
+
+  // Recordes all-time por exercício — snapshot UMA vez no início da sessão (não
+  // refaz a busca conforme as séries são logadas, senão a base do "recorde" se moveria).
+  const [prBaselines, setPrBaselines] = useState<Record<string, { max_weight_kg: number | null; estimated_1rm: number | null }>>({});
+  useEffect(() => {
+    workoutExtrasService.getPersonalRecords(token)
+      .then(setPrBaselines)
+      .catch((e) => console.error('Erro ao buscar recordes:', e));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token, session.id]);
 
   // Última carga registrada por exercício (sugestão de peso na execução).
   useEffect(() => {
@@ -178,7 +188,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     });
   };
 
-  const handleCommit = async ({ plannedExerciseId, setIndex, value, restSeconds: rs }: CommitSetArgs) => {
+  const handleCommit = async ({ plannedExerciseId, setIndex, value, restSeconds: rs, restSecondsMax: rsMax }: CommitSetArgs) => {
     if (!sessionLogId) {
       toast({ title: 'Inicie a sessão primeiro', description: 'Toque em "Começar treino" no topo.', variant: 'destructive' });
       throw new Error('no session');
@@ -192,7 +202,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         weightKg: value.weightKg,
         rpe: value.rpe,
       });
-      if (rs && rs > 0) setRestSeconds(rs);
+      if (rs && rs > 0) setRest({ min: rs, max: rsMax });
     } catch (err: any) {
       toast({ title: 'Erro ao salvar série', description: err.message || 'Tente novamente', variant: 'destructive' });
       throw err;
@@ -367,13 +377,14 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             lastLoad={lastLoads[ex.id] ?? null}
             note={exerciseNotes[exKey(ex)] ?? ''}
             onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
+            prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}
             onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
           />
         ))}
       </div>
 
-      {restSeconds != null ? (
-        <RestTimer seconds={restSeconds} onDone={() => setRestSeconds(null)} />
+      {rest != null ? (
+        <RestTimer minSeconds={rest.min} maxSeconds={rest.max} onDone={() => setRest(null)} />
       ) : null}
 
       <FinishSessionDialog

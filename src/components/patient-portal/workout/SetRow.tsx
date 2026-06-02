@@ -28,19 +28,28 @@ interface SetRowProps {
   saving?: boolean;
   /** Sem borda própria / só canto superior arredondado — pra encaixar dentro de um card maior. */
   flush?: boolean;
-  /** Maior carga registrada antes (treino passado). Se a série feita superar, ganha medalha. */
-  prevTopWeight?: number | null;
+  /** Recorde all-time do exercício (peso e 1RM estimado) antes desta sessão. Se a série superar, ganha medalha. */
+  prevBest?: { weight: number | null; oneRm: number | null } | null;
 }
 
-export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, flush, prevTopWeight }: SetRowProps) {
+export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, flush, prevBest }: SetRowProps) {
   const [localBusy, setLocalBusy] = useState(false);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
 
   const patch = (p: Partial<SetRowValue>) => onChange({ ...value, ...p });
 
-  // Recorde: série feita com carga acima da maior carga anterior (treino passado).
-  const isPr = value.done && value.weightKg != null && prevTopWeight != null && prevTopWeight > 0 && value.weightKg > prevTopWeight;
+  // Recorde all-time (independe da fase): a série feita supera o melhor peso OU o
+  // melhor 1RM estimado (Epley) já registrado. O 1RM normaliza as reps, então uma
+  // série de 12 forte na base pode ser recorde mesmo sem bater o peso da força.
+  const isPr = (() => {
+    if (!value.done || value.weightKg == null || value.weightKg <= 0) return false;
+    if (!prevBest) return false;
+    const oneRm = value.reps != null && value.reps > 0 ? value.weightKg * (1 + value.reps / 30) : value.weightKg;
+    const beatWeight = prevBest.weight != null && prevBest.weight > 0 && value.weightKg > prevBest.weight;
+    const beatOneRm = prevBest.oneRm != null && prevBest.oneRm > 0 && oneRm > prevBest.oneRm + 0.01;
+    return beatWeight || beatOneRm;
+  })();
 
   const handleDone = async () => {
     const next: SetRowValue = {

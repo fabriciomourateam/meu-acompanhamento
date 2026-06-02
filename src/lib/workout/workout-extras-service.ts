@@ -281,6 +281,24 @@ export const workoutExtrasService = {
     if (error) throw error;
   },
 
+  // ─── RECORDES (all-time) e MUDANÇA DE FASE ─────────────
+  async getPersonalRecords(token: string): Promise<Record<string, { max_weight_kg: number | null; estimated_1rm: number | null }>> {
+    const { data, error } = await supabase.rpc('get_personal_records_by_token' as any, { p_token: token });
+    if (error) throw error;
+    const out: Record<string, { max_weight_kg: number | null; estimated_1rm: number | null }> = {};
+    for (const r of (data as Array<{ exercise_id: string; max_weight_kg: number | null; estimated_1rm: number | null }>) ?? []) {
+      out[r.exercise_id] = { max_weight_kg: r.max_weight_kg, estimated_1rm: r.estimated_1rm };
+    }
+    return out;
+  },
+
+  async setPlanPhase(token: string, planId: string, targetIndex: number): Promise<void> {
+    const { error } = await supabase.rpc('set_plan_phase_by_token' as any, {
+      p_token: token, p_plan_id: planId, p_target_index: targetIndex,
+    });
+    if (error) throw error;
+  },
+
   // ─── VARIAÇÕES (substituir no dia) ─────────────────────
   async suggestVariations(token: string, exerciseId: string, limit = 12): Promise<ExerciseVariation[]> {
     const { data, error } = await supabase.rpc('suggest_variations_by_token' as any, {
