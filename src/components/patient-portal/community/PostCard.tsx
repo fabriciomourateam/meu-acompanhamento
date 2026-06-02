@@ -70,6 +70,7 @@ export function PostCard({
   };
 
   const category = CATEGORIES.find((c) => c.value === post.category);
+  const isConquista = post.category === 'conquista';
 
   const handleReact = async (type: ReactionType) => {
     setShowReactions(false);

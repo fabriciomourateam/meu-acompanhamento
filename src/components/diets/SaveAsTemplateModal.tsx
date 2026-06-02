@@ -81,7 +81,6 @@ export function SaveAsTemplateModal({
       setFormData({ name: '', category: 'outros', description: '', is_public: false });
       onOpenChange(false);
       onTemplateCreated?.();
-      onSaved?.();
     } catch (error: any) {
       toast({
         title: 'Erro',
