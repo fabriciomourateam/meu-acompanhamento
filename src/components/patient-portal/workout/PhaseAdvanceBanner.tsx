@@ -120,30 +120,32 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
 
   return (
     <>
-      <div className={cn('rounded-lg border-2 p-3 text-sm', color)}>
-        <div className="font-bold">💪 Fase atual: {currentPhase.label}</div>
-        <div className="mt-0.5 text-xs">
-          {currentPhase.sets_override ? `${currentPhase.sets_override} séries` : ''}
-          {currentPhase.reps_override ? ` × ${currentPhase.reps_override} reps` : ''}
-          {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
-          {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
+      <div className={cn('flex items-center gap-3 rounded-lg border-2 p-3 text-sm', color)}>
+        <div className="min-w-0 flex-1">
+          <div className="font-bold">💪 Fase atual: {currentPhase.label}</div>
+          <div className="mt-0.5 text-xs">
+            {currentPhase.sets_override ? `${currentPhase.sets_override} séries` : ''}
+            {currentPhase.reps_override ? ` × ${currentPhase.reps_override} reps` : ''}
+            {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
+            {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
+          </div>
+          {isDeload && (
+            <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900">
+              🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
+            </div>
+          )}
+          {nextPhase ? (
+            <div className="mt-1 text-[11px] italic opacity-80">
+              Próxima: {nextPhase.label} {weeksLeft <= 0 ? '(em breve)' : `em ~${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'}`} · avança sozinho
+            </div>
+          ) : (
+            <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
+          )}
         </div>
-        {isDeload && (
-          <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900">
-            🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
-          </div>
-        )}
-        {nextPhase ? (
-          <div className="mt-1 text-[11px] italic opacity-80">
-            Próxima: {nextPhase.label} {weeksLeft <= 0 ? '(em breve)' : `em ~${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'}`} · avança sozinho
-          </div>
-        ) : (
-          <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
-        )}
         {nextPhase && (
           <button
             onClick={() => setConfirmAdvance(true)}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white/70 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white"
+            className="flex shrink-0 items-center gap-1.5 self-center rounded-lg bg-white/70 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white"
           >
             <ChevronRightCircle className="h-3.5 w-3.5" /> Avançar fase manualmente
           </button>
@@ -157,8 +159,8 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
               <AlertDialogTitle className="text-slate-800">Avançar para {nextPhase.label}?</AlertDialogTitle>
               <AlertDialogDescription className="text-slate-500">
                 Normalmente as fases avançam <strong>sozinhas</strong> conforme as semanas passam. Só avance
-                manualmente se o seu treinador orientou, ou se você já está adiantado (ex.: vinha desta fase
-                em outro app). Ao confirmar, as cargas e séries da nova fase já passam a valer.
+                manualmente se o seu treinador orientou. Ao confirmar, as cargas e séries da nova fase já
+                passam a valer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

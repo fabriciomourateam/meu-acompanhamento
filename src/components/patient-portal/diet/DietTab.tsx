@@ -155,6 +155,36 @@ export function DietTab({
   const mainMealsCount = mainMeals.length;
   const consumedMainCount = mainMeals.filter((m: any) => consumedMeals.has(m.id)).length;
 
+  // Ordem de exibição: cada grupo (principal + opções) sai junto, com a refeição
+  // "em uso hoje" no topo do grupo — quando o aluno escolhe uma opção, ela sobe
+  // pro lugar da principal e a principal desce pra posição de opção.
+  const displayMeals = (() => {
+    const meals = [...(planDetails?.diet_meals || [])].sort((a: any, b: any) => (a.meal_order || 0) - (b.meal_order || 0));
+    const childrenByParent = new Map<string, any[]>();
+    const principals: any[] = [];
+    for (const m of meals) {
+      if (m.parent_meal_id) {
+        const arr = childrenByParent.get(m.parent_meal_id) || [];
+        arr.push(m);
+        childrenByParent.set(m.parent_meal_id, arr);
+      } else {
+        principals.push(m);
+      }
+    }
+    const out: any[] = [];
+    for (const p of principals) {
+      const activeId = activeIdOfGroup(p.id);
+      const group = [p, ...(childrenByParent.get(p.id) || [])];
+      group.sort((a: any, b: any) => (a.id === activeId ? -1 : b.id === activeId ? 1 : 0)); // ativa primeiro; resto mantém ordem
+      out.push(...group);
+    }
+    // Opções órfãs (principal ausente): mantém ao final, sem perder nada.
+    for (const [pid, arr] of childrenByParent) {
+      if (!principals.some((p) => p.id === pid)) out.push(...arr);
+    }
+    return out;
+  })();
+
   // Extrair lógica de categorias das guidelines para fora do JSX
   // Ordena igual ao MyShape: por priority (asc) e, em empate, por created_at (asc)
   const guidelines = [...(planDetails?.diet_guidelines || [])].sort((a: any, b: any) => {
@@ -418,8 +448,7 @@ export function DietTab({
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
-                      {planDetails.diet_meals
-                        .sort((a: any, b: any) => (a.meal_order || 0) - (b.meal_order || 0))
+                      {displayMeals
                         .map((meal: any, index: number) => {
                           const mealTotals = calcularTotaisPlano({ diet_meals: [meal] });
                           const isConsumed = consumedMeals.has(meal.id);

@@ -4,7 +4,17 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered } from 'lucide-react';
+import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered, RotateCcw } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
 import { workoutExtrasService, type LastLoad } from '@/lib/workout/workout-extras-service';
@@ -95,6 +105,8 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [rest, setRest] = useState<{ min: number; max: number | null } | null>(null);
   const [finishOpen, setFinishOpen] = useState(false);
   const [finishing, setFinishing] = useState(false);
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [resetting, setResetting] = useState(false);
   const [subFor, setSubFor] = useState<{ plannedId: string; exerciseId: string; name: string } | null>(null);
   const [restored] = useState(() => initial != null && (initial.sessionLogId != null || Object.keys(initial.sets ?? {}).length > 0));
 
@@ -306,6 +318,31 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     return out;
   }, [sets, lastLoads, subs, session.exercises]);
 
+  // Descarta o treino em andamento (começou sem querer / vai fazer mais tarde):
+  // apaga a sessão no servidor e limpa o rascunho local, voltando ao estado inicial.
+  const handleReset = async () => {
+    setResetting(true);
+    try {
+      if (sessionLogId) {
+        try { await workoutService.cancelSession(token, sessionLogId); }
+        catch (e) { console.error('Falha ao cancelar sessão no servidor:', e); }
+      }
+      clearDraft(session.id);
+      setSessionLogId(null);
+      setStartedAt(null);
+      setSets({});
+      setSubs({});
+      setRest(null);
+      setOpenIds(new Set());
+      setReorderMode(false);
+      setOrder(defaultOrder);
+      setConfirmReset(false);
+      toast({ title: 'Treino descartado', description: 'Pode recomeçar quando quiser — nada foi salvo no seu histórico.' });
+    } finally {
+      setResetting(false);
+    }
+  };
+
   const handleFinish = async (rating: number | null, notes: string, share = false, shareText = '') => {
     if (!sessionLogId) return;
     setFinishing(true);
@@ -409,12 +446,20 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         </div>
 
         {sessionLogId ? (
-          <div className="mt-3 flex items-center justify-between text-sm">
-            <span className="text-slate-600">Volume: <strong className="tabular-nums text-slate-900">{totalVolume.toFixed(0)} kg</strong></span>
-            <Button size="sm" onClick={() => setFinishOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
-              <CheckCircle2 className="w-4 h-4 mr-1.5" /> Finalizar
-            </Button>
-          </div>
+          <>
+            <div className="mt-3 flex items-center justify-between text-sm">
+              <span className="text-slate-600">Volume: <strong className="tabular-nums text-slate-900">{totalVolume.toFixed(0)} kg</strong></span>
+              <Button size="sm" onClick={() => setFinishOpen(true)} className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold">
+                <CheckCircle2 className="w-4 h-4 mr-1.5" /> Finalizar
+              </Button>
+            </div>
+            <button
+              onClick={() => setConfirmReset(true)}
+              className="mt-2 flex items-center gap-1 text-xs font-medium text-slate-400 transition-colors hover:text-rose-500"
+            >
+              <RotateCcw className="h-3.5 w-3.5" /> Descartar e recomeçar depois
+            </button>
+          </>
         ) : (
           <Button onClick={handleStart} disabled={starting} className="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11">
             <PlayCircle className="w-5 h-5 mr-1.5" /> {starting ? 'Iniciando…' : 'Começar treino'}
@@ -428,7 +473,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             size="sm"
             variant="outline"
             onClick={() => setReorderMode((v) => !v)}
-            className="h-8 border-slate-200 text-xs font-semibold text-slate-600"
+            className="h-8 border border-slate-200 !bg-white text-xs font-semibold !text-slate-600 hover:!bg-slate-50"
           >
             <ListOrdered className="mr-1.5 h-3.5 w-3.5" />
             {reorderMode ? 'Concluir reordenação' : 'Reordenar exercícios'}
@@ -480,6 +525,30 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       {rest != null ? (
         <RestTimer minSeconds={rest.min} maxSeconds={rest.max} onDone={() => setRest(null)} />
       ) : null}
+
+      <AlertDialog open={confirmReset} onOpenChange={(v) => !resetting && setConfirmReset(v)}>
+        <AlertDialogContent className="bg-white border-slate-200">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-slate-800">Descartar este treino?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500">
+              As séries marcadas até agora serão apagadas e o cronômetro zera. Use isto se começou sem querer
+              ou vai fazer o treino em outro horário. Nada vai pro seu histórico.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={resetting} className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => { e.preventDefault(); void handleReset(); }}
+              disabled={resetting}
+              className="bg-rose-500 text-white hover:bg-rose-600"
+            >
+              Descartar treino
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <FinishSessionDialog
         open={finishOpen}

@@ -101,4 +101,12 @@ export const workoutService = {
     // Retorna a duração da sessão em minutos (started_at -> ended_at).
     return typeof data === 'number' ? data : Number(data ?? 0);
   },
+
+  async cancelSession(token: string, sessionLogId: string): Promise<void> {
+    const { error } = await supabase.rpc('cancel_workout_session_by_token' as any, {
+      p_token: token,
+      p_session_log_id: sessionLogId,
+    });
+    if (error) throw error;
+  },
 };
