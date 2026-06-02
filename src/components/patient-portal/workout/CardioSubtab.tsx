@@ -120,7 +120,14 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
   return (
     <div className="space-y-4">
       {/* Pilar 1 — cardio prescrito no topo */}
-      {prescribed && <PrescribedCardioCard cardio={prescribed} weekStats={weekStats} />}
+      {prescribed ? (
+        <PrescribedCardioCard cardio={prescribed} weekStats={weekStats} />
+      ) : !loading && (
+        <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-600">
+          <HeartPulse className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+          <span>Este plano não tem cardio prescrito. Você pode registrar suas atividades livremente abaixo.</span>
+        </div>
+      )}
 
       {totals && (
         <div className="grid grid-cols-4 gap-2">
