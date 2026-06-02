@@ -45,6 +45,9 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
   const [generalNotes, setGeneralNotes] = useState<string | null>(null);
   const [subtab, setSubtab] = useState<'workouts' | 'cardios' | 'analytics'>('workouts');
   const [openSessionId, setOpenSessionId] = useState<string | null>(null);
+  // Planos ativos do aluno (seletor aparece quando há mais de um).
+  const [plans, setPlans] = useState<Array<{ id: string; name: string }>>([]);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
   // Portão de adesão antes de uma fase de Força (<50% na fase anterior).
   const [forcaGate, setForcaGate] = useState<{ planId: string; adherence: number } | null>(null);
   const [gateBusy, setGateBusy] = useState(false);
@@ -53,7 +56,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
     if (!token) return;
     setLoading(true);
     try {
-      let h = await workoutService.getHub(token);
+      let h = await workoutService.getHub(token, selectedPlanId);
       // Auto-avanço de fase por tempo. Se for entrar numa fase de Força, a RPC
       // segura (needs_forca_confirmation): checamos a adesão — >=50% avança
       // direto; <50% abre o portão pra o aluno decidir (avançar ou repetir).
@@ -71,9 +74,9 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
             } else {
               setForcaGate({ planId, adherence: avg });
             }
-            h = await workoutService.getHub(token);
+            h = await workoutService.getHub(token, selectedPlanId);
           } else if (res.advanced) {
-            h = await workoutService.getHub(token);
+            h = await workoutService.getHub(token, selectedPlanId);
           }
           // Aviso no sino alguns dias antes de uma fase de Força (idempotente).
           workoutExtrasService.maybeNotifyUpcomingForca(token, planId, 5).catch(() => {});
@@ -95,11 +98,26 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
     } finally {
       setLoading(false);
     }
-  }, [token, toast]);
+  }, [token, toast, selectedPlanId]);
 
   useEffect(() => {
     if (active) void load();
   }, [active, load]);
+
+  // Carrega a lista de planos ativos (pro seletor). Só fixa uma seleção quando
+  // há mais de um plano — assim o caso comum (1 plano) não dispara reload.
+  useEffect(() => {
+    if (!active || !token) return;
+    let cancelled = false;
+    workoutService.listActivePlans(token)
+      .then((ps) => {
+        if (cancelled) return;
+        setPlans(ps);
+        if (ps.length > 1) setSelectedPlanId((cur) => cur ?? ps[0].id);
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [active, token]);
 
   // Aluno optou por avançar pra Força mesmo com adesão baixa.
   const handleConfirmForca = async () => {
@@ -186,8 +204,32 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
     );
   }
 
+  const activePlanId = selectedPlanId ?? plan.id;
+
   return (
     <div className="space-y-3">
+      {/* Seletor de planos — só aparece quando o aluno tem mais de um plano ativo. */}
+      {plans.length > 1 && (
+        <div className="flex flex-wrap gap-2">
+          {plans.map((p) => {
+            const isActive = p.id === activePlanId;
+            return (
+              <button
+                key={p.id}
+                onClick={() => { if (p.id !== activePlanId) { setOpenSessionId(null); setSelectedPlanId(p.id); } }}
+                className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
+                  isActive
+                    ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm'
+                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                }`}
+              >
+                {p.name}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} planNotes={plan.notes} />
 
       <PhaseAdvanceBanner
