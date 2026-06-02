@@ -30,6 +30,9 @@ interface Challenge {
   display_order: number;
 }
 
+// Super-admin (Fabrício): único uid que enxerga o painel de logs de erro.
+const SUPER_ADMIN_UID = 'a9798432-60bd-4ac8-a035-d139a47ad59b';
+
 const BLANK_FORM = {
   emoji: '🎯',
   challenge_name: '',
@@ -957,6 +960,9 @@ export default function AdminPortal() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const trainerUserId = searchParams.get('uid') || '';
+  // Painel de logs de erro é exclusivo do super-admin (Fabrício). Os logs são
+  // globais do front, então não devem aparecer pra eventuais outros trainers.
+  const isSuperAdmin = trainerUserId === SUPER_ADMIN_UID;
 
   const [authenticated, setAuthenticated] = useState(() => getSessionUid() === trainerUserId && !!trainerUserId);
   const [pinLoading, setPinLoading] = useState(false);
@@ -1170,9 +1176,11 @@ export default function AdminPortal() {
             <TabsTrigger value="brand" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Marca
             </TabsTrigger>
-            <TabsTrigger value="errors" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
-              Erros
-            </TabsTrigger>
+            {isSuperAdmin && (
+              <TabsTrigger value="errors" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+                Erros
+              </TabsTrigger>
+            )}
           </TabsList>
 
           <TabsContent value="challenges" className="mt-4">
@@ -1227,13 +1235,15 @@ export default function AdminPortal() {
             <BrandSettingsPanel trainerUserId={trainerUserId} />
           </TabsContent>
 
-          <TabsContent value="errors" className="mt-4">
-            <Card className="border-slate-200 bg-white">
-              <CardContent className="p-6">
-                <ErrorLogsPanel trainerUserId={trainerUserId} />
-              </CardContent>
-            </Card>
-          </TabsContent>
+          {isSuperAdmin && (
+            <TabsContent value="errors" className="mt-4">
+              <Card className="border-slate-200 bg-white">
+                <CardContent className="p-6">
+                  <ErrorLogsPanel trainerUserId={trainerUserId} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+          )}
         </Tabs>
       </div>
     </div>

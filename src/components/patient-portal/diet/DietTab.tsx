@@ -489,15 +489,15 @@ export function DietTab({
                                           e.stopPropagation();
                                           handleToggleMealConsumed(meal.id);
                                         }}
-                                        className={`w-9 h-9 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${isConsumed
+                                        className={`w-7 h-7 sm:w-8 sm:h-8 p-0 rounded-full transition-all duration-200 min-h-[36px] min-w-[36px] ${isConsumed
                                           ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
                                           : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md'
                                           }`}
                                       >
                                         {isConsumed ? (
-                                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                          <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                         ) : (
-                                          <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
+                                          <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                         )}
                                       </Button>
                                       <ChevronRight
