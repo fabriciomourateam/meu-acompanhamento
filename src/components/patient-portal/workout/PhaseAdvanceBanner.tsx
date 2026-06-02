@@ -5,6 +5,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { workoutExtrasService, type Periodization, type PeriodizationPhase } from '@/lib/workout/workout-extras-service';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { ChevronRightCircle, Loader2 } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const PHASE_COLORS: Record<string, string> = {
   base: 'border-emerald-300 bg-emerald-50 text-emerald-900',
@@ -35,9 +47,12 @@ interface Props {
 
 const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
 
-export function PhaseAdvanceBanner({ token, planId, planCreatedAt }: Props) {
+export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChanged }: Props) {
+  const { toast } = useToast();
   const [periodization, setPeriodization] = useState<Periodization | null>(null);
   const [showAllPhases, setShowAllPhases] = useState(false);
+  const [confirmAdvance, setConfirmAdvance] = useState(false);
+  const [advancing, setAdvancing] = useState(false);
 
   const reload = useCallback(async () => {
     try {
@@ -87,6 +102,22 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt }: Props) {
   }
   const weeksLeft = Math.max(0, cumThroughCurrent - elapsedWeeks);
 
+  const doAdvance = async () => {
+    if (!nextPhase) return;
+    setAdvancing(true);
+    try {
+      await workoutExtrasService.setPlanPhase(token, planId, periodization.current_phase_index + 1);
+      toast({ title: 'Fase alterada 💪', description: `Você avançou para: ${nextPhase.label}.` });
+      setConfirmAdvance(false);
+      onPhaseChanged?.();
+      await reload();
+    } catch (e: any) {
+      toast({ title: 'Erro ao mudar de fase', description: e?.message || 'Tente novamente', variant: 'destructive' });
+    } finally {
+      setAdvancing(false);
+    }
+  };
+
   return (
     <>
       <div className={cn('rounded-lg border-2 p-3 text-sm', color)}>
@@ -109,7 +140,43 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt }: Props) {
         ) : (
           <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
         )}
+        {nextPhase && (
+          <button
+            onClick={() => setConfirmAdvance(true)}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-white/70 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white"
+          >
+            <ChevronRightCircle className="h-3.5 w-3.5" /> Avançar fase manualmente
+          </button>
+        )}
       </div>
+
+      {nextPhase && (
+        <AlertDialog open={confirmAdvance} onOpenChange={(v) => !advancing && setConfirmAdvance(v)}>
+          <AlertDialogContent className="bg-white border-slate-200">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-slate-800">Avançar para {nextPhase.label}?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-500">
+                Normalmente as fases avançam <strong>sozinhas</strong> conforme as semanas passam. Só avance
+                manualmente se o seu treinador orientou, ou se você já está adiantado (ex.: vinha desta fase
+                em outro app). Ao confirmar, as cargas e séries da nova fase já passam a valer.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={advancing} className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100">
+                Cancelar
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => { e.preventDefault(); void doAdvance(); }}
+                disabled={advancing}
+                className="bg-emerald-600 text-white hover:bg-emerald-700"
+              >
+                {advancing ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : null}
+                Sim, avançar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      )}
 
       {/* Prévia da periodização completa — todas as fases já vêm no payload */}
       {periodization.phases.length > 1 && (
