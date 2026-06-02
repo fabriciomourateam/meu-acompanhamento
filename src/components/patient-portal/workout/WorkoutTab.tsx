@@ -260,7 +260,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
         <TabsContent value="workouts" className="mt-3 space-y-2.5">
           {/* Cabeçalho do plano (puxa o nome do treino, ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana") */}
           {plan.name && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-center text-sm font-semibold text-slate-700">
               {plan.name}
             </div>
           )}

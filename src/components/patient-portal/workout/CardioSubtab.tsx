@@ -329,6 +329,13 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
   const pct = target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
   const complete = target > 0 && done >= target;
   const targetMin = cardio.tempo_padrao != null ? cardio.tempo_padrao * target : null;
+  // Metas com a margem (faixa): "3-4" treinos e "60-80" min quando há teto.
+  const hasRange = !!maxV && maxV > target;
+  const goalLabel = hasRange ? `${target}-${maxV}` : `${target}`;
+  const targetMinMax = cardio.tempo_padrao != null && maxV ? cardio.tempo_padrao * maxV : null;
+  const minGoalLabel = targetMin != null
+    ? (hasRange && targetMinMax ? `${targetMin}-${targetMinMax}` : `${targetMin}`)
+    : null;
 
   return (
     <div className="mt-2">
@@ -349,8 +356,8 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
         />
       </div>
       <p className="mt-1 text-xs text-cyan-700">
-        <strong className="text-cyan-900">{done}/{target}</strong> treinos esta semana
-        <span className="text-cyan-600"> · {weekStats.min}{targetMin != null ? `/${targetMin}` : ''} min</span>
+        <strong className="text-cyan-900">{done}/{goalLabel}</strong> treinos esta semana
+        <span className="text-cyan-600"> · {weekStats.min}{minGoalLabel ? `/${minGoalLabel}` : ''} min</span>
       </p>
     </div>
   );
