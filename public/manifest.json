@@ -1,6 +1,6 @@
 {
-  "name": "Meu Acompanhamento",
-  "short_name": "Meu Acompanhamento",
+  "name": "My Shape",
+  "short_name": "My Shape",
   "description": "Acompanhe seu progresso, dieta e evolução",
   "start_url": "/portal",
   "display": "standalone",
