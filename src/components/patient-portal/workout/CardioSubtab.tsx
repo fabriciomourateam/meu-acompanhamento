@@ -16,36 +16,52 @@ interface CardioSubtabProps {
   prescribedSessions: HubSession[];
   /** Necessário pra marcar a meta "Atividade física" do dia ao registrar cardio. */
   patientId?: string;
+  /** Plano selecionado no topo — o cardio prescrito segue esse plano. */
+  planId?: string | null;
 }
 
-export function CardioSubtab({ token, prescribedSessions, patientId }: CardioSubtabProps) {
+// Segunda-feira da semana atual (date_trunc('week') no Postgres = ISO, começa na segunda).
+function currentWeekStart(): string {
+  const now = new Date();
+  const diffToMon = (now.getDay() + 6) % 7; // dias desde a segunda
+  const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diffToMon);
+  return mon.toISOString().slice(0, 10);
+}
+
+export function CardioSubtab({ token, prescribedSessions, patientId, planId }: CardioSubtabProps) {
   const { toast } = useToast();
   const [logs, setLogs] = useState<CardioLog[]>([]);
   const [totals, setTotals] = useState<CardioTotals | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [prescribed, setPrescribed] = useState<PrescribedCardio | null>(null);
+  // Sessões e minutos de cardio feitos na semana atual (pro progresso do modo "Nx/semana").
+  const [weekStats, setWeekStats] = useState<{ count: number; min: number }>({ count: 0, min: 0 });
   // Mês exibido no histórico (1º dia do mês). Começa no mês atual.
   const [month, setMonth] = useState(() => { const n = new Date(); return new Date(n.getFullYear(), n.getMonth(), 1); });
 
-  // Pilar 1 — cardio prescrito na ficha (1:1 com o plano).
+  // Pilar 1 — cardio prescrito na ficha (1:1 com o plano selecionado).
   useEffect(() => {
-    void workoutExtrasService.getPrescribedCardio(token)
+    void workoutExtrasService.getPrescribedCardio(token, planId)
       .then(setPrescribed)
       .catch((err) => console.error('Erro ao carregar cardio prescrito:', err));
-  }, [token]);
+  }, [token, planId]);
 
   const reload = useCallback(async () => {
     const monthStart = new Date(month.getFullYear(), month.getMonth(), 1).toISOString().slice(0, 10);
     const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0).toISOString().slice(0, 10);
+    const weekStart = currentWeekStart();
+    const today = new Date().toISOString().slice(0, 10);
     setLoading(true);
     try {
-      const [l, t] = await Promise.all([
+      const [l, t, wk] = await Promise.all([
         workoutExtrasService.listCardio(token, monthStart, monthEnd),
         workoutExtrasService.getCardioTotals(token),
+        workoutExtrasService.listCardio(token, weekStart, today),
       ]);
       setLogs(l);
       setTotals(t);
+      setWeekStats({ count: wk.length, min: wk.reduce((s, c) => s + (c.duration_min ?? 0), 0) });
     } catch (err) {
       console.error('Erro ao carregar cardios:', err);
     } finally {
@@ -104,7 +120,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId }: CardioSub
   return (
     <div className="space-y-4">
       {/* Pilar 1 — cardio prescrito no topo */}
-      {prescribed && <PrescribedCardioCard cardio={prescribed} />}
+      {prescribed && <PrescribedCardioCard cardio={prescribed} weekStats={weekStats} />}
 
       {totals && (
         <div className="grid grid-cols-4 gap-2">
@@ -201,7 +217,7 @@ const DOW_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 // Pilar 1 — bloco "Cardio prescrito": modalidade/intensidade, pills dos dias
 // (destaca hoje), tempo do dia atual e observações.
-function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
+function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio; weekStats: { count: number; min: number } }) {
   const todayDow = new Date().getDay();
   // Modo "Nx por semana": frequência livre, sem dias fixos (tempo sempre o padrão).
   const byFrequency = (cardio.vezes_semana ?? 0) > 0;
@@ -226,13 +242,7 @@ function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
       {subtitle && <p className="mt-0.5 text-xs capitalize text-cyan-700">{subtitle}</p>}
 
       {byFrequency ? (
-        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-cyan-300 bg-white px-3 py-1 text-sm font-semibold text-cyan-800">
-          <HeartPulse className="h-4 w-4 text-cyan-600" />
-          {cardio.vezes_semana}x por semana
-          {cardio.tempo_padrao != null && (
-            <span className="font-normal text-cyan-600">· {cardio.tempo_padrao}{cardio.unidade} cada</span>
-          )}
-        </div>
+        <FrequencyProgress cardio={cardio} weekStats={weekStats} />
       ) : (
         <div className="mt-2 flex flex-wrap gap-1">
           {DOW_LABELS.map((lbl, dow) => {
@@ -258,6 +268,41 @@ function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
       {cardio.observacoes && (
         <p className="mt-2 whitespace-pre-line text-xs italic text-cyan-700">{cardio.observacoes}</p>
       )}
+    </div>
+  );
+}
+
+// Progresso semanal do modo "Nx por semana": foco em treinos (frequência),
+// com os minutos como contexto. Ex.: "1/4 treinos · 45 min esta semana".
+function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; weekStats: { count: number; min: number } }) {
+  const target = cardio.vezes_semana ?? 0;
+  const done = weekStats.count;
+  const pct = target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
+  const complete = target > 0 && done >= target;
+  const targetMin = cardio.tempo_padrao != null ? cardio.tempo_padrao * target : null;
+
+  return (
+    <div className="mt-2">
+      <div className="mb-1 flex items-center justify-between text-sm">
+        <span className="inline-flex items-center gap-1.5 font-semibold text-cyan-800">
+          <HeartPulse className="h-4 w-4 text-cyan-600" />
+          {target}x por semana
+          {cardio.tempo_padrao != null && (
+            <span className="font-normal text-cyan-600">· {cardio.tempo_padrao}{cardio.unidade} cada</span>
+          )}
+        </span>
+        {complete && <span className="text-xs font-bold text-emerald-600">✓ Completo</span>}
+      </div>
+      <div className="h-2 w-full overflow-hidden rounded-full bg-cyan-100">
+        <div
+          className={'h-full rounded-full transition-all ' + (complete ? 'bg-emerald-500' : 'bg-cyan-600')}
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <p className="mt-1 text-xs text-cyan-700">
+        <strong className="text-cyan-900">{done}/{target}</strong> treinos esta semana
+        <span className="text-cyan-600"> · {weekStats.min}{targetMin != null ? `/${targetMin}` : ''} min</span>
+      </p>
     </div>
   );
 }

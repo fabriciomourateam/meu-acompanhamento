@@ -281,8 +281,11 @@ export const workoutExtrasService = {
   },
 
   // ─── CARDIO PRESCRITO (workout_plan_cardio) ────────────
-  async getPrescribedCardio(token: string): Promise<PrescribedCardio | null> {
-    const { data, error } = await supabase.rpc('get_workout_plan_cardio_by_token' as any, { p_token: token });
+  async getPrescribedCardio(token: string, planId?: string | null): Promise<PrescribedCardio | null> {
+    const { data, error } = await supabase.rpc('get_workout_plan_cardio_by_token' as any, {
+      p_token: token,
+      ...(planId ? { p_plan_id: planId } : {}),
+    });
     if (error) throw error;
     const cardio = (data as { cardio: PrescribedCardio | null } | null)?.cardio ?? null;
     return cardio;
