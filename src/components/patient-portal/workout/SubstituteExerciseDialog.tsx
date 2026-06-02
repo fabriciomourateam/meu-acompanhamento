@@ -48,9 +48,12 @@ export function SubstituteExerciseDialog({
             <Shuffle className="h-5 w-5 text-amber-600" />
             Substituir por hoje
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-slate-600">
             Trocar <strong>{originalExerciseName}</strong> por uma variação do mesmo grupo muscular.
-            <span className="mt-1 block text-xs italic">Próximo treino você vê o original de novo.</span>
+            <span className="mt-1 block text-xs">
+              Substitua somente quando o exercício previsto estiver ocupado. Evite substituir
+              sempre para não perder o parâmetro de progressão no exercício principal.
+            </span>
           </DialogDescription>
         </DialogHeader>
 
