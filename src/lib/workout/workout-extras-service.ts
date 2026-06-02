@@ -94,6 +94,20 @@ export interface PrescribedCardio {
   vezes_semana: number | null;          // quando setado: "Nx por semana" (sem dias fixos)
   intensidade: string | null;
   observacoes: string | null;
+  /** Opções alternativas de cardio ("OPÇÃO 01/02/03"), criadas no MyShape. */
+  opcoes?: CardioOption[] | null;
+}
+
+/** Uma opção alternativa de cardio. Chaves toleradas (vêm do back-office). */
+export interface CardioOption {
+  label?: string | null;
+  titulo?: string | null;
+  nome?: string | null;
+  descricao?: string | null;
+  description?: string | null;
+  conteudo?: string | null;
+  texto?: string | null;
+  html?: string | null;
 }
 
 // Volume por grupamento muscular: { "Peitoral": { volume, category }, ... }

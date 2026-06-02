@@ -223,6 +223,16 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
 
 const DOW_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
+// Normaliza uma opção de cardio (chaves variam conforme o back-office) em
+// { label, html }. Aceita objeto com label/título/etc. ou string solta.
+function normalizeCardioOption(opt: any, i: number): { label: string; html: string } {
+  const fallback = `Opção ${String(i + 1).padStart(2, '0')}`;
+  if (typeof opt === 'string') return { label: fallback, html: opt };
+  const label = opt?.label || opt?.titulo || opt?.nome || fallback;
+  const html = opt?.descricao || opt?.description || opt?.conteudo || opt?.texto || opt?.html || '';
+  return { label, html: typeof html === 'string' ? html : '' };
+}
+
 // Pilar 1 — bloco "Cardio prescrito": modalidade/intensidade, pills dos dias
 // (destaca hoje), tempo do dia atual e observações.
 function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio; weekStats: { count: number; min: number } }) {
@@ -268,6 +278,31 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
               >
                 {lbl}{tempo != null ? ` ${tempo}${cardio.unidade}` : ''}
               </span>
+            );
+          })}
+        </div>
+      )}
+
+      {Array.isArray(cardio.opcoes) && cardio.opcoes.length > 0 && (
+        <div className="mt-3 space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-700">
+            Opções de cardio ({cardio.opcoes.length})
+          </p>
+          <p className="text-[11px] text-cyan-600">Faça <strong>uma</strong> destas opções.</p>
+          {cardio.opcoes.map((opt, i) => {
+            const { label, html } = normalizeCardioOption(opt, i);
+            return (
+              <div key={i} className="rounded-lg border border-cyan-200 bg-white/70 p-2.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-900">
+                  <RotateCcw className="h-3 w-3" /> {label}
+                </div>
+                {html && (
+                  <div
+                    className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 prose-p:my-1 prose-strong:text-cyan-900"
+                    dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(html) }}
+                  />
+                )}
+              </div>
             );
           })}
         </div>
