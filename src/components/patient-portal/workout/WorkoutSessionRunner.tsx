@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, CheckCircle2, Trophy, Clock } from 'lucide-react';
+import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
 import { workoutExtrasService, type LastLoad } from '@/lib/workout/workout-extras-service';
@@ -39,6 +39,8 @@ interface RunnerDraft {
   sessionLogId: string | null;
   sets: SetMap;
   subs: SubMap;
+  /** Ordem dos exercícios escolhida pelo aluno hoje (ex.: academia lotada). */
+  order?: string[];
   startedAt: number | null;
   updatedAt: number;
 }
@@ -96,16 +98,55 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [subFor, setSubFor] = useState<{ plannedId: string; exerciseId: string; name: string } | null>(null);
   const [restored] = useState(() => initial != null && (initial.sessionLogId != null || Object.keys(initial.sets ?? {}).length > 0));
 
+  // Ordem dos exercícios na tela (default = exercise_order; reordenável pelo aluno).
+  const defaultOrder = useMemo(
+    () => [...session.exercises].sort((a, b) => (a.exercise_order ?? 0) - (b.exercise_order ?? 0)).map((e) => e.id),
+    [session.exercises],
+  );
+  const [order, setOrder] = useState<string[]>(() => {
+    const saved = initial?.order;
+    // Usa a ordem salva só se ainda bater com os exercícios atuais do plano.
+    if (saved && saved.length === defaultOrder.length && saved.every((id) => defaultOrder.includes(id))) return saved;
+    return defaultOrder;
+  });
+  const [reorderMode, setReorderMode] = useState(false);
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+
+  const orderedExercises = useMemo(() => {
+    const byId = new Map(session.exercises.map((e) => [e.id, e] as const));
+    return order.map((id) => byId.get(id)).filter(Boolean) as typeof session.exercises;
+  }, [order, session.exercises]);
+
+  const moveExercise = (id: string, dir: -1 | 1) => {
+    setOrder((prev) => {
+      const i = prev.indexOf(id);
+      const j = i + dir;
+      if (i < 0 || j < 0 || j >= prev.length) return prev;
+      const next = [...prev];
+      [next[i], next[j]] = [next[j], next[i]];
+      return next;
+    });
+  };
+
+  const setOpenFor = (id: string, open: boolean) => {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (open) next.add(id); else next.delete(id);
+      return next;
+    });
+  };
+
   // Persiste o rascunho sempre que algo relevante muda (debounce leve via microtask
   // não é necessário: writes em localStorage são síncronos e baratos pro volume aqui).
   useEffect(() => {
-    const hasContent = sessionLogId != null || Object.keys(sets).length > 0 || Object.keys(subs).length > 0;
+    const reordered = order.join() !== defaultOrder.join();
+    const hasContent = sessionLogId != null || Object.keys(sets).length > 0 || Object.keys(subs).length > 0 || reordered;
     if (!hasContent) return;
     try {
-      const draft: RunnerDraft = { sessionLogId, sets, subs, startedAt, updatedAt: Date.now() };
+      const draft: RunnerDraft = { sessionLogId, sets, subs, order, startedAt, updatedAt: Date.now() };
       localStorage.setItem(draftKey(session.id), JSON.stringify(draft));
     } catch { /* quota/privado: silencioso */ }
-  }, [session.id, sessionLogId, sets, subs, startedAt]);
+  }, [session.id, sessionLogId, sets, subs, order, defaultOrder, startedAt]);
 
   // Observações do aluno por exercício (persistem entre treinos).
   const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>({});
@@ -203,6 +244,25 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         rpe: value.rpe,
       });
       if (rs && rs > 0) setRest({ min: rs, max: rsMax });
+
+      // Auto-avança: se todas as séries deste exercício ficaram feitas, fecha ele
+      // e abre o próximo da ordem atual.
+      const exDef = session.exercises.find((e) => e.id === plannedExerciseId);
+      const total = exDef?.sets || 1;
+      const arr = sets[plannedExerciseId] || [];
+      const doneIdx = new Set<number>();
+      arr.forEach((s, i) => { if (s?.done) doneIdx.add(i); });
+      doneIdx.add(setIndex - 1);
+      if (doneIdx.size >= total) {
+        const pos = order.indexOf(plannedExerciseId);
+        const nextId = pos >= 0 ? order[pos + 1] : undefined;
+        setOpenIds((prev) => {
+          const next = new Set(prev);
+          next.delete(plannedExerciseId);
+          if (nextId) next.add(nextId);
+          return next;
+        });
+      }
     } catch (err: any) {
       toast({ title: 'Erro ao salvar série', description: err.message || 'Tente novamente', variant: 'destructive' });
       throw err;
@@ -362,26 +422,60 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         )}
       </motion.div>
 
-      <div className="space-y-2.5">
-        {session.exercises.map((ex) => (
-          <ExerciseCard
-            key={ex.id}
-            exercise={ex}
-            token={token}
-            values={sets[ex.id] || []}
-            onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
-            onCommit={handleCommit}
-            substitutedName={subs[ex.id]?.name ?? null}
-            substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
-            substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
-            lastLoad={lastLoads[ex.id] ?? null}
-            note={exerciseNotes[exKey(ex)] ?? ''}
-            onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
-            prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}
-            onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
-          />
-        ))}
-      </div>
+      {orderedExercises.length > 1 && (
+        <div className="flex justify-end">
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setReorderMode((v) => !v)}
+            className="h-8 border-slate-200 text-xs font-semibold text-slate-600"
+          >
+            <ListOrdered className="mr-1.5 h-3.5 w-3.5" />
+            {reorderMode ? 'Concluir reordenação' : 'Reordenar exercícios'}
+          </Button>
+        </div>
+      )}
+
+      {reorderMode ? (
+        <div className="space-y-2">
+          <p className="px-1 text-xs text-slate-500">Ajuste a ordem do treino de hoje (ex.: aparelho ocupado). Vale só pra esta sessão.</p>
+          {orderedExercises.map((ex, idx) => (
+            <div key={ex.id} className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white p-2.5">
+              <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-600">{idx + 1}</span>
+              <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-800">{subs[ex.id]?.name ?? ex.exercise_name}</span>
+              <Button size="sm" variant="outline" disabled={idx === 0} onClick={() => moveExercise(ex.id, -1)} className="h-9 w-9 p-0 border-slate-200" aria-label="Subir">
+                <ArrowUp className="h-4 w-4" />
+              </Button>
+              <Button size="sm" variant="outline" disabled={idx === orderedExercises.length - 1} onClick={() => moveExercise(ex.id, 1)} className="h-9 w-9 p-0 border-slate-200" aria-label="Descer">
+                <ArrowDown className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2.5">
+          {orderedExercises.map((ex) => (
+            <ExerciseCard
+              key={ex.id}
+              exercise={ex}
+              token={token}
+              values={sets[ex.id] || []}
+              open={openIds.has(ex.id)}
+              onOpenChange={(o) => setOpenFor(ex.id, o)}
+              onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
+              onCommit={handleCommit}
+              substitutedName={subs[ex.id]?.name ?? null}
+              substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
+              substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
+              lastLoad={lastLoads[ex.id] ?? null}
+              note={exerciseNotes[exKey(ex)] ?? ''}
+              onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
+              prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}
+              onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
+            />
+          ))}
+        </div>
+      )}
 
       {rest != null ? (
         <RestTimer minSeconds={rest.min} maxSeconds={rest.max} onDone={() => setRest(null)} />

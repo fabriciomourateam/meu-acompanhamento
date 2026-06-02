@@ -41,12 +41,17 @@ interface ExerciseCardProps {
   onSaveNote?: (note: string) => void;
   /** Recorde all-time deste exercício (snapshot no início da sessão) — pra medalha. */
   prBaseline?: { max_weight_kg: number | null; estimated_1rm: number | null } | null;
+  /** Controle externo do aberto/fechado (pra auto-avançar pro próximo). Opcional. */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline }: ExerciseCardProps) {
-  const [open, setOpen] = useState(false);
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange }: ExerciseCardProps) {
+  const [openInternal, setOpenInternal] = useState(false);
+  const open = openProp ?? openInternal;
+  const setOpen = onOpenChange ?? setOpenInternal;
   const [showRpeHelp, setShowRpeHelp] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
