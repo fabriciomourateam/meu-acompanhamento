@@ -8,6 +8,7 @@ import {
   POST_CATEGORIES,
   type CommunityCategory,
 } from '@/lib/community-service';
+import { dailyChallengesService } from '@/lib/daily-challenges-service';
 import { cn } from '@/lib/utils';
 
 interface PostComposerProps {
@@ -62,6 +63,11 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
         imageUrl = await communityService.uploadPostImage(patientId, imageFile);
       }
       await communityService.createPost(patientId, content.trim(), imageUrl, category);
+      // Postar uma FOTO na comunidade marca a meta "Registro Visual" do dia.
+      if (imageUrl) {
+        dailyChallengesService.completeChallenge(patientId, 'registro_visual')
+          .catch((e) => console.error('Falha ao marcar meta registro_visual:', e));
+      }
       setContent('');
       setCategory('geral');
       clearImage();

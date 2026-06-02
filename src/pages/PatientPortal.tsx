@@ -887,6 +887,8 @@ export default function PatientPortal() {
                   )}
 
                   <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                  {/* Instalar app — só no mobile (no desktop usa o botão ao lado) */}
+                  <InstallPWAButton asMenuItem className="sm:hidden" />
                   <DropdownMenuItem
                     onClick={loadPortalData}
                     className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"

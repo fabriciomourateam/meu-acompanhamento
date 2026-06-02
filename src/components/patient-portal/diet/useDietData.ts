@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { dietService } from '@/lib/diet-service';
 import { dietConsumptionService } from '@/lib/diet-consumption-service';
+import { dailyChallengesService } from '@/lib/daily-challenges-service';
 import { useToast } from '@/hooks/use-toast';
 import confetti from 'canvas-confetti';
 
@@ -316,6 +317,11 @@ export function useDietData(patientId: string) {
           description: "Você completou todas as refeições de hoje! Continue assim!",
           className: "bg-green-500 text-white border-green-600",
         });
+        // Marca a meta "Siga a Dieta" do dia (idempotente, best-effort).
+        if (patientId) {
+          dailyChallengesService.completeChallenge(patientId, 'seguiu_dieta')
+            .catch((e) => console.error('Falha ao marcar meta seguiu_dieta:', e));
+        }
       }
     }
 

@@ -3,14 +3,22 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { DropdownMenuItem } from '@/components/ui/dropdown-menu';
 import { Download, Smartphone, Monitor, X, CheckCircle2, ExternalLink, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-export function InstallPWAButton() {
+interface InstallPWAButtonProps {
+  /** Renderiza como item de menu (pro overflow no mobile) em vez de botão. */
+  asMenuItem?: boolean;
+  className?: string;
+}
+
+export function InstallPWAButton({ asMenuItem, className }: InstallPWAButtonProps = {}) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstructions, setShowInstructions] = useState(false);
@@ -77,13 +85,24 @@ export function InstallPWAButton() {
 
   return (
     <>
-      <Button
-        onClick={handleInstallClick}
-        className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
-      >
-        <Download className="w-4 h-4 mr-2" />
-        Instalar App
-      </Button>
+      {asMenuItem ? (
+        <DropdownMenuItem
+          // Abre o dialog após o menu fechar pra evitar conflito de foco entre os dois.
+          onSelect={() => setTimeout(() => setShowInstructions(true), 0)}
+          className={cn('text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5', className)}
+        >
+          <Download className="w-4 h-4 mr-2 text-emerald-500" />
+          Instalar app
+        </DropdownMenuItem>
+      ) : (
+        <Button
+          onClick={handleInstallClick}
+          className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Instalar App
+        </Button>
+      )}
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-0 bg-[#F5F7FB] shadow-2xl [&>button]:text-[#222222] [&>button]:hover:text-[#00C98A] [&>button]:opacity-100">
