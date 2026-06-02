@@ -29,13 +29,16 @@ interface ExerciseCardProps {
   onRequestSubstitute?: () => void;
   /** Nome do substituto ativo (se o aluno trocou nesta execução). */
   substitutedName?: string | null;
+  /** Vídeo/thumb do substituto ativo — quando trocado, o vídeo acompanha. */
+  substitutedVideoUrl?: string | null;
+  substitutedThumbnailUrl?: string | null;
   /** Última carga registrada pra este exercício (sugestão de peso). */
   lastLoad?: { weight_kg: number | null; reps: number | null; rpe: number | null } | null;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, lastLoad }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const [showRpeHelp, setShowRpeHelp] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
@@ -50,7 +53,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
 
   const doneCount = rows.filter((r) => r.done).length;
   const allDone = totalSets > 0 && doneCount >= totalSets;
-  const thumb = getThumbnail(exercise.video_url, exercise.thumbnail_url);
+  // Quando há substituto ativo, vídeo e thumb acompanham o exercício trocado.
+  const effectiveVideoUrl = substitutedVideoUrl ?? exercise.video_url;
+  const thumb = getThumbnail(effectiveVideoUrl, substitutedThumbnailUrl ?? exercise.thumbnail_url);
 
   // Alvos por série: reps e RPE podem vir como valor único ("15"), faixa ("8-12")
   // ou por série separados por "/" ou "," ("12/10/8"). Repete o último se faltar.
@@ -154,10 +159,10 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
         <CollapsibleContent>
           <div className="border-t border-slate-100 p-3 space-y-3">
             {/* Vídeo recolhível: por padrão fica fechado pra não empurrar os campos */}
-            {exercise.video_url ? (
+            {effectiveVideoUrl ? (
               showVideo ? (
                 <div className="space-y-1">
-                  <SmartVideoPlayer url={exercise.video_url} />
+                  <SmartVideoPlayer url={effectiveVideoUrl} />
                   <button onClick={() => setShowVideo(false)} className="text-[11px] font-medium text-slate-400 hover:text-slate-600">
                     Ocultar vídeo
                   </button>
@@ -246,6 +251,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     defaultReps={repsTargetForSet(i)}
                     defaultWeight={suggestedWeight}
                     defaultRpe={rpeTargetForSet(i)}
+                    prevTopWeight={lastLoad?.weight_kg ?? null}
                     flush={hasTech}
                     onChange={(v) => onChange(i, v)}
                     onCommit={async (v) => {

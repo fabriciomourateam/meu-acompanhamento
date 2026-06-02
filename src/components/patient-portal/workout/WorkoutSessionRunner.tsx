@@ -21,8 +21,8 @@ import { communityService } from '@/lib/community-service';
 const ACTIVITY_GOAL_MIN = 30;
 
 type SetMap = Record<string, SetRowValue[]>;
-// Substituições do dia: plannedExerciseId -> catalog id/nome do substituto
-type SubMap = Record<string, { id: string; name: string }>;
+// Substituições do dia: plannedExerciseId -> id/nome/vídeo do substituto
+type SubMap = Record<string, { id: string; name: string; video_url?: string | null; thumbnail_url?: string | null }>;
 
 interface Props {
   token: string;
@@ -345,6 +345,8 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
             onCommit={handleCommit}
             substitutedName={subs[ex.id]?.name ?? null}
+            substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
+            substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
             lastLoad={lastLoads[ex.id] ?? null}
             onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
           />

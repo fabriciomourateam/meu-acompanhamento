@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Check, Minus, Plus } from 'lucide-react';
+import { Check, Minus, Plus, Medal } from 'lucide-react';
 
 export interface SetRowValue {
   weightKg: number | null;
@@ -28,14 +28,19 @@ interface SetRowProps {
   saving?: boolean;
   /** Sem borda própria / só canto superior arredondado — pra encaixar dentro de um card maior. */
   flush?: boolean;
+  /** Maior carga registrada antes (treino passado). Se a série feita superar, ganha medalha. */
+  prevTopWeight?: number | null;
 }
 
-export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, flush }: SetRowProps) {
+export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, flush, prevTopWeight }: SetRowProps) {
   const [localBusy, setLocalBusy] = useState(false);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
 
   const patch = (p: Partial<SetRowValue>) => onChange({ ...value, ...p });
+
+  // Recorde: série feita com carga acima da maior carga anterior (treino passado).
+  const isPr = value.done && value.weightKg != null && prevTopWeight != null && prevTopWeight > 0 && value.weightKg > prevTopWeight;
 
   const handleDone = async () => {
     const next: SetRowValue = {
@@ -67,7 +72,16 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
       }`}
     >
       {/* Mini-cartão da série: número + alvo de reps (estilo MyShape) */}
-      <div className="flex flex-col items-center justify-center leading-none">
+      <div className="relative flex flex-col items-center justify-center leading-none">
+        {isPr && (
+          <span
+            className="absolute -right-1 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-amber-400 text-white shadow ring-2 ring-white"
+            title="Recorde! Você superou a carga do treino passado 🎉"
+            aria-label="Recorde de carga"
+          >
+            <Medal className="h-2.5 w-2.5" />
+          </span>
+        )}
         <span
           className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
             value.done ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-300'
@@ -108,7 +122,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         </Button>
         <Input
           inputMode="numeric"
-          value={value.reps ?? (defaultReps != null ? defaultReps : '')}
+          value={value.reps ?? ''}
           placeholder={defaultReps != null ? String(defaultReps) : 'reps'}
           onChange={(e) => {
             const n = e.target.value.replace(/[^0-9]/g, '');
@@ -125,7 +139,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
       {/* RPE */}
       <Input
         inputMode="decimal"
-        value={value.rpe ?? (parseRpe(defaultRpe) ?? '')}
+        value={value.rpe ?? ''}
         placeholder={defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : 'RPE'}
         onChange={(e) => {
           const n = e.target.value.replace(',', '.');

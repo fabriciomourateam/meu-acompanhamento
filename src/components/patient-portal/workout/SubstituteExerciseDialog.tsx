@@ -11,7 +11,7 @@ interface Props {
   onOpenChange: (o: boolean) => void;
   originalExerciseId: string;
   originalExerciseName: string;
-  onSubstituted: (variation: { id: string; name: string }) => void;
+  onSubstituted: (variation: { id: string; name: string; video_url: string | null; thumbnail_url: string | null }) => void;
 }
 
 export function SubstituteExerciseDialog({
@@ -31,7 +31,7 @@ export function SubstituteExerciseDialog({
   }, [open, originalExerciseId, token]);
 
   const handleSelect = (v: ExerciseVariation) => {
-    onSubstituted({ id: v.id, name: v.name });
+    onSubstituted({ id: v.id, name: v.name, video_url: v.video_url, thumbnail_url: v.thumbnail_url });
     onOpenChange(false);
     toast({
       title: '✓ Substituído por hoje',
