@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Star, Trophy, Users } from 'lucide-react';
+import { Star, Trophy, Users, Share2 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 interface FinishSessionDialogProps {
   open: boolean;
@@ -27,6 +28,7 @@ function buildShareText(sessionName: string | undefined, doneSets: number, total
 }
 
 export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeKg, prs = [], sessionName, canShare = false, onConfirm }: FinishSessionDialogProps) {
+  const { toast } = useToast();
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
@@ -37,6 +39,27 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
   // Texto-padrão do post (recalculado enquanto o usuário não editar manualmente).
   const defaultShareText = buildShareText(sessionName, doneSets, totalVolumeKg, prs);
   const effectiveShareText = shareTouched ? shareText : defaultShareText;
+
+  // Compartilhamento nativo (WhatsApp, Instagram, etc.) ou cópia como fallback.
+  // Disparado direto no clique pra preservar o "user gesture" exigido pelo navegador.
+  const handleShareSocial = async () => {
+    const text = effectiveShareText.trim();
+    const nav = navigator as Navigator & { share?: (d: { title?: string; text?: string }) => Promise<void> };
+    try {
+      if (nav.share) {
+        await nav.share({ title: 'Meu treino', text });
+        return;
+      }
+    } catch (e: any) {
+      if (e?.name === 'AbortError') return; // usuário cancelou o share sheet
+    }
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: 'Texto copiado 📋', description: 'Cole onde quiser compartilhar.' });
+    } catch {
+      toast({ title: 'Não foi possível compartilhar', variant: 'destructive' });
+    }
+  };
 
   const handle = async () => {
     setBusy(true);
@@ -131,6 +154,14 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
               )}
             </div>
           )}
+
+          <button
+            type="button"
+            onClick={handleShareSocial}
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-white py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+          >
+            <Share2 className="h-3.5 w-3.5 text-violet-500" /> Compartilhar nas redes sociais
+          </button>
         </div>
 
         <div className="flex gap-2 justify-end">

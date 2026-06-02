@@ -297,9 +297,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 {onRequestSubstitute && (
                   <button
                     onClick={onRequestSubstitute}
-                    className="flex items-center gap-1 text-xs font-medium text-slate-400 hover:text-amber-700"
+                    className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
                   >
-                    <Shuffle className="h-3 w-3" /> Substituir
+                    <Shuffle className="h-3.5 w-3.5" /> Substituir
                   </button>
                 )}
               </div>
