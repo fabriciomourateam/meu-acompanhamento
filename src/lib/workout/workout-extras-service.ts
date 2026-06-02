@@ -263,6 +263,24 @@ export const workoutExtrasService = {
     return (data as string | null) ?? null;
   },
 
+  // ─── OBSERVAÇÕES DO ALUNO POR EXERCÍCIO (persistem entre treinos) ──
+  async getExerciseNotes(token: string): Promise<Record<string, string>> {
+    const { data, error } = await supabase.rpc('get_exercise_notes_by_token' as any, { p_token: token });
+    if (error) throw error;
+    const out: Record<string, string> = {};
+    for (const r of (data as Array<{ exercise_key: string; note: string }>) ?? []) {
+      if (r.note) out[r.exercise_key] = r.note;
+    }
+    return out;
+  },
+
+  async setExerciseNote(token: string, exerciseKey: string, note: string): Promise<void> {
+    const { error } = await supabase.rpc('set_exercise_note_by_token' as any, {
+      p_token: token, p_exercise_key: exerciseKey, p_note: note,
+    });
+    if (error) throw error;
+  },
+
   // ─── VARIAÇÕES (substituir no dia) ─────────────────────
   async suggestVariations(token: string, exerciseId: string, limit = 12): Promise<ExerciseVariation[]> {
     const { data, error } = await supabase.rpc('suggest_variations_by_token' as any, {

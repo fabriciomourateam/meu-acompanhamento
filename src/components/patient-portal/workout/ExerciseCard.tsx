@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check, PlayCircle } from 'lucide-react';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check, PlayCircle, NotebookPen } from 'lucide-react';
 import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
@@ -34,15 +34,22 @@ interface ExerciseCardProps {
   substitutedThumbnailUrl?: string | null;
   /** Última carga registrada pra este exercício (sugestão de peso). */
   lastLoad?: { weight_kg: number | null; reps: number | null; rpe: number | null } | null;
+  /** Observação do aluno (persiste entre treinos). */
+  note?: string;
+  /** Salva a observação (chamado no blur). */
+  onSaveNote?: (note: string) => void;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote }: ExerciseCardProps) {
   const [open, setOpen] = useState(false);
   const [showRpeHelp, setShowRpeHelp] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
+  // Observação do aluno: estado local, persistido no blur via onSaveNote.
+  const [noteDraft, setNoteDraft] = useState(note ?? '');
+  useEffect(() => { setNoteDraft(note ?? ''); }, [note]);
   const totalSets = Math.max(1, exercise.sets || 1);
   const techniques = exercise.techniques ?? [];
   const rows = useMemo(() => {
@@ -315,6 +322,25 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 </div>
               )}
             </div>
+
+            {/* Observação do aluno — fica salva de um treino pro outro */}
+            {onSaveNote && (
+              <div>
+                <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                  <NotebookPen className="h-3.5 w-3.5" /> Minhas anotações
+                </label>
+                <textarea
+                  value={noteDraft}
+                  onChange={(e) => setNoteDraft(e.target.value)}
+                  onBlur={() => { if (noteDraft !== (note ?? '')) onSaveNote(noteDraft); }}
+                  rows={2}
+                  maxLength={2000}
+                  placeholder="Ex.: banco no furo 4, peguei 12kg em cada lado, ombro incomodou um pouco…"
+                  className="w-full resize-y rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-700 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
+                />
+                <p className="mt-0.5 text-[10px] text-slate-400">Salvo automaticamente — aparece no próximo treino deste exercício.</p>
+              </div>
+            )}
           </div>
         </CollapsibleContent>
       </Collapsible>

@@ -107,6 +107,23 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     } catch { /* quota/privado: silencioso */ }
   }, [session.id, sessionLogId, sets, subs, startedAt]);
 
+  // Observações do aluno por exercício (persistem entre treinos).
+  const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>({});
+  useEffect(() => {
+    workoutExtrasService.getExerciseNotes(token)
+      .then(setExerciseNotes)
+      .catch((e) => console.error('Erro ao carregar observações:', e));
+  }, [token]);
+  const exKey = (ex: HubSession['exercises'][number]) => ex.exercise_id ?? ex.id;
+  const handleSaveNote = (key: string, note: string) => {
+    setExerciseNotes((prev) => {
+      const n = { ...prev };
+      if (note.trim()) n[key] = note; else delete n[key];
+      return n;
+    });
+    workoutExtrasService.setExerciseNote(token, key, note).catch((e) => console.error('Erro ao salvar observação:', e));
+  };
+
   // Última carga registrada por exercício (sugestão de peso na execução).
   useEffect(() => {
     workoutExtrasService.getLastLoads(token, plan.id)
@@ -348,6 +365,8 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
             substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
             lastLoad={lastLoads[ex.id] ?? null}
+            note={exerciseNotes[exKey(ex)] ?? ''}
+            onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
             onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
           />
         ))}
