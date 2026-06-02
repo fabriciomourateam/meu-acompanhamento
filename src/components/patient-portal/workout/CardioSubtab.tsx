@@ -203,7 +203,9 @@ const DOW_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 // (destaca hoje), tempo do dia atual e observações.
 function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
   const todayDow = new Date().getDay();
-  const isToday = cardio.dias_semana?.includes(todayDow);
+  // Modo "Nx por semana": frequência livre, sem dias fixos (tempo sempre o padrão).
+  const byFrequency = (cardio.vezes_semana ?? 0) > 0;
+  const isToday = !byFrequency && cardio.dias_semana?.includes(todayDow);
   const tempoHoje = cardio.modo === 'mesmo'
     ? cardio.tempo_padrao
     : cardio.tempo_por_dia?.[String(todayDow)] ?? null;
@@ -223,25 +225,35 @@ function PrescribedCardioCard({ cardio }: { cardio: PrescribedCardio }) {
       </div>
       {subtitle && <p className="mt-0.5 text-xs capitalize text-cyan-700">{subtitle}</p>}
 
-      <div className="mt-2 flex flex-wrap gap-1">
-        {DOW_LABELS.map((lbl, dow) => {
-          const active = cardio.dias_semana?.includes(dow);
-          const today = dow === todayDow;
-          if (!active) return null;
-          const tempo = cardio.modo === 'mesmo' ? cardio.tempo_padrao : cardio.tempo_por_dia?.[String(dow)] ?? null;
-          return (
-            <span
-              key={dow}
-              className={
-                'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ' +
-                (today ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-cyan-200 bg-white text-cyan-800')
-              }
-            >
-              {lbl}{tempo != null ? ` ${tempo}${cardio.unidade}` : ''}
-            </span>
-          );
-        })}
-      </div>
+      {byFrequency ? (
+        <div className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-cyan-300 bg-white px-3 py-1 text-sm font-semibold text-cyan-800">
+          <HeartPulse className="h-4 w-4 text-cyan-600" />
+          {cardio.vezes_semana}x por semana
+          {cardio.tempo_padrao != null && (
+            <span className="font-normal text-cyan-600">· {cardio.tempo_padrao}{cardio.unidade} cada</span>
+          )}
+        </div>
+      ) : (
+        <div className="mt-2 flex flex-wrap gap-1">
+          {DOW_LABELS.map((lbl, dow) => {
+            const active = cardio.dias_semana?.includes(dow);
+            const today = dow === todayDow;
+            if (!active) return null;
+            const tempo = cardio.modo === 'mesmo' ? cardio.tempo_padrao : cardio.tempo_por_dia?.[String(dow)] ?? null;
+            return (
+              <span
+                key={dow}
+                className={
+                  'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ' +
+                  (today ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-cyan-200 bg-white text-cyan-800')
+                }
+              >
+                {lbl}{tempo != null ? ` ${tempo}${cardio.unidade}` : ''}
+              </span>
+            );
+          })}
+        </div>
+      )}
 
       {cardio.observacoes && (
         <p className="mt-2 whitespace-pre-line text-xs italic text-cyan-700">{cardio.observacoes}</p>
