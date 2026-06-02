@@ -15,6 +15,10 @@ export function useDietData(patientId: string) {
   const [planDetails, setPlanDetails] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [consumedMeals, setConsumedMeals] = useState<Set<string>>(new Set());
+  // Consumo granular por alimento (ids de diet_foods). A refeição é considerada
+  // "consumida" quando todos os seus alimentos estão marcados; os macros do card
+  // de topo somam alimento a alimento (consumo parcial conta proporcional).
+  const [consumedFoods, setConsumedFoods] = useState<Set<string>>(new Set());
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
   // Grupos de refeições-opção recolhidos (por id da refeição principal). Vazio = todas expandidas.
   // Persistido por paciente neste aparelho (localStorage).
@@ -72,6 +76,14 @@ export function useDietData(patientId: string) {
         setConsumedMeals(new Set(JSON.parse(saved)));
       } catch (e) {
         console.error('Erro ao carregar refeições consumidas:', e);
+      }
+    }
+    const savedFoods = localStorage.getItem(`consumedFoods_${patientId}_${today}`);
+    if (savedFoods) {
+      try {
+        setConsumedFoods(new Set(JSON.parse(savedFoods)));
+      } catch (e) {
+        console.error('Erro ao carregar alimentos consumidos:', e);
       }
     }
   }, [patientId]);
@@ -208,6 +220,7 @@ export function useDietData(patientId: string) {
 
         // Limpar refeições consumidas ao trocar de plano
         setConsumedMeals(new Set());
+        setConsumedFoods(new Set());
 
         toast({
           title: 'Plano alterado',
@@ -226,91 +239,60 @@ export function useDietData(patientId: string) {
     }
   };
 
-  const handleToggleMealConsumed = async (mealId: string) => {
-    const newConsumedMeals = new Set(consumedMeals);
-    const willConsume = !newConsumedMeals.has(mealId);
-
-    // Refeições-opção e principal são vinculadas (parent_meal_id): marcar/desmarcar
-    // uma reflete na outra. Reúne os ids vinculados ao alvo.
+  // Ids de uma refeição: a própria + sua principal + suas opções (parent_meal_id).
+  // "Coma OU principal OU opção" → marcar uma reflete nas vinculadas.
+  const getLinkedMealIds = (mealId: string): Set<string> => {
     const meals = planDetails?.diet_meals || [];
     const clicked = meals.find((m: any) => m.id === mealId);
-    const linkedIds = new Set<string>([mealId]);
-    if (clicked?.parent_meal_id) linkedIds.add(clicked.parent_meal_id); // opção → sua principal
-    meals.forEach((m: any) => { if (m.parent_meal_id === mealId) linkedIds.add(m.id); }); // principal → suas opções
+    const ids = new Set<string>([mealId]);
+    if (clicked?.parent_meal_id) ids.add(clicked.parent_meal_id);
+    meals.forEach((m: any) => { if (m.parent_meal_id === mealId) ids.add(m.id); });
+    return ids;
+  };
 
-    linkedIds.forEach((id) => {
-      if (willConsume) {
-        newConsumedMeals.add(id);
-      } else {
-        newConsumedMeals.delete(id);
-      }
-    });
+  const foodIdsOfMeal = (meal: any): string[] =>
+    (meal?.diet_foods || []).map((f: any) => f.id).filter(Boolean);
 
+  // Persiste refeições + alimentos consumidos, dispara confete quando o dia fica
+  // completo e sincroniza com o banco. Centraliza o que antes vivia no toggle.
+  const persistConsumption = async (
+    newConsumedMeals: Set<string>,
+    newConsumedFoods: Set<string>,
+    justCompletedMealId?: string,
+  ) => {
     setConsumedMeals(newConsumedMeals);
+    setConsumedFoods(newConsumedFoods);
 
-    // Verificar se completou todas as refeições do plano
-    if (!newConsumedMeals.has(mealId) === false && planDetails?.diet_meals) {
-      const allMealsConsumed = planDetails.diet_meals.every((meal: any) =>
-        meal.id === mealId || newConsumedMeals.has(meal.id)
-      );
+    const today = new Date().toISOString().split('T')[0];
+    localStorage.setItem(`consumedMeals_${patientId}_${today}`, JSON.stringify(Array.from(newConsumedMeals)));
+    localStorage.setItem(`consumedFoods_${patientId}_${today}`, JSON.stringify(Array.from(newConsumedFoods)));
 
+    // Confete só quando acabamos de completar uma refeição e o dia inteiro fechou.
+    if (justCompletedMealId && planDetails?.diet_meals) {
+      const allMealsConsumed = planDetails.diet_meals.every((meal: any) => newConsumedMeals.has(meal.id));
       if (allMealsConsumed) {
-        // Disparar confete!
         const duration = 3000;
         const animationEnd = Date.now() + duration;
         const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-        const randomInRange = (min: number, max: number) => {
-          return Math.random() * (max - min) + min;
-        }
-
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
         const interval: any = setInterval(function () {
           const timeLeft = animationEnd - Date.now();
-
-          if (timeLeft <= 0) {
-            return clearInterval(interval);
-          }
-
+          if (timeLeft <= 0) return clearInterval(interval);
           const particleCount = 50 * (timeLeft / duration);
-
-          confetti({
-            ...defaults,
-            particleCount,
-            origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
-            colors: ['#00C98A', '#00A875', '#ffffff']
-          });
-          confetti({
-            ...defaults,
-            particleCount,
-            origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
-            colors: ['#00C98A', '#00A875', '#ffffff']
-          });
+          confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }, colors: ['#00C98A', '#00A875', '#ffffff'] });
+          confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }, colors: ['#00C98A', '#00A875', '#ffffff'] });
         }, 250);
-
         toast({
           title: "Parabéns! 🎉",
           description: "Você completou todas as refeições de hoje! Continue assim!",
-          className: "bg-green-500 text-white border-green-600"
+          className: "bg-green-500 text-white border-green-600",
         });
       }
     }
 
-    // Salvar no localStorage
-    const today = new Date().toISOString().split('T')[0];
-    const key = `consumedMeals_${patientId}_${today}`;
-    localStorage.setItem(key, JSON.stringify(Array.from(newConsumedMeals)));
-
-    // Sincronizar com banco de dados
     if (planDetails) {
       try {
-        await dietConsumptionService.saveDailyConsumption(
-          patientId,
-          planDetails.id,
-          Array.from(newConsumedMeals),
-          planDetails
-        );
-
-        // Verificar conquistas
+        await dietConsumptionService.saveDailyConsumption(patientId, planDetails.id, Array.from(newConsumedMeals), planDetails);
         await dietConsumptionService.checkAndUnlockAchievements(patientId);
       } catch (error) {
         console.error('Erro ao salvar consumo:', error);
@@ -318,11 +300,67 @@ export function useDietData(patientId: string) {
     }
   };
 
+  // Botão (+) da refeição: marca/desmarca a refeição inteira (e suas vinculadas),
+  // refletindo em todos os alimentos delas.
+  const handleToggleMealConsumed = async (mealId: string) => {
+    const meals = planDetails?.diet_meals || [];
+    const willConsume = !consumedMeals.has(mealId);
+    const newMeals = new Set(consumedMeals);
+    const newFoods = new Set(consumedFoods);
+
+    getLinkedMealIds(mealId).forEach((id) => {
+      const meal = meals.find((m: any) => m.id === id);
+      const foodIds = foodIdsOfMeal(meal);
+      if (willConsume) {
+        newMeals.add(id);
+        foodIds.forEach((f) => newFoods.add(f));
+      } else {
+        newMeals.delete(id);
+        foodIds.forEach((f) => newFoods.delete(f));
+      }
+    });
+
+    await persistConsumption(newMeals, newFoods, willConsume ? mealId : undefined);
+  };
+
+  // Toggle de um alimento. Ao completar todos os alimentos da refeição, ela (e
+  // suas vinculadas) viram "consumida"; ao desmarcar um item, ela deixa de ser.
+  const handleToggleFoodConsumed = async (mealId: string, foodId: string) => {
+    const meals = planDetails?.diet_meals || [];
+    const meal = meals.find((m: any) => m.id === mealId);
+    if (!meal) return;
+
+    const newFoods = new Set(consumedFoods);
+    if (newFoods.has(foodId)) newFoods.delete(foodId); else newFoods.add(foodId);
+
+    const foodIds = foodIdsOfMeal(meal);
+    const allConsumed = foodIds.length > 0 && foodIds.every((f) => newFoods.has(f));
+    const newMeals = new Set(consumedMeals);
+    const linked = getLinkedMealIds(mealId);
+
+    if (allConsumed) {
+      linked.forEach((id) => {
+        newMeals.add(id);
+        foodIdsOfMeal(meals.find((m: any) => m.id === id)).forEach((f) => newFoods.add(f));
+      });
+    } else {
+      // Refeição ficou parcial: deixa de contar como consumida; as vinculadas
+      // (opções) também voltam ao estado não-consumido.
+      linked.forEach((id) => {
+        newMeals.delete(id);
+        if (id !== mealId) foodIdsOfMeal(meals.find((m: any) => m.id === id)).forEach((f) => newFoods.delete(f));
+      });
+    }
+
+    await persistConsumption(newMeals, newFoods, allConsumed ? mealId : undefined);
+  };
+
   return {
     activePlan,
     planDetails,
     loading,
     consumedMeals,
+    consumedFoods,
     expandedMeals,
     setExpandedMeals,
     collapsedOptionGroups,
@@ -334,6 +372,7 @@ export function useDietData(patientId: string) {
     releasedPlans,
     handleChangePlan,
     handleToggleMealConsumed,
+    handleToggleFoodConsumed,
   };
 }
 

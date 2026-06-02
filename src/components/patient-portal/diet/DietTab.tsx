@@ -81,6 +81,7 @@ export function DietTab({
     activePlan,
     planDetails,
     consumedMeals,
+    consumedFoods,
     expandedMeals,
     setExpandedMeals,
     collapsedOptionGroups,
@@ -90,6 +91,7 @@ export function DietTab({
     selectedFoodSubstitutions,
     setSelectedFoodSubstitutions,
     handleToggleMealConsumed,
+    handleToggleFoodConsumed,
   } = diet;
 
   // Remover o return early - mostrar abas mesmo sem plano ativo
@@ -106,11 +108,23 @@ export function DietTab({
   let proteinasConsumidas = 0;
   let gordurasConsumidas = 0;
 
-  if (hasActivePlan && planDetails?.diet_meals && consumedMeals.size > 0) {
+  if (hasActivePlan && planDetails?.diet_meals) {
     planDetails.diet_meals.forEach((meal: any) => {
       // Refeições-opção não entram na soma (evita dupla contagem com a principal)
       if (isOptionMeal(meal)) return;
-      if (consumedMeals.has(meal.id)) {
+      const foods = meal.diet_foods || [];
+      if (foods.length > 0) {
+        // Soma alimento a alimento: consumo parcial conta proporcional.
+        foods.forEach((food: any) => {
+          if (consumedFoods.has(food.id)) {
+            caloriasConsumidas += food.calories || 0;
+            carboidratosConsumidos += food.carbs || 0;
+            proteinasConsumidas += food.protein || 0;
+            gordurasConsumidas += food.fats || 0;
+          }
+        });
+      } else if (consumedMeals.has(meal.id)) {
+        // Refeição sem alimentos detalhados: usa o total da refeição.
         const mealTotals = calcularTotaisPlano({ diet_meals: [meal] });
         caloriasConsumidas += mealTotals.calorias;
         carboidratosConsumidos += mealTotals.carboidratos;
@@ -119,6 +133,10 @@ export function DietTab({
       }
     });
   }
+  caloriasConsumidas = Math.round(caloriasConsumidas);
+  carboidratosConsumidos = Math.round(carboidratosConsumidos * 10) / 10;
+  proteinasConsumidas = Math.round(proteinasConsumidas * 10) / 10;
+  gordurasConsumidas = Math.round(gordurasConsumidas * 10) / 10;
 
   const percentualConsumido = metaCalorias > 0 ? Math.min(100, (caloriasConsumidas / metaCalorias) * 100) : 0;
 
@@ -395,6 +413,11 @@ export function DietTab({
                         .map((meal: any, index: number) => {
                           const mealTotals = calcularTotaisPlano({ diet_meals: [meal] });
                           const isConsumed = consumedMeals.has(meal.id);
+                          // Kcal consumidas desta refeição (parcial = soma dos alimentos marcados).
+                          const mealHasFoods = (meal.diet_foods || []).length > 0;
+                          const mealConsumedKcal = mealHasFoods
+                            ? (meal.diet_foods || []).reduce((s: number, f: any) => s + (consumedFoods.has(f.id) ? (f.calories || 0) : 0), 0)
+                            : (isConsumed ? (mealTotals.calorias || 0) : 0);
                           const isExpanded = expandedMeals.has(meal.id);
                           const isOption = isOptionMeal(meal);
                           // Refeição-opção dentro de um grupo recolhido: não renderiza.
@@ -481,7 +504,7 @@ export function DietTab({
                                         ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
                                         : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
                                         }`}>
-                                        {isConsumed ? (mealTotals.calorias || 0).toFixed(0) : 0} / {(mealTotals.calorias || 0).toFixed(0)} kcal
+                                        {mealConsumedKcal.toFixed(0)} / {(mealTotals.calorias || 0).toFixed(0)} kcal
                                       </Badge>
                                       <Button
                                         size="sm"
@@ -525,26 +548,40 @@ export function DietTab({
                                             // Se não for JSON válido, não há substituições
                                           }
 
+                                          const foodConsumed = consumedFoods.has(food.id);
+
                                           return (
                                             <div
                                               key={food.id || foodIndex}
                                               style={{ backgroundColor: 'white' }}
-                                              className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${isConsumed
+                                              className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${foodConsumed
                                                 ? 'border-emerald-100'
                                                 : 'border-slate-100 hover:border-emerald-200 shadow-sm'
                                                 }`}
                                             >
                                               <div className="flex items-start sm:items-center justify-between gap-2">
                                                 <div className="flex items-start gap-2 flex-1 min-w-0">
-                                                  {isConsumed && (
-                                                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0 mt-0.5" />
-                                                  )}
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      handleToggleFoodConsumed(meal.id, food.id);
+                                                    }}
+                                                    aria-label={foodConsumed ? 'Desmarcar alimento' : 'Marcar alimento como consumido'}
+                                                    className="flex-shrink-0 mt-0.5 transition-transform duration-150 hover:scale-110"
+                                                  >
+                                                    {foodConsumed ? (
+                                                      <CheckCircle className="w-5 h-5 text-emerald-500" />
+                                                    ) : (
+                                                      <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                                                    )}
+                                                  </button>
                                                   <div className="flex-1 min-w-0">
-                                                    <span className={`font-medium text-xs sm:text-sm block ${isConsumed ? 'text-slate-500 line-through' : 'text-slate-700'
+                                                    <span className={`font-medium text-xs sm:text-sm block ${foodConsumed ? 'text-slate-500 line-through' : 'text-slate-700'
                                                       }`}>
                                                       {food.food_name}
                                                     </span>
-                                                    <Badge className={`text-xs font-medium mt-1 inline-flex ${isConsumed
+                                                    <Badge className={`text-xs font-medium mt-1 inline-flex ${foodConsumed
                                                       ? 'bg-slate-100 text-slate-500 border-slate-200'
                                                       : 'bg-slate-100 text-slate-600 border-slate-200'
                                                       } border`}>
@@ -553,7 +590,7 @@ export function DietTab({
                                                   </div>
                                                 </div>
                                                 <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
-                                                  {substitutions.length > 0 && !isConsumed && (
+                                                  {substitutions.length > 0 && !foodConsumed && (
                                                     <Button
                                                       size="sm"
                                                       variant="ghost"
@@ -572,7 +609,7 @@ export function DietTab({
                                                       <span className="sm:hidden">Trocar</span>
                                                     </Button>
                                                   )}
-                                                  <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${isConsumed
+                                                  <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${foodConsumed
                                                     ? 'bg-slate-50 text-slate-400 border-slate-100'
                                                     : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
                                                     } border`}>
