@@ -15,7 +15,14 @@
   <script>
     (function () {
       var path = window.location.pathname;
-      // Se estiver em uma rota de portal personalizada (ex: /portal-fmteam), usar como start_url
+      // Rotas do dono (/, /portal, /portal-fmteam) usam o logo oficial (o mesmo da
+      // tela de login); rotas de outros treinadores (/portal-<slug>) seguem com o
+      // ícone padrão fmteam-icon.png.
+      var isOwner = path === '/' || path === '/portal' || path === '/portal-fmteam';
+      var icon512 = isOwner ? '/app-icon-512.png' : '/fmteam-icon.png';
+      var icon192 = isOwner ? '/app-icon-192.png' : '/fmteam-icon.png';
+
+      // start_url por nutricionista (mantém o comportamento atual)
       var startUrl = '/portal';
       if (path.startsWith('/portal-')) {
         startUrl = path;
@@ -31,7 +38,8 @@
         orientation: 'portrait-primary',
         scope: '/',
         icons: [
-          { src: '/fmteam-icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }
+          { src: icon192, sizes: '192x192', type: 'image/png', purpose: 'any' },
+          { src: icon512, sizes: '512x512', type: 'image/png', purpose: 'any' }
         ],
         categories: ['health', 'fitness', 'lifestyle'],
         prefer_related_applications: false
@@ -42,6 +50,14 @@
       link.rel = 'manifest';
       link.href = manifestUrl;
       document.head.appendChild(link);
+
+      // iOS (apple-touch-icon) e favicon: nas rotas do dono, usar o logo oficial.
+      if (isOwner) {
+        var apple = document.querySelector('link[rel="apple-touch-icon"]');
+        if (apple) apple.setAttribute('href', icon512);
+        var fav = document.querySelector('link[rel="icon"]');
+        if (fav) fav.setAttribute('href', icon512);
+      }
     })();
   </script>
   <title>Meu Acompanhamento</title>
