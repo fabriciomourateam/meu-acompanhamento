@@ -128,6 +128,19 @@ export default function PatientPortal() {
   const [showEvolutionExport, setShowEvolutionExport] = useState(false);
   const [evolutionExportMode, setEvolutionExportMode] = useState<'png' | 'pdf' | null>(null);
 
+  // App instalado (PWA standalone)? Define se o botão de instalar aparece e se o
+  // botão Membros mostra o texto "Área de Membros" no mobile.
+  const [pwaInstalled, setPwaInstalled] = useState(false);
+  useEffect(() => {
+    const check = () => setPwaInstalled(
+      window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone === true,
+    );
+    check();
+    const mq = window.matchMedia('(display-mode: standalone)');
+    mq.addEventListener?.('change', check);
+    return () => mq.removeEventListener?.('change', check);
+  }, []);
+
   // Memoizar cálculos pesados
   const achievements = useMemo(() => {
     return checkins.length > 0 ? detectAchievements(checkins, bodyCompositions) : [];
@@ -835,13 +848,12 @@ export default function PatientPortal() {
             </div>
             <div className="flex gap-2 items-center hide-in-pdf">
               {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                <MembersAreaButton />
+                <MembersAreaButton installed={pwaInstalled} />
               )}
               {patientId && <PatientNotifications patientId={patientId} />}
-              {/* Em mobile, esses botões ficam só no menu pra liberar espaço */}
-              <div className="hidden sm:flex gap-2 items-center">
-                <InstallPWAButton />
-              </div>
+              {/* Botão de instalar: ícone-só no mobile, ícone+texto no desktop.
+                  Some sozinho quando o app já está instalado. */}
+              <InstallPWAButton />
 
               {/* Menu de ações */}
               <DropdownMenu>
@@ -887,8 +899,6 @@ export default function PatientPortal() {
                   )}
 
                   <DropdownMenuSeparator className="bg-slate-200 my-1" />
-                  {/* Instalar app — só no mobile (no desktop usa o botão ao lado) */}
-                  <InstallPWAButton asMenuItem className="sm:hidden" />
                   <DropdownMenuItem
                     onClick={loadPortalData}
                     className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"

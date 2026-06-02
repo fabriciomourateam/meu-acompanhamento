@@ -97,10 +97,12 @@ export function InstallPWAButton({ asMenuItem, className }: InstallPWAButtonProp
       ) : (
         <Button
           onClick={handleInstallClick}
-          className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all"
+          size="sm"
+          aria-label="Instalar app"
+          className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white shadow-lg shadow-emerald-500/30 hover:shadow-emerald-500/50 transition-all px-2 sm:px-3"
         >
-          <Download className="w-4 h-4 mr-2" />
-          Instalar App
+          <Download className="w-4 h-4 sm:mr-2" />
+          <span className="hidden sm:inline">Instalar App</span>
         </Button>
       )}
 
