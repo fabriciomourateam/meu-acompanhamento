@@ -3,10 +3,9 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "SUBSTITUIR_PACKAGE_ID",
+      "package_name": "com.fmteam.meuacompanhamento",
       "sha256_cert_fingerprints": [
-        "SUBSTITUIR_SHA256_DA_CHAVE_DE_UPLOAD_DO_PWABUILDER",
-        "SUBSTITUIR_SHA256_DO_PLAY_APP_SIGNING"
+        "DC:02:3A:9F:9B:B3:12:E7:F6:5C:98:20:7C:B4:1F:EF:67:D1:BB:D9:C4:B8:51:81:D1:D3:EB:C6:24:B3:E3:95"
       ]
     }
   }
