@@ -8,6 +8,10 @@
     "skipLibCheck": true,
     "jsx": "react-jsx",
 
+    /* Resolução de paths (espelha o alias do vite.config) */
+    "baseUrl": ".",
+    "paths": { "@/*": ["src/*"] },
+
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,
