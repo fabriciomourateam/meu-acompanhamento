@@ -103,6 +103,22 @@ export default function PortalLogin() {
     return numbersOnly;
   };
 
+  // Variantes do telefone pra busca, tolerando diferenças comuns de cadastro:
+  // com/sem o DDI 55 e com/sem o "9" do celular (após o DDD). Ex.: digitar
+  // 31989062498 deve achar quem está salvo como 553189062498 (sem o 9).
+  const phoneSearchVariants = (raw: string): string[] => {
+    const all = raw.replace(/\D/g, '');
+    let nat = all;
+    if (nat.startsWith('55') && nat.length >= 12) nat = nat.slice(2); // tira o DDI -> nacional
+    const ordered: string[] = [];
+    const push = (v?: string) => { if (v && v.length >= 10 && !ordered.includes(v)) ordered.push(v); };
+    push(all);
+    push(nat);
+    if (nat.length === 10) push(nat.slice(0, 2) + '9' + nat.slice(2)); // adiciona o 9 (DDD + 9 + 8)
+    if (nat.length === 11 && nat[2] === '9') push(nat.slice(0, 2) + nat.slice(3)); // remove o 9 (DDD + 8)
+    return ordered;
+  };
+
   const formatPhone = (value: string) => {
     const numbers = value.replace(/\D/g, '');
     const limited = numbers.slice(0, 13);
@@ -179,7 +195,6 @@ export default function PortalLogin() {
   const handlePhoneSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const normalizedPhone = normalizePhone(telefone);
     const nationalNumber = getNationalNumber(telefone);
 
     if (nationalNumber.length < 10) {
@@ -194,10 +209,7 @@ export default function PortalLogin() {
     setLoading(true);
 
     try {
-      const candidatePatterns: string[] = [buildPhonePattern(normalizedPhone)];
-      if (normalizedPhone.length > 10 && normalizedPhone.startsWith('55')) {
-        candidatePatterns.push(buildPhonePattern(normalizedPhone.slice(2)));
-      }
+      const candidatePatterns: string[] = phoneSearchVariants(telefone).map(buildPhonePattern);
 
       let foundPattern: string | null = null;
       let requiresDob = false;
