@@ -38,10 +38,10 @@ function PlanHeader({ name }: { name: string }) {
   const title = ci > 0 ? raw.slice(0, ci).trim() : raw;
   const freq = ci > 0 ? raw.slice(ci + 1).trim() : '';
   return (
-    <div className="rounded-xl bg-gradient-to-br from-slate-800 to-slate-900 px-4 py-3 text-center shadow-md ring-1 ring-white/10">
-      <div className="text-sm font-bold tracking-wide text-white sm:text-base">{title}</div>
+    <div className="rounded-xl border border-emerald-200 bg-white px-4 py-3 text-center shadow-sm">
+      <div className="text-sm font-bold tracking-wide text-slate-800 sm:text-base">{title}</div>
       {freq && (
-        <span className="mt-1.5 inline-block rounded-full bg-white/15 px-2.5 py-0.5 text-xs font-medium text-white/90">
+        <span className="mt-1.5 inline-block rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
           {freq}
         </span>
       )}
