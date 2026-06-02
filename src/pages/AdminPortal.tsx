@@ -5,6 +5,7 @@ import { portalSettingsService, PortalConfig, RankingPeriod } from '@/lib/portal
 import { NotificationSettingsPanel } from '@/components/admin/NotificationSettingsPanel';
 import { TrainerNotifications } from '@/components/admin/TrainerNotifications';
 import { BrandSettingsPanel } from '@/components/admin/BrandSettingsPanel';
+import { ErrorLogsPanel } from '@/components/admin/ErrorLogsPanel';
 import { THEME_PRESET_4, THEME_PRESET_8, getCurrentWeeklyTheme } from '@/lib/community-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1169,6 +1170,9 @@ export default function AdminPortal() {
             <TabsTrigger value="brand" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Marca
             </TabsTrigger>
+            <TabsTrigger value="errors" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              Erros
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="challenges" className="mt-4">
@@ -1221,6 +1225,14 @@ export default function AdminPortal() {
 
           <TabsContent value="brand" className="mt-4">
             <BrandSettingsPanel trainerUserId={trainerUserId} />
+          </TabsContent>
+
+          <TabsContent value="errors" className="mt-4">
+            <Card className="border-slate-200 bg-white">
+              <CardContent className="p-6">
+                <ErrorLogsPanel trainerUserId={trainerUserId} />
+              </CardContent>
+            </Card>
           </TabsContent>
         </Tabs>
       </div>
