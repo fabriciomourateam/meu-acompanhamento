@@ -258,6 +258,12 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
         </TabsList>
 
         <TabsContent value="workouts" className="mt-3 space-y-2.5">
+          {/* Cabeçalho do plano (puxa o nome do treino, ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana") */}
+          {plan.name && (
+            <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-800">
+              {plan.name}
+            </div>
+          )}
           {workoutSessions.length === 0 ? (
             <p className="py-6 text-center text-sm italic text-slate-500">Nenhum treino cadastrado neste plano.</p>
           ) : (

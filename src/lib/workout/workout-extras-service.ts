@@ -92,6 +92,7 @@ export interface PrescribedCardio {
   tempo_padrao: number | null;          // minutos quando modo='mesmo'
   tempo_por_dia: Record<string, number>; // quando modo='individual'
   vezes_semana: number | null;          // quando setado: "Nx por semana" (sem dias fixos)
+  vezes_semana_max: number | null;       // teto da faixa: "Nx a Mx por semana"
   intensidade: string | null;
   observacoes: string | null;
   /** Opções alternativas de cardio ("OPÇÃO 01/02/03"), criadas no MyShape. */

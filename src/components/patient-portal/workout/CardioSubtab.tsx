@@ -322,6 +322,9 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
 // com os minutos como contexto. Ex.: "1/4 treinos · 45 min esta semana".
 function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; weekStats: { count: number; min: number } }) {
   const target = cardio.vezes_semana ?? 0;
+  const maxV = cardio.vezes_semana_max ?? null;
+  // Rótulo da frequência: faixa "3x a 4x por semana" quando há teto, senão "3x por semana".
+  const freqLabel = maxV && maxV > target ? `${target}x a ${maxV}x por semana` : `${target}x por semana`;
   const done = weekStats.count;
   const pct = target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
   const complete = target > 0 && done >= target;
@@ -332,7 +335,7 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
       <div className="mb-1 flex items-center justify-between text-sm">
         <span className="inline-flex items-center gap-1.5 font-semibold text-cyan-800">
           <HeartPulse className="h-4 w-4 text-cyan-600" />
-          {target}x por semana
+          {freqLabel}
           {cardio.tempo_padrao != null && (
             <span className="font-normal text-cyan-600">· {cardio.tempo_padrao}{cardio.unidade} cada</span>
           )}
