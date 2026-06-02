@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
+import { sanitizeRichHtml } from '@/lib/utils';
 import { HeartPulse, Plus, Trash2, ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
 interface CardioSubtabProps {
@@ -146,7 +147,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
               <div key={s.id} className="rounded-lg border border-cyan-200 bg-cyan-50/40 p-3">
                 <div className="font-medium text-cyan-900">{s.name}</div>
                 {s.notes && (
-                  <div className="mt-1 whitespace-pre-line text-xs text-cyan-800" dangerouslySetInnerHTML={{ __html: s.notes }} />
+                  <div className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 prose-p:my-1" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(s.notes) }} />
                 )}
               </div>
             ))}
@@ -273,7 +274,10 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
       )}
 
       {cardio.observacoes && (
-        <p className="mt-2 whitespace-pre-line text-xs italic text-cyan-700">{cardio.observacoes}</p>
+        <div
+          className="prose prose-sm mt-2 max-w-none text-xs text-cyan-800 prose-p:my-1 prose-b:text-cyan-900 prose-strong:text-cyan-900"
+          dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(cardio.observacoes) }}
+        />
       )}
     </div>
   );
