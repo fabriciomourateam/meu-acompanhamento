@@ -15,6 +15,7 @@ import { RestTimer } from './RestTimer';
 import { FinishSessionDialog } from './FinishSessionDialog';
 import { SubstituteExerciseDialog } from './SubstituteExerciseDialog';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
+import { communityService } from '@/lib/community-service';
 
 // Treino conta como meta "Atividade física" do dia a partir deste tempo.
 const ACTIVITY_GOAL_MIN = 30;
@@ -218,12 +219,23 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     return out;
   }, [sets, lastLoads, subs, session.exercises]);
 
-  const handleFinish = async (rating: number | null, notes: string) => {
+  const handleFinish = async (rating: number | null, notes: string, share = false, shareText = '') => {
     if (!sessionLogId) return;
     setFinishing(true);
     try {
       const durationMin = await workoutService.finishSession(token, sessionLogId, notes || null, rating);
       toast({ title: 'Treino finalizado! 🎉', description: `${doneSetsCount} séries · ${totalVolume.toFixed(0)} kg de volume.` });
+
+      // Compartilhar na comunidade (opcional). Best-effort: não bloqueia o fluxo.
+      if (share && patientId && shareText.trim()) {
+        const category = prs.length > 0 ? 'conquista' : 'treino';
+        communityService.createPost(patientId, shareText.trim(), null, category)
+          .then(() => toast({ title: 'Compartilhado na comunidade 🎉' }))
+          .catch((e) => {
+            console.error('Falha ao compartilhar na comunidade:', e);
+            toast({ title: 'Não foi possível compartilhar', description: 'O treino foi salvo, mas o post falhou.', variant: 'destructive' });
+          });
+      }
 
       // Treino de 30min+ marca a meta "Atividade física" do dia (mesma da aba Metas).
       // Best-effort: não bloqueia nem falha o fluxo de finalizar se der erro.
@@ -349,6 +361,8 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         doneSets={doneSetsCount}
         totalVolumeKg={totalVolume}
         prs={prs}
+        sessionName={session.name}
+        canShare={!!patientId}
         onConfirm={handleFinish}
       />
 

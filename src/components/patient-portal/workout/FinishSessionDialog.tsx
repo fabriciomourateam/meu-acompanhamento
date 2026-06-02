@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Star, Trophy } from 'lucide-react';
+import { Star, Trophy, Users } from 'lucide-react';
 
 interface FinishSessionDialogProps {
   open: boolean;
@@ -9,21 +9,45 @@ interface FinishSessionDialogProps {
   doneSets: number;
   totalVolumeKg: number;
   prs?: Array<{ name: string; weight: number; prev: number }>;
-  onConfirm: (rating: number | null, notes: string) => Promise<void>;
+  sessionName?: string;
+  canShare?: boolean;
+  onConfirm: (rating: number | null, notes: string, share: boolean, shareText: string) => Promise<void>;
 }
 
-export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeKg, prs = [], onConfirm }: FinishSessionDialogProps) {
+function buildShareText(sessionName: string | undefined, doneSets: number, totalVolumeKg: number, prs: Array<{ name: string; weight: number; prev: number }>): string {
+  const lines: string[] = [];
+  lines.push(sessionName ? `Finalizei o treino de ${sessionName}! 💪` : 'Finalizei mais um treino! 💪');
+  lines.push(`${doneSets} série${doneSets === 1 ? '' : 's'} · ${totalVolumeKg.toFixed(0)} kg de volume total`);
+  if (prs.length > 0) {
+    lines.push('');
+    lines.push('🏆 Bati novos recordes:');
+    prs.forEach((p) => lines.push(`• ${p.name}: ${p.prev}kg → ${p.weight}kg`));
+  }
+  return lines.join('\n');
+}
+
+export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeKg, prs = [], sessionName, canShare = false, onConfirm }: FinishSessionDialogProps) {
   const [rating, setRating] = useState<number | null>(null);
   const [notes, setNotes] = useState('');
   const [busy, setBusy] = useState(false);
+  const [share, setShare] = useState(false);
+  const [shareText, setShareText] = useState('');
+  const [shareTouched, setShareTouched] = useState(false);
+
+  // Texto-padrão do post (recalculado enquanto o usuário não editar manualmente).
+  const defaultShareText = buildShareText(sessionName, doneSets, totalVolumeKg, prs);
+  const effectiveShareText = shareTouched ? shareText : defaultShareText;
 
   const handle = async () => {
     setBusy(true);
     try {
-      await onConfirm(rating, notes);
+      await onConfirm(rating, notes, share, effectiveShareText.trim());
       onOpenChange(false);
       setRating(null);
       setNotes('');
+      setShare(false);
+      setShareText('');
+      setShareTouched(false);
     } finally {
       setBusy(false);
     }
@@ -85,6 +109,28 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
               className="w-full rounded-md border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
             />
           </div>
+          {canShare && (
+            <div className="rounded-xl border border-slate-200 p-3">
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-slate-700">
+                <input
+                  type="checkbox"
+                  checked={share}
+                  onChange={(e) => setShare(e.target.checked)}
+                  className="h-4 w-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                />
+                <Users className="h-4 w-4 text-violet-500" />
+                Compartilhar na comunidade
+              </label>
+              {share && (
+                <textarea
+                  value={effectiveShareText}
+                  onChange={(e) => { setShareTouched(true); setShareText(e.target.value); }}
+                  rows={4}
+                  className="mt-2 w-full rounded-md border border-slate-200 p-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                />
+              )}
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2 justify-end">
