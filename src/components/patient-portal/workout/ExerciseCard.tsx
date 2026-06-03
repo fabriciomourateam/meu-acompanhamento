@@ -235,7 +235,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     defaultRpe={warmupRpe != null ? String(warmupRpe) : null}
                     onChange={(v) => onWarmupChange?.(i, v)}
                     onCommit={async (v) => {
-                      await onWarmupCommit?.({ plannedExerciseId: exercise.id, setIndex: i + 1, value: v, restSeconds: null, restSecondsMax: null });
+                      // set_index negativo pro aquecimento: evita colidir com a série
+                      // de trabalho de mesmo número no índice único (session, exercise, set_index).
+                      await onWarmupCommit?.({ plannedExerciseId: exercise.id, setIndex: -(i + 1), value: v, restSeconds: null, restSecondsMax: null });
                     }}
                   />
                 ))}
