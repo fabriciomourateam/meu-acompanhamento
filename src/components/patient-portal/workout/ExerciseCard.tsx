@@ -44,11 +44,15 @@ interface ExerciseCardProps {
   /** Controle externo do aberto/fechado (pra auto-avançar pro próximo). Opcional. */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Séries de aquecimento (valores + handlers). Logam com is_warmup. */
+  warmupValues?: SetRowValue[];
+  onWarmupChange?: (idx: number, v: SetRowValue) => void;
+  onWarmupCommit?: (args: CommitSetArgs) => Promise<void>;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -59,7 +63,13 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   const [noteDraft, setNoteDraft] = useState(note ?? '');
   useEffect(() => { setNoteDraft(note ?? ''); }, [note]);
   const totalSets = Math.max(1, exercise.sets || 1);
+  const warmupCount = Math.max(0, exercise.warmup_sets || 0);
   const techniques = exercise.techniques ?? [];
+  const warmupRows = useMemo(() => {
+    const arr: SetRowValue[] = [];
+    for (let i = 0; i < warmupCount; i++) arr.push((warmupValues ?? [])[i] ?? EMPTY_SET);
+    return arr;
+  }, [warmupValues, warmupCount]);
   const rows = useMemo(() => {
     const arr: SetRowValue[] = [];
     for (let i = 0; i < totalSets; i++) arr.push(values[i] ?? EMPTY_SET);
@@ -199,6 +209,31 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   {exercise.instructions ? <p>{exercise.instructions}</p> : null}
                   {exercise.tips ? <p className="text-slate-500 italic">{exercise.tips}</p> : null}
                 </div>
+              </div>
+            )}
+
+            {/* Séries de aquecimento (aparecem antes das séries de trabalho) */}
+            {warmupCount > 0 && (
+              <div className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50/60 p-2">
+                <p className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600">
+                  🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
+                  {exercise.warmup_reps ? ` × ${exercise.warmup_reps} reps` : ''}
+                  {exercise.warmup_rpe != null ? ` · RPE ${exercise.warmup_rpe}` : ''}
+                </p>
+                {warmupRows.map((row, i) => (
+                  <SetRow
+                    key={`w${i}`}
+                    index={i}
+                    value={row}
+                    defaultReps={parseDefaultReps(exercise.warmup_reps)}
+                    defaultWeight={null}
+                    defaultRpe={exercise.warmup_rpe != null ? String(exercise.warmup_rpe) : null}
+                    onChange={(v) => onWarmupChange?.(i, v)}
+                    onCommit={async (v) => {
+                      await onWarmupCommit?.({ plannedExerciseId: exercise.id, setIndex: i + 1, value: v, restSeconds: null, restSecondsMax: null });
+                    }}
+                  />
+                ))}
               </div>
             )}
 

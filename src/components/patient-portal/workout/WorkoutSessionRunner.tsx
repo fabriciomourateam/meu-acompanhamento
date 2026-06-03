@@ -48,6 +48,7 @@ interface Props {
 interface RunnerDraft {
   sessionLogId: string | null;
   sets: SetMap;
+  warmup?: SetMap;
   subs: SubMap;
   /** Ordem dos exercícios escolhida pelo aluno hoje (ex.: academia lotada). */
   order?: string[];
@@ -98,6 +99,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [sessionLogId, setSessionLogId] = useState<string | null>(initial?.sessionLogId ?? null);
   const [starting, setStarting] = useState(false);
   const [sets, setSets] = useState<SetMap>(initial?.sets ?? {});
+  const [warmup, setWarmup] = useState<SetMap>(initial?.warmup ?? {});
   const [subs, setSubs] = useState<SubMap>(initial?.subs ?? {});
   const [startedAt, setStartedAt] = useState<number | null>(initial?.startedAt ?? null);
   const [lastLoads, setLastLoads] = useState<Record<string, LastLoad>>({});
@@ -155,10 +157,10 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     const hasContent = sessionLogId != null || Object.keys(sets).length > 0 || Object.keys(subs).length > 0 || reordered;
     if (!hasContent) return;
     try {
-      const draft: RunnerDraft = { sessionLogId, sets, subs, order, startedAt, updatedAt: Date.now() };
+      const draft: RunnerDraft = { sessionLogId, sets, warmup, subs, order, startedAt, updatedAt: Date.now() };
       localStorage.setItem(draftKey(session.id), JSON.stringify(draft));
     } catch { /* quota/privado: silencioso */ }
-  }, [session.id, sessionLogId, sets, subs, order, defaultOrder, startedAt]);
+  }, [session.id, sessionLogId, sets, warmup, subs, order, defaultOrder, startedAt]);
 
   // Observações do aluno por exercício (persistem entre treinos).
   const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>({});
@@ -239,6 +241,36 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       arr[idx] = v;
       return { ...prev, [plannedId]: arr };
     });
+  };
+
+  const handleWarmupChange = (plannedId: string, idx: number, v: SetRowValue) => {
+    setWarmup((prev) => {
+      const arr = prev[plannedId] ? [...prev[plannedId]] : [];
+      arr[idx] = v;
+      return { ...prev, [plannedId]: arr };
+    });
+  };
+
+  // Loga uma série de aquecimento (is_warmup=true). Não dispara cronômetro de descanso.
+  const handleWarmupCommit = async ({ plannedExerciseId, setIndex, value }: CommitSetArgs) => {
+    if (!sessionLogId) {
+      toast({ title: 'Inicie a sessão primeiro', description: 'Toque em "Começar treino" no topo.', variant: 'destructive' });
+      throw new Error('no session');
+    }
+    try {
+      await workoutService.logSet(token, {
+        sessionLogId,
+        plannedExerciseId,
+        setIndex,
+        reps: value.reps,
+        weightKg: value.weightKg,
+        rpe: value.rpe,
+        isWarmup: true,
+      });
+    } catch (err: any) {
+      toast({ title: 'Erro ao salvar aquecimento', description: err.message || 'Tente novamente', variant: 'destructive' });
+      throw err;
+    }
   };
 
   const handleCommit = async ({ plannedExerciseId, setIndex, value, restSeconds: rs, restSecondsMax: rsMax }: CommitSetArgs) => {
@@ -331,6 +363,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       setSessionLogId(null);
       setStartedAt(null);
       setSets({});
+      setWarmup({});
       setSubs({});
       setRest(null);
       setOpenIds(new Set());
@@ -375,6 +408,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       setSessionLogId(null);
       setStartedAt(null);
       setSets({});
+      setWarmup({});
       setSubs({});
       setFinishOpen(false);
       onFinished();
@@ -505,9 +539,12 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               exercise={ex}
               token={token}
               values={sets[ex.id] || []}
+              warmupValues={warmup[ex.id] || []}
               open={openIds.has(ex.id)}
               onOpenChange={(o) => setOpenFor(ex.id, o)}
               onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
+              onWarmupChange={(idx, v) => handleWarmupChange(ex.id, idx, v)}
+              onWarmupCommit={handleWarmupCommit}
               onCommit={handleCommit}
               substitutedName={subs[ex.id]?.name ?? null}
               substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
