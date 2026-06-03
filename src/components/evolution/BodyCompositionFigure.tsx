@@ -27,26 +27,26 @@ interface Region { key: string; cx: number; cy: number; rx: number; ry: number }
 
 // Braços + pernas (iguais nas duas vistas)
 const LIMBS: Region[] = [
-  { key: 'braco_esq', cx: 27, cy: 68, rx: 6, ry: 18 },
-  { key: 'braco_dir', cx: 93, cy: 68, rx: 6, ry: 18 },
-  { key: 'coxa_esq', cx: 48, cy: 144, rx: 9.5, ry: 23 },
-  { key: 'coxa_dir', cx: 72, cy: 144, rx: 9.5, ry: 23 },
-  { key: 'panturrilha', cx: 48, cy: 195, rx: 7.5, ry: 20 },
-  { key: 'panturrilha', cx: 72, cy: 195, rx: 7.5, ry: 20 },
+  { key: 'braco_esq', cx: 27, cy: 68, rx: 6.8, ry: 20 },
+  { key: 'braco_dir', cx: 93, cy: 68, rx: 6.8, ry: 20 },
+  { key: 'coxa_esq', cx: 48, cy: 145, rx: 10.5, ry: 25 },
+  { key: 'coxa_dir', cx: 72, cy: 145, rx: 10.5, ry: 25 },
+  { key: 'panturrilha', cx: 48, cy: 196, rx: 8.5, ry: 22 },
+  { key: 'panturrilha', cx: 72, cy: 196, rx: 8.5, ry: 22 },
 ];
 
 const FRONT: Region[] = [
-  { key: 'peitoral', cx: 60, cy: 52, rx: 20, ry: 9.5 },
-  { key: 'flancos', cx: 39, cy: 76, rx: 5, ry: 11 },
-  { key: 'flancos', cx: 81, cy: 76, rx: 5, ry: 11 },
-  { key: 'abdomen_superior', cx: 60, cy: 70, rx: 13.5, ry: 7 },
-  { key: 'abdomen_inferior', cx: 60, cy: 88, rx: 15, ry: 8 },
+  { key: 'peitoral', cx: 60, cy: 52, rx: 23, ry: 11 },
+  { key: 'flancos', cx: 38, cy: 76, rx: 6, ry: 12.5 },
+  { key: 'flancos', cx: 82, cy: 76, rx: 6, ry: 12.5 },
+  { key: 'abdomen_superior', cx: 60, cy: 70, rx: 15, ry: 8 },
+  { key: 'abdomen_inferior', cx: 60, cy: 89, rx: 16.5, ry: 9 },
 ];
 
 const BACK: Region[] = [
-  { key: 'costas_superior', cx: 60, cy: 54, rx: 20, ry: 11 },
-  { key: 'costas_inferior', cx: 60, cy: 80, rx: 16.5, ry: 9.5 },
-  { key: 'quadril_gluteos', cx: 60, cy: 103, rx: 18, ry: 10 },
+  { key: 'costas_superior', cx: 60, cy: 54, rx: 23, ry: 12.5 },
+  { key: 'costas_inferior', cx: 60, cy: 81, rx: 18, ry: 11 },
+  { key: 'quadril_gluteos', cx: 60, cy: 105, rx: 19.5, ry: 11 },
 ];
 
 const LABEL: Record<string, string> = {
@@ -93,7 +93,7 @@ function RegionShape({ r, score }: { r: Region; score?: number | null }) {
 
 function Figure({ regions, s }: { regions: Region[]; s: Scores }) {
   return (
-    <svg viewBox="0 0 120 230" className="h-52 w-auto sm:h-60">
+    <svg viewBox="0 0 120 230" className="h-64 w-auto sm:h-80">
       <Silhouette />
       {LIMBS.map((r, i) => <RegionShape key={`l${i}`} r={r} score={s[r.key]} />)}
       {regions.map((r, i) => <RegionShape key={`r${i}`} r={r} score={s[r.key]} />)}

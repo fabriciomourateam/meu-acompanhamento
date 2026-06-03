@@ -134,8 +134,6 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
   };
 
   const recomposicaoPositiva = parseFloat(diferencas.gordura) < 0 && parseFloat(diferencas.massaMagra) > 0;
-  const perdaMassaMagra = parseFloat(diferencas.gordura) < 0 && parseFloat(diferencas.massaMagra) < 0;
-  const aumentoGordura = parseFloat(diferencas.gordura) > 0;
 
   const goodBadge = "bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] px-2 py-0.5 font-semibold";
   const badBadge = "bg-rose-100 text-rose-700 border border-rose-200 text-[10px] px-2 py-0.5 font-semibold";
@@ -188,16 +186,16 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
             )}
           />
 
-          {/* Massa Magra */}
+          {/* Massa Magra — badge só quando ganho (não mostra quando negativa) */}
           <MetricCard
             tone="emerald"
             icon={<Activity className="w-5 h-5" />}
             label="Massa Magra"
             value={ultima.massa_magra}
             unit="kg"
-            badge={data.length > 1 && (
-              <Badge className={parseFloat(diferencas.massaMagra) > 0 ? goodBadge : badBadge}>
-                {parseFloat(diferencas.massaMagra) > 0 ? '+' : ''}{diferencas.massaMagra} kg
+            badge={data.length > 1 && parseFloat(diferencas.massaMagra) > 0 && (
+              <Badge className={goodBadge}>
+                +{diferencas.massaMagra} kg
               </Badge>
             )}
           />
@@ -238,24 +236,17 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
               <Activity className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
               <span className="flex-1">
                 <strong className="text-slate-900 mr-2">Análise de Evolução:</strong>
-                {recomposicaoPositiva && (
+                {recomposicaoPositiva ? (
                   <span className="text-emerald-700">
                     🎯 Recomposição corporal excelente! Perda de gordura com ganho de massa magra.
                   </span>
-                )}
-                {perdaMassaMagra && (
-                  <span className="text-amber-700">
-                    ⚠️ Atenção: Redução de massa magra detectada. Ajuste proteína e treino de força.
+                ) : parseFloat(diferencas.gordura) < 0 ? (
+                  <span className="text-emerald-700">
+                    ✅ Redução do % de gordura no período! Mantenha a constância na proteína e no treino de força pra seguir evoluindo.
                   </span>
-                )}
-                {aumentoGordura && !perdaMassaMagra && (
-                  <span className="text-rose-700">
-                    📈 Aumento do % de gordura. Revise alimentação e atividade física.
-                  </span>
-                )}
-                {!recomposicaoPositiva && !perdaMassaMagra && !aumentoGordura && (
-                  <span className="text-slate-500">
-                    Manutenção da composição corporal
+                ) : (
+                  <span className="text-slate-600">
+                    💪 Continue firme! Constância no treino e na alimentação é o que traz os resultados.
                   </span>
                 )}
               </span>
