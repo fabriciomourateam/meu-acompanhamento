@@ -304,6 +304,11 @@ export function PatientEvolutionTab({
   const isNegative = parseFloat(weightChange) < 0;
   const isNeutral = Math.abs(parseFloat(weightChange)) < 0.1;
 
+  // Tem mapa regional (boneco)? Define o layout lado-a-lado com o gráfico de % gordura.
+  const hasRegional = (bodyCompositions || []).some(
+    (d: any) => d?.distribuicao_regional && typeof d.distribuicao_regional === 'object',
+  );
+
   return (
     <div ref={evolutionContainerRef} className="space-y-6">
       {/* Cards de Resumo */}
@@ -403,29 +408,31 @@ export function PatientEvolutionTab({
         </motion.div>
       )}
 
-      {/* 2b. Boneco de bioimpedância (mapa por região) */}
-      {bodyCompositions.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.18 }}
-        >
-          <BodyCompositionFigure data={bodyCompositions} />
-        </motion.div>
-      )}
-
-      {/* 3. Gráfico de % Gordura */}
+      {/* 3. % Gordura + Mapa corporal (boneco) lado a lado no PC */}
       {bodyCompositions.length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.2 }}
+          className={hasRegional ? 'grid items-start gap-4 lg:grid-cols-2' : ''}
         >
           <BodyFatChart data={bodyCompositions} />
+          {hasRegional && <BodyCompositionFigure data={bodyCompositions} />}
         </motion.div>
       )}
 
-      {/* 4. Gráficos de Evolução (Peso, Pontuações, Performance) */}
+      {/* 4. Evolução das medidas (cintura/quadril) — acima das pontuações */}
+      {checkins.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.23 }}
+        >
+          <MeasurementsChart checkins={checkins} />
+        </motion.div>
+      )}
+
+      {/* 5. Gráficos de Evolução (Peso, Pontuações, Performance) */}
       {(checkins.length > 0 || patient) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -438,17 +445,6 @@ export function PatientEvolutionTab({
             refreshTrigger={refreshTrigger || localRefreshTrigger}
             isPatientView={isPatientView}
           />
-        </motion.div>
-      )}
-
-      {/* 4b. Evolução das medidas (cintura/quadril) */}
-      {checkins.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.27 }}
-        >
-          <MeasurementsChart checkins={checkins} />
         </motion.div>
       )}
 

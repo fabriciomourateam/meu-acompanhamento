@@ -71,7 +71,7 @@ export function MeasurementsChart({ checkins }: { checkins: any[] }) {
   return (
     <Card className="bg-white border border-slate-200 shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base font-bold text-slate-800">
+        <CardTitle className="flex items-center gap-2 text-slate-900">
           <Ruler className="h-5 w-5 text-sky-500" /> Evolução das medidas (cm)
         </CardTitle>
       </CardHeader>
