@@ -12,6 +12,8 @@ import { PhotoComparison } from '@/components/evolution/PhotoComparison';
 import { Timeline } from '@/components/evolution/Timeline';
 import { BodyFatChart } from '@/components/evolution/BodyFatChart';
 import { BodyCompositionMetrics } from '@/components/evolution/BodyCompositionMetrics';
+import { BodyCompositionFigure } from '@/components/evolution/BodyCompositionFigure';
+import { MeasurementsChart } from '@/components/evolution/MeasurementsChart';
 import { AIInsights } from '@/components/evolution/AIInsights';
 import { DailyWeightsList } from '@/components/evolution/DailyWeightsList';
 import { detectAchievements } from '@/lib/achievement-system';
@@ -401,6 +403,17 @@ export function PatientEvolutionTab({
         </motion.div>
       )}
 
+      {/* 2b. Boneco de bioimpedância (mapa por região) */}
+      {bodyCompositions.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.18 }}
+        >
+          <BodyCompositionFigure data={bodyCompositions} />
+        </motion.div>
+      )}
+
       {/* 3. Gráfico de % Gordura */}
       {bodyCompositions.length > 0 && (
         <motion.div
@@ -425,6 +438,17 @@ export function PatientEvolutionTab({
             refreshTrigger={refreshTrigger || localRefreshTrigger}
             isPatientView={isPatientView}
           />
+        </motion.div>
+      )}
+
+      {/* 4b. Evolução das medidas (cintura/quadril) */}
+      {checkins.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.27 }}
+        >
+          <MeasurementsChart checkins={checkins} />
         </motion.div>
       )}
 
