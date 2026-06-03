@@ -199,6 +199,18 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, session.id]);
 
+  // Última carga de aquecimento (sugestão no bloco de aquecimento do 1º exercício).
+  const [warmupLastWeight, setWarmupLastWeight] = useState<number | null>(null);
+  useEffect(() => {
+    workoutExtrasService.getLastWarmupLoads(token, plan.id)
+      .then((rows) => {
+        // pega a mais recente (já vem 1 por exercício; escolhe a de logged_at maior)
+        const latest = rows.reduce<LastLoad | null>((acc, r) => (!acc || r.logged_at > acc.logged_at ? r : acc), null);
+        setWarmupLastWeight(latest?.weight_kg ?? null);
+      })
+      .catch((e) => console.error('Erro ao buscar carga de aquecimento:', e));
+  }, [token, plan.id]);
+
   // Última carga registrada por exercício (sugestão de peso na execução).
   useEffect(() => {
     workoutExtrasService.getLastLoads(token, plan.id)
@@ -551,6 +563,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               values={sets[ex.id] || []}
               warmupValues={warmup[ex.id] || []}
               warmupConfig={ex.id === firstExerciseId ? warmupConfig : null}
+              warmupLastWeight={ex.id === firstExerciseId ? warmupLastWeight : null}
               open={openIds.has(ex.id)}
               onOpenChange={(o) => setOpenFor(ex.id, o)}
               onChange={(idx, v) => handleSetChange(ex.id, idx, v)}

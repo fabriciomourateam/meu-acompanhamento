@@ -188,6 +188,15 @@ export const workoutExtrasService = {
     return (data as LastLoad[]) ?? [];
   },
 
+  // Última carga de AQUECIMENTO por exercício — pra sugerir no próximo treino.
+  async getLastWarmupLoads(token: string, planId: string): Promise<LastLoad[]> {
+    const { data, error } = await supabase.rpc('get_last_warmup_loads_by_token' as any, {
+      p_token: token, p_plan_id: planId,
+    });
+    if (error) throw error;
+    return (data as LastLoad[]) ?? [];
+  },
+
   // Histórico de carga (top set por sessão) de um exercício — pro mini-gráfico.
   async getExerciseLoadHistory(token: string, plannedExerciseId: string, limit = 12): Promise<Array<{ logged_at: string; top_weight: number }>> {
     const { data, error } = await supabase.rpc('get_exercise_load_history_by_token' as any, {

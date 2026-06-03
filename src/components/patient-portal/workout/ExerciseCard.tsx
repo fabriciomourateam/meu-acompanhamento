@@ -50,11 +50,13 @@ interface ExerciseCardProps {
   onWarmupCommit?: (args: CommitSetArgs) => Promise<void>;
   /** Config do aquecimento a exibir neste card (o runner coloca no 1º da lista). */
   warmupConfig?: { sets: number; reps: string | null; rpe: number | null } | null;
+  /** Última carga de aquecimento registrada (sugestão de peso). */
+  warmupLastWeight?: number | null;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -224,6 +226,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
                   {warmupReps ? ` × ${warmupReps} reps` : ''}
                   {warmupRpe != null ? ` · RPE ${warmupRpe}` : ''}
+                  {warmupLastWeight != null ? ` · última vez ${warmupLastWeight}kg` : ''}
                 </p>
                 {warmupRows.map((row, i) => (
                   <SetRow
@@ -231,7 +234,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     index={i}
                     value={row}
                     defaultReps={parseDefaultReps(warmupReps)}
-                    defaultWeight={null}
+                    defaultWeight={warmupLastWeight ?? null}
                     defaultRpe={warmupRpe != null ? String(warmupRpe) : null}
                     onChange={(v) => onWarmupChange?.(i, v)}
                     onCommit={async (v) => {
