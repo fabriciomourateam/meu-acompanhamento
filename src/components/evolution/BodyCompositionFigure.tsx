@@ -27,26 +27,26 @@ interface Region { key: string; cx: number; cy: number; rx: number; ry: number }
 
 // Braços + pernas (iguais nas duas vistas)
 const LIMBS: Region[] = [
-  { key: 'braco_esq', cx: 27, cy: 68, rx: 5, ry: 16 },
-  { key: 'braco_dir', cx: 93, cy: 68, rx: 5, ry: 16 },
-  { key: 'coxa_esq', cx: 48, cy: 144, rx: 8.5, ry: 21 },
-  { key: 'coxa_dir', cx: 72, cy: 144, rx: 8.5, ry: 21 },
-  { key: 'panturrilha', cx: 48, cy: 195, rx: 6.5, ry: 18 },
-  { key: 'panturrilha', cx: 72, cy: 195, rx: 6.5, ry: 18 },
+  { key: 'braco_esq', cx: 27, cy: 68, rx: 6, ry: 18 },
+  { key: 'braco_dir', cx: 93, cy: 68, rx: 6, ry: 18 },
+  { key: 'coxa_esq', cx: 48, cy: 144, rx: 9.5, ry: 23 },
+  { key: 'coxa_dir', cx: 72, cy: 144, rx: 9.5, ry: 23 },
+  { key: 'panturrilha', cx: 48, cy: 195, rx: 7.5, ry: 20 },
+  { key: 'panturrilha', cx: 72, cy: 195, rx: 7.5, ry: 20 },
 ];
 
 const FRONT: Region[] = [
-  { key: 'peitoral', cx: 60, cy: 52, rx: 18, ry: 8.5 },
-  { key: 'flancos', cx: 40, cy: 76, rx: 4.5, ry: 10 },
-  { key: 'flancos', cx: 80, cy: 76, rx: 4.5, ry: 10 },
-  { key: 'abdomen_superior', cx: 60, cy: 71, rx: 12, ry: 6 },
-  { key: 'abdomen_inferior', cx: 60, cy: 87, rx: 13, ry: 7 },
+  { key: 'peitoral', cx: 60, cy: 52, rx: 20, ry: 9.5 },
+  { key: 'flancos', cx: 39, cy: 76, rx: 5, ry: 11 },
+  { key: 'flancos', cx: 81, cy: 76, rx: 5, ry: 11 },
+  { key: 'abdomen_superior', cx: 60, cy: 70, rx: 13.5, ry: 7 },
+  { key: 'abdomen_inferior', cx: 60, cy: 88, rx: 15, ry: 8 },
 ];
 
 const BACK: Region[] = [
-  { key: 'costas_superior', cx: 60, cy: 54, rx: 18, ry: 10 },
-  { key: 'costas_inferior', cx: 60, cy: 80, rx: 15, ry: 8.5 },
-  { key: 'quadril_gluteos', cx: 60, cy: 103, rx: 16.5, ry: 9 },
+  { key: 'costas_superior', cx: 60, cy: 54, rx: 20, ry: 11 },
+  { key: 'costas_inferior', cx: 60, cy: 80, rx: 16.5, ry: 9.5 },
+  { key: 'quadril_gluteos', cx: 60, cy: 103, rx: 18, ry: 10 },
 ];
 
 const LABEL: Record<string, string> = {
