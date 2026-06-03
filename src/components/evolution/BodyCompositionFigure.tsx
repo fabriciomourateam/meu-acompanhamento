@@ -23,30 +23,30 @@ const SCALE = [
   { range: '9–10', label: 'Muito Alta', color: '#ef4444' },
 ];
 
-interface Region { key: string; x: number; y: number; w: number; h: number }
+interface Region { key: string; cx: number; cy: number; rx: number; ry: number }
 
 // Braços + pernas (iguais nas duas vistas)
 const LIMBS: Region[] = [
-  { key: 'braco_esq', x: 24, y: 44, w: 11, h: 58 },
-  { key: 'braco_dir', x: 85, y: 44, w: 11, h: 58 },
-  { key: 'coxa_esq', x: 40, y: 118, w: 17, h: 44 },
-  { key: 'coxa_dir', x: 63, y: 118, w: 17, h: 44 },
-  { key: 'panturrilha', x: 41, y: 168, w: 15, h: 46 },
-  { key: 'panturrilha', x: 64, y: 168, w: 15, h: 46 },
+  { key: 'braco_esq', cx: 27, cy: 68, rx: 5, ry: 16 },
+  { key: 'braco_dir', cx: 93, cy: 68, rx: 5, ry: 16 },
+  { key: 'coxa_esq', cx: 48, cy: 144, rx: 8.5, ry: 21 },
+  { key: 'coxa_dir', cx: 72, cy: 144, rx: 8.5, ry: 21 },
+  { key: 'panturrilha', cx: 48, cy: 195, rx: 6.5, ry: 18 },
+  { key: 'panturrilha', cx: 72, cy: 195, rx: 6.5, ry: 18 },
 ];
 
 const FRONT: Region[] = [
-  { key: 'peitoral', x: 37, y: 42, w: 46, h: 22 },
-  { key: 'flancos', x: 33, y: 66, w: 9, h: 32 },
-  { key: 'flancos', x: 78, y: 66, w: 9, h: 32 },
-  { key: 'abdomen_superior', x: 43, y: 66, w: 34, h: 15 },
-  { key: 'abdomen_inferior', x: 43, y: 82, w: 34, h: 16 },
+  { key: 'peitoral', cx: 60, cy: 52, rx: 18, ry: 8.5 },
+  { key: 'flancos', cx: 40, cy: 76, rx: 4.5, ry: 10 },
+  { key: 'flancos', cx: 80, cy: 76, rx: 4.5, ry: 10 },
+  { key: 'abdomen_superior', cx: 60, cy: 71, rx: 12, ry: 6 },
+  { key: 'abdomen_inferior', cx: 60, cy: 87, rx: 13, ry: 7 },
 ];
 
 const BACK: Region[] = [
-  { key: 'costas_superior', x: 37, y: 42, w: 46, h: 26 },
-  { key: 'costas_inferior', x: 40, y: 70, w: 40, h: 22 },
-  { key: 'quadril_gluteos', x: 40, y: 94, w: 40, h: 20 },
+  { key: 'costas_superior', cx: 60, cy: 54, rx: 18, ry: 10 },
+  { key: 'costas_inferior', cx: 60, cy: 80, rx: 15, ry: 8.5 },
+  { key: 'quadril_gluteos', cx: 60, cy: 103, rx: 16.5, ry: 9 },
 ];
 
 const LABEL: Record<string, string> = {
@@ -56,16 +56,36 @@ const LABEL: Record<string, string> = {
   costas_inferior: 'Costas inferior', quadril_gluteos: 'Quadril/Glúteos',
 };
 
+// Silhueta-fantasma (corpo cinza por trás das regiões coloridas)
+function Silhouette() {
+  return (
+    <g fill="#e9edf3" stroke="#cbd5e1" strokeWidth={1.1}>
+      <ellipse cx="60" cy="20" rx="13" ry="15" />
+      <rect x="54" y="33" width="12" height="10" rx="4" />
+      <rect x="33" y="42" width="54" height="74" rx="18" />
+      <rect x="21" y="45" width="13" height="60" rx="6.5" />
+      <rect x="86" y="45" width="13" height="60" rx="6.5" />
+      <circle cx="27.5" cy="108" r="5.5" />
+      <circle cx="92.5" cy="108" r="5.5" />
+      <rect x="35" y="106" width="50" height="22" rx="12" />
+      <rect x="37" y="122" width="21" height="52" rx="10.5" />
+      <rect x="62" y="122" width="21" height="52" rx="10.5" />
+      <rect x="39" y="172" width="17" height="50" rx="8.5" />
+      <rect x="64" y="172" width="17" height="50" rx="8.5" />
+    </g>
+  );
+}
+
 function RegionShape({ r, score }: { r: Region; score?: number | null }) {
   const { fill } = bucket(score);
+  const fs = r.rx >= 10 ? 8 : r.rx >= 6 ? 7 : 6;
   return (
     <g>
-      <rect x={r.x} y={r.y} width={r.w} height={r.h} rx={Math.min(7, r.w / 2)} fill={fill} stroke="#cbd5e1" strokeWidth={0.6}>
+      <ellipse cx={r.cx} cy={r.cy} rx={r.rx} ry={r.ry} fill={fill} stroke="#ffffff" strokeWidth={1}>
         <title>{LABEL[r.key] ?? r.key}{score != null ? `: ${score}` : ''}</title>
-      </rect>
+      </ellipse>
       {score != null && (
-        <text x={r.x + r.w / 2} y={r.y + r.h / 2} textAnchor="middle" dominantBaseline="central"
-          fontSize={r.w < 12 ? 6 : 7.5} fontWeight="700" fill="#fff">{score}</text>
+        <text x={r.cx} y={r.cy} textAnchor="middle" dominantBaseline="central" fontSize={fs} fontWeight="700" fill="#fff">{score}</text>
       )}
     </g>
   );
@@ -73,15 +93,8 @@ function RegionShape({ r, score }: { r: Region; score?: number | null }) {
 
 function Figure({ regions, s }: { regions: Region[]; s: Scores }) {
   return (
-    <svg viewBox="0 0 120 224" className="h-52 w-auto sm:h-56">
-      {/* silhueta-fantasma (cabeça/pescoço/pelve/mãos/pés) */}
-      <ellipse cx="60" cy="20" rx="12" ry="14" fill="#e2e8f0" />
-      <rect x="54" y="32" width="12" height="9" rx="3" fill="#e2e8f0" />
-      <rect x="41" y="100" width="38" height="16" rx="7" fill="#e2e8f0" />
-      <circle cx="29" cy="106" r="4.5" fill="#e2e8f0" />
-      <circle cx="91" cy="106" r="4.5" fill="#e2e8f0" />
-      <rect x="42" y="214" width="14" height="6" rx="3" fill="#e2e8f0" />
-      <rect x="64" y="214" width="14" height="6" rx="3" fill="#e2e8f0" />
+    <svg viewBox="0 0 120 230" className="h-52 w-auto sm:h-60">
+      <Silhouette />
       {LIMBS.map((r, i) => <RegionShape key={`l${i}`} r={r} score={s[r.key]} />)}
       {regions.map((r, i) => <RegionShape key={`r${i}`} r={r} score={s[r.key]} />)}
     </svg>
