@@ -19,7 +19,9 @@
 - **Play Store package id:** `com.fmteam.meuacompanhamento`.
 - **assetlinks fingerprints (já no ar em `/.well-known/assetlinks.json` e `/assetlinks.json`):**
   - upload (PWABuilder): `DC:02:3A:9F:9B:B3:12:E7:F6:5C:98:20:7C:B4:1F:EF:67:D1:BB:D9:C4:B8:51:81:D1:D3:EB:C6:24:B3:E3:95`
-  - Play App Signing: `AF:2E:52:DD:88:D7:B3:FD:0B:06:7C:04:BC:E9:D5:FF:98:06:C6:51:96:77:B3:EB:B1:D2:FA:3B:0C:48:75:95`
+  - "Compartilhamento Interno de Apps" (NÃO é o usado em produção/teste fechado, mas mantido por garantia): `AF:2E:52:DD:88:D7:B3:FD:0B:06:7C:04:BC:E9:D5:FF:98:06:C6:51:96:77:B3:EB:B1:D2:FA:3B:0C:48:75:95`
+  - **assinatura REAL do APK distribuído no closed test/produção** (descoberta via `adb shell pm get-app-links com.fmteam.meuacompanhamento` num device com o app instalado): `28:9A:EC:3D:FC:3B:9A:F0:19:55:E0:77:A5:07:26:D1:7F:B5:27:E3:1B:C0:1E:F7:83:9B:8D:D6:F8:93:D0:0B`
+  - ⚠️ O fingerprint "Compartilhamento Interno de Apps" do Play Console **NÃO é o mesmo** da chave de assinatura usada nos tracks (closed/open/produção). Sempre confirmar com `adb shell pm get-app-links` num device real.
 
 ---
 
