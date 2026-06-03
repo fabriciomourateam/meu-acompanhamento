@@ -32,7 +32,7 @@ export function StreakHeader({ patientId, patientName }: StreakHeaderProps) {
 
     return (
         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 min-w-0">
-            <h1 className="text-base sm:text-2xl font-bold text-slate-900 leading-tight break-words min-w-0">
+            <h1 className="text-sm sm:text-2xl font-bold text-slate-900 leading-tight min-w-0 line-clamp-2 sm:line-clamp-none">
                 {patientName || 'Meu Acompanhamento'}
             </h1>
 

@@ -846,7 +846,7 @@ export default function PatientPortal() {
                 )}
               </div>
             </div>
-            <div className="flex gap-2 items-center hide-in-pdf">
+            <div className="flex gap-1 sm:gap-2 items-center hide-in-pdf shrink-0">
               {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
                 <MembersAreaButton installed={pwaInstalled} />
               )}
