@@ -131,6 +131,16 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     return order.map((id) => byId.get(id)).filter(Boolean) as typeof session.exercises;
   }, [order, session.exercises]);
 
+  // Aquecimento é o "início do treino": segue sempre o 1º exercício da lista.
+  // Pega a config de quem tiver aquecimento cadastrado (menor exercise_order).
+  const warmupConfig = useMemo(() => {
+    const withW = session.exercises.filter((e) => (e.warmup_sets || 0) > 0);
+    if (withW.length === 0) return null;
+    const src = withW.slice().sort((a, b) => (a.exercise_order ?? 0) - (b.exercise_order ?? 0))[0];
+    return { sets: src.warmup_sets || 0, reps: src.warmup_reps ?? null, rpe: src.warmup_rpe ?? null };
+  }, [session.exercises]);
+  const firstExerciseId = orderedExercises[0]?.id;
+
   const moveExercise = (id: string, dir: -1 | 1) => {
     setOrder((prev) => {
       const i = prev.indexOf(id);
@@ -540,6 +550,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               token={token}
               values={sets[ex.id] || []}
               warmupValues={warmup[ex.id] || []}
+              warmupConfig={ex.id === firstExerciseId ? warmupConfig : null}
               open={openIds.has(ex.id)}
               onOpenChange={(o) => setOpenFor(ex.id, o)}
               onChange={(idx, v) => handleSetChange(ex.id, idx, v)}

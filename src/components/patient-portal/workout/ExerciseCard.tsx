@@ -48,11 +48,13 @@ interface ExerciseCardProps {
   warmupValues?: SetRowValue[];
   onWarmupChange?: (idx: number, v: SetRowValue) => void;
   onWarmupCommit?: (args: CommitSetArgs) => Promise<void>;
+  /** Config do aquecimento a exibir neste card (o runner coloca no 1º da lista). */
+  warmupConfig?: { sets: number; reps: string | null; rpe: number | null } | null;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -62,8 +64,11 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   // Observação do aluno: estado local, persistido no blur via onSaveNote.
   const [noteDraft, setNoteDraft] = useState(note ?? '');
   useEffect(() => { setNoteDraft(note ?? ''); }, [note]);
+  const [showNote, setShowNote] = useState(false); // colapsado por padrão
   const totalSets = Math.max(1, exercise.sets || 1);
-  const warmupCount = Math.max(0, exercise.warmup_sets || 0);
+  const warmupCount = Math.max(0, warmupConfig?.sets || 0);
+  const warmupReps = warmupConfig?.reps ?? null;
+  const warmupRpe = warmupConfig?.rpe ?? null;
   const techniques = exercise.techniques ?? [];
   const warmupRows = useMemo(() => {
     const arr: SetRowValue[] = [];
@@ -217,17 +222,17 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               <div className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50/60 p-2">
                 <p className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600">
                   🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
-                  {exercise.warmup_reps ? ` × ${exercise.warmup_reps} reps` : ''}
-                  {exercise.warmup_rpe != null ? ` · RPE ${exercise.warmup_rpe}` : ''}
+                  {warmupReps ? ` × ${warmupReps} reps` : ''}
+                  {warmupRpe != null ? ` · RPE ${warmupRpe}` : ''}
                 </p>
                 {warmupRows.map((row, i) => (
                   <SetRow
                     key={`w${i}`}
                     index={i}
                     value={row}
-                    defaultReps={parseDefaultReps(exercise.warmup_reps)}
+                    defaultReps={parseDefaultReps(warmupReps)}
                     defaultWeight={null}
-                    defaultRpe={exercise.warmup_rpe != null ? String(exercise.warmup_rpe) : null}
+                    defaultRpe={warmupRpe != null ? String(warmupRpe) : null}
                     onChange={(v) => onWarmupChange?.(i, v)}
                     onCommit={async (v) => {
                       await onWarmupCommit?.({ plannedExerciseId: exercise.id, setIndex: i + 1, value: v, restSeconds: null, restSecondsMax: null });
@@ -367,22 +372,33 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               )}
             </div>
 
-            {/* Observação do aluno — fica salva de um treino pro outro */}
+            {/* Observação do aluno — colapsada por padrão; fica salva de um treino pro outro */}
             {onSaveNote && (
               <div>
-                <label className="mb-1 flex items-center gap-1.5 text-xs font-medium text-slate-500">
+                <button
+                  type="button"
+                  onClick={() => setShowNote((v) => !v)}
+                  className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+                >
                   <NotebookPen className="h-3.5 w-3.5" /> Minhas anotações
-                </label>
-                <textarea
-                  value={noteDraft}
-                  onChange={(e) => setNoteDraft(e.target.value)}
-                  onBlur={() => { if (noteDraft !== (note ?? '')) onSaveNote(noteDraft); }}
-                  rows={2}
-                  maxLength={2000}
-                  placeholder="Ex.: banco no furo 4, peguei 12kg em cada lado, ombro incomodou um pouco…"
-                  className="w-full resize-y rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-700 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
-                />
-                <p className="mt-0.5 text-[10px] text-slate-400">Salvo automaticamente — aparece no próximo treino deste exercício.</p>
+                  {!showNote && noteDraft.trim() && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Você tem uma anotação" />}
+                  <ChevronDown className={`ml-auto h-3.5 w-3.5 transition-transform ${showNote ? 'rotate-180' : ''}`} />
+                </button>
+                {showNote && (
+                  <>
+                    <textarea
+                      value={noteDraft}
+                      onChange={(e) => setNoteDraft(e.target.value)}
+                      onBlur={() => { if (noteDraft !== (note ?? '')) onSaveNote(noteDraft); }}
+                      rows={2}
+                      maxLength={2000}
+                      autoFocus
+                      placeholder="Ex.: banco no furo 4, peguei 12kg em cada lado, ombro incomodou um pouco…"
+                      className="mt-1.5 w-full resize-y rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-700 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
+                    />
+                    <p className="mt-0.5 text-[10px] text-slate-400">Salvo automaticamente — aparece no próximo treino deste exercício.</p>
+                  </>
+                )}
               </div>
             )}
           </div>
