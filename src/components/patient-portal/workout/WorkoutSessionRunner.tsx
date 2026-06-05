@@ -309,8 +309,6 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         weightKg: value.weightKg,
         rpe: value.rpe,
       });
-      if (rs && rs > 0) setRest({ min: rs, max: rsMax });
-
       // Auto-avança: se todas as séries deste exercício ficaram feitas, fecha ele
       // e abre o próximo da ordem atual.
       const exDef = session.exercises.find((e) => e.id === plannedExerciseId);
@@ -319,15 +317,29 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       const doneIdx = new Set<number>();
       arr.forEach((s, i) => { if (s?.done) doneIdx.add(i); });
       doneIdx.add(setIndex - 1);
-      if (doneIdx.size >= total) {
+      const exerciseFinished = doneIdx.size >= total;
+
+      // Descanso entre séries (normal) ou entre exercícios (na última série).
+      // No final do exercício, se o descanso prescrito for menor que 60s, garante
+      // uma faixa padrão de 60–90s entre exercícios.
+      if (exerciseFinished) {
         const pos = order.indexOf(plannedExerciseId);
         const nextId = pos >= 0 ? order[pos + 1] : undefined;
+        if (nextId) {
+          const min = Math.max(60, rs || 0);
+          const max = rsMax && rsMax >= min ? rsMax : (min === 60 ? 90 : null);
+          setRest({ min, max });
+        } else if (rs && rs > 0) {
+          setRest({ min: rs, max: rsMax });
+        }
         setOpenIds((prev) => {
           const next = new Set(prev);
           next.delete(plannedExerciseId);
           if (nextId) next.add(nextId);
           return next;
         });
+      } else if (rs && rs > 0) {
+        setRest({ min: rs, max: rsMax });
       }
     } catch (err: any) {
       toast({ title: 'Erro ao salvar série', description: err.message || 'Tente novamente', variant: 'destructive' });
