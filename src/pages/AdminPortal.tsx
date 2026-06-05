@@ -6,6 +6,7 @@ import { NotificationSettingsPanel } from '@/components/admin/NotificationSettin
 import { TrainerNotifications } from '@/components/admin/TrainerNotifications';
 import { BrandSettingsPanel } from '@/components/admin/BrandSettingsPanel';
 import { ErrorLogsPanel } from '@/components/admin/ErrorLogsPanel';
+import { AchievementsManager } from '@/components/admin/AchievementsManager';
 import { THEME_PRESET_4, THEME_PRESET_8, getCurrentWeeklyTheme } from '@/lib/community-themes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -1158,6 +1159,9 @@ export default function AdminPortal() {
             <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Metas
             </TabsTrigger>
+            <TabsTrigger value="achievements" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              Conquistas
+            </TabsTrigger>
             <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
               Ranking
             </TabsTrigger>
@@ -1185,6 +1189,10 @@ export default function AdminPortal() {
 
           <TabsContent value="challenges" className="mt-4">
             <ChallengesManager trainerUserId={trainerUserId} />
+          </TabsContent>
+
+          <TabsContent value="achievements" className="mt-4">
+            <AchievementsManager />
           </TabsContent>
 
           <TabsContent value="ranking" className="mt-4">
