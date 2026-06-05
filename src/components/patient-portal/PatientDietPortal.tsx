@@ -305,7 +305,7 @@ export function PatientDietPortal({
           )}
 
           {(!portalConfig || portalConfig.ranking.show_gamification) && (
-            <GamificationWidget patientId={patientId} />
+            <GamificationWidget patientId={patientId} token={token} />
           )}
 
           {portalConfig?.ranking?.show_weekly_progress && (

@@ -3,31 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dietConsumptionService, PatientPoints, Achievement } from '@/lib/diet-consumption-service';
-import { supabase } from '@/integrations/supabase/client';
-import { Trophy, Star, Flame, Award, CheckCircle2, Medal } from 'lucide-react';
+import { achievementsService, CATEGORIES, type AchievementTemplate } from '@/lib/achievements-service';
+import { Trophy, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 interface GamificationWidgetProps {
   patientId: string;
+  /** Token do portal — quando presente, roda a engine pra desbloquear novas conquistas. */
+  token?: string;
 }
-
-interface AchievementTemplate {
-  achievement_type: string;
-  achievement_name: string;
-  achievement_description?: string;
-  points_earned: number;
-}
-
-const iconByType: { [key: string]: any } = {
-  streak_3: Flame,
-  streak_7: Flame,
-  streak_30: Flame,
-  first_meal: Star,
-  day_complete: CheckCircle2,
-  week_complete: Trophy,
-  perfect_day: Award,
-  month_complete: Medal,
-};
 
 function getStreakMessage(streak: number): string {
   if (streak === 0) return 'Comece hoje!';
@@ -37,27 +21,37 @@ function getStreakMessage(streak: number): string {
   return `${streak} dia${streak > 1 ? 's' : ''} seguido${streak > 1 ? 's' : ''}`;
 }
 
-export function GamificationWidget({ patientId }: GamificationWidgetProps) {
+export function GamificationWidget({ patientId, token }: GamificationWidgetProps) {
   const [points, setPoints] = useState<PatientPoints | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [templates, setTemplates] = useState<AchievementTemplate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
   useEffect(() => {
     loadData();
-  }, [patientId]);
+  }, [patientId, token]);
 
   const loadData = async () => {
     try {
       setLoading(true);
-      const [pointsData, achievementsData, templatesResult] = await Promise.all([
+      // Se tem token, roda a engine pra desbloquear conquistas novas baseadas em
+      // métricas (treinos, cardios, streak, etc). Idempotente.
+      if (token) {
+        try {
+          await achievementsService.evaluateByToken(token);
+        } catch (e) {
+          console.warn('Engine de conquistas falhou (ignorando):', e);
+        }
+      }
+      const [pointsData, achievementsData, catalog] = await Promise.all([
         dietConsumptionService.getPatientPoints(patientId),
         dietConsumptionService.getPatientAchievements(patientId),
-        supabase.from('achievement_templates').select('*'),
+        achievementsService.getCatalog(),
       ]);
       setPoints(pointsData);
       setAchievements(achievementsData);
-      setTemplates(templatesResult.data || []);
+      setTemplates(catalog);
     } catch (error) {
       console.error('Erro ao carregar gamificação:', error);
     } finally {
@@ -92,6 +86,17 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
 
   const unlockedTypes = new Set(achievements.map(a => a.achievement_type));
   const streakActive = currentStreak > 0;
+  // Templates visíveis: ocultam secretas não desbloqueadas.
+  const visibleTemplates = templates.filter(
+    (t) => !t.is_secret || unlockedTypes.has(t.achievement_type),
+  );
+  const availableCategories = Array.from(
+    new Set(visibleTemplates.map((t) => t.category).filter(Boolean) as string[]),
+  ).sort();
+  const filteredTemplates =
+    selectedCategory === 'all'
+      ? visibleTemplates
+      : visibleTemplates.filter((t) => t.category === selectedCategory);
 
   return (
     <div className="space-y-4">
@@ -196,28 +201,60 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
       {/* Conquistas */}
       <Card className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm">
         <CardHeader className="p-4 sm:p-6 pb-3">
-          <CardTitle className="text-base sm:text-lg text-slate-800 flex items-center gap-2 font-bold">
-            <Trophy className="w-5 h-5 text-amber-500 flex-shrink-0" />
-            Conquistas
-            <Badge className="bg-slate-100 text-slate-600 border-slate-300 text-xs ml-1">
-              {achievements.length}/{templates.length}
-            </Badge>
-          </CardTitle>
+          <div className="flex items-center justify-between gap-2 mb-3">
+            <CardTitle className="text-base sm:text-lg text-slate-800 flex items-center gap-2 font-bold">
+              <Trophy className="w-5 h-5 text-amber-500 flex-shrink-0" />
+              Conquistas
+              <Badge className="bg-slate-100 text-slate-600 border-slate-300 text-xs ml-1">
+                {achievements.length}/{visibleTemplates.length}
+              </Badge>
+            </CardTitle>
+          </div>
+          {/* Filtro por categoria */}
+          <div className="flex flex-wrap gap-1.5">
+            <button
+              onClick={() => setSelectedCategory('all')}
+              className={`text-xs rounded-full px-2.5 py-1 font-medium transition-colors ${
+                selectedCategory === 'all'
+                  ? 'bg-emerald-500 text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              Todas
+            </button>
+            {availableCategories.map((c) => {
+              const meta = CATEGORIES.find((x) => x.value === c);
+              return (
+                <button
+                  key={c}
+                  onClick={() => setSelectedCategory(c)}
+                  className={`text-xs rounded-full px-2.5 py-1 font-medium transition-colors ${
+                    selectedCategory === c
+                      ? 'bg-emerald-500 text-white'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {meta?.emoji} {meta?.label || c}
+                </button>
+              );
+            })}
+          </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6 pt-0">
-          {templates.length === 0 ? (
+          {filteredTemplates.length === 0 ? (
             <div className="text-center py-6">
               <Trophy className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-              <p className="text-sm text-slate-400">Nenhuma conquista disponível ainda</p>
+              <p className="text-sm text-slate-400">Nenhuma conquista nessa categoria</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-              {templates.map((template) => {
+              {filteredTemplates.map((template) => {
                 const isUnlocked = unlockedTypes.has(template.achievement_type);
-                const Icon = iconByType[template.achievement_type] || Trophy;
                 const unlockedAt = achievements.find(
-                  a => a.achievement_type === template.achievement_type
+                  (a) => a.achievement_type === template.achievement_type,
                 )?.unlocked_at;
+                const isSecret = template.is_secret && !isUnlocked;
+                const gradient = template.color || 'from-amber-500 to-yellow-500';
 
                 return (
                   <motion.div
@@ -227,38 +264,52 @@ export function GamificationWidget({ patientId }: GamificationWidgetProps) {
                     className={`rounded-xl p-3 border-2 transition-all ${
                       isUnlocked
                         ? 'bg-emerald-50 border-emerald-300 shadow-sm'
-                        : 'bg-slate-50 border-slate-200 opacity-50'
+                        : 'bg-slate-50 border-slate-200 opacity-60'
                     }`}
                   >
                     <div className="flex flex-col items-center text-center gap-2">
-                      <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isUnlocked
-                          ? 'bg-gradient-to-br from-emerald-500 to-teal-400 shadow-sm'
-                          : 'bg-slate-200'
-                      }`}>
-                        <Icon className={`w-5 h-5 ${isUnlocked ? 'text-white' : 'text-slate-400'}`} />
+                      <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm ${
+                          isUnlocked
+                            ? `bg-gradient-to-br ${gradient}`
+                            : 'bg-slate-200'
+                        }`}
+                      >
+                        {isSecret ? (
+                          <Lock className="w-5 h-5 text-slate-400" />
+                        ) : (
+                          <span className="text-2xl leading-none">
+                            {template.emoji || '🏆'}
+                          </span>
+                        )}
                       </div>
                       <div>
-                        <p className={`font-semibold text-xs leading-tight ${
-                          isUnlocked ? 'text-slate-800' : 'text-slate-500'
-                        }`}>
-                          {template.achievement_name}
+                        <p
+                          className={`font-semibold text-xs leading-tight ${
+                            isUnlocked ? 'text-slate-800' : 'text-slate-500'
+                          }`}
+                        >
+                          {isSecret ? '???' : template.achievement_name}
                         </p>
-                        {template.achievement_description && (
+                        {!isSecret && template.achievement_description && (
                           <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
                             {template.achievement_description}
                           </p>
                         )}
-                        <Badge className={`mt-1.5 text-xs font-semibold ${
-                          isUnlocked
-                            ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-                            : 'bg-slate-100 text-slate-500 border-slate-200'
-                        }`}>
+                        <Badge
+                          className={`mt-1.5 text-xs font-semibold ${
+                            isUnlocked
+                              ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
+                              : 'bg-slate-100 text-slate-500 border-slate-200'
+                          }`}
+                        >
                           +{template.points_earned} pts
                         </Badge>
                         {isUnlocked && unlockedAt && (
                           <p className="text-xs text-emerald-600 mt-1 font-medium">
-                            ✓ {new Date(unlockedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' })}
+                            ✓ {new Date(unlockedAt).toLocaleDateString('pt-BR', {
+                              day: '2-digit', month: '2-digit',
+                            })}
                           </p>
                         )}
                       </div>
