@@ -1,7 +1,44 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Timer, X, Check } from 'lucide-react';
+
+/** Toca um beep curto via Web Audio API. Não exige hospedar arquivo. */
+function beep(freq = 880, durationMs = 180, volume = 0.25) {
+  try {
+    const AC: typeof AudioContext | undefined =
+      (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+        .AudioContext ||
+      (window as unknown as { AudioContext?: typeof AudioContext; webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AC) return;
+    const ctx = new AC();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = 0;
+    osc.connect(gain).connect(ctx.destination);
+    const t0 = ctx.currentTime;
+    const dur = durationMs / 1000;
+    // envelope rapidinho pra não estalar
+    gain.gain.linearRampToValueAtTime(volume, t0 + 0.01);
+    gain.gain.linearRampToValueAtTime(0, t0 + dur);
+    osc.start(t0);
+    osc.stop(t0 + dur + 0.02);
+    osc.onended = () => ctx.close().catch(() => {});
+  } catch {
+    /* sem áudio: silencioso */
+  }
+}
+
+function beepSequence(times: number, intervalMs = 220, freq = 880) {
+  beep(freq);
+  for (let i = 1; i < times; i++) {
+    setTimeout(() => beep(freq), i * intervalMs);
+  }
+}
 
 interface RestTimerProps {
   /** Descanso mínimo (prescrito). Quando há faixa, é o ponto "já pode voltar". */
@@ -36,11 +73,12 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
   const elapsedSec = totalSec - left;
   const ready = hasRange && elapsedSec >= minSeconds; // mínimo já atingido
 
-  // Vibra ao atingir o mínimo (pode voltar) e ao terminar (tempo máximo).
+  // Vibra + beep ao atingir o mínimo (pode voltar) e ao terminar (tempo máximo).
   useEffect(() => {
     if (hasRange && ready && !readyBuzzedRef.current) {
       readyBuzzedRef.current = true;
       try { navigator.vibrate?.(80); } catch { /* ignore */ }
+      beep(880, 180);
     }
   }, [hasRange, ready]);
 
@@ -48,6 +86,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
     if (leftMs <= 0 && !firedRef.current) {
       firedRef.current = true;
       try { navigator.vibrate?.([120, 60, 120]); } catch { /* ignore */ }
+      beepSequence(2, 220, 1040);
       onDoneRef.current();
     }
   }, [leftMs]);
@@ -61,13 +100,16 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
 
   const bg = ready ? 'bg-teal-600' : 'bg-emerald-600';
 
-  return (
+  // Portalizamos pro <body> porque o WorkoutSessionRunner tem ancestores com
+  // `transform` (motion.div), o que faz `position: fixed` ficar relativo a eles
+  // e estourar pra direita em telas pequenas.
+  const node = (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 30 }}
-        className="fixed bottom-24 sm:bottom-6 left-1/2 -translate-x-1/2 z-[10000] w-[min(92vw,340px)]"
+        className="fixed bottom-24 sm:bottom-6 inset-x-3 mx-auto z-[10000] max-w-[340px]"
       >
         <div className={`rounded-2xl text-white shadow-2xl px-4 py-3 transition-colors ${bg}`}>
           <div className="flex items-center gap-3">
@@ -112,4 +154,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
       </motion.div>
     </AnimatePresence>
   );
+
+  if (typeof document === 'undefined') return node;
+  return createPortal(node, document.body);
 }
