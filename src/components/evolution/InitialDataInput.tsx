@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { compressImage } from '@/lib/image-compression';
 
 interface InitialDataInputProps {
   telefone: string;
@@ -114,19 +115,24 @@ export function InitialDataInput({ telefone, nome, onSuccess, editMode = false, 
     }
   };
 
-  const handleFileChange = (
+  const handleFileChange = async (
     file: File | null,
     setFile: (file: File | null) => void,
     setPreview: (url: string) => void
   ) => {
-    if (file) {
-      setFile(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+    let processed = file;
+    try {
+      processed = await compressImage(file);
+    } catch (err) {
+      console.error('Falha ao comprimir foto de evolução, usando original:', err);
     }
+    setFile(processed);
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreview(reader.result as string);
+    };
+    reader.readAsDataURL(processed);
   };
 
   const removePhoto = (

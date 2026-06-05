@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react';
-import { ImagePlus, Loader2, X, Send } from 'lucide-react';
+import { Camera, ImagePlus, Loader2, X, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +9,11 @@ import {
   type CommunityCategory,
 } from '@/lib/community-service';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
+import { compressImage } from '@/lib/image-compression';
 import { cn } from '@/lib/utils';
+
+// Limite ANTES da compressão. Compressão reduz pra ~300–800kb.
+const MAX_INPUT_BYTES = 25 * 1024 * 1024;
 
 interface PostComposerProps {
   patientId: string;
@@ -21,8 +25,10 @@ interface PostComposerProps {
 
 export function PostComposer({ patientId, onPosted, category: categoryProp, onCategoryChange }: PostComposerProps) {
   const { toast } = useToast();
-  const inputRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
   const [content, setContent] = useState('');
+  const [preparingImage, setPreparingImage] = useState(false);
   const [categoryInternal, setCategoryInternal] = useState<CommunityCategory>('geral');
   const category = categoryProp ?? categoryInternal;
   const setCategory = onCategoryChange ?? setCategoryInternal;
@@ -30,7 +36,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
-  const handlePickImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePickImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
@@ -38,12 +44,22 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
       toast({ title: 'Arquivo inválido', description: 'Selecione uma imagem.', variant: 'destructive' });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'Imagem muito grande', description: 'Escolha uma imagem de até 5MB.', variant: 'destructive' });
+    if (file.size > MAX_INPUT_BYTES) {
+      toast({ title: 'Imagem muito grande', description: 'Escolha uma imagem de até 25MB.', variant: 'destructive' });
       return;
     }
-    setImageFile(file);
-    setImagePreview(URL.createObjectURL(file));
+    try {
+      setPreparingImage(true);
+      const compressed = await compressImage(file);
+      setImageFile(compressed);
+      setImagePreview(URL.createObjectURL(compressed));
+    } catch (err) {
+      console.error('Falha ao processar imagem, usando original:', err);
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    } finally {
+      setPreparingImage(false);
+    }
   };
 
   const clearImage = () => {
@@ -121,17 +137,34 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
         ))}
       </div>
 
-      <div className="mt-3 flex items-center justify-between">
-        <input ref={inputRef} type="file" accept="image/*" className="hidden" onChange={handlePickImage} />
-        <Button
-          type="button"
-          variant="ghost"
-          size="sm"
-          onClick={() => inputRef.current?.click()}
-          className="text-slate-600 hover:text-emerald-600"
-        >
-          <ImagePlus className="mr-1.5 h-4 w-4" /> Foto
-        </Button>
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <input ref={galleryRef} type="file" accept="image/*" className="hidden" onChange={handlePickImage} />
+        <input ref={cameraRef} type="file" accept="image/*" capture="environment" className="hidden" onChange={handlePickImage} />
+        <div className="flex items-center gap-1">
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => cameraRef.current?.click()}
+            disabled={preparingImage}
+            className="text-slate-600 hover:text-emerald-600"
+            title="Tirar foto"
+          >
+            {preparingImage ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Camera className="mr-1.5 h-4 w-4" />}
+            Câmera
+          </Button>
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            onClick={() => galleryRef.current?.click()}
+            disabled={preparingImage}
+            className="text-slate-600 hover:text-emerald-600"
+            title="Escolher da galeria"
+          >
+            <ImagePlus className="mr-1.5 h-4 w-4" /> Galeria
+          </Button>
+        </div>
         <Button
           onClick={handleSubmit}
           disabled={!canSubmit}

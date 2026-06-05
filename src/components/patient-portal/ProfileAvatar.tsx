@@ -2,6 +2,9 @@ import { useRef, useState } from 'react';
 import { Camera, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { compressImage } from '@/lib/image-compression';
+
+const MAX_INPUT_BYTES = 25 * 1024 * 1024;
 
 interface ProfileAvatarProps {
   patientId: string;
@@ -41,19 +44,21 @@ export function ProfileAvatar({ patientId, name, photoUrl, onChange }: ProfileAv
       toast({ title: 'Arquivo inválido', description: 'Selecione uma imagem.', variant: 'destructive' });
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
-      toast({ title: 'Imagem muito grande', description: 'Escolha uma imagem de até 5MB.', variant: 'destructive' });
+    if (file.size > MAX_INPUT_BYTES) {
+      toast({ title: 'Imagem muito grande', description: 'Escolha uma imagem de até 25MB.', variant: 'destructive' });
       return;
     }
 
     try {
       setUploading(true);
-      const fileExt = file.name.split('.').pop() || 'jpg';
+      // Avatar não precisa de muita resolução.
+      const compressed = await compressImage(file, { maxDim: 800, quality: 0.85 });
+      const fileExt = (compressed.name.split('.').pop() || 'jpg').toLowerCase();
       const filePath = `avatars/${patientId}_${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('patient-photos')
-        .upload(filePath, file, { upsert: true });
+        .upload(filePath, compressed, { upsert: true, contentType: compressed.type || 'image/jpeg' });
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
