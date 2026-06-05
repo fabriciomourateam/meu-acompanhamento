@@ -4,6 +4,17 @@ export default {
   darkMode: ["class"],
   content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
   prefix: "",
+  // Cores de gradient usadas dinamicamente (achievement_templates.color,
+  // patient_levels.color, weekly_challenges.color) precisam estar no safelist
+  // porque o Tailwind JIT só inclui classes que vê literalmente no source.
+  safelist: [
+    {
+      pattern: /^(from|via|to)-(slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose)-(300|400|500|600)$/,
+    },
+    'bg-gradient-to-br',
+    'bg-gradient-to-r',
+    'bg-gradient-to-tr',
+  ],
   theme: {
     container: {
       center: true,
