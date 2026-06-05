@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check, PlayCircle, NotebookPen } from 'lucide-react';
+import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check, PlayCircle, NotebookPen, Undo2 } from 'lucide-react';
 import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
@@ -28,6 +28,8 @@ interface ExerciseCardProps {
   onCommit: (args: CommitSetArgs) => Promise<void>;
   /** ITEM 10 — quando presente, mostra botão "Substituir por hoje". */
   onRequestSubstitute?: () => void;
+  /** Reverte a substituição: volta pro exercício original (vídeo, nome, tudo). */
+  onRevertSubstitution?: () => void;
   /** Nome do substituto ativo (se o aluno trocou nesta execução). */
   substitutedName?: string | null;
   /** Vídeo/thumb do substituto ativo — quando trocado, o vídeo acompanha. */
@@ -56,7 +58,7 @@ interface ExerciseCardProps {
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -361,14 +363,22 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   <TrendingUp className="h-3.5 w-3.5" />
                   {showHistory ? 'Ocultar progressão' : 'Ver progressão de carga'}
                 </button>
-                {onRequestSubstitute && (
+                {substitutedName && onRevertSubstitution ? (
+                  <button
+                    onClick={onRevertSubstitution}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    title={`Voltar para ${exercise.exercise_name}`}
+                  >
+                    <Undo2 className="h-3.5 w-3.5" /> Voltar ao original
+                  </button>
+                ) : onRequestSubstitute ? (
                   <button
                     onClick={onRequestSubstitute}
                     className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-2.5 py-1.5 text-xs font-semibold text-amber-700 transition hover:bg-amber-100"
                   >
                     <Shuffle className="h-3.5 w-3.5" /> Substituir
                   </button>
-                )}
+                ) : null}
               </div>
               {showHistory && (
                 <div className="mt-2 rounded-lg border border-slate-200 bg-white p-2">

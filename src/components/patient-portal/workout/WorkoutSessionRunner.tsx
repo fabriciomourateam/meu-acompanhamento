@@ -578,6 +578,11 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
               prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}
               onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
+              onRevertSubstitution={subs[ex.id] ? () => setSubs((prev) => {
+                const next = { ...prev };
+                delete next[ex.id];
+                return next;
+              }) : undefined}
             />
           ))}
         </div>
