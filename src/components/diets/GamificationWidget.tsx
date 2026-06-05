@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dietConsumptionService, PatientPoints, Achievement } from '@/lib/diet-consumption-service';
 import { achievementsService, CATEGORIES, type AchievementTemplate } from '@/lib/achievements-service';
+import { levelsService, type CurrentLevel } from '@/lib/levels-service';
 import { Trophy, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -25,6 +26,7 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
   const [points, setPoints] = useState<PatientPoints | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [templates, setTemplates] = useState<AchievementTemplate[]>([]);
+  const [levelData, setLevelData] = useState<CurrentLevel | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
@@ -44,14 +46,16 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
           console.warn('Engine de conquistas falhou (ignorando):', e);
         }
       }
-      const [pointsData, achievementsData, catalog] = await Promise.all([
+      const [pointsData, achievementsData, catalog, level] = await Promise.all([
         dietConsumptionService.getPatientPoints(patientId),
         dietConsumptionService.getPatientAchievements(patientId),
         achievementsService.getCatalog(),
+        token ? levelsService.getByToken(token) : Promise.resolve(null),
       ]);
       setPoints(pointsData);
       setAchievements(achievementsData);
       setTemplates(catalog);
+      setLevelData(level);
     } catch (error) {
       console.error('Erro ao carregar gamificação:', error);
     } finally {
@@ -68,21 +72,16 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
     );
   }
 
-  const currentLevel = points?.current_level || 1;
-  const totalPoints = points?.total_points || 0;
+  const totalPoints = levelData?.total_points ?? points?.total_points ?? 0;
   const currentStreak = points?.current_streak || 0;
-
-  const levelThresholds = [0, 100, 300, 600, 1000, 1500];
-  const getLevelStart = (lvl: number): number =>
-    lvl <= 5 ? (levelThresholds[lvl - 1] || 0) : (lvl - 6) * 500 + 1500;
-  const getLevelEnd = (lvl: number): number =>
-    lvl <= 4 ? levelThresholds[lvl] : lvl === 5 ? 1500 : (lvl - 5) * 500 + 1500;
-
-  const levelStart = getLevelStart(currentLevel);
-  const levelEnd = getLevelEnd(currentLevel);
-  const pointsInLevel = totalPoints - levelStart;
-  const pointsNeeded = levelEnd - levelStart;
-  const progress = pointsNeeded > 0 ? Math.min(100, (pointsInLevel / pointsNeeded) * 100) : 100;
+  // Nível: prefere o dado real do banco; fallback ao current_level legado.
+  const levelName = levelData?.current_name || `Nível ${points?.current_level || 1}`;
+  const levelEmoji = levelData?.current_emoji || '⭐';
+  const levelColor = levelData?.current_color || 'from-[#00C98A] to-[#00A875]';
+  const nextLevelName = levelData?.next_name || null;
+  const nextMin = levelData?.next_min_points || null;
+  const progress = levelData?.progress_pct ?? 0;
+  const pointsToNext = nextMin != null ? Math.max(0, nextMin - totalPoints) : 0;
 
   const unlockedTypes = new Set(achievements.map(a => a.achievement_type));
   const streakActive = currentStreak > 0;
@@ -154,20 +153,21 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
         )}
       </Card>
 
-      {/* Nível + Pontos — mesma cor dos desafios de hoje */}
+      {/* Nível + Pontos — cor real do nível do banco */}
       <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
-        <div className="bg-gradient-to-br from-[#00C98A] to-[#00A875] p-4 sm:p-6 relative overflow-hidden">
+        <div className={`bg-gradient-to-br ${levelColor} p-4 sm:p-6 relative overflow-hidden`}>
           <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
           <div className="relative">
             <div className="flex items-start justify-between mb-4">
               <div>
                 <p className="text-xs text-white/70 font-medium uppercase tracking-wider mb-1">Nível Atual</p>
-                <div className="flex items-center gap-2">
-                  <span className="text-5xl sm:text-6xl font-black text-white leading-none">{currentLevel}</span>
-                  <div className="flex flex-col gap-0.5">
-                    <Badge className="bg-white/20 text-white border-white/30 text-xs font-semibold backdrop-blur-sm">
-                      Nível {currentLevel}
-                    </Badge>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-5xl sm:text-6xl leading-none select-none drop-shadow-lg">{levelEmoji}</span>
+                  <div className="flex flex-col">
+                    <span className="text-2xl sm:text-3xl font-black text-white leading-tight">{levelName}</span>
+                    {nextLevelName && (
+                      <span className="text-xs text-white/70 mt-0.5">Próximo: {nextLevelName}</span>
+                    )}
                   </div>
                 </div>
               </div>
@@ -179,7 +179,7 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
 
             <div>
               <div className="flex justify-between text-xs text-white/70 mb-1.5">
-                <span>Para o Nível {currentLevel + 1}</span>
+                <span>{nextLevelName ? `Para ${nextLevelName}` : 'Nível máximo'}</span>
                 <span className="font-bold text-white">{Math.round(progress)}%</span>
               </div>
               <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
@@ -191,7 +191,9 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
                 />
               </div>
               <p className="text-xs text-white/60 mt-1.5">
-                {Math.max(0, pointsNeeded - pointsInLevel)} pontos para o próximo nível
+                {nextLevelName
+                  ? `${pointsToNext.toLocaleString('pt-BR')} pontos para o próximo nível`
+                  : 'Você chegou ao topo 🏆'}
               </p>
             </div>
           </div>
