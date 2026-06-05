@@ -36,6 +36,53 @@ function getStartDate(period: RankingPeriod): string | null {
   return null;
 }
 
+/** ISO week pad: YYYY-Www */
+function isoWeekKey(d: Date): string {
+  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const day = date.getUTCDay() || 7;
+  date.setUTCDate(date.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
+  const week = Math.ceil(((date.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
+  return `${date.getUTCFullYear()}-W${String(week).padStart(2, '0')}`;
+}
+
+function monthKey(d: Date): string {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+/** Period_key do período anterior ao atual. weekly → semana passada; monthly → mês passado. */
+export function previousPeriodKey(period: 'weekly' | 'monthly' | 'yearly', offset = 1): string {
+  const now = new Date();
+  if (period === 'weekly') {
+    const d = new Date(now);
+    d.setDate(d.getDate() - 7 * offset);
+    return isoWeekKey(d);
+  }
+  if (period === 'monthly') {
+    const d = new Date(now);
+    d.setMonth(d.getMonth() - offset);
+    return monthKey(d);
+  }
+  return String(now.getFullYear() - offset);
+}
+
+export interface HistoryEntry {
+  rank: number;
+  patient_id: string;
+  patient_name: string;
+  photo_url: string | null;
+  points: number;
+  frozen_at: string;
+}
+
+export interface PeriodSummary {
+  period: 'weekly' | 'monthly' | 'yearly';
+  period_key: string;
+  top_count: number;
+  top1_name: string | null;
+  top1_points: number | null;
+}
+
 export const rankingService = {
   async getLeaderboard(
     trainerUserId: string,
@@ -108,5 +155,40 @@ export const rankingService = {
     entries.sort((a, b) => b.points - a.points);
 
     return entries.map((entry, index) => ({ ...entry, position: index + 1 }));
+  },
+
+  /**
+   * Hall da Fama: top do período encerrado. Auto-freeze lazy — primeira leitura
+   * congela o snapshot, leituras seguintes retornam o mesmo.
+   */
+  async getHistory(
+    trainerUserId: string,
+    period: 'weekly' | 'monthly' | 'yearly',
+    periodKey: string,
+    topN = 10,
+  ): Promise<HistoryEntry[]> {
+    const { data, error } = await supabase.rpc('get_ranking_history', {
+      p_trainer_user_id: trainerUserId,
+      p_period: period,
+      p_period_key: periodKey,
+      p_top_n: topN,
+    });
+    if (error) {
+      console.error('Erro Hall da Fama:', error);
+      return [];
+    }
+    return (data || []) as HistoryEntry[];
+  },
+
+  /** Lista todos os períodos passados já congelados (pra timeline do Hall da Fama). */
+  async listHistoryPeriods(trainerUserId: string): Promise<PeriodSummary[]> {
+    const { data, error } = await supabase.rpc('list_ranking_history_periods', {
+      p_trainer_user_id: trainerUserId,
+    });
+    if (error) {
+      console.error('Erro lista de períodos:', error);
+      return [];
+    }
+    return (data || []) as PeriodSummary[];
   },
 };

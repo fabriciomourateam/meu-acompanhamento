@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { rankingService, type LeaderboardEntry } from '@/lib/ranking-service';
+import {
+  rankingService, previousPeriodKey,
+  type LeaderboardEntry, type HistoryEntry, type PeriodSummary,
+} from '@/lib/ranking-service';
 import type { RankingPeriod } from '@/lib/portal-settings-service';
+import { ChevronDown, ChevronUp, Crown } from 'lucide-react';
 
 interface LeaderboardWidgetProps {
   patientId: string;
@@ -262,6 +266,147 @@ function LeaderboardList({
   );
 }
 
+/** Formata um period_key humano: '2026-W23' → "Semana 23/2026"; '2026-06' → "Junho 2026". */
+function formatPeriodKey(period: 'weekly' | 'monthly' | 'yearly', key: string): string {
+  if (period === 'weekly') {
+    const [y, w] = key.split('-W');
+    return `Semana ${w}/${y}`;
+  }
+  if (period === 'monthly') {
+    const [y, m] = key.split('-');
+    const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    return `${months[parseInt(m, 10) - 1]} ${y}`;
+  }
+  return key;
+}
+
+/** Período anterior do ranking (semana/mês passado). */
+function PreviousPeriodCard({
+  trainerUserId,
+  currentPatientId,
+  period,
+}: {
+  trainerUserId: string;
+  currentPatientId: string;
+  period: 'weekly' | 'monthly' | 'yearly';
+}) {
+  const [entries, setEntries] = useState<HistoryEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [open, setOpen] = useState(false);
+  const key = previousPeriodKey(period, 1);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    rankingService.getHistory(trainerUserId, period, key, 10)
+      .then(setEntries)
+      .finally(() => setLoading(false));
+  }, [open, trainerUserId, period, key]);
+
+  return (
+    <div className="mt-4 border-t border-slate-200 pt-3">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 hover:text-emerald-700"
+      >
+        <span className="flex items-center gap-1.5">
+          📜 {period === 'weekly' ? 'Semana passada' : period === 'monthly' ? 'Mês passado' : 'Ano passado'} — {formatPeriodKey(period, key)}
+        </span>
+        {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+      </button>
+      {open && (
+        <div className="mt-2 space-y-1.5">
+          {loading ? (
+            <Skeleton className="h-16 w-full bg-slate-100" />
+          ) : entries.length === 0 ? (
+            <p className="text-xs text-slate-400 italic py-2 text-center">
+              Sem ranking nesse período.
+            </p>
+          ) : (
+            entries.slice(0, 5).map((e) => {
+              const medal = e.rank === 1 ? '🥇' : e.rank === 2 ? '🥈' : e.rank === 3 ? '🥉' : `${e.rank}°`;
+              const isMe = e.patient_id === currentPatientId;
+              return (
+                <div
+                  key={`${e.patient_id}-${e.rank}`}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs ${
+                    isMe ? 'bg-emerald-50 border border-emerald-200' : 'bg-slate-50'
+                  }`}
+                >
+                  <span className="w-6 text-center">{medal}</span>
+                  <span className={`flex-1 truncate ${isMe ? 'font-semibold text-emerald-800' : 'text-slate-700'}`}>
+                    {e.patient_name}{isMe && ' (você)'}
+                  </span>
+                  <span className="font-semibold text-slate-600">{e.points.toLocaleString('pt-BR')}</span>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/** Hall da Fama: lista de campeões mensais antigos (top 1 de cada mês passado). */
+function HallOfFameSection({ trainerUserId, currentPatientId }: { trainerUserId: string; currentPatientId: string }) {
+  const [periods, setPeriods] = useState<PeriodSummary[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    setLoading(true);
+    rankingService.listHistoryPeriods(trainerUserId)
+      .then((p) => setPeriods(p.filter((x) => x.period === 'monthly')))
+      .finally(() => setLoading(false));
+  }, [open, trainerUserId]);
+
+  return (
+    <div className="mt-3 border-t border-slate-200 pt-3">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="w-full flex items-center justify-between text-xs font-bold text-amber-700 hover:text-amber-800"
+      >
+        <span className="flex items-center gap-1.5">
+          <Crown className="h-3.5 w-3.5" /> Hall da Fama
+        </span>
+        {open ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+      </button>
+      {open && (
+        <div className="mt-2 space-y-1.5">
+          {loading ? (
+            <Skeleton className="h-12 w-full bg-slate-100" />
+          ) : periods.length === 0 ? (
+            <p className="text-xs text-slate-400 italic py-2 text-center">
+              Ainda não há campeões registrados. Cada mês fechado vira história aqui.
+            </p>
+          ) : (
+            periods.map((p) => {
+              const isMe = false; // o nome não é diretamente comparável; mantemos neutro
+              return (
+                <div
+                  key={`${p.period}-${p.period_key}`}
+                  className={`flex items-center gap-2 rounded-lg px-2 py-1.5 text-xs bg-gradient-to-r from-amber-50 to-yellow-50 border border-amber-200`}
+                >
+                  <span className="text-base">👑</span>
+                  <span className={`flex-1 truncate ${isMe ? 'font-bold text-amber-900' : 'text-slate-700'}`}>
+                    <span className="font-semibold text-amber-800">{formatPeriodKey(p.period, p.period_key)}</span>
+                    {' — '}{p.top1_name || '—'}
+                  </span>
+                  {p.top1_points != null && (
+                    <span className="font-bold text-amber-700">{p.top1_points.toLocaleString('pt-BR')} pts</span>
+                  )}
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function LeaderboardWidget({ patientId, trainerUserId, periods }: LeaderboardWidgetProps) {
   const activePeriods = periods.filter(Boolean);
   const defaultPeriod = activePeriods[0] || 'monthly';
@@ -278,11 +423,20 @@ export function LeaderboardWidget({ patientId, trainerUserId, periods }: Leaderb
       </CardHeader>
       <CardContent>
         {activePeriods.length === 1 ? (
-          <LeaderboardList
-            patientId={patientId}
-            trainerUserId={trainerUserId}
-            period={activePeriods[0]}
-          />
+          <>
+            <LeaderboardList
+              patientId={patientId}
+              trainerUserId={trainerUserId}
+              period={activePeriods[0]}
+            />
+            {activePeriods[0] !== 'all_time' && (
+              <PreviousPeriodCard
+                trainerUserId={trainerUserId}
+                currentPatientId={patientId}
+                period={activePeriods[0] as 'weekly' | 'monthly' | 'yearly'}
+              />
+            )}
+          </>
         ) : (
           <Tabs defaultValue={defaultPeriod}>
             <TabsList className="w-full bg-slate-200 rounded-lg p-1">
@@ -303,10 +457,19 @@ export function LeaderboardWidget({ patientId, trainerUserId, periods }: Leaderb
                   trainerUserId={trainerUserId}
                   period={period}
                 />
+                {period !== 'all_time' && (
+                  <PreviousPeriodCard
+                    trainerUserId={trainerUserId}
+                    currentPatientId={patientId}
+                    period={period as 'weekly' | 'monthly' | 'yearly'}
+                  />
+                )}
               </TabsContent>
             ))}
           </Tabs>
         )}
+
+        <HallOfFameSection trainerUserId={trainerUserId} currentPatientId={patientId} />
       </CardContent>
     </Card>
   );
