@@ -5,6 +5,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { dietConsumptionService, PatientPoints, Achievement } from '@/lib/diet-consumption-service';
 import { achievementsService, CATEGORIES, type AchievementTemplate } from '@/lib/achievements-service';
 import { levelsService, type CurrentLevel } from '@/lib/levels-service';
+import { WeeklyChallengeCard } from '@/components/patient-portal/WeeklyChallengeCard';
 import { Trophy, Lock } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -199,6 +200,9 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
           </div>
         </div>
       </Card>
+
+      {/* Desafio da Semana — aparece se o trainer definiu um pra esta semana */}
+      {token && <WeeklyChallengeCard token={token} />}
 
       {/* Conquistas */}
       <Card className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm">
