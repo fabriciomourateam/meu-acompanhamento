@@ -196,13 +196,17 @@ export function DietTab({
 
   // Utility para checar tipo explícito OU palavras-chave no título (para retrocompatibilidade)
   const isManipulated = (g: any) => {
-    if (g.guideline_type === 'manipulated') return true;
+    // O banco usa 'supplement_manipulados' (do MyShape); 'manipulated' é o nome legado.
+    const t = g.guideline_type;
+    if (t === 'manipulated' || t === 'supplement_manipulados' || t === 'supplement_manipulado') return true;
     const title = (g.title || '').toLowerCase();
     return title.includes('manipulado') || title.includes('fórmula');
   };
 
   const isProtocol = (g: any) => {
-    if (g.guideline_type === 'protocol') return true;
+    // O banco usa 'supplement_protocolo' (do MyShape); 'protocol' é o nome legado.
+    const t = g.guideline_type;
+    if (t === 'protocol' || t === 'supplement_protocolo' || t === 'supplement_protocolos') return true;
     const title = (g.title || '').toLowerCase();
     return title.includes('protocolo') || title.includes('ciclo');
   };
