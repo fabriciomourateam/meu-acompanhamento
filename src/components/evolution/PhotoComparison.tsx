@@ -395,11 +395,14 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
   // Função para formatar label da foto
   const getPhotoLabel = (photo: PhotoData, index: number) => {
-    const angleLabel = photo.angle === 'frente' ? '📷 Frente' :
-      photo.angle === 'lado' ? '📷 Lado' :
-        photo.angle === 'lado_2' ? '📷 Lado 2' :
-          photo.angle === 'costas' ? '📷 Costas' : '📷';
-    const prefix = photo.isInitial ? '⭐ BASELINE' : `#${index + 1}`;
+    // Numeração genérica pelo ângulo (Foto 1/2/3/4) em vez do nome do lado.
+    // Algumas fotos vêm salvas no campo "errado" no banco — mostrar "Frente"
+    // numa foto de costas ficava feio. Numerar por slot esconde isso.
+    const angleLabel = photo.angle === 'frente' ? '📷 Foto 1' :
+      photo.angle === 'lado' ? '📷 Foto 2' :
+        photo.angle === 'lado_2' ? '📷 Foto 3' :
+          photo.angle === 'costas' ? '📷 Foto 4' : '📷';
+    const prefix = photo.isInitial ? '⭐ INICIAL' : `#${index + 1}`;
     return `${prefix} - ${angleLabel} - ${photo.date} (${photo.weight}kg)`;
   };
 
@@ -713,7 +716,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             />
                           )}
                           <Badge className={`absolute top-2 left-2 ${firstPhoto.isInitial ? 'bg-purple-600/90' : 'bg-blue-600/90'} text-white`}>
-                            {firstPhoto.isInitial ? 'BASELINE' : 'INICIAL'}
+                            {firstPhoto.isInitial ? 'INICIAL' : 'ANTES'}
                           </Badge>
                           {!firstPhoto.isVideo && !imageErrors.has(getPhotoId(firstPhoto)) && (
                             <>
@@ -949,7 +952,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                   <strong className="text-slate-900">Peso:</strong> {photoToDelete.weight} kg
                 </div>
                 <div className="text-sm text-slate-600">
-                  <strong className="text-slate-900">Tipo:</strong> {photoToDelete.isInitial ? 'Foto Inicial (Baseline)' : 'Foto de Check-in'}
+                  <strong className="text-slate-900">Tipo:</strong> {photoToDelete.isInitial ? 'Foto Inicial' : 'Foto de Check-in'}
                 </div>
               </div>
               <div className="mt-3 text-red-600 font-semibold text-sm">
