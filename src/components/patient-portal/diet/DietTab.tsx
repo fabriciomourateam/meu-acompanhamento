@@ -668,7 +668,24 @@ export function DietTab({
                                                       ? 'bg-slate-100 text-slate-500 border-slate-200'
                                                       : 'bg-slate-100 text-slate-600 border-slate-200'
                                                       } border`}>
-                                                      {food.quantity} {food.unit === 'unidade' && food.quantity > 1 ? 'unidades' : food.unit}
+                                                      {(() => {
+                                                        // Mostra peso em gramas pra medidas caseiras (colher, pedaco,
+                                                        // unidade, fatia etc) usando custom_unit_grams cadastrado pelo
+                                                        // nutri no controle-de-pacientes. Esconde pra unidades base
+                                                        // (g/ml/etc), 'a vontade' ou quando nao tem peso salvo.
+                                                        const unitRaw = String(food.unit || '').toLowerCase().trim();
+                                                        const isBase = ['g', 'gramas', 'grama', 'kg', 'ml', 'mililitro', 'mililitros', 'l', 'litro', 'litros'].includes(unitRaw);
+                                                        const isAVontade = unitRaw === 'à vontade' || unitRaw === 'a vontade';
+                                                        const cug = Number(food.custom_unit_grams) || 0;
+                                                        const qty = Number(food.quantity) || 0;
+                                                        const grams = cug > 0 ? cug * qty : 0;
+                                                        const unitLabel = food.unit === 'unidade' && food.quantity > 1 ? 'unidades' : food.unit;
+                                                        if (grams > 0 && !isBase && !isAVontade) {
+                                                          const gramsLabel = grams < 10 ? `${grams.toFixed(1).replace(/\.0$/, '')}g` : `${Math.round(grams)}g`;
+                                                          return <>{food.quantity} {unitLabel} <span className="opacity-60">({gramsLabel})</span></>;
+                                                        }
+                                                        return <>{food.quantity} {unitLabel}</>;
+                                                      })()}
                                                     </Badge>
                                                   </div>
                                                 </div>
@@ -917,10 +934,27 @@ export function DietTab({
                       {sub.food_name}
                     </h4>
                     <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                      Quantidade: <span className="font-medium text-emerald-600">{sub.quantity} {sub.unit}</span>
+                      Quantidade:{' '}
+                      {(() => {
+                        const unitRaw = String(sub.unit || '').toLowerCase().trim();
+                        const isBase = ['g', 'gramas', 'grama', 'kg', 'ml', 'mililitro', 'mililitros', 'l', 'litro', 'litros'].includes(unitRaw);
+                        const isAVontade = unitRaw === 'à vontade' || unitRaw === 'a vontade';
+                        const cug = Number(sub.custom_unit_grams) || 0;
+                        const qty = Number(sub.quantity) || 0;
+                        const grams = cug > 0 ? cug * qty : 0;
+                        if (grams > 0 && !isBase && !isAVontade) {
+                          const gramsLabel = grams < 10 ? `${grams.toFixed(1).replace(/\.0$/, '')}g` : `${Math.round(grams)}g`;
+                          return (
+                            <span className="font-medium text-emerald-600">
+                              {sub.quantity} {sub.unit} <span className="opacity-70">({gramsLabel})</span>
+                            </span>
+                          );
+                        }
+                        return <span className="font-medium text-emerald-600">{sub.quantity} {sub.unit}</span>;
+                      })()}
                       {sub.custom_unit_name && (
                         <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
-                          ({sub.custom_unit_name}: {sub.custom_unit_grams}g)
+                          medida: {sub.custom_unit_name}
                         </span>
                       )}
                     </p>
