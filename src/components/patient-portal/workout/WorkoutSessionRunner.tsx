@@ -528,6 +528,12 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               <RotateCcw className="h-3.5 w-3.5" /> Descartar e recomeçar depois
             </button>
           </>
+        ) : session.session_type === 'mobility' ? (
+          // Mobilidade nao tem "Comecar treino" — eh um bloco de referencia,
+          // nao um treino executavel. Aluno consulta os exercicios e pronto.
+          <p className="mt-3 text-center text-xs italic text-slate-500">
+            Bloco de mobilidade — siga os exercícios livremente, sem cronometro.
+          </p>
         ) : (
           <Button onClick={handleStart} disabled={starting} className="mt-3 w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold h-11">
             <PlayCircle className="w-5 h-5 mr-1.5" /> {starting ? 'Iniciando…' : 'Começar treino'}
