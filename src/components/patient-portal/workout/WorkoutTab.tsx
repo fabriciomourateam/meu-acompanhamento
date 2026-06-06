@@ -315,15 +315,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           )}
         </TabsContent>
 
-        <TabsContent value="cardios" className="mt-3 space-y-2.5">
-          {/* Mobilidade tambem aparece em destaque no topo da aba de Cardios,
-              ja que o nutri pode usar mobilidade como complemento do cardio. */}
-          {mobilitySessions.length > 0 && (
-            <MobilityBlock
-              sessions={mobilitySessions}
-              onOpen={(id) => setOpenSessionId(id)}
-            />
-          )}
+        <TabsContent value="cardios" className="mt-3">
           <CardioSubtab token={token} prescribedSessions={cardioSessions} patientId={patientId} planId={activePlanId} />
         </TabsContent>
 
