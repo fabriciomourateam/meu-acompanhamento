@@ -20,6 +20,7 @@ import { PhaseAdvanceBanner } from './PhaseAdvanceBanner';
 import { CardioSubtab } from './CardioSubtab';
 import { AnalyticsSubtab } from './AnalyticsSubtab';
 import { WorkoutSessionRunner } from './WorkoutSessionRunner';
+import { MobilityBlock } from './MobilityBlock';
 
 interface WorkoutTabProps {
   token: string;
@@ -165,18 +166,25 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
     }
   };
 
-  const { workoutSessions, cardioSessions, guidelinesSessions } = useMemo(() => {
+  const { workoutSessions, cardioSessions, guidelinesSessions, mobilitySessions } = useMemo(() => {
     const all = hub?.sessions ?? [];
     return {
-      workoutSessions: all.filter((s) => (s.session_type ?? 'workout') === 'workout'),
+      // Treino convencional eh tudo que nao eh cardio/guidelines/mobility.
+      workoutSessions: all.filter((s) => {
+        const t = s.session_type ?? 'workout';
+        return t === 'workout';
+      }),
       cardioSessions: all.filter((s) => s.session_type === 'cardio'),
       guidelinesSessions: all.filter((s) => s.session_type === 'guidelines'),
+      // Mobilidade: aparece em destaque ACIMA do treino principal nas
+      // sub-abas de Treinos e Cardios (definido pelo nutri no MyShape).
+      mobilitySessions: all.filter((s) => s.session_type === 'mobility'),
     };
   }, [hub]);
 
   const openSession = useMemo<HubSession | null>(
-    () => workoutSessions.find((s) => s.id === openSessionId) ?? null,
-    [workoutSessions, openSessionId],
+    () => [...workoutSessions, ...mobilitySessions].find((s) => s.id === openSessionId) ?? null,
+    [workoutSessions, mobilitySessions, openSessionId],
   );
 
   if (loading) {
@@ -275,6 +283,16 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
         <TabsContent value="workouts" className="mt-3 space-y-2.5">
           {/* Cabeçalho do plano (puxa o nome do treino, ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana") */}
           {plan.name && <PlanHeader name={plan.name} />}
+
+          {/* Bloco de Mobilidade — em destaque ACIMA do treino convencional.
+              Definido pelo nutri no MyShape como session_type='mobility'. */}
+          {mobilitySessions.length > 0 && (
+            <MobilityBlock
+              sessions={mobilitySessions}
+              onOpen={(id) => setOpenSessionId(id)}
+            />
+          )}
+
           {workoutSessions.length === 0 ? (
             <p className="py-6 text-center text-sm italic text-slate-500">Nenhum treino cadastrado neste plano.</p>
           ) : (
@@ -297,7 +315,15 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           )}
         </TabsContent>
 
-        <TabsContent value="cardios" className="mt-3">
+        <TabsContent value="cardios" className="mt-3 space-y-2.5">
+          {/* Mobilidade tambem aparece em destaque no topo da aba de Cardios,
+              ja que o nutri pode usar mobilidade como complemento do cardio. */}
+          {mobilitySessions.length > 0 && (
+            <MobilityBlock
+              sessions={mobilitySessions}
+              onOpen={(id) => setOpenSessionId(id)}
+            />
+          )}
           <CardioSubtab token={token} prescribedSessions={cardioSessions} patientId={patientId} planId={activePlanId} />
         </TabsContent>
 

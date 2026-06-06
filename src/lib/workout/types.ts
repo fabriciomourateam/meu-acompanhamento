@@ -25,7 +25,7 @@ export interface WorkoutSession {
   notes: string | null;
 }
 
-export type SessionType = 'workout' | 'cardio' | 'guidelines';
+export type SessionType = 'workout' | 'cardio' | 'guidelines' | 'mobility';
 
 // Técnica avançada (drop set, cluster, etc.) aplicada a um exercício.
 // Vem embutida em cada exercício do hub/today (array `techniques`).
@@ -59,6 +59,8 @@ export interface HubSession {
   focus: string | null;
   notes: string | null;
   session_type: SessionType;
+  /** Quando false, o nutri ocultou — RPC ja filtra, mas o tipo expoe pra debug. */
+  is_active?: boolean;
   exercises: HubExercise[];
 }
 
