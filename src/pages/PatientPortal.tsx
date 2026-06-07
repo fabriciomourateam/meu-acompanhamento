@@ -846,10 +846,13 @@ export default function PatientPortal() {
                 )}
               </div>
             </div>
-            <div className="flex gap-1 sm:gap-2 items-center hide-in-pdf shrink-0">
-              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                <MembersAreaButton installed={pwaInstalled} />
-              )}
+            {/* Header da direita: linha de cima com os 3 icones-acao (sino,
+                instalar, menu) alinhados a direita; linha de baixo com o chip
+                largo 'Area de Membros' (so pra alunos do Fabricio) tambem
+                alinhado a direita. Resolve o problema de nao ter espaco pra
+                mostrar o texto 'Area de Membros' junto dos icones. */}
+            <div className="flex flex-col gap-1 items-end hide-in-pdf shrink-0">
+              <div className="flex gap-1 sm:gap-2 items-center">
               {patientId && <PatientNotifications patientId={patientId} />}
               {/* Botão de instalar: ícone-só no mobile, ícone+texto no desktop.
                   Some sozinho quando o app já está instalado. */}
@@ -915,6 +918,11 @@ export default function PatientPortal() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+              </div>
+              {/* Linha de baixo: chip 'Area de Membros' alinhado a direita. */}
+              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                <MembersAreaButton installed={pwaInstalled} />
+              )}
             </div>
           </motion.div>
 
