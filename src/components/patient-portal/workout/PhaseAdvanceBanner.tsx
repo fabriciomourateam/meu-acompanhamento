@@ -149,11 +149,11 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
             (acao leitura, mais comum) e 'Avancar fase' a direita (acao escrita,
             mais rara). Ambos discretos, na cor da fase. */}
         {(nextPhase || periodization.phases.length > 1) && (
-          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-current/15 pt-2 text-[11px] font-medium opacity-80">
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-current/15 pt-2 font-medium opacity-80">
             {periodization.phases.length > 1 && (
               <button
                 onClick={() => setShowAllPhases((v) => !v)}
-                className="inline-flex items-center gap-1 hover:opacity-100 hover:underline"
+                className="inline-flex items-center gap-1 hover:opacity-100 hover:underline text-[12px]"
               >
                 {showAllPhases ? '▾ Ocultar periodização' : '▸ Ver periodização'} ({periodization.phases.length} fases)
               </button>
@@ -161,7 +161,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
             {nextPhase && (
               <button
                 onClick={() => setConfirmAdvance(true)}
-                className="ml-auto inline-flex items-center gap-1 hover:opacity-100 hover:underline"
+                className="ml-auto inline-flex items-center gap-1 hover:opacity-100 hover:underline text-[10px]"
               >
                 <ChevronRightCircle className="h-3 w-3" /> Avançar fase manualmente
               </button>
