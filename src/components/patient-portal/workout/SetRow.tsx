@@ -175,14 +175,18 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         </button>
       </div>
 
-      {/* Done */}
+      {/* Done — outline emerald quando vazio (padrao consistente com o + de
+          refeicao / meta) e solido emerald com sombra quando marcado. Antes era
+          cinza claro chapado, quase invisivel — nao convidava ao toque. */}
       <Button
         type="button"
         size="sm"
         disabled={saving || localBusy}
         className={`h-11 w-11 p-0 shrink-0 ${
-          value.done ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-slate-300 hover:bg-emerald-500'
-        } text-white`}
+          value.done
+            ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+            : 'bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
+        }`}
         onClick={handleDone}
         aria-label={value.done ? 'Série feita' : 'Marcar série feita'}
       >
