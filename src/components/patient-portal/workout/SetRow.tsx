@@ -145,14 +145,17 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         </Button>
       </div>
 
-      {/* RPE — fixo: serve como referência de esforço prescrita pelo treinador.
-          Aluno não edita; ao concluir a série, o RPE prescrito é gravado. */}
+      {/* RPE — fixo: referência de esforço prescrita pelo treinador. Visual de
+          pílula/chip (sem moldura de input) pra deixar claro que NÃO é campo
+          de preenchimento. Ao concluir a série, o RPE prescrito é gravado. */}
       <div
-        className="h-11 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center font-semibold tabular-nums text-slate-700"
+        className="h-11 flex items-center justify-center"
         aria-label={`RPE prescrito ${index + 1}`}
         title="RPE prescrito (esforço-alvo)"
       >
-        {defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : '—'}
+        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold tabular-nums text-blue-700">
+          🎯 {defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : '—'}
+        </span>
       </div>
 
       {/* Done */}

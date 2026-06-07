@@ -224,12 +224,18 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
             {/* Séries de aquecimento (aparecem antes das séries de trabalho) */}
             {warmupCount > 0 && (
               <div className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50/60 p-2">
-                <p className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600">
-                  🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
-                  {warmupReps ? ` × ${warmupReps} reps` : ''}
-                  {warmupRpe != null ? ` · RPE ${warmupRpe}` : ''}
-                  {warmupLastWeight != null ? ` · última vez ${warmupLastWeight}kg` : ''}
-                </p>
+                <div className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600 leading-snug">
+                  <div>
+                    🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
+                    {warmupReps ? ` × ${warmupReps} reps` : ''}
+                    {warmupRpe != null ? ` · RPE ${warmupRpe}` : ''}
+                  </div>
+                  {warmupLastWeight != null && (
+                    <div className="mt-0.5 font-semibold text-amber-700/80">
+                      📊 Última vez: {warmupLastWeight}kg
+                    </div>
+                  )}
+                </div>
                 {/* Cabeçalho de colunas (mesmo das séries de trabalho) */}
                 <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70">
                   <span className="text-center">Série</span>
@@ -258,18 +264,12 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
             )}
 
             <div className="space-y-2">
-              <p className="px-1 text-xs text-slate-500">
-                {totalSets === 1
-                  ? 'Preencha a carga e as reps que você fez e toque no ✓.'
-                  : <>Preencha a carga de cada uma das <strong className="text-slate-700">{totalSets} séries</strong> e toque no ✓ a cada série feita.</>}
-              </p>
-
               {/* Sugestão: última carga registrada + meta de carga da fase atual */}
               {(lastLoad?.weight_kg != null || exercise.load_kg != null) && (
                 <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs">
                   {lastLoad?.weight_kg != null ? (
                     <span className="text-slate-600">
-                      <span className="text-slate-400">Última vez:</span>{' '}
+                      <span className="text-slate-400">📊 Última vez:</span>{' '}
                       <strong className="tabular-nums text-slate-800">{lastLoad.weight_kg}kg</strong>
                       {lastLoad.reps != null ? <span className="text-slate-400"> × {lastLoad.reps}</span> : null}
                       {lastLoad.rpe != null ? <span className="text-slate-400"> · RPE {lastLoad.rpe}</span> : null}
@@ -277,7 +277,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   ) : null}
                   {exercise.load_kg != null ? (
                     <span className="text-slate-600">
-                      <span className="text-slate-400">Meta da fase:</span>{' '}
+                      <span className="text-slate-400">🎯 Meta da fase:</span>{' '}
                       <strong className="tabular-nums text-slate-800">{exercise.load_kg}kg</strong>
                     </span>
                   ) : null}
