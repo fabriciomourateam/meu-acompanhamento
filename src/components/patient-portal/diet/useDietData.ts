@@ -22,21 +22,24 @@ export function useDietData(patientId: string) {
   const [consumedFoods, setConsumedFoods] = useState<Set<string>>(new Set());
   const [expandedMeals, setExpandedMeals] = useState<Set<string>>(new Set());
   // Grupos de refeições-opção recolhidos (por id da refeição principal). Vazio = todas expandidas.
-  // Persistido por paciente neste aparelho (localStorage).
-  const collapsedOptionsKey = `diet_collapsed_options_${patientId}`;
-  const [collapsedOptionGroups, setCollapsedOptionGroups] = useState<Set<string>>(() => {
+  // Persistido por paciente neste aparelho (localStorage). Semântica invertida:
+  // o set guarda os grupos que o aluno EXPANDIU (default = todos colapsados).
+  // Reduz a poluição visual da lista quando há várias opções por refeição.
+  // A chave de localStorage mudou (sufixo _v2) pra invalidar persistência antiga.
+  const expandedOptionsKey = `diet_expanded_options_${patientId}_v2`;
+  const [expandedOptionGroups, setExpandedOptionGroups] = useState<Set<string>>(() => {
     try {
-      const raw = localStorage.getItem(`diet_collapsed_options_${patientId}`);
+      const raw = localStorage.getItem(expandedOptionsKey);
       return raw ? new Set<string>(JSON.parse(raw)) : new Set<string>();
     } catch {
       return new Set<string>();
     }
   });
   const toggleOptionGroup = (mainMealId: string) => {
-    setCollapsedOptionGroups(prev => {
+    setExpandedOptionGroups(prev => {
       const next = new Set(prev);
       if (next.has(mainMealId)) next.delete(mainMealId); else next.add(mainMealId);
-      try { localStorage.setItem(collapsedOptionsKey, JSON.stringify([...next])); } catch { /* ignora */ }
+      try { localStorage.setItem(expandedOptionsKey, JSON.stringify([...next])); } catch { /* ignora */ }
       return next;
     });
   };
@@ -398,7 +401,7 @@ export function useDietData(patientId: string) {
     consumedFoods,
     expandedMeals,
     setExpandedMeals,
-    collapsedOptionGroups,
+    expandedOptionGroups,
     toggleOptionGroup,
     primaryChoices,
     setPrimaryChoice,

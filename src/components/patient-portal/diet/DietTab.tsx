@@ -75,7 +75,7 @@ export function DietTab({
     consumedFoods,
     expandedMeals,
     setExpandedMeals,
-    collapsedOptionGroups,
+    expandedOptionGroups,
     toggleOptionGroup,
     primaryChoices,
     setPrimaryChoice,
@@ -471,7 +471,8 @@ export function DietTab({
                           // (inclui a principal rebaixada após uma troca).
                           const showAsOption = !isActive;
                           // Opção dentro de um grupo recolhido só some se NÃO for a em uso hoje.
-                          if (isOption && !isActive && collapsedOptionGroups.has(meal.parent_meal_id)) {
+                          // Default = colapsado (set guarda os que o aluno expandiu).
+                          if (isOption && !isActive && !expandedOptionGroups.has(meal.parent_meal_id)) {
                             return null;
                           }
                           // Quantas opções esta refeição principal possui (para o botão recolher).
@@ -480,7 +481,7 @@ export function DietTab({
                             : 0;
                           // Faz parte de um grupo com alternativas (principal c/ opções, ou uma opção).
                           const inSwappableGroup = !!meal.parent_meal_id || optionCount > 0;
-                          const optionsCollapsed = collapsedOptionGroups.has(meal.id);
+                          const optionsCollapsed = !expandedOptionGroups.has(meal.id);
                           // Remove o emoji 🔁 do nome — a sinalização passa a ser o badge "Opção"
                           const displayName = isOption
                             ? (meal.meal_name || '').replace(/🔁/g, '').trim()
