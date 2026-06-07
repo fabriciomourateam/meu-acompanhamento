@@ -108,10 +108,24 @@ export default {
             height: "0",
           },
         },
+        // pulso de "olha aqui" pro banner de Orientacoes ate o aluno clicar
+        // a primeira vez. Mais suave que o animate-pulse default (que reduz
+        // pra 0.5 opacity).
+        "pulse-soft": {
+          "0%, 100%": {
+            opacity: "1",
+            boxShadow: "0 0 0 0 rgba(16, 185, 129, 0.45)",
+          },
+          "50%": {
+            opacity: "1",
+            boxShadow: "0 0 0 6px rgba(16, 185, 129, 0)",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pulse-soft": "pulse-soft 2s ease-in-out infinite",
       },
     },
   },

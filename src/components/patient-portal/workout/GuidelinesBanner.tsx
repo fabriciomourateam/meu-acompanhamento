@@ -1,6 +1,6 @@
 // ITEM 6 — Banner colapsável "Orientações importantes":
 // observações gerais do plano + general_notes da periodização + notas de sessão.
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
 interface Props {
@@ -8,28 +8,63 @@ interface Props {
   generalNotes: string | null;
   /** Observações gerais do plano (workout_plans.notes) — escritas no MyShape. */
   planNotes?: string | null;
+  /** ID do aluno — usado pra persistir "ja viu as orientacoes" e parar o pulse. */
+  patientId?: string;
 }
 
 const hasText = (html: string | null | undefined) => !!(html && html.replace(/<[^>]+>/g, '').trim());
 
-export function GuidelinesBanner({ sessions, generalNotes, planNotes }: Props) {
+export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId }: Props) {
   const hasNotes = hasText(generalNotes);
   const hasPlanNotes = hasText(planNotes);
   const hasContent = sessions.length > 0 || hasNotes || hasPlanNotes;
   const [expanded, setExpanded] = useState(false);
+  // 'seen' = aluno ja abriu pelo menos uma vez (entao para o pulse pra sempre).
+  // Persistido por aluno em localStorage. Default true (sem pulse) quando nao
+  // ha patientId, pra evitar pisca-pisca em casos exoticos.
+  const seenKey = patientId ? `workout_guidelines_seen_${patientId}` : null;
+  const [seen, setSeen] = useState(() => {
+    if (!seenKey) return true;
+    try { return localStorage.getItem(seenKey) === '1'; } catch { return true; }
+  });
+  // Se patientId muda em runtime (raro), re-le o flag.
+  useEffect(() => {
+    if (!seenKey) return;
+    try { setSeen(localStorage.getItem(seenKey) === '1'); } catch { /* ignora */ }
+  }, [seenKey]);
+
   if (!hasContent) return null;
 
   const totalCount = sessions.length + (hasNotes ? 1 : 0) + (hasPlanNotes ? 1 : 0);
 
+  const handleClick = () => {
+    setExpanded((v) => !v);
+    if (!seen && seenKey) {
+      setSeen(true);
+      try { localStorage.setItem(seenKey, '1'); } catch { /* ignora */ }
+    }
+  };
+
   return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
+    <div
+      className={`rounded-lg border bg-slate-50 overflow-hidden transition-all ${
+        seen ? 'border-slate-200' : 'border-emerald-300 ring-2 ring-emerald-300/40 animate-pulse-soft'
+      }`}
+    >
       <button
-        onClick={() => setExpanded((v) => !v)}
+        onClick={handleClick}
         className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-slate-100/40"
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
           📌 Orientações importantes
-          <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold">{totalCount}</span>
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${seen ? 'bg-slate-200 text-slate-700' : 'bg-emerald-500 text-white'}`}>
+            {totalCount}
+          </span>
+          {!seen && (
+            <span className="text-[10px] font-medium text-emerald-700 normal-case">
+              ← toque pra ler
+            </span>
+          )}
         </span>
         {expanded ? <ChevronDown className="h-4 w-4 text-slate-700" /> : <ChevronRight className="h-4 w-4 text-slate-700" />}
       </button>

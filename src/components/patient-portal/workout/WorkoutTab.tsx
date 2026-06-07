@@ -282,7 +282,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
   return (
     <div className="space-y-3">
-      <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} planNotes={plan.notes} />
+      <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} planNotes={plan.notes} patientId={patientId} />
 
       <PhaseAdvanceBanner
         token={token}
