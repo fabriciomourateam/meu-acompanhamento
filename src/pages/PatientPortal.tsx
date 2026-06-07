@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { checkinService } from '@/lib/checkin-service';
+import { levelsService, type CurrentLevel } from '@/lib/levels-service';
 import { supabase } from '@/integrations/supabase/client';
 import { validateToken } from '@/lib/patient-portal-service';
 import { detectAchievements } from '@/lib/achievement-system';
@@ -122,6 +123,17 @@ export default function PatientPortal() {
   const [unauthorized, setUnauthorized] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
+  // Nivel atual (Bronze/Prata/Ouro/Platina/Diamante) — usado pro anel colorido
+  // ao redor do avatar e pelo chip de nivel embaixo do nome no header.
+  const [levelData, setLevelData] = useState<CurrentLevel | null>(null);
+  useEffect(() => {
+    if (!token) return;
+    let cancelled = false;
+    levelsService.getByToken(token)
+      .then((d) => { if (!cancelled) setLevelData(d); })
+      .catch(() => { /* nivel e best-effort */ });
+    return () => { cancelled = true; };
+  }, [token]);
   const portalRef = useRef<HTMLDivElement>(null);
   const [weightInputOpen, setWeightInputOpen] = useState(false);
   const [chartsRefreshTrigger, setChartsRefreshTrigger] = useState(0);
@@ -822,14 +834,35 @@ export default function PatientPortal() {
           >
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
               {patientId && (
-                <ProfileAvatar
-                  patientId={patientId}
-                  name={patient?.nome}
-                  photoUrl={(patient as any)?.foto_perfil}
-                  onChange={(newUrl) =>
-                    setPatient((prev) => (prev ? ({ ...prev, foto_perfil: newUrl } as any) : prev))
+                // Anel colorido = nivel atual do aluno (gamificacao). Como border
+                // CSS nao aceita gradient, envolvemos o avatar num wrapper com
+                // bg-gradient + padding interno. Quando ainda nao carregou,
+                // mantem so o avatar (sem anel).
+                <div
+                  className={
+                    levelData?.current_color
+                      ? `relative rounded-full p-0.5 bg-gradient-to-br ${levelData.current_color} shrink-0`
+                      : 'shrink-0'
                   }
-                />
+                  title={levelData?.current_name ? `Nível ${levelData.current_name}` : undefined}
+                >
+                  <ProfileAvatar
+                    patientId={patientId}
+                    name={patient?.nome}
+                    photoUrl={(patient as any)?.foto_perfil}
+                    onChange={(newUrl) =>
+                      setPatient((prev) => (prev ? ({ ...prev, foto_perfil: newUrl } as any) : prev))
+                    }
+                  />
+                  {levelData?.current_emoji && (
+                    <span
+                      className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-[12px] shadow ring-1 ring-slate-200"
+                      aria-label={`Nível ${levelData.current_name || ''}`}
+                    >
+                      {levelData.current_emoji}
+                    </span>
+                  )}
+                </div>
               )}
               <div className="min-w-0 flex-1">
                 {patientId ? (
