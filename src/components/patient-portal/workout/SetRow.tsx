@@ -112,7 +112,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           {index + 1}
         </span>
         {defaultReps != null && (
-          <span className="mt-1 text-[9px] font-medium text-slate-400">alvo: {defaultReps}</span>
+          <span className="mt-1 text-[9px] font-medium text-slate-400">Alvo: {defaultReps}</span>
         )}
       </div>
 
