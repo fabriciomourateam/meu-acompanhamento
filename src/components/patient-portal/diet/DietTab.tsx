@@ -102,7 +102,7 @@ function OptionBadge() {
             Você pode fazer esta refeição <strong>no lugar</strong> da principal — escolha uma das duas, não as duas.
           </p>
           <p className="mt-1.5 text-slate-500">
-            Toque em <em>"Trocar por hoje"</em> pra contabilizá-la no seu plano do dia.
+            Toque em <em>"Usar hoje"</em> pra contabilizá-la no seu plano do dia.
           </p>
         </div>
       )}
@@ -642,9 +642,8 @@ export function DietTab({
                                 </CollapsibleTrigger>
 
                                 {/* Troca opção↔principal do dia (zera ao virar o dia).
-                                    Texto enxuto: era 'Usar como principal hoje'
-                                    (longo, transbordava). Vira 'Trocar por hoje' /
-                                    'Desfazer troca' com chip compacto. */}
+                                    'Usar hoje' (era 'Trocar por hoje') — mais direto:
+                                    sinaliza que vai contar essa no lugar da principal. */}
                                 {inSwappableGroup && !isConsumed && (
                                   <div className="flex items-center justify-end gap-2 px-3 sm:px-4 pb-2 -mt-1">
                                     {!isActive ? (
@@ -655,7 +654,7 @@ export function DietTab({
                                         className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white px-2 py-0.5 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50"
                                       >
                                         <ArrowLeftRight className="w-3 h-3" />
-                                        Trocar por hoje
+                                        Usar hoje
                                       </button>
                                     ) : groupSwapped ? (
                                       <button
