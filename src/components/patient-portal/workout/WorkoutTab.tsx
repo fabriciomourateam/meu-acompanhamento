@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, AlertTriangle } from 'lucide-react';
+import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
@@ -32,15 +32,53 @@ interface WorkoutTabProps {
 const DAYS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 // Cabeçalho premium do plano: separa o título (antes do ":") da frequência
-// (depois do ":") — ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana".
-function PlanHeader({ name }: { name: string }) {
+// (depois do ":") — ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana". Quando ha mais de
+// um plano, vira navegacao com setas ◂ ▸ (alterna entre MUSCULACAO/Vacuum
+// etc), substituindo os chips que existiam acima desse card.
+function PlanHeader({
+  name,
+  onPrev,
+  onNext,
+  positionLabel,
+}: {
+  name: string;
+  onPrev?: () => void;
+  onNext?: () => void;
+  positionLabel?: string;
+}) {
   const raw = name.trim();
   const ci = raw.indexOf(':');
   const title = ci > 0 ? raw.slice(0, ci).trim() : raw;
   const freq = ci > 0 ? raw.slice(ci + 1).trim() : '';
+  const isSelector = !!(onPrev || onNext);
   return (
-    <div className="rounded-xl border border-emerald-200 bg-white px-4 py-2.5 text-center text-sm text-slate-700 shadow-sm">
-      <span className="font-bold text-slate-800">{title}</span>{freq ? `: ${freq}` : ''}
+    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm">
+      {isSelector ? (
+        <button
+          type="button"
+          onClick={onPrev}
+          aria-label="Plano anterior"
+          className="shrink-0 rounded-full p-1.5 text-emerald-700 transition-colors hover:bg-emerald-50"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      ) : null}
+      <div className="flex-1 min-w-0 text-center">
+        <span className="font-bold text-slate-800">{title}</span>{freq ? `: ${freq}` : ''}
+        {positionLabel && (
+          <span className="ml-2 text-[11px] font-medium text-slate-400">{positionLabel}</span>
+        )}
+      </div>
+      {isSelector ? (
+        <button
+          type="button"
+          onClick={onNext}
+          aria-label="Próximo plano"
+          className="shrink-0 rounded-full p-1.5 text-emerald-700 transition-colors hover:bg-emerald-50"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -229,30 +267,21 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
   const activePlanId = selectedPlanId ?? plan.id;
 
+  // Navegacao entre planos (quando ha mais de um): o card 'PlanHeader' vira
+  // o seletor — setas laterais ◂ ▸ alternam entre os planos disponiveis.
+  // Substitui os chips de cima 'MUSCULACAO / Vacuum' que duplicavam o card.
+  const planIndex = plans.findIndex((p) => p.id === activePlanId);
+  const goToPlan = (delta: -1 | 1) => {
+    if (plans.length < 2) return;
+    const next = plans[(planIndex + delta + plans.length) % plans.length];
+    if (next?.id !== activePlanId) {
+      setOpenSessionId(null);
+      setSelectedPlanId(next.id);
+    }
+  };
+
   return (
     <div className="space-y-3">
-      {/* Seletor de planos — só aparece quando o aluno tem mais de um plano ativo. */}
-      {plans.length > 1 && (
-        <div className="flex flex-wrap gap-2">
-          {plans.map((p) => {
-            const isActive = p.id === activePlanId;
-            return (
-              <button
-                key={p.id}
-                onClick={() => { if (p.id !== activePlanId) { setOpenSessionId(null); setSelectedPlanId(p.id); } }}
-                className={`rounded-full border px-3 py-1.5 text-sm font-semibold transition ${
-                  isActive
-                    ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-                }`}
-              >
-                {p.name}
-              </button>
-            );
-          })}
-        </div>
-      )}
-
       <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} planNotes={plan.notes} />
 
       <PhaseAdvanceBanner
@@ -267,12 +296,12 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           <TabsTrigger value="workouts" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
             <Dumbbell className="h-4 w-4 mr-1.5" />
             Treinos
-            {workoutSessions.length > 0 && <span className="ml-1 text-xs opacity-70">{workoutSessions.length}</span>}
+            {workoutSessions.length > 1 && <span className="ml-1 text-xs opacity-70">{workoutSessions.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="cardios" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
             <HeartPulse className="h-4 w-4 mr-1.5" />
             Cardios
-            {cardioSessions.length > 0 && <span className="ml-1 text-xs opacity-70">{cardioSessions.length}</span>}
+            {cardioSessions.length > 1 && <span className="ml-1 text-xs opacity-70">{cardioSessions.length}</span>}
           </TabsTrigger>
           <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
             <BarChart3 className="h-4 w-4 mr-1.5" />
@@ -281,8 +310,17 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
         </TabsList>
 
         <TabsContent value="workouts" className="mt-3 space-y-2.5">
-          {/* Cabeçalho do plano (puxa o nome do treino, ex.: "✅ MUSCULAÇÃO: 3 a 4x na semana") */}
-          {plan.name && <PlanHeader name={plan.name} />}
+          {/* Cabecalho do plano: quando ha mais de um plano (MUSCULACAO / Vacuum
+              etc), vira navegacao com setas ◂ ▸ — substitui os chips de cima
+              que estavam duplicando o nome do plano. */}
+          {plan.name && (
+            <PlanHeader
+              name={plan.name}
+              onPrev={plans.length > 1 ? () => goToPlan(-1) : undefined}
+              onNext={plans.length > 1 ? () => goToPlan(1) : undefined}
+              positionLabel={plans.length > 1 ? `${planIndex + 1}/${plans.length}` : undefined}
+            />
+          )}
 
           {/* Bloco de Mobilidade — em destaque ACIMA do treino convencional.
               Definido pelo nutri no MyShape como session_type='mobility'. */}
@@ -296,22 +334,27 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           {workoutSessions.length === 0 ? (
             <p className="py-6 text-center text-sm italic text-slate-500">Nenhum treino cadastrado neste plano.</p>
           ) : (
-            workoutSessions.map((s, i) => (
-              <button
-                key={s.id}
-                onClick={() => setOpenSessionId(s.id)}
-                className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-blue-300 hover:shadow"
-              >
-                <span className="inline-flex shrink-0 items-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-2.5 py-1 text-xs font-bold text-white">
-                  {sessionBadge(plan.session_naming_style, i, s.day_of_week)}
-                </span>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate font-semibold text-slate-800">{s.name}</div>
-                  {s.focus && <div className="truncate text-xs text-slate-500">{s.focus}</div>}
-                </div>
-                <span className="shrink-0 text-xs text-slate-400">{s.exercises.length} exec.</span>
-              </button>
-            ))
+            workoutSessions.map((s, i) => {
+              // Evita subtitulo identico ao titulo (caso comum: 'Quadriceps + Gluteos'
+              // no nome e no focus). So mostra focus quando agrega informacao.
+              const showFocus = s.focus && s.focus.trim().toLowerCase() !== (s.name || '').trim().toLowerCase();
+              return (
+                <button
+                  key={s.id}
+                  onClick={() => setOpenSessionId(s.id)}
+                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-blue-300 hover:shadow"
+                >
+                  <span className="inline-flex shrink-0 items-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-2.5 py-1 text-xs font-bold text-white">
+                    {sessionBadge(plan.session_naming_style, i, s.day_of_week)}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate font-semibold text-slate-800">{s.name}</div>
+                    {showFocus && <div className="truncate text-xs text-slate-500">{s.focus}</div>}
+                  </div>
+                  <span className="shrink-0 text-xs text-slate-400">{s.exercises.length} exec.</span>
+                </button>
+              );
+            })
           )}
         </TabsContent>
 
