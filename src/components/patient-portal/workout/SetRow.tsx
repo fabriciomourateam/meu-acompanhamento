@@ -99,7 +99,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           {index + 1}
         </span>
         {defaultReps != null && (
-          <span className="mt-1 text-[9px] font-medium text-blue-500">Alvo {defaultReps}</span>
+          <span className="mt-1 text-[9px] font-medium text-blue-500">{defaultReps} reps</span>
         )}
       </div>
 
@@ -145,18 +145,15 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         </Button>
       </div>
 
-      {/* RPE */}
-      <Input
-        inputMode="decimal"
-        value={value.rpe ?? ''}
-        placeholder={defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : 'RPE'}
-        onChange={(e) => {
-          const n = e.target.value.replace(',', '.');
-          patch({ rpe: n === '' ? null : Number(n) });
-        }}
-        className={baseInput}
-        aria-label={`RPE série ${index + 1}`}
-      />
+      {/* RPE — fixo: serve como referência de esforço prescrita pelo treinador.
+          Aluno não edita; ao concluir a série, o RPE prescrito é gravado. */}
+      <div
+        className="h-11 rounded-md border border-slate-200 bg-slate-50 flex items-center justify-center font-semibold tabular-nums text-slate-700"
+        aria-label={`RPE prescrito ${index + 1}`}
+        title="RPE prescrito (esforço-alvo)"
+      >
+        {defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : '—'}
+      </div>
 
       {/* Done */}
       <Button

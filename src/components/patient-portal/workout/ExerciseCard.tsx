@@ -230,6 +230,14 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   {warmupRpe != null ? ` · RPE ${warmupRpe}` : ''}
                   {warmupLastWeight != null ? ` · última vez ${warmupLastWeight}kg` : ''}
                 </p>
+                {/* Cabeçalho de colunas (mesmo das séries de trabalho) */}
+                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70">
+                  <span className="text-center">Série</span>
+                  <span className="text-center">Peso (kg)</span>
+                  <span className="text-center">Reps</span>
+                  <span className="text-center">RPE</span>
+                  <span />
+                </div>
                 {warmupRows.map((row, i) => (
                   <SetRow
                     key={`w${i}`}
@@ -300,7 +308,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     <li><strong>8</strong> — daria pra fazer +2 reps</li>
                     <li><strong>7</strong> — daria pra fazer +3 reps</li>
                   </ul>
-                  <p className="mt-1 text-slate-500">O número cinza no campo é o RPE alvo da série. Anote o que você sentiu.</p>
+                  <p className="mt-1 text-slate-500">O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.</p>
                 </div>
               )}
               {rows.map((row, i) => {
