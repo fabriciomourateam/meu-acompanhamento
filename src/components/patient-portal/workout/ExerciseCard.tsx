@@ -385,12 +385,12 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     <Undo2 className="h-3.5 w-3.5" /> Voltar ao original
                   </button>
                 ) : onRequestSubstitute ? (
-                  /* 'Substituir' outline puro (sem bg-amber-50 chapado). Vira
-                     acao secundaria discreta — antes competia com 'Ver progressao'
-                     a esquerda. */
+                  /* 'Substituir' como link puro com icone — sem moldura. Mesma
+                     altura visual de 'Ver progressao de carga' a esquerda
+                     (acoes pares: leitura vs acao). */
                   <button
                     onClick={onRequestSubstitute}
-                    className="flex items-center gap-1.5 rounded-lg border border-amber-200 bg-white px-2.5 py-1.5 text-xs font-medium text-amber-600 transition hover:bg-amber-50 hover:text-amber-700"
+                    className="flex items-center gap-1.5 text-xs font-medium text-amber-600 transition hover:text-amber-700"
                   >
                     <Shuffle className="h-3.5 w-3.5" /> Substituir
                   </button>
