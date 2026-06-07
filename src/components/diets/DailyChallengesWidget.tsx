@@ -220,10 +220,13 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                       <Button
                         size="sm"
                         onClick={() => handleToggleChallenge(challenge.challenge_key)}
+                        // Mesmo padrao do botao + das refeicoes (DietTab): outline
+                        // emerald quando nao-marcado, verde solido com check ao
+                        // concluir. Reduz ruido visual quando ha varias metas.
                         className={`w-10 h-10 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                           isCompleted
-                            ? 'bg-gradient-to-br from-[#00C98A] to-[#00A875] hover:from-[#00A875] hover:to-[#00C98A] text-white shadow-md'
-                            : 'bg-gray-100 hover:bg-gray-200 text-gray-600 border border-gray-200'
+                            ? 'bg-gradient-to-br from-[#00C98A] to-[#00A875] hover:from-[#00A875] hover:to-[#00C98A] text-white shadow-sm'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
                         }`}
                       >
                         {isCompleted ? (
