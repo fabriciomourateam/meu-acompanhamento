@@ -36,6 +36,12 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
 
   const [activeTab, setActiveTab] = useState<MacroGroupId | "favs">("carbos");
   const [search, setSearch] = useState("");
+  // Paginacao no client: carrega 20 alimentos por vez (~5 linhas em qualquer
+  // breakpoint do grid). Reseta sempre que muda filtro/busca/aba pra nao
+  // carregar tudo de uma vez (a aba Carboidratos tinha ~40 itens).
+  const PAGE_SIZE = 20;
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  useEffect(() => { setVisibleCount(PAGE_SIZE); }, [activeTab, search]);
   const [selected, setSelected] = useState<PatientFood | null>(null);
   const [panelOpen, setPanelOpen] = useState(false);
   const [baseFood, setBaseFood] = useState<PatientFood | null>(null);
@@ -277,7 +283,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
 
       {/* Grid de alimentos */}
       <FoodGrid
-        foods={visibleFoods}
+        foods={visibleFoods.slice(0, visibleCount)}
         onSelect={(f) => {
           setSelected(f);
           setPanelOpen(true);
@@ -296,6 +302,22 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
               }.`
         }
       />
+
+      {/* Botao 'Carregar mais' quando ha alimentos ainda nao mostrados */}
+      {visibleCount < visibleFoods.length && (
+        <div className="flex justify-center pt-1">
+          <button
+            type="button"
+            onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 bg-white px-4 py-1.5 text-xs font-semibold text-emerald-600 transition-colors hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+          >
+            Carregar mais
+            <span className="text-[10px] font-normal text-slate-400">
+              ({visibleFoods.length - visibleCount} restante{visibleFoods.length - visibleCount !== 1 ? 's' : ''})
+            </span>
+          </button>
+        </div>
+      )}
 
       {/* Painel lateral com substituições */}
       <SubstitutionsPanel food={selected} open={panelOpen} onOpenChange={setPanelOpen} />
