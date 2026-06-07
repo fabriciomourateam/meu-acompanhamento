@@ -282,11 +282,14 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               {(lastLoad?.weight_kg != null || exercise.load_kg != null) && (
                 <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs">
                   {lastLoad?.weight_kg != null ? (
+                    // 'Ultima vez' como referencia rapida — so peso × reps.
+                    // O RPE foi removido pra nao induzir 'preciso bater igual'
+                    // em alunos iniciantes (o RPE prescrito da serie atual ja
+                    // sinaliza a intensidade alvo).
                     <span className="text-slate-600">
                       <span className="text-slate-400">📊 Última vez:</span>{' '}
                       <strong className="tabular-nums text-slate-800">{lastLoad.weight_kg}kg</strong>
                       {lastLoad.reps != null ? <span className="text-slate-400"> × {lastLoad.reps}</span> : null}
-                      {lastLoad.rpe != null ? <span className="text-slate-400"> · RPE {lastLoad.rpe}</span> : null}
                     </span>
                   ) : null}
                   {exercise.load_kg != null ? (
