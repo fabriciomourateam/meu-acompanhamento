@@ -105,8 +105,13 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           </span>
         )}
         <span
+          // Numero da serie: azul claro com texto azul escuro quando vazia
+          // (combina com o badge 'Seg · Treino A' do hub), emerald solido
+          // quando concluida. Antes era ring-slate-300 chapado e quase apagado.
           className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-            value.done ? 'bg-emerald-600 text-white' : 'bg-white text-slate-600 ring-1 ring-slate-300'
+            value.done
+              ? 'bg-emerald-600 text-white'
+              : 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
           }`}
         >
           {index + 1}
