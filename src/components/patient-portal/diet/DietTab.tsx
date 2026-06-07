@@ -571,9 +571,12 @@ export function DietTab({
                                           e.stopPropagation();
                                           handleToggleMealConsumed(meal.id);
                                         }}
+                                        aria-label={isConsumed ? 'Desmarcar refeição' : 'Marcar refeição como consumida'}
+                                        // Discreto quando não-consumido (chip outline), forte quando ok.
+                                        // Reduz o "ruído verde" da tela inteira com vários cards.
                                         className={`w-7 h-7 sm:w-8 sm:h-8 p-0 rounded-full transition-all duration-200 min-h-[36px] min-w-[36px] ${isConsumed
-                                          ? 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700'
-                                          : 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-md'
+                                          ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
+                                          : 'bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
                                           }`}
                                       >
                                         {isConsumed ? (
