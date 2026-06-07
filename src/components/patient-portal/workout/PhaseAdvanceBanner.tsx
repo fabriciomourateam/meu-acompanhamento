@@ -145,24 +145,25 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
         )}
 
-        {/* Links de acao no rodape do card (em vez de botao lateral grande
-            + outro link roxo solto la fora). Ambos discretos, cor neutra. */}
+        {/* Links de acao no rodape do card: 'Ver periodizacao' a esquerda
+            (acao leitura, mais comum) e 'Avancar fase' a direita (acao escrita,
+            mais rara). Ambos discretos, na cor da fase. */}
         {(nextPhase || periodization.phases.length > 1) && (
           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-current/15 pt-2 text-[11px] font-medium opacity-80">
-            {nextPhase && (
-              <button
-                onClick={() => setConfirmAdvance(true)}
-                className="inline-flex items-center gap-1 hover:opacity-100 hover:underline"
-              >
-                <ChevronRightCircle className="h-3 w-3" /> Avançar fase manualmente
-              </button>
-            )}
             {periodization.phases.length > 1 && (
               <button
                 onClick={() => setShowAllPhases((v) => !v)}
                 className="inline-flex items-center gap-1 hover:opacity-100 hover:underline"
               >
                 {showAllPhases ? '▾ Ocultar periodização' : '▸ Ver periodização'} ({periodization.phases.length} fases)
+              </button>
+            )}
+            {nextPhase && (
+              <button
+                onClick={() => setConfirmAdvance(true)}
+                className="ml-auto inline-flex items-center gap-1 hover:opacity-100 hover:underline"
+              >
+                <ChevronRightCircle className="h-3 w-3" /> Avançar fase manualmente
               </button>
             )}
           </div>
