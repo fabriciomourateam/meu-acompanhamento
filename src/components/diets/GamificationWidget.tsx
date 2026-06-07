@@ -13,6 +13,8 @@ interface GamificationWidgetProps {
   patientId: string;
   /** Token do portal — quando presente, roda a engine pra desbloquear novas conquistas. */
   token?: string;
+  /** Callback pra mudar pra aba de Metas Diarias (do streak vazio: 'Comecar agora'). */
+  onGoToMetas?: () => void;
 }
 
 function getStreakMessage(streak: number): string {
@@ -23,7 +25,7 @@ function getStreakMessage(streak: number): string {
   return `${streak} dia${streak > 1 ? 's' : ''} seguido${streak > 1 ? 's' : ''}`;
 }
 
-export function GamificationWidget({ patientId, token }: GamificationWidgetProps) {
+export function GamificationWidget({ patientId, token, onGoToMetas }: GamificationWidgetProps) {
   const [points, setPoints] = useState<PatientPoints | null>(null);
   const [achievements, setAchievements] = useState<Achievement[]>([]);
   const [templates, setTemplates] = useState<AchievementTemplate[]>([]);
@@ -144,12 +146,33 @@ export function GamificationWidget({ patientId, token }: GamificationWidgetProps
             </div>
           </div>
         ) : (
+          // Estado vazio do streak: convidativo (em vez do '💤 Comece hoje').
+          // Usa o icone do fogo apagado mas em cor 'pra acender' (slate -> orange
+          // gradient sutil) + CTA pra Metas que ja vai direto na acao.
           <CardContent className="p-4 sm:p-5 flex items-center gap-4">
-            <span className="text-4xl select-none">💤</span>
-            <div>
-              <p className="text-base font-bold text-slate-600">Comece hoje!</p>
-              <p className="text-sm text-slate-400">Complete suas metas diárias e inicie sua sequência.</p>
+            <motion.span
+              initial={{ scale: 0.7, opacity: 0.6 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: 'spring', stiffness: 200 }}
+              className="text-4xl select-none"
+            >
+              ✨
+            </motion.span>
+            <div className="flex-1 min-w-0">
+              <p className="text-base font-bold text-slate-700">Sua sequência começa hoje 🔥</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Marque a primeira meta e veja o fogo acender.
+              </p>
             </div>
+            {onGoToMetas && (
+              <button
+                type="button"
+                onClick={onGoToMetas}
+                className="shrink-0 rounded-full bg-gradient-to-br from-orange-500 to-red-500 text-white text-xs font-semibold px-3 py-1.5 shadow-sm shadow-orange-500/30 hover:shadow-md hover:shadow-orange-500/40 transition-all"
+              >
+                Ir pra Metas →
+              </button>
+            )}
           </CardContent>
         )}
       </Card>
