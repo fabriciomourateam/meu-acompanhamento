@@ -13,6 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { formatTextToPlain, sanitizeRichHtml } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
 import {
@@ -139,6 +140,39 @@ export function DietTab({
     handleToggleMealConsumed,
     handleToggleFoodConsumed,
   } = diet;
+
+  // Cache de gramas-por-unidade dos alimentos do modal de Substituições.
+  // O MyShape grava substituições só com {food_name, unit, quantity} — sem
+  // custom_unit_grams pra frutas como "3 ameixas". Aqui buscamos no food_database
+  // a tabela `common_units` (ex: [{unit:"unidade média", grams:42}]) e usamos
+  // como fallback no render. Chave = food_name lowercase.
+  const [substitutionGramsMap, setSubstitutionGramsMap] = useState<Map<string, number>>(new Map());
+  useEffect(() => {
+    if (!substitutionsModalOpen || !selectedFoodSubstitutions) return;
+    const subs = selectedFoodSubstitutions.substitutions || [];
+    const names = Array.from(new Set(
+      subs.filter((s: any) => !Number(s.custom_unit_grams))
+          .map((s: any) => String(s.food_name || '').trim())
+          .filter(Boolean)
+    ));
+    if (names.length === 0) { setSubstitutionGramsMap(new Map()); return; }
+    let cancelled = false;
+    supabase.from('food_database')
+      .select('name, common_units')
+      .in('name', names as string[])
+      .then(({ data }) => {
+        if (cancelled) return;
+        const m = new Map<string, number>();
+        (data || []).forEach((row: any) => {
+          const arr = Array.isArray(row.common_units) ? row.common_units : [];
+          // Pega a primeira unidade com grams > 0 (cobre "unidade média", "fatia", etc).
+          const u = arr.find((x: any) => Number(x?.grams) > 0);
+          if (u) m.set(String(row.name).toLowerCase(), Number(u.grams));
+        });
+        setSubstitutionGramsMap(m);
+      });
+    return () => { cancelled = true; };
+  }, [substitutionsModalOpen, selectedFoodSubstitutions]);
 
   // Refeição "em uso" de cada grupo (principal + opções): default a principal,
   // sobrescrita pela escolha do dia. Exatamente UMA por grupo conta nos macros.
@@ -1003,7 +1037,11 @@ export function DietTab({
                         const unitRaw = String(sub.unit || '').toLowerCase().trim();
                         const isBase = ['g', 'gramas', 'grama', 'kg', 'ml', 'mililitro', 'mililitros', 'l', 'litro', 'litros'].includes(unitRaw);
                         const isAVontade = unitRaw === 'à vontade' || unitRaw === 'a vontade';
-                        const cug = Number(sub.custom_unit_grams) || 0;
+                        // Fallback: se custom_unit_grams nao veio na substituicao,
+                        // pega do food_database.common_units (lookup feito no useEffect).
+                        const cug = Number(sub.custom_unit_grams)
+                          || substitutionGramsMap.get(String(sub.food_name || '').toLowerCase())
+                          || 0;
                         const qty = Number(sub.quantity) || 0;
                         const grams = cug > 0 ? cug * qty : 0;
                         if (grams > 0 && !isBase && !isAVontade) {
