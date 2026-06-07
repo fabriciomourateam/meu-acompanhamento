@@ -17,6 +17,17 @@ function parseRpe(v: number | string | null | undefined): number | null {
   return m ? Number(m[1].replace(',', '.')) : null;
 }
 
+/** Cor do chip do RPE por intensidade — comunica esforco visualmente antes
+ *  do aluno ler o numero. Verde=baixa, ambar=media, laranja=alta, vermelho=falha. */
+function rpeChipColors(rpe: number | string | null | undefined): string {
+  const n = parseRpe(rpe);
+  if (n == null) return 'bg-slate-100 text-slate-500 hover:bg-slate-200 focus:ring-slate-400';
+  if (n >= 10) return 'bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-400';
+  if (n >= 9) return 'bg-orange-100 text-orange-700 hover:bg-orange-200 focus:ring-orange-400';
+  if (n >= 8) return 'bg-amber-100 text-amber-700 hover:bg-amber-200 focus:ring-amber-400';
+  return 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 focus:ring-emerald-400';
+}
+
 interface SetRowProps {
   index: number;
   value: SetRowValue;
@@ -147,19 +158,20 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         </Button>
       </div>
 
-      {/* RPE — fixo: referência de esforço prescrita pelo treinador. Visual de
-          pílula/chip (sem moldura de input) pra deixar claro que NÃO é campo
-          de preenchimento. Ao concluir a série, o RPE prescrito é gravado. */}
+      {/* RPE — fixo: referencia de esforco prescrita pelo treinador. Cor por
+          intensidade (verde 7- / ambar 8 / laranja 9 / vermelho 10=falha) —
+          aluno sente a 'gravidade' do esforco antes de ler o numero. Sem emoji
+          (o 🎯 anterior sugeria 'alvo' e colidia com a coluna SERIE/REPS). */}
       <div className="h-11 flex items-center justify-center">
         <button
           type="button"
           onClick={onRpeClick}
           disabled={!onRpeClick}
-          className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold tabular-nums text-blue-700 transition-colors hover:bg-blue-200 disabled:cursor-default disabled:hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          className={`inline-flex items-center justify-center rounded-full px-2.5 py-1 text-xs font-bold tabular-nums transition-colors disabled:cursor-default focus:outline-none focus:ring-2 ${rpeChipColors(defaultRpe)}`}
           aria-label={`RPE prescrito ${index + 1} — tocar pra explicação`}
           title="O que é RPE?"
         >
-          🎯 {defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : '—'}
+          {defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : '—'}
         </button>
       </div>
 
