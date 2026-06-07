@@ -54,11 +54,14 @@ interface ExerciseCardProps {
   warmupConfig?: { sets: number; reps: string | null; rpe: number | null } | null;
   /** Última carga de aquecimento registrada (sugestão de peso). */
   warmupLastWeight?: number | null;
+  /** Primeiro exercício da lista do dia — usado pra mostrar a instrução de "como
+   *  preencher" apenas uma vez, em vez de repetir em todo card. */
+  isFirst?: boolean;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight, isFirst }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -264,6 +267,13 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
             )}
 
             <div className="space-y-2">
+              {/* Instrução de uso — aparece só no 1º exercício do dia, como onboarding.
+                  Nos demais é redundante; os campos vazios + ✓ já são auto-explicativos. */}
+              {isFirst && (
+                <p className="mx-1 rounded-lg border border-blue-100 bg-blue-50/60 px-2.5 py-1.5 text-xs text-blue-700">
+                  💡 Preencha a carga e as reps de cada série, depois toque no <strong>✓</strong> pra registrar.
+                </p>
+              )}
               {/* Sugestão: última carga registrada + meta de carga da fase atual */}
               {(lastLoad?.weight_kg != null || exercise.load_kg != null) && (
                 <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs">

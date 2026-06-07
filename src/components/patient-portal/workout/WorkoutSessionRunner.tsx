@@ -582,6 +582,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               warmupValues={warmup[ex.id] || []}
               warmupConfig={ex.id === firstExerciseId ? warmupConfig : null}
               warmupLastWeight={ex.id === firstExerciseId ? warmupLastWeight : null}
+              isFirst={ex.id === firstExerciseId}
               open={openIds.has(ex.id)}
               onOpenChange={(o) => setOpenFor(ex.id, o)}
               onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
