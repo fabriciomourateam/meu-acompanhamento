@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ChevronDown, Dumbbell, Clock, Info, Shuffle, Gauge, TrendingUp, Check, PlayCircle, NotebookPen, Undo2 } from 'lucide-react';
 import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
@@ -272,7 +273,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   Nos demais é redundante; os campos vazios + ✓ já são auto-explicativos. */}
               {isFirst && (
                 <p className="mx-1 rounded-lg border border-blue-100 bg-blue-50/60 px-2.5 py-1.5 text-xs text-blue-700">
-                  💡 Preencha a carga e as reps de cada série, depois toque no <strong>✓</strong> pra registrar.
+                  💡 Preencha a carga e as repetições de cada série, depois toque no <strong>✓</strong> pra registrar.
                 </p>
               )}
               {/* Sugestão: última carga registrada + meta de carga da fase atual */}
@@ -300,7 +301,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 <span className="text-center">Reps</span>
                 <button
                   type="button"
-                  onClick={() => setShowRpeHelp((v) => !v)}
+                  onClick={() => setShowRpeHelp(true)}
                   className="flex items-center justify-center gap-0.5 text-slate-400 hover:text-blue-600"
                   aria-label="O que é RPE?"
                 >
@@ -309,19 +310,6 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 <span />
               </div>
 
-              {showRpeHelp && (
-                <div className="rounded-lg border border-blue-200 bg-blue-50 p-2.5 text-xs leading-relaxed text-slate-700">
-                  <p className="mb-1 font-semibold text-slate-900">RPE — Esforço Percebido</p>
-                  <p>Mede o quão difícil foi a série, numa escala de 0 a 10:</p>
-                  <ul className="mt-1 space-y-0.5">
-                    <li><strong>10</strong> — falha total, sem mais nenhuma rep</li>
-                    <li><strong>9</strong> — daria pra fazer +1 rep</li>
-                    <li><strong>8</strong> — daria pra fazer +2 reps</li>
-                    <li><strong>7</strong> — daria pra fazer +3 reps</li>
-                  </ul>
-                  <p className="mt-1 text-slate-500">O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.</p>
-                </div>
-              )}
               {rows.map((row, i) => {
                 const setTechs = techniquesForSet(techniques, i + 1, totalSets);
                 const hasTech = setTechs.length > 0;
@@ -439,6 +427,30 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
           </div>
         </CollapsibleContent>
       </Collapsible>
+
+      {/* Modal de ajuda do RPE — abre pelo ⓘ no cabeçalho ou pelo chip 🎯 da série */}
+      <Dialog open={showRpeHelp} onOpenChange={setShowRpeHelp}>
+        <DialogContent className="bg-white max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-slate-900">
+              <span className="inline-flex items-center justify-center rounded-full bg-blue-100 w-7 h-7 text-blue-700 text-sm">🎯</span>
+              RPE — Esforço Percebido
+            </DialogTitle>
+          </DialogHeader>
+          <div className="text-sm leading-relaxed text-slate-700 space-y-2">
+            <p>Mede o quão difícil foi a série, numa escala de 0 a 10:</p>
+            <ul className="space-y-1">
+              <li><strong>10</strong> — falha total, sem mais nenhuma repetição</li>
+              <li><strong>9</strong> — daria pra fazer +1 repetição</li>
+              <li><strong>8</strong> — daria pra fazer +2 repetições</li>
+              <li><strong>7</strong> — daria pra fazer +3 repetições</li>
+            </ul>
+            <p className="text-slate-500 text-xs pt-1">
+              O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.
+            </p>
+          </div>
+        </DialogContent>
+      </Dialog>
     </motion.div>
   );
 }
