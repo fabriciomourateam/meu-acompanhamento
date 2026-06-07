@@ -428,26 +428,54 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
         </CollapsibleContent>
       </Collapsible>
 
-      {/* Modal de ajuda do RPE — abre pelo ⓘ no cabeçalho ou pelo chip 🎯 da série */}
+      {/* Modal de ajuda do RPE — abre pelo ⓘ no cabeçalho ou pelo chip 🎯 da série.
+          O DialogContent global tem um X com focus-ring amarelo do tema (var --ring);
+          o seletor [&>button] customiza só o botão de fechar deste modal. */}
       <Dialog open={showRpeHelp} onOpenChange={setShowRpeHelp}>
-        <DialogContent className="bg-white max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2 text-slate-900">
-              <span className="inline-flex items-center justify-center rounded-full bg-blue-100 w-7 h-7 text-blue-700 text-sm">🎯</span>
-              RPE — Esforço Percebido
-            </DialogTitle>
-          </DialogHeader>
-          <div className="text-sm leading-relaxed text-slate-700 space-y-2">
-            <p>Mede o quão difícil foi a série, numa escala de 0 a 10:</p>
-            <ul className="space-y-1">
-              <li><strong>10</strong> — falha total, sem mais nenhuma repetição</li>
-              <li><strong>9</strong> — daria pra fazer +1 repetição</li>
-              <li><strong>8</strong> — daria pra fazer +2 repetições</li>
-              <li><strong>7</strong> — daria pra fazer +3 repetições</li>
-            </ul>
-            <p className="text-slate-500 text-xs pt-1">
-              O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.
+        <DialogContent
+          className="bg-white max-w-md p-0 overflow-hidden border-0 rounded-2xl shadow-2xl gap-0
+                     [&>button]:rounded-full [&>button]:p-1.5 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm
+                     [&>button]:text-slate-600 [&>button]:hover:bg-white [&>button]:hover:text-slate-900
+                     [&>button]:focus:ring-2 [&>button]:focus:ring-blue-400 [&>button]:focus:ring-offset-0
+                     [&>button]:transition-colors [&>button]:shadow-sm
+                     [&>button>svg]:h-4 [&>button>svg]:w-4"
+        >
+          {/* Header com gradiente azul */}
+          <div className="bg-gradient-to-br from-blue-500 to-indigo-600 px-5 py-4 text-white">
+            <DialogHeader>
+              <DialogTitle className="flex items-center gap-2.5 text-white text-base font-bold">
+                <span className="inline-flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm w-9 h-9 text-lg">🎯</span>
+                <span>
+                  RPE — Esforço Percebido
+                  <span className="block text-xs font-normal text-blue-100 mt-0.5">Escala de 0 a 10</span>
+                </span>
+              </DialogTitle>
+            </DialogHeader>
+          </div>
+
+          {/* Conteúdo */}
+          <div className="px-5 py-4 space-y-3">
+            <p className="text-sm text-slate-600">
+              Mede o quão difícil foi a série:
             </p>
+            <ul className="space-y-1.5">
+              {[
+                { n: 10, color: 'bg-red-500', desc: 'falha total, sem mais nenhuma repetição' },
+                { n: 9, color: 'bg-orange-500', desc: 'daria pra fazer +1 repetição' },
+                { n: 8, color: 'bg-amber-500', desc: 'daria pra fazer +2 repetições' },
+                { n: 7, color: 'bg-emerald-500', desc: 'daria pra fazer +3 repetições' },
+              ].map((row) => (
+                <li key={row.n} className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2">
+                  <span className={`shrink-0 inline-flex items-center justify-center rounded-full ${row.color} text-white font-bold w-8 h-8 text-sm shadow-sm`}>
+                    {row.n}
+                  </span>
+                  <span className="text-sm text-slate-700">{row.desc}</span>
+                </li>
+              ))}
+            </ul>
+            <div className="rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-2 text-xs text-slate-600 leading-relaxed">
+              💡 O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.
+            </div>
           </div>
         </DialogContent>
       </Dialog>
