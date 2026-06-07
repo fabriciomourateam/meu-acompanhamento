@@ -747,9 +747,12 @@ export function DietTab({
                                                 </div>
                                                 <div className="flex flex-col sm:flex-row items-end sm:items-center gap-1 sm:gap-2 flex-shrink-0">
                                                   {substitutions.length > 0 && !foodConsumed && (
-                                                    <Button
-                                                      size="sm"
-                                                      variant="ghost"
+                                                    // Era um Button shadcn (h-7 sm:h-8 + min-h-[44px]) que
+                                                    // ficava enorme ao lado do '117 kcal'. Vira chip outline
+                                                    // emerald compacto com texto 'Substitutos' (mais claro
+                                                    // que 'Trocar' — bate com o vocabulario da aba).
+                                                    <button
+                                                      type="button"
                                                       onClick={(e) => {
                                                         e.stopPropagation();
                                                         setSelectedFoodSubstitutions({
@@ -758,12 +761,12 @@ export function DietTab({
                                                         });
                                                         setSubstitutionsModalOpen(true);
                                                       }}
-                                                      className="h-7 sm:h-8 px-2 text-xs bg-[#00C98A]/10 hover:bg-[#00C98A]/20 text-[#00C98A] border border-[#00C98A]/30 min-h-[44px]"
+                                                      title="Ver alimentos substitutos com porções equivalentes"
+                                                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white px-2 py-0.5 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
                                                     >
-                                                      <RefreshCw className="w-3 h-3 mr-1" />
-                                                      <span className="hidden sm:inline">Substituições</span>
-                                                      <span className="sm:hidden">Trocar</span>
-                                                    </Button>
+                                                      <RefreshCw className="w-3 h-3" />
+                                                      Substitutos
+                                                    </button>
                                                   )}
                                                   <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${foodConsumed
                                                     ? 'bg-slate-50 text-slate-400 border-slate-100'
