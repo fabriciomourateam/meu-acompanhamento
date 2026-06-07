@@ -120,35 +120,52 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
 
   return (
     <>
-      <div className={cn('flex items-center gap-3 rounded-lg border-2 p-3 text-sm', color)}>
-        <div className="min-w-0 flex-1">
-          <div className="font-bold">💪 Fase atual: {currentPhase.label}</div>
-          <div className="mt-0.5 text-xs">
-            {currentPhase.sets_override ? `${currentPhase.sets_override} séries` : ''}
-            {currentPhase.reps_override ? ` × ${currentPhase.reps_override} reps` : ''}
-            {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
-            {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
-          </div>
-          {isDeload && (
-            <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900">
-              🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
-            </div>
-          )}
-          {nextPhase ? (
-            <div className="mt-1 text-[11px] italic opacity-80">
-              Próxima: {nextPhase.label} {weeksLeft <= 0 ? '(em breve)' : `em ~${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'}`} · avança sozinho
-            </div>
-          ) : (
-            <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
-          )}
+      {/* Layout em coluna: titulo+info ocupam a largura toda; acoes (avancar
+          fase / ver periodizacao) ficam como links pequenos no rodape. Antes
+          o botao 'Avancar fase' lateral comia metade do card e empurrava o
+          texto pra quebrar em 'RPE alvo 9/10/10' / 'Proxima: ...' / etc. */}
+      <div className={cn('rounded-lg border-2 p-3 text-sm', color)}>
+        <div className="font-bold">💪 Fase atual: {currentPhase.label}</div>
+        <div className="mt-0.5 text-xs">
+          {currentPhase.sets_override ? `${currentPhase.sets_override} séries` : ''}
+          {currentPhase.reps_override ? ` × ${currentPhase.reps_override} reps` : ''}
+          {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
+          {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
         </div>
-        {nextPhase && (
-          <button
-            onClick={() => setConfirmAdvance(true)}
-            className="flex shrink-0 items-center gap-1.5 self-center rounded-lg bg-white/70 px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-white"
-          >
-            <ChevronRightCircle className="h-3.5 w-3.5" /> Avançar fase manualmente
-          </button>
+        {isDeload && (
+          <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900">
+            🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
+          </div>
+        )}
+        {nextPhase ? (
+          <div className="mt-1 text-[11px] italic opacity-80">
+            Próxima: {nextPhase.label} {weeksLeft <= 0 ? '(em breve)' : `em ~${weeksLeft} ${weeksLeft === 1 ? 'semana' : 'semanas'}`} · avança sozinho
+          </div>
+        ) : (
+          <div className="mt-1 text-[11px] italic opacity-80">Última fase da periodização 🎯</div>
+        )}
+
+        {/* Links de acao no rodape do card (em vez de botao lateral grande
+            + outro link roxo solto la fora). Ambos discretos, cor neutra. */}
+        {(nextPhase || periodization.phases.length > 1) && (
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-current/15 pt-2 text-[11px] font-medium opacity-80">
+            {nextPhase && (
+              <button
+                onClick={() => setConfirmAdvance(true)}
+                className="inline-flex items-center gap-1 hover:opacity-100 hover:underline"
+              >
+                <ChevronRightCircle className="h-3 w-3" /> Avançar fase manualmente
+              </button>
+            )}
+            {periodization.phases.length > 1 && (
+              <button
+                onClick={() => setShowAllPhases((v) => !v)}
+                className="inline-flex items-center gap-1 hover:opacity-100 hover:underline"
+              >
+                {showAllPhases ? '▾ Ocultar periodização' : '▸ Ver periodização'} ({periodization.phases.length} fases)
+              </button>
+            )}
+          </div>
         )}
       </div>
 
@@ -180,17 +197,10 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
         </AlertDialog>
       )}
 
-      {/* Prévia da periodização completa — todas as fases já vêm no payload */}
-      {periodization.phases.length > 1 && (
+      {/* Timeline completa (toggle no rodape do card acima) */}
+      {periodization.phases.length > 1 && showAllPhases && (
         <div className="mt-2">
-          <button
-            onClick={() => setShowAllPhases((v) => !v)}
-            className="text-xs font-medium text-purple-700 hover:text-purple-800"
-          >
-            {showAllPhases ? '▾ Ocultar periodização' : '▸ Ver periodização completa'} ({periodization.phases.length} fases)
-          </button>
-
-          {showAllPhases && (
+          {(
             <ol className="relative mt-3 space-y-2 before:absolute before:left-[10px] before:top-2 before:bottom-2 before:w-px before:bg-slate-200">
               {periodization.phases.map((ph, i) => {
                 const status =
@@ -248,3 +258,4 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
     </>
   );
 }
+
