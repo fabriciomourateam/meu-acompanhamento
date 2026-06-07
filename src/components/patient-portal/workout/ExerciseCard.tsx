@@ -146,7 +146,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               )}
             </div>
             <div className="mt-1 flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
-              <span className="font-medium text-slate-700">
+              {/* 'X×Y reps' embaixo do nome — fonte ligeiramente maior (text-sm)
+                  porque e a informacao principal de prescricao (qtas series e reps). */}
+              <span className="font-semibold text-slate-700 text-sm">
                 {exercise.sets}×{exercise.reps || '-'}
                 {exercise.load_kg ? ` @ ${exercise.load_kg}kg` : ''}
               </span>
