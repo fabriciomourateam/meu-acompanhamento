@@ -48,9 +48,11 @@ export function StreakHeader({ patientId, patientName, levelName }: StreakHeader
 
     return (
         <div className="min-w-0">
-            <h1 className="text-base sm:text-xl font-bold text-slate-900 leading-tight flex items-center gap-1.5 flex-wrap">
-                <span className="truncate">{greetingForNow()}, {fn}</span>
-                <span aria-hidden>👋</span>
+            {/* whitespace-nowrap mantem 'Bom dia, Deborah 👋' SEMPRE numa linha so.
+                Se nao couber, o truncate corta com '...' no fim — melhor que ver
+                o emoji 'caindo' pra linha de baixo separado do texto. */}
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight whitespace-nowrap truncate">
+                {greetingForNow()}, {fn} <span aria-hidden>👋</span>
             </h1>
             <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
                 {showSurname && (

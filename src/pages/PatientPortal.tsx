@@ -841,8 +841,8 @@ export default function PatientPortal() {
                 <div
                   className={
                     levelData?.current_color
-                      ? `relative rounded-full p-0.5 bg-gradient-to-br ${levelData.current_color} shrink-0`
-                      : 'shrink-0'
+                      ? `relative rounded-full p-[1.5px] bg-gradient-to-br ${levelData.current_color} shadow-sm shrink-0`
+                      : 'relative shrink-0'
                   }
                   title={levelData?.current_name ? `Nível ${levelData.current_name}` : undefined}
                 >
@@ -856,7 +856,7 @@ export default function PatientPortal() {
                   />
                   {levelData?.current_emoji && (
                     <span
-                      className="absolute -bottom-1 -right-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-[12px] shadow ring-1 ring-slate-200"
+                      className="pointer-events-none absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-[13px] leading-none shadow-md ring-1 ring-slate-200 z-10"
                       aria-label={`Nível ${levelData.current_name || ''}`}
                     >
                       {levelData.current_emoji}
