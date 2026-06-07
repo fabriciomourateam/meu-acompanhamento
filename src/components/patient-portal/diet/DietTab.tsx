@@ -427,8 +427,8 @@ export function DietTab({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <div>
-                        <CardTitle className="text-slate-900 flex items-center gap-2">
-                          <Apple className="w-5 h-5 text-emerald-500" />
+                        <CardTitle className="text-slate-900 text-base sm:text-lg font-semibold flex items-center gap-2">
+                          <Apple className="w-4 h-4 text-emerald-500" />
                           {planDetails.name || 'Plano Alimentar'}
                         </CardTitle>
                         <p className="text-sm text-slate-500 mt-1">
@@ -868,27 +868,26 @@ export function DietTab({
                 )}
               </div>
 
-              {/* Card Suplementos Custo Benefício */}
+              {/* Card Suplementos Custo Benefício — versão compacta */}
               {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                <Card className="relative overflow-hidden border-0 rounded-2xl shadow-xl mt-8">
+                <Card className="relative overflow-hidden border-0 rounded-xl shadow-md mt-4">
                   <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-teal-400 opacity-90 layer-bg"></div>
-                  <div className="absolute inset-0 bg-[url('/noise.png')] opacity-20 mix-blend-overlay"></div>
-                  <CardContent className="relative p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6 z-10">
-                    <div className="text-center sm:text-left text-white flex-1">
-                      <h3 className="text-xl sm:text-2xl font-bold mb-2 flex items-center justify-center sm:justify-start gap-2">
-                        <Star className="w-6 h-6 text-amber-300 fill-amber-300/50" />
+                  <CardContent className="relative p-3 sm:p-4 flex items-center gap-3 z-10">
+                    <Star className="w-5 h-5 text-amber-300 fill-amber-300/50 shrink-0" />
+                    <div className="text-left text-white flex-1 min-w-0">
+                      <h3 className="text-sm sm:text-base font-bold leading-tight">
                         Em dúvida sobre qual marca escolher?
                       </h3>
-                      <p className="text-emerald-50 text-sm sm:text-base leading-relaxed max-w-xl">
-                        Preparamos uma lista exclusiva com as melhores opções de suplementos do mercado, priorizando a máxima qualidade com o melhor custo-benefício para seus resultados.
+                      <p className="text-emerald-50 text-xs mt-0.5 line-clamp-2">
+                        Lista exclusiva com as melhores opções com o melhor custo-benefício.
                       </p>
                     </div>
                     <Button
                       onClick={() => window.open('https://area-de-membros-fabriciomourateam.vercel.app/#/suplementos-lista', '_blank')}
-                      className="w-full sm:w-auto bg-white hover:bg-emerald-50 text-emerald-600 font-bold px-8 py-6 rounded-xl shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] transition-all duration-300 group whitespace-nowrap"
+                      className="shrink-0 bg-white hover:bg-emerald-50 text-emerald-600 font-semibold px-3 py-2 h-auto rounded-lg text-xs sm:text-sm whitespace-nowrap"
                     >
-                      <span>Ver Recomendações</span>
-                      <ExternalLink className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                      Ver lista
+                      <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
                     </Button>
                   </CardContent>
                 </Card>
