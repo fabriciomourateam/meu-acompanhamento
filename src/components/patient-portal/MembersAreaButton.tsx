@@ -13,9 +13,9 @@ export function MembersAreaButton(_props: { installed?: boolean } = {}) {
             size="sm"
             onClick={() => window.open(MEMBERS_URL, "_blank", "noopener,noreferrer")}
             aria-label="Área de Membros"
-            className="h-7 w-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-600 hover:from-yellow-400 hover:via-amber-300 hover:to-yellow-500 text-white border-transparent shadow-sm shadow-amber-500/20 hover:shadow-md hover:shadow-yellow-500/30 flex items-center justify-center gap-1 font-semibold transition-all duration-300 px-2 text-[11px]"
+            className="h-6 w-full bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-600 hover:from-yellow-400 hover:via-amber-300 hover:to-yellow-500 text-white border-transparent shadow-sm shadow-amber-500/20 hover:shadow-md hover:shadow-yellow-500/30 flex items-center justify-center gap-0.5 font-semibold transition-all duration-300 px-1.5 text-[10px]"
         >
-            <Crown className="w-3.5 h-3.5 drop-shadow-sm" />
+            <Crown className="w-3 h-3 drop-shadow-sm" />
             <span className="drop-shadow-sm">Área de Membros</span>
         </Button>
     );
