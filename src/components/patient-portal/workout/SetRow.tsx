@@ -26,13 +26,15 @@ interface SetRowProps {
   onChange: (v: SetRowValue) => void;
   onCommit: (v: SetRowValue) => void | Promise<void>;
   saving?: boolean;
+  /** Clique no chip do RPE — usado pra abrir a ajuda do RPE no card pai. */
+  onRpeClick?: () => void;
   /** Sem borda própria / só canto superior arredondado — pra encaixar dentro de um card maior. */
   flush?: boolean;
   /** Recorde all-time do exercício (peso e 1RM estimado) antes desta sessão. Se a série superar, ganha medalha. */
   prevBest?: { weight: number | null; oneRm: number | null } | null;
 }
 
-export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, flush, prevBest }: SetRowProps) {
+export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, onRpeClick, flush, prevBest }: SetRowProps) {
   const [localBusy, setLocalBusy] = useState(false);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
@@ -148,14 +150,17 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
       {/* RPE — fixo: referência de esforço prescrita pelo treinador. Visual de
           pílula/chip (sem moldura de input) pra deixar claro que NÃO é campo
           de preenchimento. Ao concluir a série, o RPE prescrito é gravado. */}
-      <div
-        className="h-11 flex items-center justify-center"
-        aria-label={`RPE prescrito ${index + 1}`}
-        title="RPE prescrito (esforço-alvo)"
-      >
-        <span className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold tabular-nums text-blue-700">
+      <div className="h-11 flex items-center justify-center">
+        <button
+          type="button"
+          onClick={onRpeClick}
+          disabled={!onRpeClick}
+          className="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-bold tabular-nums text-blue-700 transition-colors hover:bg-blue-200 disabled:cursor-default disabled:hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-400"
+          aria-label={`RPE prescrito ${index + 1} — tocar pra explicação`}
+          title="O que é RPE?"
+        >
           🎯 {defaultRpe != null && defaultRpe !== '' ? String(defaultRpe) : '—'}
-        </span>
+        </button>
       </div>
 
       {/* Done */}

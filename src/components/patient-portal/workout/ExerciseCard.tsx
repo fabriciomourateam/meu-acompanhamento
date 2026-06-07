@@ -261,6 +261,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                       // de trabalho de mesmo número no índice único (session, exercise, set_index).
                       await onWarmupCommit?.({ plannedExerciseId: exercise.id, setIndex: -(i + 1), value: v, restSeconds: null, restSecondsMax: null });
                     }}
+                    onRpeClick={() => setShowRpeHelp(true)}
                   />
                 ))}
               </div>
@@ -333,6 +334,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     defaultRpe={rpeTargetForSet(i)}
                     prevBest={{ weight: prBaseline?.max_weight_kg ?? null, oneRm: prBaseline?.estimated_1rm ?? null }}
                     flush={hasTech}
+                    onRpeClick={() => setShowRpeHelp(true)}
                     onChange={(v) => onChange(i, v)}
                     onCommit={async (v) => {
                       await onCommit({
