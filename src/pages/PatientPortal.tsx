@@ -880,10 +880,11 @@ export default function PatientPortal() {
                 )}
               </div>
             </div>
-            {/* Header da direita: 3 icones-acao (sino, instalar, menu) — Area
-                de Membros agora aparece como banner-linha ABAIXO do card. */}
-            <div className="hide-in-pdf shrink-0">
-              <div className="flex gap-1 sm:gap-2 items-center">
+            {/* Header da direita em coluna: linha de cima com os icones-acao,
+                linha de baixo com o chip 'Area de Membros' que assume w-full —
+                fica com a largura exata do grupo de botoes acima. */}
+            <div className="hide-in-pdf shrink-0 flex flex-col items-stretch gap-1.5">
+              <div className="flex gap-1 sm:gap-2 items-center justify-end">
               {patientId && <PatientNotifications patientId={patientId} />}
               {/* Botão de instalar: ícone-só no mobile, ícone+texto no desktop.
                   Some sozinho quando o app já está instalado. */}
@@ -950,17 +951,13 @@ export default function PatientPortal() {
                 </DropdownMenuContent>
               </DropdownMenu>
               </div>
+              {/* Linha de baixo: chip 'Area de Membros' com w-full pra ocupar
+                  exatamente a largura do grupo de botoes acima (proporcional). */}
+              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+                <MembersAreaButton installed={pwaInstalled} />
+              )}
             </div>
           </motion.div>
-
-          {/* Area de Membros como linha-banner abaixo do card do header.
-              Solta do card pra liberar espaco lateral (saudacao + nome + chips
-              respiram melhor) sem perder destaque comercial. */}
-          {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-            <div className="hide-in-pdf -mt-2 mb-1 flex justify-end">
-              <MembersAreaButton installed={pwaInstalled} />
-            </div>
-          )}
 
           {/* Convite para ativar lembretes/avisos por push */}
           {patientId && <EnableNotificationsBanner patientId={patientId} />}
