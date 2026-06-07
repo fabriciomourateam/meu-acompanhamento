@@ -593,26 +593,31 @@ export function DietTab({
                                   </div>
                                 </CollapsibleTrigger>
 
-                                {/* Troca opção↔principal do dia (zera ao virar o dia) */}
+                                {/* Troca opção↔principal do dia (zera ao virar o dia).
+                                    Texto enxuto: era 'Usar como principal hoje'
+                                    (longo, transbordava). Vira 'Trocar por hoje' /
+                                    'Desfazer troca' com chip compacto. */}
                                 {inSwappableGroup && !isConsumed && (
                                   <div className="flex items-center justify-end gap-2 px-3 sm:px-4 pb-2 -mt-1">
                                     {!isActive ? (
                                       <button
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, meal.id); }}
-                                        className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1 text-xs font-medium text-emerald-700 transition-colors hover:bg-emerald-100"
+                                        title="Usar esta opção no lugar da refeição principal hoje"
+                                        className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white px-2 py-0.5 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50"
                                       >
                                         <ArrowLeftRight className="w-3 h-3" />
-                                        Usar como principal hoje
+                                        Trocar por hoje
                                       </button>
                                     ) : groupSwapped ? (
                                       <button
                                         type="button"
                                         onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, principalId); }}
-                                        className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-50"
+                                        title="Desfazer a troca e voltar à refeição original"
+                                        className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[11px] font-medium text-slate-500 transition-colors hover:bg-slate-50"
                                       >
                                         <RefreshCw className="w-3 h-3" />
-                                        Voltar à refeição original
+                                        Desfazer troca
                                       </button>
                                     ) : null}
                                   </div>
