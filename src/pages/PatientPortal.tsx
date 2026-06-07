@@ -825,25 +825,30 @@ export default function PatientPortal() {
       {/* Conteúdo com z-index */}
       <div className="relative z-10">
         <div className="portal-zoom max-w-7xl mx-auto px-4 sm:px-6 py-3 sm:py-5 space-y-4 sm:space-y-5">
-          {/* Header do Portal */}
+          {/* Header do Portal — wrapper externo com gradient na cor do nivel
+              (Bronze/Prata/Ouro/Platina/Diamante). Como border CSS nao aceita
+              gradient, usamos rounded + bg-gradient + padding interno (1.5px)
+              que aparece como 'borda'. O motion.div interno mantem bg-white. */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="rounded-2xl bg-white border border-slate-200 shadow-sm px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
+            className={
+              levelData?.current_color
+                ? `rounded-2xl p-[1.5px] bg-gradient-to-br ${levelData.current_color} shadow-sm`
+                : 'rounded-2xl border border-slate-200 shadow-sm'
+            }
+          >
+          <div
+            className="rounded-[14px] bg-white px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
               {patientId && (
-                // Anel colorido = nivel atual do aluno (gamificacao). Como border
-                // CSS nao aceita gradient, envolvemos o avatar num wrapper com
-                // bg-gradient + padding interno. Quando ainda nao carregou,
-                // mantem so o avatar (sem anel).
+                /* Avatar sem anel: o nivel agora 'pinta' o card inteiro
+                   (border do wrapper externo). Mantemos so a medalhinha
+                   do emoji no canto inferior direito como marcador. */
                 <div
-                  className={
-                    levelData?.current_color
-                      ? `relative rounded-full p-[1.5px] bg-gradient-to-br ${levelData.current_color} shadow-sm shrink-0`
-                      : 'relative shrink-0'
-                  }
+                  className="relative shrink-0"
                   title={levelData?.current_name ? `Nível ${levelData.current_name}` : undefined}
                 >
                   <ProfileAvatar
@@ -870,6 +875,7 @@ export default function PatientPortal() {
                     patientId={patientId}
                     patientName={patient?.nome || 'Meu Acompanhamento'}
                     levelName={levelData?.current_name || null}
+                    levelColor={levelData?.current_color || null}
                   />
                 ) : (
                   <div>
@@ -957,6 +963,7 @@ export default function PatientPortal() {
                 <MembersAreaButton installed={pwaInstalled} />
               )}
             </div>
+          </div>
           </motion.div>
 
           {/* Convite para ativar lembretes/avisos por push */}

@@ -9,6 +9,9 @@ interface StreakHeaderProps {
     /** Nivel atual (Bronze/Prata/Ouro/Platina/Diamante). Quando presente, vira
      *  chip pequeno embaixo do nome — conecta cabecalho com a gamificacao. */
     levelName?: string | null;
+    /** Gradient Tailwind (ex: 'from-slate-300 to-slate-500') do nivel — usado
+     *  pro chip 'Nivel X' ganhar a cor real em vez de emerald fixo. */
+    levelColor?: string | null;
 }
 
 /** Saudacao por hora do dia (manha < 12, tarde < 18, noite ate as 4). */
@@ -25,7 +28,7 @@ function firstName(full: string): string {
     return parts[0] || full;
 }
 
-export function StreakHeader({ patientId, patientName, levelName }: StreakHeaderProps) {
+export function StreakHeader({ patientId, patientName, levelName, levelColor }: StreakHeaderProps) {
     const [streak, setStreak] = useState<number | null>(null);
 
     useEffect(() => {
@@ -69,7 +72,14 @@ export function StreakHeader({ patientId, patientName, levelName }: StreakHeader
                     </motion.span>
                 )}
                 {levelName && (
-                    <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-1.5 py-0 text-[10px] font-bold shrink-0">
+                    // Chip 'Nivel X' com gradient na cor real do nivel (em vez
+                    // do emerald fixo). Texto branco com drop-shadow leve pra
+                    // contraste em qualquer cor de fundo (Prata claro inclusive).
+                    <span
+                        className={`inline-flex items-center rounded-full px-1.5 py-0 text-[10px] font-bold text-white shrink-0 shadow-sm ${
+                            levelColor ? `bg-gradient-to-r ${levelColor}` : 'bg-emerald-500'
+                        }`}
+                    >
                         Nível {levelName}
                     </span>
                 )}
