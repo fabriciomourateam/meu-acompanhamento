@@ -100,82 +100,87 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
       ? visibleTemplates
       : visibleTemplates.filter((t) => t.category === selectedCategory);
 
-  return (
-    <div className="space-y-4">
-      {/* Streak — layout premium laranja */}
-      <Card className={`rounded-2xl border-0 overflow-hidden shadow-lg ${
-        streakActive ? '' : 'bg-slate-50 border border-slate-200 shadow-sm'
-      }`}>
-        {streakActive ? (
-          <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-red-500 p-4 sm:p-6 relative overflow-hidden">
-            {/* Glow decorativo */}
-            <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-300/30 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-red-600/20 rounded-full blur-xl pointer-events-none" />
+  // Card de Streak (extraido pra controlar a ordem: streak ativo vai antes do
+  // card de Nivel; streak vazio com CTA vai DEPOIS — ao acessar a aba, o aluno
+  // ve primeiro o card de Nivel que e a info principal, depois o convite pra
+  // comecar a sequencia).
+  const streakCard = (
+    <Card className={`rounded-2xl border-0 overflow-hidden shadow-lg ${
+      streakActive ? '' : 'bg-slate-50 border border-slate-200 shadow-sm'
+    }`}>
+      {streakActive ? (
+        <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-red-500 p-4 sm:p-6 relative overflow-hidden">
+          {/* Glow decorativo */}
+          <div className="absolute -top-6 -right-6 w-32 h-32 bg-yellow-300/30 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -bottom-4 -left-4 w-24 h-24 bg-red-600/20 rounded-full blur-xl pointer-events-none" />
 
-            <div className="relative flex items-center gap-4">
-              <motion.div
-                key={currentStreak}
-                initial={{ scale: 0.4, opacity: 0, rotate: -15 }}
-                animate={{ scale: 1, opacity: 1, rotate: 0 }}
-                transition={{ type: 'spring', stiffness: 260, damping: 18 }}
-                className="text-6xl sm:text-7xl select-none drop-shadow-lg"
+          <div className="relative flex items-center gap-4">
+            <motion.div
+              key={currentStreak}
+              initial={{ scale: 0.4, opacity: 0, rotate: -15 }}
+              animate={{ scale: 1, opacity: 1, rotate: 0 }}
+              transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+              className="text-6xl sm:text-7xl select-none drop-shadow-lg"
+            >
+              🔥
+            </motion.div>
+            <div className="flex-1">
+              <motion.p
+                key={`s-${currentStreak}`}
+                initial={{ x: -10, opacity: 0 }}
+                animate={{ x: 0, opacity: 1 }}
+                className="text-3xl sm:text-4xl font-black text-white drop-shadow"
               >
-                🔥
-              </motion.div>
-              <div className="flex-1">
-                <motion.p
-                  key={`s-${currentStreak}`}
-                  initial={{ x: -10, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="text-3xl sm:text-4xl font-black text-white drop-shadow"
-                >
-                  {currentStreak} dias
-                </motion.p>
-                <p className="text-base sm:text-lg font-semibold text-orange-100 mt-0.5">
-                  {getStreakMessage(currentStreak)}
+                {currentStreak} dias
+              </motion.p>
+              <p className="text-base sm:text-lg font-semibold text-orange-100 mt-0.5">
+                {getStreakMessage(currentStreak)}
+              </p>
+              {(points?.longest_streak ?? 0) > 0 && (
+                <p className="text-xs text-orange-200/80 mt-1.5 flex items-center gap-1">
+                  <span>🏅</span> Recorde: {points!.longest_streak} dias
                 </p>
-                {(points?.longest_streak ?? 0) > 0 && (
-                  <p className="text-xs text-orange-200/80 mt-1.5 flex items-center gap-1">
-                    <span>🏅</span> Recorde: {points!.longest_streak} dias
-                  </p>
-                )}
-              </div>
-              <div className="text-right hidden sm:block">
-                <p className="text-4xl font-black text-white/20 select-none leading-none">🔥</p>
-              </div>
+              )}
+            </div>
+            <div className="text-right hidden sm:block">
+              <p className="text-4xl font-black text-white/20 select-none leading-none">🔥</p>
             </div>
           </div>
-        ) : (
-          // Estado vazio do streak: convidativo (em vez do '💤 Comece hoje').
-          // Usa o icone do fogo apagado mas em cor 'pra acender' (slate -> orange
-          // gradient sutil) + CTA pra Metas que ja vai direto na acao.
-          <CardContent className="p-4 sm:p-5 flex items-center gap-4">
-            <motion.span
-              initial={{ scale: 0.7, opacity: 0.6 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ type: 'spring', stiffness: 200 }}
-              className="text-4xl select-none"
+        </div>
+      ) : (
+        <CardContent className="p-4 sm:p-5 flex items-center gap-4">
+          <motion.span
+            initial={{ scale: 0.7, opacity: 0.6 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ type: 'spring', stiffness: 200 }}
+            className="text-4xl select-none"
+          >
+            ✨
+          </motion.span>
+          <div className="flex-1 min-w-0">
+            <p className="text-base font-bold text-slate-700">Sua sequência começa hoje 🔥</p>
+            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+              Marque a primeira meta e veja o fogo acender.
+            </p>
+          </div>
+          {onGoToMetas && (
+            <button
+              type="button"
+              onClick={onGoToMetas}
+              className="shrink-0 rounded-full bg-gradient-to-br from-orange-500 to-red-500 text-white text-xs font-semibold px-3 py-1.5 shadow-sm shadow-orange-500/30 hover:shadow-md hover:shadow-orange-500/40 transition-all"
             >
-              ✨
-            </motion.span>
-            <div className="flex-1 min-w-0">
-              <p className="text-base font-bold text-slate-700">Sua sequência começa hoje 🔥</p>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Marque a primeira meta e veja o fogo acender.
-              </p>
-            </div>
-            {onGoToMetas && (
-              <button
-                type="button"
-                onClick={onGoToMetas}
-                className="shrink-0 rounded-full bg-gradient-to-br from-orange-500 to-red-500 text-white text-xs font-semibold px-3 py-1.5 shadow-sm shadow-orange-500/30 hover:shadow-md hover:shadow-orange-500/40 transition-all"
-              >
-                Ir pra Metas →
-              </button>
-            )}
-          </CardContent>
-        )}
-      </Card>
+              Ir pra Metas →
+            </button>
+          )}
+        </CardContent>
+      )}
+    </Card>
+  );
+
+  return (
+    <div className="space-y-4">
+      {/* Streak ativo aparece NO TOPO (destaque do progresso do aluno) */}
+      {streakActive && streakCard}
 
       {/* Nível + Pontos — cor real do nível do banco */}
       <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
@@ -223,6 +228,11 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
           </div>
         </div>
       </Card>
+
+      {/* Streak vazio (CTA) aparece DEPOIS do card de Nivel — o aluno ja viu
+          o nivel/pontos primeiro, e o card 'Sua sequencia comeca hoje' fica
+          como convite logo abaixo, perto do botao 'Ir pra Metas'. */}
+      {!streakActive && streakCard}
 
       {/* Desafio da Semana — aparece se o trainer definiu um pra esta semana */}
       {token && <WeeklyChallengeCard token={token} />}
