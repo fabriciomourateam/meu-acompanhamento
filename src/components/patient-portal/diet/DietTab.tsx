@@ -608,24 +608,28 @@ export function DietTab({
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
                                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                                      <div
-                                        className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
-                                          ? 'bg-emerald-100 text-emerald-600'
-                                          : isOption
-                                            ? '!bg-emerald-50 !text-emerald-500'
+                                      {/* Circulo verde com icone fica SO nas refeicoes principais
+                                          (e quando ja foi consumida). Em refeicao-opcao o badge
+                                          'Opcao' assume o papel de marcador visual a esquerda. */}
+                                      {!showAsOption && (
+                                        <div
+                                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
+                                            ? 'bg-emerald-100 text-emerald-600'
                                             : '!bg-emerald-50 !text-emerald-500'
-                                          }`}
-                                      >
-                                        {isConsumed ? (
-                                          <Check className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        ) : showAsOption ? (
-                                          <ArrowLeftRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        ) : (
-                                          <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        )}
-                                      </div>
+                                            }`}
+                                        >
+                                          {isConsumed ? (
+                                            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                          ) : (
+                                            <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
+                                          )}
+                                        </div>
+                                      )}
                                       <div className="flex-1 min-w-0">
-                                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
+                                        {/* Refeicao-opcao: badge 'Opcao' (que ja inclui o icone circular)
+                                            fica SEMPRE na linha do titulo — assume o papel do icone
+                                            esquerdo. Principal mantem layout flex-col em mobile. */}
+                                        <div className={`flex items-center gap-1.5 sm:gap-2 ${showAsOption ? 'flex-row flex-wrap' : 'flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'}`}>
                                           {isActive && groupSwapped && (
                                             <Badge className="bg-emerald-500 text-white border-emerald-600 border text-xs w-fit gap-1 order-first">
                                               <Check className="w-3 h-3" />
