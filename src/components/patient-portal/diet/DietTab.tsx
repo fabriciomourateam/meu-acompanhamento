@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -55,6 +56,58 @@ function isOptionMeal(meal: any) {
   if (meal?.exclude_from_macros) return true;
   const name = (meal?.meal_name || '').toLowerCase();
   return name.includes('🔁') || name.includes('opção');
+}
+
+/** Badge "Opção" clicável: ao tocar, abre tooltip explicando que é alternativa
+ *  à refeição principal. Fecha ao clicar fora ou tocar de novo. Sem dependências. */
+function OptionBadge() {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDocClick = (e: MouseEvent | TouchEvent) => {
+      if (!wrapperRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDocClick);
+    document.addEventListener('touchstart', onDocClick);
+    return () => {
+      document.removeEventListener('mousedown', onDocClick);
+      document.removeEventListener('touchstart', onDocClick);
+    };
+  }, [open]);
+
+  return (
+    <div ref={wrapperRef} className="relative inline-block order-first" onClick={(e) => e.stopPropagation()}>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
+        aria-expanded={open}
+        aria-label="O que e uma refeicao opcao?"
+        className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
+      >
+        <RefreshCw className="w-3 h-3" />
+        Opção
+      </button>
+      {open && (
+        <div
+          role="tooltip"
+          className="absolute left-0 top-full z-30 mt-1.5 w-[240px] rounded-lg border border-emerald-200 bg-white p-3 text-xs leading-relaxed text-slate-700 shadow-xl"
+        >
+          <p className="mb-1 flex items-center gap-1.5 font-semibold text-slate-900">
+            <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
+            Refeição alternativa
+          </p>
+          <p>
+            Você pode fazer esta refeição <strong>no lugar</strong> da principal — escolha uma das duas, não as duas.
+          </p>
+          <p className="mt-1.5 text-slate-500">
+            Toque em <em>"Trocar por hoje"</em> pra contabilizá-la no seu plano do dia.
+          </p>
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function DietTab({
@@ -541,12 +594,7 @@ export function DietTab({
                                               Em uso hoje
                                             </Badge>
                                           )}
-                                          {showAsOption && (
-                                            <Badge className="bg-emerald-50 text-emerald-600 border-emerald-200 border text-xs w-fit gap-1 order-first">
-                                              <RefreshCw className="w-3 h-3" />
-                                              Opção
-                                            </Badge>
-                                          )}
+                                          {showAsOption && <OptionBadge />}
                                           <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
                                             {displayName}
                                           </h4>
