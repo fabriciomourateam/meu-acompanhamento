@@ -562,10 +562,14 @@ export function DietTab({
                                   borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
                                   color: '#0f172a'
                                 }}
-                                className={`rounded-xl border transition-all duration-300 transform hover:scale-[1.01] ${isConsumed
+                                // Opção: menos indent, borda esquerda fina emerald
+                                // (em vez de slate-300 grossa) — indica filiação com
+                                // a principal verde acima. Sem hover-scale/shadow-lg
+                                // pra nao competir visualmente com a principal.
+                                className={`rounded-xl border transition-all duration-300 ${isConsumed
                                   ? 'shadow-sm'
-                                  : 'hover:border-emerald-300 hover:shadow-lg'
-                                  } ${showAsOption ? 'ml-4 sm:ml-8 border-l-4 border-l-slate-300' : ''}`}
+                                  : (showAsOption ? 'hover:border-emerald-300' : 'hover:border-emerald-300 hover:shadow-lg transform hover:scale-[1.01]')
+                                  } ${showAsOption ? 'ml-3 sm:ml-6 border-l-2 border-l-emerald-300' : ''}`}
                               >
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
