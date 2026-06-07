@@ -880,12 +880,9 @@ export default function PatientPortal() {
                 )}
               </div>
             </div>
-            {/* Header da direita: linha de cima com os 3 icones-acao (sino,
-                instalar, menu) alinhados a direita; linha de baixo com o chip
-                largo 'Area de Membros' (so pra alunos do Fabricio) tambem
-                alinhado a direita. Resolve o problema de nao ter espaco pra
-                mostrar o texto 'Area de Membros' junto dos icones. */}
-            <div className="flex flex-col gap-1 items-end hide-in-pdf shrink-0">
+            {/* Header da direita: 3 icones-acao (sino, instalar, menu) — Area
+                de Membros agora aparece como banner-linha ABAIXO do card. */}
+            <div className="hide-in-pdf shrink-0">
               <div className="flex gap-1 sm:gap-2 items-center">
               {patientId && <PatientNotifications patientId={patientId} />}
               {/* Botão de instalar: ícone-só no mobile, ícone+texto no desktop.
@@ -953,12 +950,17 @@ export default function PatientPortal() {
                 </DropdownMenuContent>
               </DropdownMenu>
               </div>
-              {/* Linha de baixo: chip 'Area de Membros' alinhado a direita. */}
-              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                <MembersAreaButton installed={pwaInstalled} />
-              )}
             </div>
           </motion.div>
+
+          {/* Area de Membros como linha-banner abaixo do card do header.
+              Solta do card pra liberar espaco lateral (saudacao + nome + chips
+              respiram melhor) sem perder destaque comercial. */}
+          {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
+            <div className="hide-in-pdf -mt-2 mb-1 flex justify-end">
+              <MembersAreaButton installed={pwaInstalled} />
+            </div>
+          )}
 
           {/* Convite para ativar lembretes/avisos por push */}
           {patientId && <EnableNotificationsBanner patientId={patientId} />}
