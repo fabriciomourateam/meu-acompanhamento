@@ -6,6 +6,9 @@ import { motion } from 'framer-motion';
 interface StreakHeaderProps {
     patientId: string;
     patientName?: string;
+    /** Nivel atual (Bronze/Prata/Ouro/Platina/Diamante). Quando presente, vira
+     *  chip pequeno embaixo do nome — conecta cabecalho com a gamificacao. */
+    levelName?: string | null;
 }
 
 /** Saudacao por hora do dia (manha < 12, tarde < 18, noite ate as 4). */
@@ -22,7 +25,7 @@ function firstName(full: string): string {
     return parts[0] || full;
 }
 
-export function StreakHeader({ patientId, patientName }: StreakHeaderProps) {
+export function StreakHeader({ patientId, patientName, levelName }: StreakHeaderProps) {
     const [streak, setStreak] = useState<number | null>(null);
 
     useEffect(() => {
@@ -62,6 +65,11 @@ export function StreakHeader({ patientId, patientName }: StreakHeaderProps) {
                         <Flame className="w-3 h-3 fill-orange-500 text-orange-500" />
                         {streak} {streak === 1 ? 'dia' : 'dias'}
                     </motion.span>
+                )}
+                {levelName && (
+                    <span className="inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 px-1.5 py-0 text-[10px] font-bold shrink-0">
+                        Nível {levelName}
+                    </span>
                 )}
             </div>
         </div>

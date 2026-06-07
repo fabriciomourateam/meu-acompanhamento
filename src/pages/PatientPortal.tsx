@@ -869,6 +869,7 @@ export default function PatientPortal() {
                   <StreakHeader
                     patientId={patientId}
                     patientName={patient?.nome || 'Meu Acompanhamento'}
+                    levelName={levelData?.current_name || null}
                   />
                 ) : (
                   <div>
