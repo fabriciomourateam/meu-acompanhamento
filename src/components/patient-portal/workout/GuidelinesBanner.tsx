@@ -22,35 +22,35 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes }: Props) {
   const totalCount = sessions.length + (hasNotes ? 1 : 0) + (hasPlanNotes ? 1 : 0);
 
   return (
-    <div className="rounded-lg border border-amber-200 bg-gradient-to-br from-amber-50 to-orange-50/50 overflow-hidden">
+    <div className="rounded-lg border border-slate-200 bg-slate-50 overflow-hidden">
       <button
         onClick={() => setExpanded((v) => !v)}
-        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40"
+        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-slate-100/40"
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+        <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
           📌 Orientações importantes
-          <span className="rounded-full bg-amber-200 px-1.5 py-0.5 text-[10px] font-bold">{totalCount}</span>
+          <span className="rounded-full bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold">{totalCount}</span>
         </span>
-        {expanded ? <ChevronDown className="h-4 w-4 text-amber-700" /> : <ChevronRight className="h-4 w-4 text-amber-700" />}
+        {expanded ? <ChevronDown className="h-4 w-4 text-slate-700" /> : <ChevronRight className="h-4 w-4 text-slate-700" />}
       </button>
       {expanded && (
-        <div className="space-y-2 border-t border-amber-200 p-3 text-sm">
+        <div className="space-y-2 border-t border-slate-200 p-3 text-sm">
           {hasPlanNotes && (
-            <div className="rounded border border-amber-300/50 bg-white/60 p-2">
-              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Observações gerais</div>
-              <div className="text-amber-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: planNotes! }} />
+            <div className="rounded border border-slate-300/50 bg-white/60 p-2">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">Observações gerais</div>
+              <div className="text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: planNotes! }} />
             </div>
           )}
           {hasNotes && (
-            <div className="rounded border border-amber-300/50 bg-white/60 p-2">
-              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Periodização</div>
-              <div className="text-amber-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: generalNotes! }} />
+            <div className="rounded border border-slate-300/50 bg-white/60 p-2">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-700">Periodização</div>
+              <div className="text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: generalNotes! }} />
             </div>
           )}
           {sessions.map((s) => (
-            <div key={s.id} className="rounded border border-amber-300/50 bg-white/60 p-2">
-              <div className="mb-1 text-sm font-semibold text-amber-900">{s.name}</div>
-              {s.notes && <div className="text-xs text-amber-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: s.notes }} />}
+            <div key={s.id} className="rounded border border-slate-300/50 bg-white/60 p-2">
+              <div className="mb-1 text-sm font-semibold text-slate-900">{s.name}</div>
+              {s.notes && <div className="text-xs text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: s.notes }} />}
             </div>
           ))}
         </div>
