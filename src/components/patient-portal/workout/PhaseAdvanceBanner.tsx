@@ -141,7 +141,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
             aria-label="O que e periodização?"
             // Icone (i) com contraste forte — fundo branco solido + borda
             // current (pega cor da fase). Estado focused: ring suave.
-            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white border border-current/15 text-current/60 text-[9px] font-bold shadow-sm hover:bg-current/10 hover:text-current hover:border-current/40 hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/30"
+            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white border border-slate-200 text-current/60 text-[9px] font-bold shadow-sm hover:bg-current/10 hover:text-current hover:border-slate-300 hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/30"
             onClick={(e) => { e.stopPropagation(); setInfoOpen((v) => !v); }}
           >
             i
@@ -167,7 +167,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                 </div>
                 <div className="px-3.5 py-3 text-xs leading-relaxed">
                   <p>
-                    Seu treino evolui em fases. A cada algumas semanas, séries, cargas e RPE mudam
+                    Seu treino <strong className="font-semibold text-slate-900">evolui em fases</strong>. A cada algumas semanas, séries, cargas e RPE mudam
                     automaticamente pra você continuar progredindo sem estagnar.
                   </p>
                   <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
