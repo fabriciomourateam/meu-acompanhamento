@@ -17,7 +17,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const PHASE_COLORS: Record<string, string> = {
   base: 'border-emerald-300 bg-emerald-50 text-emerald-900',
@@ -54,6 +53,9 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const [showAllPhases, setShowAllPhases] = useState(false);
   const [confirmAdvance, setConfirmAdvance] = useState(false);
   const [advancing, setAdvancing] = useState(false);
+  // Estado do popover de "O que e periodizacao" — abre via (i), fecha
+  // clicando fora ou no (i) de novo.
+  const [infoOpen, setInfoOpen] = useState(false);
 
   const reload = useCallback(async () => {
     try {
@@ -126,30 +128,39 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           o botao 'Avancar fase' lateral comia metade do card e empurrava o
           texto pra quebrar em 'RPE alvo 9/10/10' / 'Proxima: ...' / etc. */}
       <div className={cn('rounded-lg border-2 p-3 text-sm', color)}>
-        {/* Cabecalho com (A) palavra 'periodização' upfront + (D) icone (i) com
-            popover explicativo pro aluno entender o que eh periodizacao na
-            primeira vez. (B) Indicador 'Fase X de Y' logo abaixo. */}
-        <div className="flex items-center gap-1.5 font-bold">
+        {/* Cabecalho com (A) palavra 'periodização' upfront + (D) icone (i)
+            com tooltip explicativo (popover manual via state — meu-acompanhamento
+            nao tem @radix-ui/react-popover). (B) Fase X de Y logo abaixo. */}
+        <div className="relative flex items-center gap-1.5 font-bold">
           <span>📈 Sua periodização · Fase atual: {currentPhase.label}</span>
-          <Popover>
-            <PopoverTrigger asChild>
-              <button
-                type="button"
-                aria-label="O que e periodização?"
-                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/40 hover:bg-white/60 transition text-[10px] font-bold opacity-80"
-                onClick={(e) => e.stopPropagation()}
+          <button
+            type="button"
+            aria-label="O que e periodização?"
+            className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/40 hover:bg-white/60 transition text-[10px] font-bold opacity-80"
+            onClick={(e) => { e.stopPropagation(); setInfoOpen((v) => !v); }}
+          >
+            i
+          </button>
+          {infoOpen && (
+            <>
+              {/* Overlay invisivel pra fechar ao clicar fora */}
+              <div
+                className="fixed inset-0 z-20"
+                onClick={() => setInfoOpen(false)}
+              />
+              <div
+                role="tooltip"
+                className="absolute left-0 top-full z-30 mt-1.5 w-[260px] rounded-lg border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-800 shadow-xl"
               >
-                i
-              </button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-[260px] bg-white text-slate-800 text-xs leading-relaxed border-slate-200">
-              <p className="font-semibold mb-1 text-slate-900">📈 Periodização</p>
-              <p>
-                Seu treino <strong>evolui em fases</strong>. A cada algumas semanas, séries, cargas e
-                RPE mudam automaticamente pra você continuar progredindo sem estagnar.
-              </p>
-            </PopoverContent>
-          </Popover>
+                <p className="font-semibold mb-1 text-slate-900">📈 Periodização</p>
+                <p>
+                  Seu treino <strong>evolui em fases</strong>. A cada algumas semanas, séries,
+                  cargas e RPE mudam automaticamente pra você continuar progredindo sem
+                  estagnar.
+                </p>
+              </div>
+            </>
+          )}
         </div>
         <div className="mt-0.5 text-[11px] font-semibold opacity-75">
           Fase {periodization.current_phase_index + 1} de {periodization.phases.length}
