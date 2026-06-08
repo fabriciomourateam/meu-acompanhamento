@@ -1175,7 +1175,7 @@ export default function AdminPortal() {
         />
 
         <Tabs defaultValue="challenges">
-          <TabsList className="flex w-full max-w-full overflow-x-auto bg-white border border-slate-200 rounded-xl p-1 h-auto justify-start gap-0.5 scrollbar-thin scrollbar-thumb-slate-300">
+          <TabsList className="flex w-full max-w-full overflow-x-auto bg-white border border-slate-200 rounded-xl p-1 h-auto justify-start gap-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             <TabsTrigger value="challenges" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Metas
             </TabsTrigger>
