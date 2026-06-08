@@ -136,7 +136,9 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           <button
             type="button"
             aria-label="O que e periodização?"
-            className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/40 hover:bg-white/60 transition text-[10px] font-bold opacity-80"
+            // Icone (i) com contraste forte — fundo branco solido + borda
+            // current (pega cor da fase). Estado focused: ring suave.
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white border border-current/40 text-current text-[11px] font-bold shadow-sm hover:bg-current/10 hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/40"
             onClick={(e) => { e.stopPropagation(); setInfoOpen((v) => !v); }}
           >
             i
@@ -148,16 +150,36 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                 className="fixed inset-0 z-20"
                 onClick={() => setInfoOpen(false)}
               />
+              {/* Tooltip com header colorido + corpo claro. Largura confortavel,
+                  setinha apontando pro (i) e sombra forte pra destacar do card. */}
               <div
                 role="tooltip"
-                className="absolute left-0 top-full z-30 mt-1.5 w-[260px] rounded-lg border border-slate-200 bg-white p-3 text-xs leading-relaxed text-slate-800 shadow-xl"
+                className="absolute left-0 top-full z-30 mt-2 w-[290px] rounded-xl border border-slate-200 bg-white text-slate-800 shadow-2xl overflow-hidden"
               >
-                <p className="font-semibold mb-1 text-slate-900">📈 Periodização</p>
-                <p>
-                  Seu treino <strong>evolui em fases</strong>. A cada algumas semanas, séries,
-                  cargas e RPE mudam automaticamente pra você continuar progredindo sem
-                  estagnar.
-                </p>
+                {/* Setinha apontando pro (i) */}
+                <div className="absolute -top-1.5 left-4 h-3 w-3 rotate-45 bg-white border-l border-t border-slate-200" />
+                <div className={cn('px-3.5 py-2 border-b font-bold text-sm flex items-center gap-2', color)}>
+                  <span className="text-base leading-none">📈</span>
+                  <span>Periodização</span>
+                </div>
+                <div className="px-3.5 py-3 text-xs leading-relaxed">
+                  <p>
+                    Seu treino <strong className="text-slate-900">evolui em fases</strong>. A cada algumas semanas, séries, cargas e RPE mudam
+                    automaticamente pra você continuar progredindo sem estagnar.
+                  </p>
+                  <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
+                    <span className="text-[11px] text-slate-500">
+                      Fase {periodization.current_phase_index + 1} de {periodization.phases.length} agora
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setInfoOpen(false)}
+                      className="text-[11px] font-semibold text-slate-600 hover:text-slate-900"
+                    >
+                      Entendi
+                    </button>
+                  </div>
+                </div>
               </div>
             </>
           )}
