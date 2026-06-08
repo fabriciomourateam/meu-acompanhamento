@@ -1003,7 +1003,7 @@ export default function AdminPortal() {
 
   if (!trainerUserId) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div data-theme="light" style={{ colorScheme: 'light' }} className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
         <Card className="max-w-sm w-full">
           <CardContent className="p-8 text-center space-y-4">
             <Lock className="w-10 h-10 mx-auto text-slate-300" />
@@ -1016,7 +1016,7 @@ export default function AdminPortal() {
 
   if (!pinChecked) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+      <div data-theme="light" style={{ colorScheme: 'light' }} className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="text-slate-400 text-sm">Carregando...</div>
       </div>
     );
@@ -1140,7 +1140,7 @@ export default function AdminPortal() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div data-theme="light" style={{ colorScheme: 'light' }} className="min-h-screen bg-slate-50">
       <div className="max-w-2xl mx-auto px-4 py-8 space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -1161,7 +1161,7 @@ export default function AdminPortal() {
               <Save className="w-4 h-4" />
               {saving ? 'Salvando...' : 'Salvar'}
             </Button>
-            <Button onClick={handleLogout} variant="outline" className="border-slate-200 text-slate-500 hover:text-slate-700 hover:bg-slate-100 gap-1.5">
+            <Button onClick={handleLogout} variant="outline" className="bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-800 gap-1.5">
               <LogOut className="w-4 h-4" />
               Sair
             </Button>

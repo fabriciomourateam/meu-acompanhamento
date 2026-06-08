@@ -39,6 +39,28 @@ export class ErrorBoundary extends Component<Props, State> {
   componentDidCatch(error: Error, info: { componentStack?: string }) {
     console.error('[ErrorBoundary]', error, info?.componentStack);
     clearPersistedTabs();
+
+    // Erro tipico apos deploy: chunks JS antigos sumiram do CDN
+    // ("Failed to fetch dynamically imported module..."). Auto-reload
+    // resolve em 1 tentativa pq o HTML novo aponta pros chunks novos.
+    // Guard: chrome localStorage flag pra evitar loop infinito caso o
+    // reload tambem falhe.
+    const msg = String(error?.message || error);
+    const isStaleChunk =
+      msg.includes('Failed to fetch dynamically imported module') ||
+      msg.includes('Importing a module script failed') ||
+      /Loading (CSS )?chunk \d+ failed/i.test(msg);
+    if (isStaleChunk && typeof window !== 'undefined') {
+      try {
+        const key = 'eb_stale_chunk_reloaded';
+        if (!sessionStorage.getItem(key)) {
+          sessionStorage.setItem(key, '1');
+          window.location.reload();
+          return;
+        }
+      } catch { /* ignora */ }
+    }
+
     // Registra pra tratamento posterior. Fire-and-forget: uma falha no log
     // jamais pode mascarar ou substituir o erro original.
     try {
