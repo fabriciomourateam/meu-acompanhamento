@@ -34,7 +34,10 @@ import {
   ArrowLeftRight,
   Star,
   ExternalLink,
+  Download,
+  Loader2,
 } from 'lucide-react';
+import { downloadGuidelinePdf } from '@/lib/guideline-pdf';
 import type { UseDietDataReturn } from './useDietData';
 
 interface DietTabProps {
@@ -147,6 +150,26 @@ export function DietTab({
   // a tabela `common_units` (ex: [{unit:"unidade média", grams:42}]) e usamos
   // como fallback no render. Chave = food_name lowercase.
   const [substitutionGramsMap, setSubstitutionGramsMap] = useState<Map<string, number>>(new Map());
+
+  // Estado do botao "Baixar PDF" das orientacoes — guarda o id em download
+  // pra mostrar spinner so naquela linha.
+  const [downloadingGuidelineId, setDownloadingGuidelineId] = useState<string | null>(null);
+  const handleDownloadGuidelinePdf = async (guidelineId: string) => {
+    if (!patient?.telefone) {
+      // toast nao disponivel direto aqui — fallback alert. Quase nunca cai
+      // nesse caminho porque o portal so renderiza com telefone presente.
+      alert('Telefone do paciente não disponível.');
+      return;
+    }
+    setDownloadingGuidelineId(guidelineId);
+    try {
+      await downloadGuidelinePdf(patient.telefone, guidelineId);
+    } catch (e) {
+      alert('Erro ao gerar PDF: ' + ((e as Error).message || 'tente novamente'));
+    } finally {
+      setDownloadingGuidelineId(null);
+    }
+  };
   useEffect(() => {
     if (!substitutionsModalOpen || !selectedFoodSubstitutions) return;
     const subs = selectedFoodSubstitutions.substitutions || [];
@@ -363,6 +386,30 @@ export function DietTab({
                         className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
                         dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(guideline.content) }}
                       />
+                      {/* Botao de baixar PDF com papel timbrado do nutri.
+                          Disponivel quando ha guideline.id (item salvo no banco
+                          — todo item exibido aqui ja foi salvo, mas testamos
+                          defensivo) e o paciente tem telefone (necessario pra
+                          autorizar a leitura via RPC). */}
+                      {guideline.id && patient?.telefone && (
+                        <div className="mt-3 flex justify-end">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            disabled={downloadingGuidelineId === guideline.id}
+                            onClick={() => void handleDownloadGuidelinePdf(guideline.id)}
+                            className="gap-1.5 border-slate-300 text-slate-700 hover:bg-slate-50"
+                          >
+                            {downloadingGuidelineId === guideline.id ? (
+                              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                            ) : (
+                              <Download className="w-3.5 h-3.5" />
+                            )}
+                            {downloadingGuidelineId === guideline.id ? 'Gerando PDF...' : 'Baixar PDF'}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   </CollapsibleContent>
                 </div>
