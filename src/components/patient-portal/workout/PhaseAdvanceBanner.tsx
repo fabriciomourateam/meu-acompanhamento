@@ -17,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 const PHASE_COLORS: Record<string, string> = {
   base: 'border-emerald-300 bg-emerald-50 text-emerald-900',
@@ -125,8 +126,35 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           o botao 'Avancar fase' lateral comia metade do card e empurrava o
           texto pra quebrar em 'RPE alvo 9/10/10' / 'Proxima: ...' / etc. */}
       <div className={cn('rounded-lg border-2 p-3 text-sm', color)}>
-        <div className="font-bold">💪 Fase atual: {currentPhase.label}</div>
-        <div className="mt-0.5 text-xs">
+        {/* Cabecalho com (A) palavra 'periodização' upfront + (D) icone (i) com
+            popover explicativo pro aluno entender o que eh periodizacao na
+            primeira vez. (B) Indicador 'Fase X de Y' logo abaixo. */}
+        <div className="flex items-center gap-1.5 font-bold">
+          <span>📈 Sua periodização · Fase atual: {currentPhase.label}</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                type="button"
+                aria-label="O que e periodização?"
+                className="inline-flex h-4 w-4 items-center justify-center rounded-full bg-white/40 hover:bg-white/60 transition text-[10px] font-bold opacity-80"
+                onClick={(e) => e.stopPropagation()}
+              >
+                i
+              </button>
+            </PopoverTrigger>
+            <PopoverContent align="start" className="w-[260px] bg-white text-slate-800 text-xs leading-relaxed border-slate-200">
+              <p className="font-semibold mb-1 text-slate-900">📈 Periodização</p>
+              <p>
+                Seu treino <strong>evolui em fases</strong>. A cada algumas semanas, séries, cargas e
+                RPE mudam automaticamente pra você continuar progredindo sem estagnar.
+              </p>
+            </PopoverContent>
+          </Popover>
+        </div>
+        <div className="mt-0.5 text-[11px] font-semibold opacity-75">
+          Fase {periodization.current_phase_index + 1} de {periodization.phases.length}
+        </div>
+        <div className="mt-1 text-xs">
           {currentPhase.sets_override ? `${currentPhase.sets_override} séries` : ''}
           {currentPhase.reps_override ? ` × ${currentPhase.reps_override} reps` : ''}
           {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
