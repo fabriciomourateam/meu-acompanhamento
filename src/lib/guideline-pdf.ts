@@ -48,6 +48,12 @@ async function captureLetterheadHtml(html: string): Promise<HTMLCanvasElement> {
   container.style.top = '0';
   container.style.width = '800px';
   container.style.background = '#ffffff';
+  container.style.color = '#0f172a';
+  // Forca tema claro mesmo se o app estiver em dark mode — senao
+  // html2canvas captura cores invertidas (bg cinza-escuro, texto claro)
+  // por causa de color-scheme/CSS vars do contexto pai.
+  container.style.setProperty('color-scheme', 'light');
+  container.classList.add('letterhead-light');
   container.innerHTML = html;
   document.body.appendChild(container);
   try {
