@@ -185,15 +185,31 @@ export default function PatientPortal() {
     }
   }, [token]);
 
-  // Memoizar função de logout
+  // Memoizar função de logout. Comportamento muda quando o trainer estah
+  // impersonando um aluno (flag setada em ImpersonatePatientModal): em vez
+  // de logout, volta pra /admin?uid=... e remove apenas os marcadores de
+  // impersonacao. Sessao do trainer no admin permanece (PIN ja conferido).
   const handleLogout = useCallback(() => {
-    // Ler a rota de login antes de limpar tudo
+    const impersonatingAdmin = localStorage.getItem('impersonating_admin_uid');
+    if (impersonatingAdmin) {
+      // Sai da impersonacao e volta pro admin
+      localStorage.removeItem('impersonating_admin_uid');
+      localStorage.removeItem('impersonating_patient_name');
+      localStorage.removeItem('portal_token');
+      localStorage.removeItem('portal_phone');
+      localStorage.removeItem('portal_access_token');
+      navigate(`/admin?uid=${encodeURIComponent(impersonatingAdmin)}`, { replace: true });
+      toast({
+        title: 'Voltou pro painel admin',
+        description: 'Selecione outro aluno se quiser.',
+      });
+      return;
+    }
+    // Logout normal (paciente real)
     const loginRoute = localStorage.getItem('portal_login_route') || '/portal';
-    // Limpar token do localStorage
     localStorage.removeItem('portal_access_token');
     localStorage.removeItem('portal_token');
     localStorage.removeItem('portal_phone');
-    // Redirecionar para a página de login original (personalizada ou padrão)
     navigate(loginRoute, { replace: true });
     toast({
       title: 'Logout realizado',
@@ -812,8 +828,31 @@ export default function PatientPortal() {
     );
   }
 
+  // Banner de impersonacao — quando trainer entrou via "Ver app de aluno"
+  // no AdminPortal, mostra barra fixa no topo deixando claro que esta
+  // navegando como outro user + atalho rapido pra voltar.
+  const impersonatingAdminUid = typeof window !== 'undefined' ? localStorage.getItem('impersonating_admin_uid') : null;
+  const impersonatingName = typeof window !== 'undefined' ? localStorage.getItem('impersonating_patient_name') : null;
+
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
+      {impersonatingAdminUid && (
+        <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-2 min-w-0 flex-1">
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+            <span className="truncate">
+              Visualizando como <strong>{impersonatingName || 'aluno'}</strong>
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium flex-shrink-0"
+          >
+            ← Voltar pro admin
+          </button>
+        </div>
+      )}
       {/* Fundo "clean com respiro verde": base clara + brilho emerald descendo do topo */}
       <div className="absolute inset-0 bg-slate-50">
         {/* respiro verde vindo do topo (conversa com o header) */}

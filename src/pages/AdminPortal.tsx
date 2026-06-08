@@ -18,7 +18,8 @@ import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy, Users, Flag, Eye, EyeOff, Instagram, Loader2 } from 'lucide-react';
+import { Lock, Plus, Trash2, Pencil, Check, X, ToggleLeft, ToggleRight, Save, LogOut, RotateCcw, AlertTriangle, History, Trophy, Users, Flag, Eye, EyeOff, Instagram, Loader2, UserCircle } from 'lucide-react';
+import { ImpersonatePatientModal } from '@/components/admin/ImpersonatePatientModal';
 import { communityModerationService, type CommunityReport } from '@/lib/community-service';
 
 
@@ -977,6 +978,9 @@ export default function AdminPortal() {
 
   const [config, setConfig] = useState<PortalConfig | null>(null);
   const [saving, setSaving] = useState(false);
+  // Modal "Ver app de um aluno" — usado pra impersonar e navegar no portal
+  // de qualquer aluno do trainer sem precisar pedir token/senha.
+  const [impersonateOpen, setImpersonateOpen] = useState(false);
 
   useEffect(() => {
     if (!trainerUserId) { setPinChecked(true); return; }
@@ -1143,8 +1147,16 @@ export default function AdminPortal() {
             <h1 className="text-2xl font-bold text-slate-800">Painel Admin</h1>
             <p className="text-sm text-slate-500 mt-0.5">Configure o portal dos seus alunos</p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {trainerUserId && <TrainerNotifications trainerId={trainerUserId} />}
+            <Button
+              onClick={() => setImpersonateOpen(true)}
+              variant="outline"
+              className="border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 gap-1.5"
+            >
+              <UserCircle className="w-4 h-4" />
+              Ver app de aluno
+            </Button>
             <Button onClick={handleSave} disabled={saving || !config} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-1.5">
               <Save className="w-4 h-4" />
               {saving ? 'Salvando...' : 'Salvar'}
@@ -1155,6 +1167,12 @@ export default function AdminPortal() {
             </Button>
           </div>
         </div>
+
+        <ImpersonatePatientModal
+          open={impersonateOpen}
+          onOpenChange={setImpersonateOpen}
+          trainerUserId={trainerUserId}
+        />
 
         <Tabs defaultValue="challenges">
           <TabsList className="w-full bg-white border border-slate-200 rounded-xl p-1 h-auto">
