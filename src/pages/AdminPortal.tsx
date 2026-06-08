@@ -1175,39 +1175,39 @@ export default function AdminPortal() {
         />
 
         <Tabs defaultValue="challenges">
-          <TabsList className="w-full bg-white border border-slate-200 rounded-xl p-1 h-auto">
-            <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+          <TabsList className="flex w-full max-w-full overflow-x-auto bg-white border border-slate-200 rounded-xl p-1 h-auto justify-start gap-0.5 scrollbar-thin scrollbar-thumb-slate-300">
+            <TabsTrigger value="challenges" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Metas
             </TabsTrigger>
-            <TabsTrigger value="achievements" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="achievements" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Conquistas
             </TabsTrigger>
-            <TabsTrigger value="levels" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="levels" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Níveis
             </TabsTrigger>
-            <TabsTrigger value="weekly_challenge" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="weekly_challenge" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Desafio
             </TabsTrigger>
-            <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="ranking" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Ranking
             </TabsTrigger>
-            <TabsTrigger value="visibility" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="visibility" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Visibilidade
             </TabsTrigger>
-            <TabsTrigger value="community" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="community" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Comunidade
             </TabsTrigger>
-            <TabsTrigger value="points" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="points" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Pontos
             </TabsTrigger>
-            <TabsTrigger value="notifications" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="notifications" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Notificações
             </TabsTrigger>
-            <TabsTrigger value="brand" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+            <TabsTrigger value="brand" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
               Marca
             </TabsTrigger>
             {isSuperAdmin && (
-              <TabsTrigger value="errors" className="flex-1 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm">
+              <TabsTrigger value="errors" className="shrink-0 px-3 data-[state=active]:bg-emerald-500/10 data-[state=active]:text-emerald-700 text-slate-500 rounded-lg py-2 text-sm whitespace-nowrap">
                 Erros
               </TabsTrigger>
             )}
