@@ -226,7 +226,7 @@ export function WeeklyChallengeManager({ trainerUserId }: { trainerUserId: strin
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-semibold text-slate-800 text-sm">{c.title}</p>
-                      <Badge variant="outline" className="text-[10px] gap-1">
+                      <Badge variant="outline" className="text-[10px] gap-1 border-slate-300 bg-slate-50 text-slate-700">
                         <CalendarDays className="h-2.5 w-2.5" /> {formatWeek(c.week_key)}
                       </Badge>
                       {isCurrent && (
@@ -235,7 +235,7 @@ export function WeeklyChallengeManager({ trainerUserId }: { trainerUserId: strin
                         </Badge>
                       )}
                       {isPast && (
-                        <Badge variant="outline" className="text-[10px]">passado</Badge>
+                        <Badge variant="outline" className="text-[10px] border-slate-300 bg-slate-100 text-slate-600">passado</Badge>
                       )}
                       <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
                         +{c.points} pts

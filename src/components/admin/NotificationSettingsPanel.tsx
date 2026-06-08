@@ -101,7 +101,9 @@ export function NotificationSettingsPanel({ trainerUserId }: Props) {
     }
   };
 
-  const inputCls = 'rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none';
+  // bg-white + text-slate-900 explicitos pra nao herdar tema dark do
+  // navegador/PWA (inputs vinham com texto branco invisivel no fundo branco).
+  const inputCls = 'rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 px-3 py-2 text-sm focus:border-emerald-400 focus:outline-none';
 
   return (
     <div className="space-y-6">

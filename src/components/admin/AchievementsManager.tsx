@@ -243,12 +243,12 @@ export function AchievementsManager() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-slate-800 text-sm">{t.achievement_name}</p>
                     {t.is_secret && (
-                      <Badge variant="outline" className="text-[10px] gap-1">
+                      <Badge variant="outline" className="text-[10px] gap-1 border-slate-300 bg-slate-50 text-slate-700">
                         <EyeOff className="h-2.5 w-2.5" /> Secreta
                       </Badge>
                     )}
                     {!t.rule_type && (
-                      <Badge variant="outline" className="text-[10px]">Legado</Badge>
+                      <Badge variant="outline" className="text-[10px] border-amber-300 bg-amber-50 text-amber-700">Legado</Badge>
                     )}
                     <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200 text-[10px]">
                       +{t.points_earned} pts
