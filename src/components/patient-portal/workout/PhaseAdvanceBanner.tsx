@@ -132,13 +132,16 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
             com tooltip explicativo (popover manual via state — meu-acompanhamento
             nao tem @radix-ui/react-popover). (B) Fase X de Y logo abaixo. */}
         <div className="relative flex items-center gap-1.5 font-bold">
-          <span>📈 Sua periodização · Fase atual: {currentPhase.label}</span>
+          <span>
+            📈 Sua periodização · Fase atual:{' '}
+            <span className="font-normal">{currentPhase.label}</span>
+          </span>
           <button
             type="button"
             aria-label="O que e periodização?"
             // Icone (i) com contraste forte — fundo branco solido + borda
             // current (pega cor da fase). Estado focused: ring suave.
-            className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white border border-current/40 text-current text-[11px] font-bold shadow-sm hover:bg-current/10 hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/40"
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-white border border-current/30 text-current/60 text-[11px] font-bold shadow-sm hover:bg-current/10 hover:text-current hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/40"
             onClick={(e) => { e.stopPropagation(); setInfoOpen((v) => !v); }}
           >
             i
@@ -164,7 +167,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                 </div>
                 <div className="px-3.5 py-3 text-xs leading-relaxed">
                   <p>
-                    Seu treino <strong className="text-slate-900">evolui em fases</strong>. A cada algumas semanas, séries, cargas e RPE mudam
+                    Seu treino evolui em fases. A cada algumas semanas, séries, cargas e RPE mudam
                     automaticamente pra você continuar progredindo sem estagnar.
                   </p>
                   <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
