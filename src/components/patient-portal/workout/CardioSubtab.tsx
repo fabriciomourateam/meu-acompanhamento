@@ -243,7 +243,8 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
   const tempoHoje = cardio.modo === 'mesmo'
     ? cardio.tempo_padrao
     : cardio.tempo_por_dia?.[String(todayDow)] ?? null;
-  const subtitle = [cardio.modalidade, cardio.intensidade].filter(Boolean).join(' · ');
+  const modalidade = cardio.modalidade?.trim() || null;
+  const intensidade = cardio.intensidade?.trim() || null;
 
   return (
     <div className="rounded-xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-sky-50/40 p-3">
@@ -257,7 +258,12 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
           </span>
         )}
       </div>
-      {subtitle && <p className="mt-0.5 text-xs text-cyan-700">{subtitle}</p>}
+      {(modalidade || intensidade) && (
+        <div className="mt-0.5 space-y-0.5 text-xs text-cyan-700">
+          {modalidade && <p>{modalidade}</p>}
+          {intensidade && <p className="text-cyan-600">{intensidade}</p>}
+        </div>
+      )}
 
       {byFrequency ? (
         <FrequencyProgress cardio={cardio} weekStats={weekStats} />

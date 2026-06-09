@@ -448,8 +448,9 @@ export function PatientEvolutionTab({
         </motion.div>
       )}
 
-      {/* Comparação de Fotos */}
-      {checkins.length >= 2 && (
+      {/* Comparação de Fotos — também aparece quando só há fotos baseline,
+          mesmo sem check-ins ainda (caso comum de paciente recém-cadastrado). */}
+      {(checkins.length >= 2 || !!(patient as any)?.foto_inicial_frente || !!(patient as any)?.foto_inicial_lado || !!(patient as any)?.foto_inicial_lado_2 || !!(patient as any)?.foto_inicial_costas) && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

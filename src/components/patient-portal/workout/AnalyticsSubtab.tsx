@@ -182,8 +182,8 @@ function CalendarView({ token }: { token: string }) {
               {dayCardios.map((c) => (
                 <div key={c.id} className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs">
                   <span>🫀</span>
-                  <span className="font-medium capitalize text-blue-800">{c.modality || 'Cardio'}</span>
-                  {c.intensity && <span className="capitalize text-blue-500">· {c.intensity}</span>}
+                  <span className="font-medium text-blue-800">{c.modality || 'Cardio'}</span>
+                  {c.intensity && <span className="text-blue-500">· {c.intensity}</span>}
                   <span className="ml-auto tabular-nums text-blue-600">{c.duration_min} min</span>
                 </div>
               ))}
