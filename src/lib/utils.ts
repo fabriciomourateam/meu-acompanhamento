@@ -24,7 +24,11 @@ export function sanitizeRichHtml(html: string | null | undefined): string {
 
   const input = HTML_TAG_REGEX.test(html)
     ? html
-    : html.replace(/\r\n/g, "\n").replace(/\n/g, "<br>");
+    : html
+        .replace(/\r\n/g, "\n")
+        .split("\n")
+        .map((line) => line.replace(/^ +/, (m) => "&nbsp;".repeat(m.length)))
+        .join("<br>");
 
   const clean = DOMPurify.sanitize(input);
 
