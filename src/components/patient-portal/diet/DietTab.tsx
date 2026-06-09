@@ -399,7 +399,7 @@ export function DietTab({
                             variant="outline"
                             disabled={downloadingGuidelineId === guideline.id}
                             onClick={() => void handleDownloadGuidelinePdf(guideline.id)}
-                            className="gap-1.5 border-slate-300 text-slate-700 hover:bg-slate-50"
+                            className="gap-1.5 bg-white border-slate-300 text-slate-700 hover:bg-slate-50"
                           >
                             {downloadingGuidelineId === guideline.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
