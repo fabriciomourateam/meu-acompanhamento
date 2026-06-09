@@ -653,22 +653,22 @@ export function DietTab({
                                   } ${showAsOption ? 'ml-3 sm:ml-6 border-l-2 border-l-emerald-300' : ''}`}
                               >
                                 <CollapsibleTrigger asChild>
-                                  <div className="flex items-center justify-between p-3 sm:p-4 cursor-pointer rounded-t-xl transition-all duration-200">
-                                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                                  <div className="flex items-center justify-between p-2.5 sm:p-3 cursor-pointer rounded-t-xl transition-all duration-200">
+                                    <div className="flex items-center gap-2 sm:gap-2.5 flex-1 min-w-0">
                                       {/* Circulo verde com icone fica SO nas refeicoes principais
                                           (e quando ja foi consumida). Em refeicao-opcao o badge
                                           'Opcao' assume o papel de marcador visual a esquerda. */}
                                       {!showAsOption && (
                                         <div
-                                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
+                                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
                                             ? 'bg-emerald-100 text-emerald-600'
                                             : '!bg-emerald-50 !text-emerald-500'
                                             }`}
                                         >
                                           {isConsumed ? (
-                                            <Check className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                           ) : (
-                                            <Utensils className="w-4 h-4 sm:w-5 sm:h-5" />
+                                            <Utensils className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                                           )}
                                         </div>
                                       )}
@@ -893,7 +893,7 @@ export function DietTab({
                                 {!isOption && optionCount > 0 && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); toggleOptionGroup(meal.id); }}
-                                    className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 px-4 py-2 text-xs font-medium text-slate-500 transition-colors rounded-b-xl hover:text-slate-700 hover:bg-slate-50"
+                                    className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 px-4 py-1.5 text-[11px] font-medium text-slate-500 transition-colors rounded-b-xl hover:text-slate-700 hover:bg-slate-50"
                                   >
                                     <RefreshCw className="w-3 h-3" />
                                     {optionsCollapsed
