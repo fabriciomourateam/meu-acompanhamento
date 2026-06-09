@@ -14,10 +14,19 @@ const URL_SPLIT_REGEX = /(https?:\/\/[^\s<>"']+)/g;
  * clicáveis que abrem em nova aba. Âncoras já existentes também são padronizadas
  * para abrir externamente com segurança (rel=noopener).
  */
+// Detecta se a string já contém marcação HTML. Se não, tratamos como texto puro
+// e convertemos quebras de linha em <br> para preservar a formatação visual
+// (HTML colapsa \n em espaço).
+const HTML_TAG_REGEX = /<\/?[a-z][\s\S]*?>/i;
+
 export function sanitizeRichHtml(html: string | null | undefined): string {
   if (!html) return "";
 
-  const clean = DOMPurify.sanitize(html);
+  const input = HTML_TAG_REGEX.test(html)
+    ? html
+    : html.replace(/\r\n/g, "\n").replace(/\n/g, "<br>");
+
+  const clean = DOMPurify.sanitize(input);
 
   if (typeof window === "undefined" || typeof DOMParser === "undefined") {
     return clean;
