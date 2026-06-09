@@ -257,7 +257,7 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
           </span>
         )}
       </div>
-      {subtitle && <p className="mt-0.5 text-xs capitalize text-cyan-700">{subtitle}</p>}
+      {subtitle && <p className="mt-0.5 text-xs text-cyan-700">{subtitle}</p>}
 
       {byFrequency ? (
         <FrequencyProgress cardio={cardio} weekStats={weekStats} />
