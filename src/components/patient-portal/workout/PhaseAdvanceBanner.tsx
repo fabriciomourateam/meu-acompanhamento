@@ -18,24 +18,39 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 
+// Cores da fase: agora indexadas pelo CAMPO `color` do preset (emerald,
+// rose, sky, amber, violet, indigo, slate). Antes indexava por `preset`,
+// o que ignorava a cor escolhida no preset custom.
 const PHASE_COLORS: Record<string, string> = {
-  base: 'border-emerald-300 bg-emerald-50 text-emerald-900',
-  forca: 'border-rose-300 bg-rose-50 text-rose-900',
-  força: 'border-rose-300 bg-rose-50 text-rose-900',
-  regenerativo: 'border-sky-300 bg-sky-50 text-sky-900',
-  deload: 'border-amber-300 bg-amber-50 text-amber-900',
-  custom: 'border-slate-300 bg-slate-50 text-slate-900',
+  emerald: 'border-emerald-300 bg-emerald-50 text-emerald-900',
+  rose: 'border-rose-300 bg-rose-50 text-rose-900',
+  sky: 'border-sky-300 bg-sky-50 text-sky-900',
+  amber: 'border-amber-300 bg-amber-50 text-amber-900',
+  violet: 'border-violet-300 bg-violet-50 text-violet-900',
+  indigo: 'border-indigo-300 bg-indigo-50 text-indigo-900',
+  slate: 'border-slate-300 bg-slate-50 text-slate-900',
 };
-
-// Cor do marcador (bolinha) de cada fase na timeline, por preset.
 const PHASE_DOT: Record<string, string> = {
-  base: 'bg-emerald-500',
-  forca: 'bg-rose-500',
-  força: 'bg-rose-500',
-  regenerativo: 'bg-sky-500',
-  deload: 'bg-amber-500',
-  custom: 'bg-slate-400',
+  emerald: 'bg-emerald-500',
+  rose: 'bg-rose-500',
+  sky: 'bg-sky-500',
+  amber: 'bg-amber-500',
+  violet: 'bg-violet-500',
+  indigo: 'bg-indigo-500',
+  slate: 'bg-slate-400',
 };
+// Fallback pra fases legadas que nao tem color salva — deriva do preset.
+const PRESET_FALLBACK_COLOR: Record<string, string> = {
+  base: 'emerald',
+  forca: 'rose',
+  força: 'rose',
+  regenerativo: 'sky',
+  deload: 'amber',
+  custom: 'slate',
+};
+function resolveColor(phase: { color?: string | null; preset?: string | null }): string {
+  return phase.color ?? PRESET_FALLBACK_COLOR[(phase.preset ?? 'custom').toLowerCase()] ?? 'slate';
+}
 
 interface Props {
   token: string;
@@ -75,7 +90,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const nextPhase = periodization.phases[periodization.current_phase_index + 1];
   if (!currentPhase) return null;
 
-  const color = PHASE_COLORS[(currentPhase.preset ?? 'custom').toLowerCase()] ?? PHASE_COLORS.custom;
+  const color = PHASE_COLORS[resolveColor(currentPhase)] ?? PHASE_COLORS.slate;
   const isDeload =
     (currentPhase.preset ?? '').toLowerCase() === 'regenerativo' ||
     (currentPhase.load_pct_change ?? 0) < 0;
@@ -276,7 +291,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                       : 'upcoming';
                 const summary = phaseSummary(ph);
                 const duration = phaseDuration(ph);
-                const dot = PHASE_DOT[(ph.preset ?? 'custom').toLowerCase()] ?? PHASE_DOT.custom;
+                const dot = PHASE_DOT[resolveColor(ph)] ?? PHASE_DOT.slate;
                 return (
                   <li key={ph.id} className="relative flex items-start gap-2.5 pl-0">
                     <span
