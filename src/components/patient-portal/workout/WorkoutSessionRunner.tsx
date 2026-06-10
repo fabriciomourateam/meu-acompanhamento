@@ -162,6 +162,25 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     return m;
   }, [exerciseGroups]);
 
+  // Label exibido no badge do exercicio. Bi-set/tri-set compartilham numero
+  // (ex: "2A", "2B"); exercicios soltos seguem incrementando ("1", "2", "3").
+  const displayLabels = useMemo(() => {
+    const m = new Map<string, string>();
+    let counter = 0;
+    for (const g of exerciseGroups) {
+      counter += 1;
+      if (g.items.length < 2 || !g.supersetGroup) {
+        m.set(g.items[0].id, String(counter));
+      } else {
+        g.items.forEach((ex, i) => {
+          // 2A, 2B, 2C... (codigo A=65)
+          m.set(ex.id, `${counter}${String.fromCharCode(65 + i)}`);
+        });
+      }
+    }
+    return m;
+  }, [exerciseGroups]);
+
   // Aquecimento é o "início do treino": segue sempre o 1º exercício da lista.
   // Pega a config de quem tiver aquecimento cadastrado (menor exercise_order).
   const warmupConfig = useMemo(() => {
@@ -634,6 +653,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               <ExerciseCard
                 key={ex.id}
                 exercise={ex}
+                displayLabel={displayLabels.get(ex.id)}
                 token={token}
                 values={sets[ex.id] || []}
                 warmupValues={warmup[ex.id] || []}
@@ -678,7 +698,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
                     {kindLabel} {g.supersetGroup}
                   </span>
                   <span className="text-sky-600/80 font-normal italic">
-                    alterne entre os exercícios em cada rodada
+                    Faça um exercício após o outro sem descanso.
                   </span>
                 </div>
                 {g.items.map(renderCard)}
