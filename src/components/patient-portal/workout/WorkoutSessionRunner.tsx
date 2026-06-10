@@ -131,6 +131,37 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     return order.map((id) => byId.get(id)).filter(Boolean) as typeof session.exercises;
   }, [order, session.exercises]);
 
+  // Bi-set / tri-set: agrupa exercicios consecutivos com mesmo superset_group.
+  // Cada grupo de tamanho >= 2 vira um cluster visual com badge "Bi-set X" e
+  // descanso/avanco coordenado. Tamanho 1 = exercicio solto (comportamento atual).
+  const exerciseGroups = useMemo(() => {
+    const groups: Array<{ key: string; supersetGroup: string | null; items: typeof orderedExercises }> = [];
+    for (const ex of orderedExercises) {
+      const letter = (ex as any).superset_group as string | null | undefined;
+      const last = groups[groups.length - 1];
+      if (letter && last && last.supersetGroup === letter) {
+        last.items.push(ex);
+      } else {
+        groups.push({ key: `${ex.id}-${letter ?? 'solo'}`, supersetGroup: letter ?? null, items: [ex] });
+      }
+    }
+    return groups;
+  }, [orderedExercises]);
+
+  // Para cada exercicio em grupo, retorna a lista de IDs do par. Util pra
+  // detectar se ainda falta a "mesma serie N" do parceiro antes de descansar.
+  const partnersById = useMemo(() => {
+    const m = new Map<string, string[]>();
+    for (const g of exerciseGroups) {
+      if (g.items.length < 2) continue;
+      const ids = g.items.map((e) => e.id);
+      for (const ex of g.items) {
+        m.set(ex.id, ids.filter((id) => id !== ex.id));
+      }
+    }
+    return m;
+  }, [exerciseGroups]);
+
   // Aquecimento é o "início do treino": segue sempre o 1º exercício da lista.
   // Pega a config de quem tiver aquecimento cadastrado (menor exercise_order).
   const warmupConfig = useMemo(() => {
@@ -322,6 +353,24 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
       arr.forEach((s, i) => { if (s?.done) doneIdx.add(i); });
       doneIdx.add(setIndex - 1);
       const exerciseFinished = doneIdx.size >= total;
+
+      // Bi-set: depois da serie N de A, NAO descansa — abre B e deixa o aluno
+      // fazer a serie N de B. Soh descansa quando a serie N de TODOS os
+      // parceiros do par foi feita.
+      const partners = partnersById.get(plannedExerciseId) ?? [];
+      const partnerStillPending = partners.find((pid) => {
+        const arr = sets[pid] || [];
+        return !arr[setIndex - 1]?.done;
+      });
+      if (partnerStillPending) {
+        // Pula descanso e abre o proximo do par
+        setOpenIds((prev) => {
+          const next = new Set(prev);
+          partners.forEach((pid) => next.add(pid));
+          return next;
+        });
+        return;
+      }
 
       // Descanso entre séries (normal) ou entre exercícios (na última série).
       // No final do exercício, se o descanso prescrito for menor que 60s, garante
@@ -580,37 +629,62 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         </div>
       ) : (
         <div className="space-y-2.5">
-          {orderedExercises.map((ex) => (
-            <ExerciseCard
-              key={ex.id}
-              exercise={ex}
-              token={token}
-              values={sets[ex.id] || []}
-              warmupValues={warmup[ex.id] || []}
-              warmupConfig={ex.id === firstExerciseId ? warmupConfig : null}
-              warmupLastWeight={ex.id === firstExerciseId ? warmupLastWeight : null}
-              isFirst={ex.id === firstExerciseId}
-              open={openIds.has(ex.id)}
-              onOpenChange={(o) => setOpenFor(ex.id, o)}
-              onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
-              onWarmupChange={(idx, v) => handleWarmupChange(ex.id, idx, v)}
-              onWarmupCommit={handleWarmupCommit}
-              onCommit={handleCommit}
-              substitutedName={subs[ex.id]?.name ?? null}
-              substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
-              substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
-              lastLoad={lastLoads[ex.id] ?? null}
-              note={exerciseNotes[exKey(ex)] ?? ''}
-              onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
-              prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}
-              onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
-              onRevertSubstitution={subs[ex.id] ? () => setSubs((prev) => {
-                const next = { ...prev };
-                delete next[ex.id];
-                return next;
-              }) : undefined}
-            />
-          ))}
+          {exerciseGroups.map((g) => {
+            const renderCard = (ex: typeof g.items[number]) => (
+              <ExerciseCard
+                key={ex.id}
+                exercise={ex}
+                token={token}
+                values={sets[ex.id] || []}
+                warmupValues={warmup[ex.id] || []}
+                warmupConfig={ex.id === firstExerciseId ? warmupConfig : null}
+                warmupLastWeight={ex.id === firstExerciseId ? warmupLastWeight : null}
+                isFirst={ex.id === firstExerciseId}
+                open={openIds.has(ex.id)}
+                onOpenChange={(o) => setOpenFor(ex.id, o)}
+                onChange={(idx, v) => handleSetChange(ex.id, idx, v)}
+                onWarmupChange={(idx, v) => handleWarmupChange(ex.id, idx, v)}
+                onWarmupCommit={handleWarmupCommit}
+                onCommit={handleCommit}
+                substitutedName={subs[ex.id]?.name ?? null}
+                substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
+                substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
+                lastLoad={lastLoads[ex.id] ?? null}
+                note={exerciseNotes[exKey(ex)] ?? ''}
+                onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
+                prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}
+                onRequestSubstitute={ex.exercise_id ? () => setSubFor({ plannedId: ex.id, exerciseId: ex.exercise_id!, name: ex.exercise_name }) : undefined}
+                onRevertSubstitution={subs[ex.id] ? () => setSubs((prev) => {
+                  const next = { ...prev };
+                  delete next[ex.id];
+                  return next;
+                }) : undefined}
+              />
+            );
+            // Exercicios soltos: renderiza igual antes
+            if (!g.supersetGroup || g.items.length < 2) {
+              return <div key={g.key}>{g.items.map(renderCard)}</div>;
+            }
+            // Cluster bi-set: wrapper sky com badge + label "alterne entre os exercicios"
+            const kindLabel = g.items.length === 2 ? 'Bi-set' : g.items.length === 3 ? 'Tri-set' : `${g.items.length}-set`;
+            return (
+              <div
+                key={g.key}
+                className="rounded-xl border-2 border-sky-200 bg-sky-50/60 p-2 space-y-2"
+              >
+                <div className="flex items-center gap-2 px-1 text-[11px] font-semibold text-sky-700">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5">
+                    <span aria-hidden>🔗</span>
+                    {kindLabel} {g.supersetGroup}
+                  </span>
+                  <span className="text-sky-600/80 font-normal italic">
+                    alterne entre os exercícios em cada rodada
+                  </span>
+                </div>
+                {g.items.map(renderCard)}
+              </div>
+            );
+          })}
         </div>
       )}
 
