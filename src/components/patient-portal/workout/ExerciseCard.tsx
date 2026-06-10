@@ -58,11 +58,13 @@ interface ExerciseCardProps {
   /** Primeiro exercício da lista do dia — usado pra mostrar a instrução de "como
    *  preencher" apenas uma vez, em vez de repetir em todo card. */
   isFirst?: boolean;
+  /** Override do numero exibido (ex: "2A" pra bi-set). Sem isso, usa exercise_order+1. */
+  displayLabel?: string;
 }
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight, isFirst }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight, isFirst, displayLabel }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -135,8 +137,15 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2">
-              <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-[11px] font-bold text-blue-700">
-                {(exercise.exercise_order ?? 0) + 1}
+              <span className={cn(
+                'flex shrink-0 items-center justify-center rounded-full text-[11px] font-bold',
+                // Label de bi-set tem letra junto (2A/2B...) — usa min-w pra
+                // acomodar sem espremer, e cor sky pra combinar com cluster.
+                displayLabel
+                  ? 'min-w-5 h-5 px-1.5 bg-sky-100 text-sky-700'
+                  : 'h-5 w-5 bg-blue-100 text-blue-700',
+              )}>
+                {displayLabel ?? (exercise.exercise_order ?? 0) + 1}
               </span>
               <h3 className="font-semibold text-slate-800 truncate">{substitutedName || exercise.exercise_name}</h3>
               {substitutedName && (
