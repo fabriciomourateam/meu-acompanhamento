@@ -260,6 +260,10 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const handleSetChange = (plannedId: string, idx: number, v: SetRowValue) => {
     setSets((prev) => {
       const arr = prev[plannedId] ? [...prev[plannedId]] : [];
+      // Marcar serie 3 antes de 1/2 deixa slots sparse, que viram null no
+      // localStorage e crashava o useMemo de doneSetsCount. Preenche gaps
+      // com {done:false} pra manter array denso.
+      while (arr.length < idx) arr.push({ done: false } as SetRowValue);
       arr[idx] = v;
       return { ...prev, [plannedId]: arr };
     });
@@ -350,14 +354,17 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const { doneSetsCount, totalVolume } = useMemo(() => {
     let count = 0;
     let vol = 0;
-    Object.values(sets).forEach((arr) =>
+    Object.values(sets).forEach((arr) => {
+      // arr pode ter slots sparse (undefined/null) quando o aluno marca
+      // a serie 3 sem ter marcado 1 e 2 antes — guard pra nao crashar.
+      if (!Array.isArray(arr)) return;
       arr.forEach((s) => {
-        if (s.done) {
+        if (s?.done) {
           count += 1;
           vol += (s.weightKg ?? 0) * (s.reps ?? 0);
         }
-      }),
-    );
+      });
+    });
     return { doneSetsCount: count, totalVolume: vol };
   }, [sets]);
 
@@ -375,7 +382,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     const out: Array<{ name: string; weight: number; prev: number }> = [];
     for (const ex of session.exercises) {
       const arr = sets[ex.id] || [];
-      const maxDone = arr.reduce((m, s) => (s.done && s.weightKg != null ? Math.max(m, s.weightKg) : m), 0);
+      const maxDone = arr.reduce((m, s) => (s?.done && s.weightKg != null ? Math.max(m, s.weightKg) : m), 0);
       const prev = lastLoads[ex.id]?.weight_kg ?? null;
       if (maxDone > 0 && prev != null && maxDone > prev) {
         out.push({ name: subs[ex.id]?.name ?? ex.exercise_name, weight: maxDone, prev });
