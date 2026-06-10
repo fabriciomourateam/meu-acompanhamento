@@ -121,6 +121,8 @@ export default function PatientPortal() {
   const [bodyCompositions, setBodyCompositions] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [unauthorized, setUnauthorized] = useState(false);
+  // Plano do paciente quando esta inativo — renderiza tela "Conta suspensa".
+  const [inactivePlano, setInactivePlano] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
   // Nivel atual (Bronze/Prata/Ouro/Platina/Diamante) — usado pro anel colorido
@@ -294,6 +296,24 @@ export default function PatientPortal() {
       }
 
       console.log('📱 Telefone validado:', telefone);
+
+      // Bloqueia acesso de paciente inativo (INATIVO/CONGELADO/RESCISAO/
+      // NEGATIVADO/PENDENCIA FINANCEIRA). Regra centralizada no banco via
+      // is_patient_active(). Tem que ser ANTES de carregar qualquer dado.
+      try {
+        const { data: access } = await supabase.rpc('check_portal_access_by_phone' as any, {
+          p_telefone: telefone,
+        });
+        if (access && (access as any).active === false && (access as any).reason === 'INACTIVE') {
+          setInactivePlano((access as any).plano || null);
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        // Falha de rede no check nao deve travar o app — segue o fluxo
+        // normal (RPCs *_by_token re-validam no banco).
+        console.warn('check_portal_access_by_phone falhou, seguindo:', e);
+      }
 
       // 1. Buscar Paciente PRIMEIRO para ter o ID e o telefone OFICIAL do banco via RPC
       // Esse RPC burla o RLS para leitura anônima estrita do próprio perfil
@@ -806,6 +826,30 @@ export default function PatientPortal() {
           <Skeleton className="h-64 w-full" />
           <Skeleton className="h-96 w-full" />
         </div>
+      </div>
+    );
+  }
+
+  if (inactivePlano) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
+        <Card className="max-w-md w-full glass-card border-slate-700">
+          <CardContent className="p-8 text-center space-y-4">
+            <div className="mx-auto w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-3xl">
+              ⏸
+            </div>
+            <h2 className="text-xl font-semibold text-white">Acompanhamento pausado</h2>
+            <p className="text-sm text-slate-300 leading-relaxed">
+              Seu acesso ao portal está temporariamente suspenso
+              {inactivePlano && (
+                <> (status: <span className="font-medium text-amber-300">{inactivePlano}</span>)</>
+              )}.
+            </p>
+            <p className="text-xs text-slate-400">
+              Para reativar, entre em contato com seu treinador.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
