@@ -687,11 +687,19 @@ export function DietTab({
                                           <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
                                             {displayName}
                                           </h4>
-                                          {meal.suggested_time && (
-                                            <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
-                                              {meal.suggested_time}
-                                            </Badge>
-                                          )}
+                                          {(() => {
+                                            const st = (meal as any).start_time as string | null | undefined;
+                                            const et = (meal as any).end_time as string | null | undefined;
+                                            const sg = (meal as any).suggested_time as string | null | undefined;
+                                            const label = (st && et)
+                                              ? `${st} - ${et}`
+                                              : st || (sg ? sg.slice(0, 5) : null);
+                                            return label ? (
+                                              <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
+                                                {label}
+                                              </Badge>
+                                            ) : null;
+                                          })()}
                                         </div>
                                       </div>
                                     </div>

@@ -550,11 +550,11 @@ function LoadHistoryChart({ token, plannedExerciseId }: { token: string; planned
   );
 }
 
-/** "8-12" → 8; "AMRAP" → null; "10" → 10 */
-function parseDefaultReps(reps: string | null | undefined): number | null {
+/** "8-12" → "8-12"; "12 a 15" → "12 a 15"; "10" → "10"; "AMRAP" → "AMRAP"; null → null */
+function parseDefaultReps(reps: string | null | undefined): string | null {
   if (!reps) return null;
-  const m = String(reps).match(/(\d+)/);
-  return m ? Number(m[1]) : null;
+  const trimmed = String(reps).trim();
+  return trimmed.length > 0 ? trimmed : null;
 }
 
 /** Quebra valores por série: "12/10/8" ou "12,10,8" → ['12','10','8']; "15" → ['15']. */

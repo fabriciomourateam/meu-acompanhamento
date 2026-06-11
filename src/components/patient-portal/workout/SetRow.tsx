@@ -31,7 +31,7 @@ function rpeChipColors(rpe: number | string | null | undefined): string {
 interface SetRowProps {
   index: number;
   value: SetRowValue;
-  defaultReps?: number | null;
+  defaultReps?: string | number | null;
   defaultWeight?: number | null;
   defaultRpe?: number | string | null;
   onChange: (v: SetRowValue) => void;
@@ -46,6 +46,7 @@ interface SetRowProps {
 }
 
 export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, onRpeClick, flush, prevBest }: SetRowProps) {
+  const defaultRepsLabel = defaultReps != null ? String(defaultReps) : null;
   const [localBusy, setLocalBusy] = useState(false);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
@@ -116,8 +117,8 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         >
           {index + 1}
         </span>
-        {defaultReps != null && (
-          <span className="mt-1 text-[9px] font-medium text-slate-400">Alvo: {defaultReps}</span>
+        {defaultRepsLabel != null && (
+          <span className="mt-1 text-[9px] font-medium text-slate-400">Alvo: {defaultRepsLabel}</span>
         )}
       </div>
 
@@ -150,7 +151,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         <Input
           inputMode="numeric"
           value={value.reps ?? ''}
-          placeholder={defaultReps != null ? String(defaultReps) : 'reps'}
+          placeholder={defaultRepsLabel ?? 'reps'}
           onChange={(e) => {
             const n = e.target.value.replace(/[^0-9]/g, '');
             patch({ reps: n === '' ? null : Number(n) });
