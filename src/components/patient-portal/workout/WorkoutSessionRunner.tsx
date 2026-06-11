@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered, RotateCcw, Info, ClipboardList, ChevronDown } from 'lucide-react';
+import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered, RotateCcw, Info } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,7 +26,6 @@ import { FinishSessionDialog } from './FinishSessionDialog';
 import { SubstituteExerciseDialog } from './SubstituteExerciseDialog';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
 import { communityService } from '@/lib/community-service';
-import { sanitizeRichHtml } from '@/lib/utils';
 
 // Treino conta como meta "Atividade física" do dia a partir deste tempo.
 const ACTIVITY_GOAL_MIN = 30;
@@ -112,9 +111,6 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [resetting, setResetting] = useState(false);
   const [subFor, setSubFor] = useState<{ plannedId: string; exerciseId: string; name: string } | null>(null);
   const [restored] = useState(() => initial != null && (initial.sessionLogId != null || Object.keys(initial.sets ?? {}).length > 0));
-  // Orientacoes gerais do plano (plan.notes) — colapsadas por padrao pra
-  // nao poluir a tela. Aluno expande quando quer reler.
-  const [planNotesOpen, setPlanNotesOpen] = useState(false);
 
   // Ordem dos exercícios na tela (default = exercise_order; reordenável pelo aluno).
   const defaultOrder = useMemo(
@@ -619,32 +615,6 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
           </Button>
         )}
       </motion.div>
-
-      {/* Orientacoes gerais do PLANO inteiro (plan.notes, rich HTML). Colapsado
-          por padrao porque costuma ser texto longo (ex.: "Se dedique nos treinos,
-          progressao de cargas..."). Aluno expande pra reler. Vale pra todos os
-          treinos do plano. */}
-      {plan.notes && plan.notes.replace(/<[^>]*>/g, '').trim() && (
-        <div className="rounded-xl border border-emerald-200 bg-emerald-50/60">
-          <button
-            type="button"
-            onClick={() => setPlanNotesOpen((v) => !v)}
-            className="flex w-full items-center gap-2 px-3 py-2 text-left"
-          >
-            <ClipboardList className="h-4 w-4 shrink-0 text-emerald-700" />
-            <span className="flex-1 text-[12px] font-semibold uppercase tracking-wide text-emerald-800">
-              Orientações gerais do plano
-            </span>
-            <ChevronDown className={`h-4 w-4 text-emerald-700 transition-transform ${planNotesOpen ? 'rotate-180' : ''}`} />
-          </button>
-          {planNotesOpen && (
-            <div
-              className="border-t border-emerald-200 px-3 py-2.5 text-sm leading-relaxed text-emerald-900 prose prose-sm max-w-none prose-p:my-1 prose-headings:text-emerald-900"
-              dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(plan.notes) }}
-            />
-          )}
-        </div>
-      )}
 
       {/* Observacao da sessao escrita pelo trainer no backoffice
           (workout_sessions.notes). Texto puro com quebras de linha preservadas.
