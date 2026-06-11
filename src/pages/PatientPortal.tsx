@@ -17,6 +17,7 @@ import { analyzeTrends } from '@/lib/trends-analysis';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
 import { MembersAreaButton } from '@/components/patient-portal/MembersAreaButton';
 import { PatientDietPortal } from '@/components/patient-portal/PatientDietPortal';
+import { ImpersonatePatientModal } from '@/components/admin/ImpersonatePatientModal';
 import { dietService } from '@/lib/diet-service';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { DietPDFGenerator } from '@/lib/diet-pdf-generator';
@@ -138,6 +139,9 @@ export default function PatientPortal() {
   }, [token]);
   const portalRef = useRef<HTMLDivElement>(null);
   const [weightInputOpen, setWeightInputOpen] = useState(false);
+  // Quando trainer esta impersonando, abre o modal pra trocar de aluno
+  // direto do banner sem precisar voltar pro /admin.
+  const [switchPatientOpen, setSwitchPatientOpen] = useState(false);
   const [chartsRefreshTrigger, setChartsRefreshTrigger] = useState(0);
   const [showEvolutionExport, setShowEvolutionExport] = useState(false);
   const [evolutionExportMode, setEvolutionExportMode] = useState<'png' | 'pdf' | null>(null);
@@ -881,21 +885,38 @@ export default function PatientPortal() {
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
       {impersonatingAdminUid && (
-        <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-3 shadow-md">
+        <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
           <div className="flex items-center gap-2 min-w-0 flex-1">
             <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
             <span className="truncate">
               Visualizando como <strong>{impersonatingName || 'aluno'}</strong>
             </span>
           </div>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium flex-shrink-0"
-          >
-            ← Voltar pro admin
-          </button>
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setSwitchPatientOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+              title="Trocar de aluno sem voltar pro admin"
+            >
+              🔄 <span className="hidden sm:inline">Trocar aluno</span>
+            </button>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+            >
+              ← <span className="hidden sm:inline">Voltar pro admin</span>
+            </button>
+          </div>
         </div>
+      )}
+      {impersonatingAdminUid && (
+        <ImpersonatePatientModal
+          open={switchPatientOpen}
+          onOpenChange={setSwitchPatientOpen}
+          trainerUserId={impersonatingAdminUid}
+        />
       )}
       {/* Fundo "clean com respiro verde": base clara + brilho emerald descendo do topo */}
       <div className="absolute inset-0 bg-slate-50">
