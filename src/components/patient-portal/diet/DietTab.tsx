@@ -663,9 +663,9 @@ export function DietTab({
                                           ? `${st} - ${et}`
                                           : st || (sg ? sg.slice(0, 5) : null);
                                         return label && !showAsOption ? (
-                                          <span className="flex-shrink-0 text-[11px] font-semibold text-emerald-600 tabular-nums whitespace-nowrap">
+                                          <Badge className={`flex-shrink-0 text-xs sm:text-sm font-semibold border tabular-nums whitespace-nowrap ${isConsumed ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'}`}>
                                             {label}
-                                          </span>
+                                          </Badge>
                                         ) : null;
                                       })()}
                                       <div className="flex-1 min-w-0">
