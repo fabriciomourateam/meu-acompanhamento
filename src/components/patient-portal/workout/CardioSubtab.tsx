@@ -225,6 +225,14 @@ const DOW_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 
 // Normaliza uma opção de cardio (chaves variam conforme o back-office) em
 // { label, html }. Aceita objeto com label/título/etc. ou string solta.
+// Formata duracao do cardio: faixa "20-30" quando tempo_padrao_max > tempo_padrao,
+// senao numero unico "30". Retorna string vazia se tempo_padrao for null.
+function formatDuration(min: number | null, max: number | null): string {
+  if (min == null) return '';
+  if (max != null && max > min) return `${min}-${max}`;
+  return String(min);
+}
+
 function normalizeCardioOption(opt: any, i: number): { label: string; html: string } {
   const fallback = `Opção ${String(i + 1).padStart(2, '0')}`;
   if (typeof opt === 'string') return { label: fallback, html: opt };
@@ -267,7 +275,13 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
             const active = cardio.dias_semana?.includes(dow);
             const today = dow === todayDow;
             if (!active) return null;
-            const tempo = cardio.modo === 'mesmo' ? cardio.tempo_padrao : cardio.tempo_por_dia?.[String(dow)] ?? null;
+            // Modo 'mesmo' usa tempo_padrao(_max) — pode ser faixa. Modo
+            // 'individual' so tem o valor unico salvo por dia (sem faixa).
+            const tempoStr = cardio.modo === 'mesmo'
+              ? formatDuration(cardio.tempo_padrao, cardio.tempo_padrao_max)
+              : (cardio.tempo_por_dia?.[String(dow)] != null
+                  ? String(cardio.tempo_por_dia[String(dow)])
+                  : '');
             return (
               <span
                 key={dow}
@@ -276,7 +290,7 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
                   (today ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-cyan-200 bg-white text-cyan-800')
                 }
               >
-                {lbl}{tempo != null ? ` ${tempo}${cardio.unidade}` : ''}
+                {lbl}{tempoStr ? ` ${tempoStr}${cardio.unidade}` : ''}
               </span>
             );
           })}
@@ -328,13 +342,22 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
   const done = weekStats.count;
   const pct = target > 0 ? Math.min(100, Math.round((done / target) * 100)) : 0;
   const complete = target > 0 && done >= target;
-  const targetMin = cardio.tempo_padrao != null ? cardio.tempo_padrao * target : null;
-  // Metas com a margem (faixa): "3-4" treinos e "60-80" min quando há teto.
+  // Tempo (faixa ou unico) por sessao + por semana — combina faixa de freq
+  // E faixa de duracao. Ex: 3-4x/sem × 20-30min = 60-120min/sem.
+  const tMin = cardio.tempo_padrao;
+  const tMax = cardio.tempo_padrao_max != null && tMin != null && cardio.tempo_padrao_max > tMin
+    ? cardio.tempo_padrao_max
+    : null;
+  const tempoCadaLabel = formatDuration(tMin, tMax); // "20-30" ou "30"
+  const targetMin = tMin != null ? tMin * target : null;
   const hasRange = !!maxV && maxV > target;
   const goalLabel = hasRange ? `${target}-${maxV}` : `${target}`;
-  const targetMinMax = cardio.tempo_padrao != null && maxV ? cardio.tempo_padrao * maxV : null;
+  // Maior limite de minutos por semana: usa freq_max (se houver) e tempo_max (se houver).
+  const targetMinUpper = tMin != null
+    ? (tMax ?? tMin) * (maxV ?? target)
+    : null;
   const minGoalLabel = targetMin != null
-    ? (hasRange && targetMinMax ? `${targetMin}-${targetMinMax}` : `${targetMin}`)
+    ? (targetMinUpper != null && targetMinUpper > targetMin ? `${targetMin}-${targetMinUpper}` : `${targetMin}`)
     : null;
 
   return (
@@ -343,8 +366,8 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
         <span className="inline-flex items-center gap-1.5 font-semibold text-cyan-800">
           <HeartPulse className="h-4 w-4 text-cyan-600" />
           {freqLabel}
-          {cardio.tempo_padrao != null && (
-            <span className="font-normal text-cyan-600">· {cardio.tempo_padrao}{cardio.unidade} cada</span>
+          {tempoCadaLabel && (
+            <span className="font-normal text-cyan-600">· {tempoCadaLabel}{cardio.unidade} cada</span>
           )}
         </span>
         {complete && <span className="text-xs font-bold text-emerald-600">✓ Completo</span>}

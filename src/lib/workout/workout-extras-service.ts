@@ -89,7 +89,8 @@ export interface PrescribedCardio {
   unidade: 'min' | 'h' | string;
   dias_semana: number[];               // DOW 0=dom..6=sáb (modo "dias específicos")
   modo: 'mesmo' | 'individual' | string;
-  tempo_padrao: number | null;          // minutos quando modo='mesmo'
+  tempo_padrao: number | null;          // minutos quando modo='mesmo' (minimo se for faixa)
+  tempo_padrao_max: number | null;      // teto da faixa: "20-30min" quando > tempo_padrao
   tempo_por_dia: Record<string, number>; // quando modo='individual'
   vezes_semana: number | null;          // quando setado: "Nx por semana" (sem dias fixos)
   vezes_semana_max: number | null;       // teto da faixa: "Nx a Mx por semana"
