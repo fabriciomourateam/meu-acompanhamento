@@ -4,7 +4,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered, RotateCcw } from 'lucide-react';
+import { PlayCircle, CheckCircle2, Trophy, Clock, ArrowUp, ArrowDown, ListOrdered, RotateCcw, Info } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -615,6 +615,25 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
           </Button>
         )}
       </motion.div>
+
+      {/* Observacao da sessao escrita pelo trainer no backoffice
+          (workout_sessions.notes). Texto puro com quebras de linha preservadas.
+          Aparece antes da lista de exercicios pra o aluno ler antes de comecar. */}
+      {session.notes && session.notes.trim() && (
+        <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-3">
+          <div className="flex items-start gap-2">
+            <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
+            <div className="flex-1 min-w-0">
+              <p className="mb-1 text-[11px] font-semibold uppercase tracking-wide text-amber-700">
+                Observações do treino
+              </p>
+              <p className="whitespace-pre-line text-sm leading-relaxed text-amber-900">
+                {session.notes.trim()}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {orderedExercises.length > 1 && (
         <div className="flex justify-end">
