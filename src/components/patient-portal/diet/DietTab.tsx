@@ -655,28 +655,21 @@ export function DietTab({
                                 <CollapsibleTrigger asChild>
                                   <div className="flex items-center justify-between p-2.5 sm:p-3 cursor-pointer rounded-t-xl transition-all duration-200">
                                     <div className="flex items-center gap-2 sm:gap-2.5 flex-1 min-w-0">
-                                      {/* Circulo verde com icone fica SO nas refeicoes principais
-                                          (e quando ja foi consumida). Em refeicao-opcao o badge
-                                          'Opcao' assume o papel de marcador visual a esquerda. */}
-                                      {!showAsOption && (
-                                        <div
-                                          className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center transition-all duration-200 flex-shrink-0 ${isConsumed
-                                            ? 'bg-emerald-100 text-emerald-600'
-                                            : '!bg-emerald-50 !text-emerald-500'
-                                            }`}
-                                        >
-                                          {isConsumed ? (
-                                            <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                          ) : (
-                                            <Utensils className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                                          )}
-                                        </div>
-                                      )}
+                                      {(() => {
+                                        const st = (meal as any).start_time as string | null | undefined;
+                                        const et = (meal as any).end_time as string | null | undefined;
+                                        const sg = (meal as any).suggested_time as string | null | undefined;
+                                        const label = (st && et)
+                                          ? `${st} - ${et}`
+                                          : st || (sg ? sg.slice(0, 5) : null);
+                                        return label && !showAsOption ? (
+                                          <span className="flex-shrink-0 text-[11px] font-semibold text-emerald-600 tabular-nums whitespace-nowrap">
+                                            {label}
+                                          </span>
+                                        ) : null;
+                                      })()}
                                       <div className="flex-1 min-w-0">
-                                        {/* Refeicao-opcao: badge 'Opcao' (que ja inclui o icone circular)
-                                            fica SEMPRE na linha do titulo — assume o papel do icone
-                                            esquerdo. Principal mantem layout flex-col em mobile. */}
-                                        <div className={`flex items-center gap-1.5 sm:gap-2 ${showAsOption ? 'flex-row flex-wrap' : 'flex-col sm:flex-row sm:items-center gap-1 sm:gap-2'}`}>
+                                        <div className={`flex items-center gap-1.5 sm:gap-2 ${showAsOption ? 'flex-row flex-wrap' : 'flex-row flex-wrap items-center'}`}>
                                           {isActive && groupSwapped && (
                                             <Badge className="bg-emerald-500 text-white border-emerald-600 border text-xs w-fit gap-1 order-first">
                                               <Check className="w-3 h-3" />
@@ -687,19 +680,6 @@ export function DietTab({
                                           <h4 className={`text-sm sm:text-base font-semibold transition-colors text-slate-900 text-balance`}>
                                             {displayName}
                                           </h4>
-                                          {(() => {
-                                            const st = (meal as any).start_time as string | null | undefined;
-                                            const et = (meal as any).end_time as string | null | undefined;
-                                            const sg = (meal as any).suggested_time as string | null | undefined;
-                                            const label = (st && et)
-                                              ? `${st} - ${et}`
-                                              : st || (sg ? sg.slice(0, 5) : null);
-                                            return label ? (
-                                              <Badge className="bg-purple-50 text-purple-600 border-purple-200 border text-xs w-fit">
-                                                {label}
-                                              </Badge>
-                                            ) : null;
-                                          })()}
                                         </div>
                                       </div>
                                     </div>
