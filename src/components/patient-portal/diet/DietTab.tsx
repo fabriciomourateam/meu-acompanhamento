@@ -856,7 +856,7 @@ export function DietTab({
                                     ) : (
                                       <p className="text-sm text-[#777777] text-center py-4">Nenhum alimento adicionado</p>
                                     )}
-                                    {meal.instructions && (
+                                    {meal.instructions && meal.instructions.replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, '').trim() && (
                                       <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
                                         <p className="text-xs text-amber-700 font-medium mb-1 flex items-center gap-2">
                                           <AlertTriangle className="w-3 h-3" />
