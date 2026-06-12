@@ -47,3 +47,15 @@ A semântica é **"coma OU a principal OU a opção"**, nunca as duas.
    marcador/"gartinho" por um ícone circular, badge "Opção", ou agrupar
    visualmente sob a refeição principal) que sugira que é uma alternativa, e não
    uma refeição adicional.
+
+## Fuso horário — SEMPRE São Paulo (America/Sao_Paulo, UTC-3)
+
+Tudo que envolva tempo neste projeto opera no fuso de **São Paulo (`America/Sao_Paulo`, UTC-3 sem horário de verão)**. Vale pra:
+
+- **Comparações de "hoje", "ontem", "esta semana"** no app do aluno (check-ins, consumo de refeições, treino do dia, streak, metas diárias): o "dia" começa e termina à meia-noite de São Paulo, não UTC.
+- **Renderização de datas/horários** em listas, históricos, avatares de check-in: usar BRT. `new Date()` sem cuidado mostra o fuso do navegador do aluno (geralmente OK, mas alunos no exterior viam datas erradas — preferir conversão explícita pra `America/Sao_Paulo`).
+- **Persistência**: colunas `timestamptz` armazenam em UTC correto; o problema acontece em `extract(hour from ...)` sem `AT TIME ZONE 'America/Sao_Paulo'`, ou em comparações de string `YYYY-MM-DD` derivadas de UTC.
+- **Logs de set/série/cardio**: o `sent_at`/`logged_at` é UTC no banco, mas o "que dia foi" pro aluno é o dia em BRT.
+- **Janelas de notificação**: alarmes/reminders agendados respeitam o relógio do aluno (BRT).
+
+Se um código existente está em UTC puro sem ajuste, considere isso como **bug em potencial** — sinalize ou corrija. Quando o user disser "ontem", "essa semana", sempre interprete em BRT.
