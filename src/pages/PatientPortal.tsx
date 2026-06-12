@@ -304,19 +304,25 @@ export default function PatientPortal() {
       // Bloqueia acesso de paciente inativo (INATIVO/CONGELADO/RESCISAO/
       // NEGATIVADO/PENDENCIA FINANCEIRA). Regra centralizada no banco via
       // is_patient_active(). Tem que ser ANTES de carregar qualquer dado.
-      try {
-        const { data: access } = await supabase.rpc('check_portal_access_by_phone' as any, {
-          p_telefone: telefone,
-        });
-        if (access && (access as any).active === false && (access as any).reason === 'INACTIVE') {
-          setInactivePlano((access as any).plano || null);
-          setLoading(false);
-          return;
+      // EXCECAO: ?preview=1 (pre-visualizacao do treinador vinda do back-office)
+      // pula o bloqueio — o treinador precisa ver o plano mesmo de aluno
+      // inativo/pausado. O token usado e temporario (nao conta como acesso).
+      const isTrainerPreview = new URLSearchParams(window.location.search).get('preview') === '1';
+      if (!isTrainerPreview) {
+        try {
+          const { data: access } = await supabase.rpc('check_portal_access_by_phone' as any, {
+            p_telefone: telefone,
+          });
+          if (access && (access as any).active === false && (access as any).reason === 'INACTIVE') {
+            setInactivePlano((access as any).plano || null);
+            setLoading(false);
+            return;
+          }
+        } catch (e) {
+          // Falha de rede no check nao deve travar o app — segue o fluxo
+          // normal (RPCs *_by_token re-validam no banco).
+          console.warn('check_portal_access_by_phone falhou, seguindo:', e);
         }
-      } catch (e) {
-        // Falha de rede no check nao deve travar o app — segue o fluxo
-        // normal (RPCs *_by_token re-validam no banco).
-        console.warn('check_portal_access_by_phone falhou, seguindo:', e);
       }
 
       // 1. Buscar Paciente PRIMEIRO para ter o ID e o telefone OFICIAL do banco via RPC
@@ -962,9 +968,17 @@ export default function PatientPortal() {
   // navegando como outro user + atalho rapido pra voltar.
   const impersonatingAdminUid = typeof window !== 'undefined' ? localStorage.getItem('impersonating_admin_uid') : null;
   const impersonatingName = typeof window !== 'undefined' ? localStorage.getItem('impersonating_patient_name') : null;
+  // Pre-visualizacao do treinador (iframe no back-office via ?preview=1).
+  const isTrainerPreview = typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('preview') === '1';
 
   return (
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
+      {isTrainerPreview && (
+        <div className="sticky top-0 z-[60] bg-indigo-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center gap-2 shadow-md">
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+          <span className="truncate">Pré-visualização do treinador — você vê o app exatamente como o aluno vê.</span>
+        </div>
+      )}
       {impersonatingAdminUid && (
         <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
           <div className="flex items-center gap-2 min-w-0 flex-1">
