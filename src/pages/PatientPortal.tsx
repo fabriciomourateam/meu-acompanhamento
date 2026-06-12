@@ -835,43 +835,124 @@ export default function PatientPortal() {
   }
 
   if (inactivePlano) {
+    // Mesmo quando o aluno esta inativo, se o trainer chegou aqui via
+    // impersonacao (banner verde do admin), mantemos os atalhos "Trocar
+    // aluno" / "Voltar pro admin" — senao ele fica preso na tela de pausa.
+    const impAdmin = typeof window !== 'undefined' ? localStorage.getItem('impersonating_admin_uid') : null;
+    const impName = typeof window !== 'undefined' ? localStorage.getItem('impersonating_patient_name') : null;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full glass-card border-slate-700">
-          <CardContent className="p-8 text-center space-y-4">
-            <div className="mx-auto w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-3xl">
-              ⏸
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        {impAdmin && (
+          <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+              <span className="truncate">
+                Visualizando como <strong>{impName || 'aluno'}</strong>
+              </span>
             </div>
-            <h2 className="text-xl font-semibold text-white">Acompanhamento pausado</h2>
-            <p className="text-sm text-slate-300 leading-relaxed">
-              Seu acesso ao portal está temporariamente suspenso
-              {inactivePlano && (
-                <> (status: <span className="font-medium text-amber-300">{inactivePlano}</span>)</>
-              )}.
-            </p>
-            <p className="text-xs text-slate-400">
-              Para reativar, entre em contato com seu treinador.
-            </p>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setSwitchPatientOpen(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+                title="Trocar de aluno sem voltar pro admin"
+              >
+                🔄 <span className="hidden sm:inline">Trocar aluno</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+              >
+                ← <span className="hidden sm:inline">Voltar pro admin</span>
+              </button>
+            </div>
+          </div>
+        )}
+        {impAdmin && (
+          <ImpersonatePatientModal
+            open={switchPatientOpen}
+            onOpenChange={setSwitchPatientOpen}
+            trainerUserId={impAdmin}
+          />
+        )}
+        <div className="flex items-center justify-center p-6 min-h-[calc(100vh-2.5rem)]">
+          <Card className="max-w-md w-full glass-card border-slate-700">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="mx-auto w-14 h-14 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-3xl">
+                ⏸
+              </div>
+              <h2 className="text-xl font-semibold text-white">Acompanhamento pausado</h2>
+              <p className="text-sm text-slate-300 leading-relaxed">
+                Seu acesso ao portal está temporariamente suspenso
+                {inactivePlano && (
+                  <> (status: <span className="font-medium text-amber-300">{inactivePlano}</span>)</>
+                )}.
+              </p>
+              <p className="text-xs text-slate-400">
+                Para reativar, entre em contato com seu treinador.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
 
   if (unauthorized) {
+    // Mesmo padrao da tela 'pausado': mantem os atalhos do trainer impersonando
+    // pra ele nao ficar preso quando o aluno tem token invalido/expirado.
+    const impAdmin = typeof window !== 'undefined' ? localStorage.getItem('impersonating_admin_uid') : null;
+    const impName = typeof window !== 'undefined' ? localStorage.getItem('impersonating_patient_name') : null;
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full glass-card border-slate-700">
-          <CardContent className="p-8 text-center space-y-4">
-            <div className="w-16 h-16 mx-auto bg-red-500/20 rounded-full flex items-center justify-center">
-              <Lock className="w-8 h-8 text-red-400" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
+        {impAdmin && (
+          <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
+            <div className="flex items-center gap-2 min-w-0 flex-1">
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+              <span className="truncate">
+                Visualizando como <strong>{impName || 'aluno'}</strong>
+              </span>
             </div>
-            <h1 className="text-2xl font-bold text-white">Acesso Negado</h1>
-            <p className="text-slate-400">
-              Este link de acesso é inválido ou expirou. Entre em contato com seu treinador para obter um novo link.
-            </p>
-          </CardContent>
-        </Card>
+            <div className="flex items-center gap-1.5 flex-shrink-0">
+              <button
+                type="button"
+                onClick={() => setSwitchPatientOpen(true)}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+                title="Trocar de aluno sem voltar pro admin"
+              >
+                🔄 <span className="hidden sm:inline">Trocar aluno</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+              >
+                ← <span className="hidden sm:inline">Voltar pro admin</span>
+              </button>
+            </div>
+          </div>
+        )}
+        {impAdmin && (
+          <ImpersonatePatientModal
+            open={switchPatientOpen}
+            onOpenChange={setSwitchPatientOpen}
+            trainerUserId={impAdmin}
+          />
+        )}
+        <div className="flex items-center justify-center p-6 min-h-[calc(100vh-2.5rem)]">
+          <Card className="max-w-md w-full glass-card border-slate-700">
+            <CardContent className="p-8 text-center space-y-4">
+              <div className="w-16 h-16 mx-auto bg-red-500/20 rounded-full flex items-center justify-center">
+                <Lock className="w-8 h-8 text-red-400" />
+              </div>
+              <h1 className="text-2xl font-bold text-white">Acesso Negado</h1>
+              <p className="text-slate-400">
+                Este link de acesso é inválido ou expirou. Entre em contato com seu treinador para obter um novo link.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
       </div>
     );
   }
