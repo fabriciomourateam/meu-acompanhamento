@@ -95,6 +95,9 @@ export interface WorkoutExerciseFull {
   muscle_group: string | null;
   instructions: string | null;
   tips: string | null;
+  /** Marcado no catálogo (exercise_database). Quando true, o app oferece o
+   *  registro por lado (Esquerdo/Direito) neste exercício. */
+  is_unilateral?: boolean | null;
 }
 
 export interface TodayWorkout {

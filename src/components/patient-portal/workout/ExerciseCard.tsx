@@ -98,12 +98,15 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   // Exercício unilateral: detectado pelo nome ("unilateral"); o aluno pode
   // ligar/desligar manualmente caso a detecção erre. Quando ligado, cada série
   // abre duas linhas (Esquerdo/Direito) que somam num único registro.
-  const effectiveName = substitutedName || exercise.exercise_name || '';
-  // Sugere o modo unilateral quando o nome indica ("unilateral"), mas NÃO abre
-  // sozinho: o padrão é o comportamento normal (linha única). Só liga se o aluno
-  // clicar no toggle — fica igual aos outros exercícios até ele querer.
-  const suggestUni = /unilat/i.test(effectiveName);
+  // Exercício unilateral é definido no catálogo (is_unilateral, marcado pelo
+  // treinador no MyShape). SÓ nesses o app mostra o toggle "registrar lado E/D";
+  // os demais ficam com a linha única normal (sem poluir). O toggle é opt-in
+  // (default desligado): o aluno liga quando quiser.
+  const isUnilateral = exercise.is_unilateral === true;
   const [unilateralOn, setUnilateralOn] = useState(false);
+  // Só entra no modo E/D se for unilateral E o aluno ligou (protege troca de
+  // exercício pra um não-unilateral com o toggle ainda ligado).
+  const sidesMode = isUnilateral && unilateralOn;
   // Estado local dos lados (E/D) por série. O registro combinado fica no estado
   // do pai (values[i]) — usado pra volume, rascunho e salvar no banco.
   const [pairs, setPairs] = useState<Record<number, SidePair>>({});
@@ -331,33 +334,29 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   ) : null}
                 </div>
               )}
-              {/* Toggle unilateral: registra cada lado (E/D) separado, somando
-                  num único registro. Padrão DESLIGADO (comportamento normal); só
-                  abre se o aluno clicar. Quando o nome indica unilateral, mostra
-                  um "sugerido" — mas continua opt-in. */}
-              <button
-                type="button"
-                onClick={() => setUnilateralOn((v) => !v)}
-                className={cn(
-                  'mx-1 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
-                  unilateralOn
-                    ? 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100'
-                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50',
-                )}
-                title="Registrar carga e reps de cada lado separadamente"
-              >
-                <span className={cn('flex h-3.5 w-6 items-center rounded-full px-0.5 transition-colors', unilateralOn ? 'bg-violet-500 justify-end' : 'bg-slate-300 justify-start')}>
-                  <span className="h-2.5 w-2.5 rounded-full bg-white" />
-                </span>
-                Unilateral — registrar lado E/D separado
-                {suggestUni && !unilateralOn && (
-                  <span className="ml-auto rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold text-violet-600">
-                    sugerido
+              {/* Toggle unilateral: SÓ aparece em exercício marcado como unilateral
+                  no catálogo. Registra cada lado (E/D) separado, somando num único
+                  registro. Padrão DESLIGADO (linha única); abre se o aluno clicar. */}
+              {isUnilateral && (
+                <button
+                  type="button"
+                  onClick={() => setUnilateralOn((v) => !v)}
+                  className={cn(
+                    'mx-1 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                    unilateralOn
+                      ? 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100'
+                      : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50',
+                  )}
+                  title="Registrar carga e reps de cada lado separadamente"
+                >
+                  <span className={cn('flex h-3.5 w-6 items-center rounded-full px-0.5 transition-colors', unilateralOn ? 'bg-violet-500 justify-end' : 'bg-slate-300 justify-start')}>
+                    <span className="h-2.5 w-2.5 rounded-full bg-white" />
                   </span>
-                )}
-              </button>
+                  Unilateral — registrar lado E/D separado
+                </button>
+              )}
 
-              {!unilateralOn && (
+              {!sidesMode && (
                 <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
                   <span className="text-center">Série</span>
                   <span className="text-center">Peso (kg)</span>
@@ -377,7 +376,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               {rows.map((row, i) => {
                 const setTechs = techniquesForSet(techniques, i + 1, totalSets);
                 const hasTech = setTechs.length > 0;
-                const setRow = unilateralOn ? (
+                const setRow = sidesMode ? (
                   <UnilateralSetRow
                     index={i}
                     done={row.done}
