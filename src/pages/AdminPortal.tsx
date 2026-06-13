@@ -746,6 +746,12 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
   const [loadingHistory, setLoadingHistory] = useState(true);
   const [totalPatients, setTotalPatients] = useState<number | null>(null);
   const [patientsWithPoints, setPatientsWithPoints] = useState<number | null>(null);
+  // Reset de um aluno especifico
+  const [scoredPatients, setScoredPatients] = useState<{ id: string; nome: string; points: number }[]>([]);
+  const [selectedPatientId, setSelectedPatientId] = useState('');
+  const [confirmingOne, setConfirmingOne] = useState(false);
+  const [resettingOne, setResettingOne] = useState(false);
+  const [alsoResetLevelOne, setAlsoResetLevelOne] = useState(false);
 
   const loadHistory = useCallback(async () => {
     setLoadingHistory(true);
@@ -771,7 +777,26 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
     setPatientsWithPoints(withPointsRes.count ?? 0);
   }, [trainerUserId]);
 
-  useEffect(() => { loadHistory(); loadCounts(); }, [loadHistory, loadCounts]);
+  // Lista de alunos com pontuação ativa, pra zerar um especifico.
+  const loadScoredPatients = useCallback(async () => {
+    const { data, error } = await supabase
+      .from('patient_points')
+      .select('patient_id, total_points, patients!inner(nome, user_id)')
+      .eq('patients.user_id', trainerUserId)
+      .gt('total_points', 0)
+      .order('total_points', { ascending: false });
+    if (!error && data) {
+      setScoredPatients(
+        (data as any[]).map(r => ({
+          id: r.patient_id as string,
+          nome: (r.patients?.nome as string) ?? 'Aluno',
+          points: (r.total_points as number) ?? 0,
+        })),
+      );
+    }
+  }, [trainerUserId]);
+
+  useEffect(() => { loadHistory(); loadCounts(); loadScoredPatients(); }, [loadHistory, loadCounts, loadScoredPatients]);
 
   async function handleReset() {
     setResetting(true);
@@ -789,11 +814,39 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
       });
       setConfirming(false);
       setAlsoResetLevel(false);
-      await Promise.all([loadHistory(), loadCounts()]);
+      await Promise.all([loadHistory(), loadCounts(), loadScoredPatients()]);
     } catch {
       toast({ title: 'Erro ao zerar pontos', variant: 'destructive' });
     } finally {
       setResetting(false);
+    }
+  }
+
+  async function handleResetOne() {
+    if (!selectedPatientId) return;
+    const aluno = scoredPatients.find(p => p.id === selectedPatientId);
+    setResettingOne(true);
+    try {
+      const { error } = await supabase.rpc('reset_one_patient_points', {
+        trainer_uid: trainerUserId,
+        p_patient_id: selectedPatientId,
+        also_reset_level: alsoResetLevelOne,
+      });
+      if (error) throw error;
+      toast({
+        title: 'Pontos zerados!',
+        description: aluno
+          ? `Pontos${alsoResetLevelOne ? ', nível' : ''} e histórico de ${aluno.nome} foram resetados.`
+          : 'Pontos do aluno foram resetados.',
+      });
+      setConfirmingOne(false);
+      setAlsoResetLevelOne(false);
+      setSelectedPatientId('');
+      await Promise.all([loadHistory(), loadCounts(), loadScoredPatients()]);
+    } catch {
+      toast({ title: 'Erro ao zerar pontos do aluno', variant: 'destructive' });
+    } finally {
+      setResettingOne(false);
     }
   }
 
@@ -876,6 +929,93 @@ function PointsManager({ trainerUserId }: { trainerUserId: string }) {
                 </button>
               </div>
             </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card className="border-slate-200 bg-white">
+        <CardContent className="p-6 space-y-6">
+          <div>
+            <p className="font-semibold text-slate-700 mb-1">Zerar pontos de um aluno específico</p>
+            <p className="text-sm text-slate-500">
+              Reseta os pontos e o histórico de <strong>apenas um aluno</strong>, sem afetar os demais. Útil pra corrigir a pontuação de alguém pontualmente.
+            </p>
+          </div>
+
+          {scoredPatients.length === 0 ? (
+            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-slate-50 border border-slate-200 text-xs text-slate-500">
+              <Users className="w-4 h-4 text-slate-400 shrink-0" />
+              <span>Nenhum aluno com pontuação ativa no momento.</span>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-slate-600">Aluno</label>
+                <select
+                  value={selectedPatientId}
+                  onChange={e => { setSelectedPatientId(e.target.value); setConfirmingOne(false); }}
+                  className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-red-200"
+                >
+                  <option value="">Selecione um aluno…</option>
+                  {scoredPatients.map(p => (
+                    <option key={p.id} value={p.id}>{p.nome} — {p.points} pts</option>
+                  ))}
+                </select>
+              </div>
+
+              {!confirmingOne ? (
+                <button
+                  onClick={() => setConfirmingOne(true)}
+                  disabled={!selectedPatientId}
+                  className="flex items-center gap-2 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-600 text-sm font-medium hover:bg-red-100 transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <RotateCcw className="w-4 h-4 shrink-0" />
+                  Zerar pontos deste aluno
+                </button>
+              ) : (
+                <div className="rounded-xl border border-red-200 bg-red-50 p-4 space-y-3">
+                  <div className="flex items-start gap-3">
+                    <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-semibold text-red-700 text-sm">Tem certeza?</p>
+                      <p className="text-xs text-red-600 mt-0.5">
+                        Esta ação é irreversível. Os pontos e o histórico de{' '}
+                        <strong>{scoredPatients.find(p => p.id === selectedPatientId)?.nome ?? 'este aluno'}</strong>{' '}
+                        serão apagados permanentemente. Os demais alunos não são afetados.
+                      </p>
+                    </div>
+                  </div>
+
+                  <label className="flex items-start gap-2 px-3 py-2 rounded-lg bg-white/70 border border-red-100 cursor-pointer hover:bg-white transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={alsoResetLevelOne}
+                      onChange={e => setAlsoResetLevelOne(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-300"
+                    />
+                    <span className="text-xs text-slate-700">
+                      Também zerar o <strong>nível</strong> deste aluno (volta para o nível 1)
+                    </span>
+                  </label>
+
+                  <div className="flex gap-2">
+                    <button
+                      onClick={handleResetOne}
+                      disabled={resettingOne}
+                      className="flex-1 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-sm font-medium transition-colors disabled:opacity-60"
+                    >
+                      {resettingOne ? 'Zerando...' : alsoResetLevelOne ? 'Sim, zerar pontos e nível' : 'Sim, zerar pontos'}
+                    </button>
+                    <button
+                      onClick={() => { setConfirmingOne(false); setAlsoResetLevelOne(false); }}
+                      className="flex-1 py-2 rounded-lg border border-slate-200 bg-white text-slate-600 text-sm hover:bg-slate-50 transition-colors"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
