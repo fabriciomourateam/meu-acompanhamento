@@ -99,9 +99,11 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   // ligar/desligar manualmente caso a detecção erre. Quando ligado, cada série
   // abre duas linhas (Esquerdo/Direito) que somam num único registro.
   const effectiveName = substitutedName || exercise.exercise_name || '';
-  const detectedUni = /unilat/i.test(effectiveName);
-  const [unilateralOn, setUnilateralOn] = useState(detectedUni);
-  useEffect(() => { setUnilateralOn(/unilat/i.test(effectiveName)); }, [effectiveName]);
+  // Sugere o modo unilateral quando o nome indica ("unilateral"), mas NÃO abre
+  // sozinho: o padrão é o comportamento normal (linha única). Só liga se o aluno
+  // clicar no toggle — fica igual aos outros exercícios até ele querer.
+  const suggestUni = /unilat/i.test(effectiveName);
+  const [unilateralOn, setUnilateralOn] = useState(false);
   // Estado local dos lados (E/D) por série. O registro combinado fica no estado
   // do pai (values[i]) — usado pra volume, rascunho e salvar no banco.
   const [pairs, setPairs] = useState<Record<number, SidePair>>({});
@@ -330,7 +332,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 </div>
               )}
               {/* Toggle unilateral: registra cada lado (E/D) separado, somando
-                  num único registro. Liga sozinho quando o nome tem "unilateral". */}
+                  num único registro. Padrão DESLIGADO (comportamento normal); só
+                  abre se o aluno clicar. Quando o nome indica unilateral, mostra
+                  um "sugerido" — mas continua opt-in. */}
               <button
                 type="button"
                 onClick={() => setUnilateralOn((v) => !v)}
@@ -346,6 +350,11 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   <span className="h-2.5 w-2.5 rounded-full bg-white" />
                 </span>
                 Unilateral — registrar lado E/D separado
+                {suggestUni && !unilateralOn && (
+                  <span className="ml-auto rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold text-violet-600">
+                    sugerido
+                  </span>
+                )}
               </button>
 
               {!unilateralOn && (
