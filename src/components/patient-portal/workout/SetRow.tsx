@@ -48,10 +48,24 @@ interface SetRowProps {
 export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, onChange, onCommit, saving, onRpeClick, flush, prevBest }: SetRowProps) {
   const defaultRepsLabel = defaultReps != null ? String(defaultReps) : null;
   const [localBusy, setLocalBusy] = useState(false);
+  // Texto em edição da carga. Enquanto o aluno digita guardamos a string crua
+  // (ex.: "20." ou "0,") pra o ponto/vírgula final NÃO ser "comido" pelo parse
+  // pra número — senão o React re-renderiza "20" e trava a digitação do decimal
+  // (meio quilo: 20,5 / 0,5). Fora de edição (null) o campo reflete value.weightKg.
+  const [weightText, setWeightText] = useState<string | null>(null);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
 
+  const weightInputValue = weightText ?? (value.weightKg != null ? String(value.weightKg) : '');
+
   const patch = (p: Partial<SetRowValue>) => onChange({ ...value, ...p });
+
+  // Botões +/-: definem a carga e descartam o texto em edição pra o campo
+  // mostrar o número canônico recém-calculado.
+  const setWeightFromButton = (kg: number) => {
+    setWeightText(null);
+    patch({ weightKg: kg });
+  };
 
   // Recorde all-time (independe da fase): a série feita supera o melhor peso OU o
   // melhor 1RM estimado (Epley) já registrado. O 1RM normaliza as reps, então uma
@@ -124,21 +138,27 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
 
       {/* Peso */}
       <div className="flex items-center gap-1 min-w-0">
-        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => patch({ weightKg: Math.max(0, +(weight - 2.5).toFixed(2)) })}>
+        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => setWeightFromButton(Math.max(0, +(weight - 2.5).toFixed(2)))}>
           <Minus className="w-3 h-3" />
         </Button>
         <Input
           inputMode="decimal"
-          value={value.weightKg ?? ''}
+          value={weightInputValue}
           placeholder={defaultWeight != null ? String(defaultWeight) : 'kg'}
           onChange={(e) => {
-            const n = e.target.value.replace(',', '.');
-            patch({ weightKg: n === '' ? null : Number(n) });
+            const raw = e.target.value;
+            // Só dígitos com um separador decimal (ponto ou vírgula). Bloqueia
+            // letras/segundo ponto sem descartar o decimal em digitação.
+            if (!/^[0-9]*[.,]?[0-9]*$/.test(raw)) return;
+            setWeightText(raw);
+            const n = raw.replace(',', '.');
+            patch({ weightKg: n === '' || n === '.' ? null : Number(n) });
           }}
+          onBlur={() => setWeightText(null)}
           className={baseInput}
           aria-label={`Peso série ${index + 1}`}
         />
-        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => patch({ weightKg: +(weight + 2.5).toFixed(2) })}>
+        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => setWeightFromButton(+(weight + 2.5).toFixed(2))}>
           <Plus className="w-3 h-3" />
         </Button>
       </div>

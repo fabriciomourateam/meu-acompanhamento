@@ -8,6 +8,7 @@ import type { HubExercise, ExerciseTechnique } from '@/lib/workout/types';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { SmartVideoPlayer } from './SmartVideoPlayer';
 import { SetRow, type SetRowValue } from './SetRow';
+import { UnilateralSetRow, type SidePair, splitToPair } from './UnilateralSetRow';
 import { getThumbnail } from '@/lib/workout/video-url';
 import { humanizeAppliesTo, techniquesForSet, techniqueColors } from '@/lib/workout/techniques';
 import { cn } from '@/lib/utils';
@@ -93,6 +94,25 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
 
   const doneCount = rows.filter((r) => r.done).length;
   const allDone = totalSets > 0 && doneCount >= totalSets;
+
+  // Exercício unilateral: detectado pelo nome ("unilateral"); o aluno pode
+  // ligar/desligar manualmente caso a detecção erre. Quando ligado, cada série
+  // abre duas linhas (Esquerdo/Direito) que somam num único registro.
+  const effectiveName = substitutedName || exercise.exercise_name || '';
+  const detectedUni = /unilat/i.test(effectiveName);
+  const [unilateralOn, setUnilateralOn] = useState(detectedUni);
+  useEffect(() => { setUnilateralOn(/unilat/i.test(effectiveName)); }, [effectiveName]);
+  // Estado local dos lados (E/D) por série. O registro combinado fica no estado
+  // do pai (values[i]) — usado pra volume, rascunho e salvar no banco.
+  const [pairs, setPairs] = useState<Record<number, SidePair>>({});
+  const getPair = (i: number): SidePair => pairs[i] ?? splitToPair(values[i]);
+  const setPair = (i: number, p: SidePair) => {
+    setPairs((prev) => ({ ...prev, [i]: p }));
+    // Reflete um preview combinado no pai (sem forçar defaults nem marcar feito),
+    // pra o volume/rascunho acompanharem enquanto o aluno digita.
+    const reps = (p.e.reps != null || p.d.reps != null) ? (p.e.reps ?? 0) + (p.d.reps ?? 0) : null;
+    onChange(i, { ...(values[i] ?? EMPTY_SET), weightKg: p.e.weightKg ?? p.d.weightKg ?? null, reps });
+  };
   // Quando há substituto ativo, vídeo e thumb acompanham o exercício trocado.
   const effectiveVideoUrl = substitutedVideoUrl ?? exercise.video_url;
   const thumb = getThumbnail(effectiveVideoUrl, substitutedThumbnailUrl ?? exercise.thumbnail_url);
@@ -309,25 +329,68 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   ) : null}
                 </div>
               )}
-              <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
-                <span className="text-center">Série</span>
-                <span className="text-center">Peso (kg)</span>
-                <span className="text-center">Reps</span>
-                <button
-                  type="button"
-                  onClick={() => setShowRpeHelp(true)}
-                  className="flex items-center justify-center gap-0.5 text-slate-400 hover:text-blue-600"
-                  aria-label="O que é RPE?"
-                >
-                  RPE <Info className="h-3 w-3" />
-                </button>
-                <span />
-              </div>
+              {/* Toggle unilateral: registra cada lado (E/D) separado, somando
+                  num único registro. Liga sozinho quando o nome tem "unilateral". */}
+              <button
+                type="button"
+                onClick={() => setUnilateralOn((v) => !v)}
+                className={cn(
+                  'mx-1 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
+                  unilateralOn
+                    ? 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100'
+                    : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50',
+                )}
+                title="Registrar carga e reps de cada lado separadamente"
+              >
+                <span className={cn('flex h-3.5 w-6 items-center rounded-full px-0.5 transition-colors', unilateralOn ? 'bg-violet-500 justify-end' : 'bg-slate-300 justify-start')}>
+                  <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                </span>
+                Unilateral — registrar lado E/D separado
+              </button>
+
+              {!unilateralOn && (
+                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                  <span className="text-center">Série</span>
+                  <span className="text-center">Peso (kg)</span>
+                  <span className="text-center">Reps</span>
+                  <button
+                    type="button"
+                    onClick={() => setShowRpeHelp(true)}
+                    className="flex items-center justify-center gap-0.5 text-slate-400 hover:text-blue-600"
+                    aria-label="O que é RPE?"
+                  >
+                    RPE <Info className="h-3 w-3" />
+                  </button>
+                  <span />
+                </div>
+              )}
 
               {rows.map((row, i) => {
                 const setTechs = techniquesForSet(techniques, i + 1, totalSets);
                 const hasTech = setTechs.length > 0;
-                const setRow = (
+                const setRow = unilateralOn ? (
+                  <UnilateralSetRow
+                    index={i}
+                    done={row.done}
+                    pair={getPair(i)}
+                    defaultReps={repsTargetForSet(i)}
+                    defaultWeight={suggestedWeight}
+                    defaultRpe={rpeTargetForSet(i)}
+                    flush={hasTech}
+                    onRpeClick={() => setShowRpeHelp(true)}
+                    onPairChange={(p) => setPair(i, p)}
+                    onCommit={async (combined) => {
+                      onChange(i, combined);
+                      await onCommit({
+                        plannedExerciseId: exercise.id,
+                        setIndex: i + 1,
+                        value: combined,
+                        restSeconds: exercise.rest_seconds,
+                        restSecondsMax: exercise.rest_seconds_max,
+                      });
+                    }}
+                  />
+                ) : (
                   <SetRow
                     index={i}
                     value={row}

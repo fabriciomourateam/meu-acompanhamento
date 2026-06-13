@@ -33,10 +33,10 @@ function beep(freq = 880, durationMs = 180, volume = 0.25) {
   }
 }
 
-function beepSequence(times: number, intervalMs = 220, freq = 880) {
-  beep(freq);
+function beepSequence(times: number, intervalMs = 220, freq = 880, volume = 0.25) {
+  beep(freq, 180, volume);
   for (let i = 1; i < times; i++) {
-    setTimeout(() => beep(freq), i * intervalMs);
+    setTimeout(() => beep(freq, 180, volume), i * intervalMs);
   }
 }
 
@@ -74,11 +74,14 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
   const ready = hasRange && elapsedSec >= minSeconds; // mínimo já atingido
 
   // Vibra + beep ao atingir o mínimo (pode voltar) e ao terminar (tempo máximo).
+  // O aviso do mínimo é o momento que o aluno mais espera (já pode voltar à série),
+  // então é reforçado: vibração em padrão + 3 beeps mais altos, pra ser notado mesmo
+  // com o celular no bolso ou música tocando.
   useEffect(() => {
     if (hasRange && ready && !readyBuzzedRef.current) {
       readyBuzzedRef.current = true;
-      try { navigator.vibrate?.(80); } catch { /* ignore */ }
-      beep(880, 180);
+      try { navigator.vibrate?.([140, 70, 140, 70, 140]); } catch { /* ignore */ }
+      beepSequence(3, 200, 880, 0.55);
     }
   }, [hasRange, ready]);
 
@@ -86,7 +89,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
     if (leftMs <= 0 && !firedRef.current) {
       firedRef.current = true;
       try { navigator.vibrate?.([120, 60, 120]); } catch { /* ignore */ }
-      beepSequence(2, 220, 1040);
+      beepSequence(2, 220, 1040, 0.55);
       onDoneRef.current();
     }
   }, [leftMs]);
