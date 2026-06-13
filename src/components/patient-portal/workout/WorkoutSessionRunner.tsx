@@ -570,8 +570,16 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
               <Trophy className="w-3.5 h-3.5" /> {doneSetsCount}/{totalPlannedSets} séries
             </div>
             {sessionLogId && startedAt ? (
-              <div className="flex items-center gap-1 text-xs font-semibold tabular-nums text-slate-500">
-                <Clock className="w-3.5 h-3.5" /> {formatDuration(elapsedSec)}
+              // Rótulo explícito: sem ele, o relógio contando sozinho confundia
+              // o aluno (parecia contagem regressiva / tempo de descanso). É só o
+              // tempo decorrido do treino, informativo.
+              <div
+                className="flex items-center gap-1 text-[11px] font-medium tabular-nums text-slate-400"
+                title="Tempo decorrido desde que você começou o treino (só informativo)"
+              >
+                <Clock className="w-3 h-3" />
+                <span className="font-normal">Tempo de treino</span>{' '}
+                <span className="font-semibold text-slate-500">{formatDuration(elapsedSec)}</span>
               </div>
             ) : null}
           </div>
