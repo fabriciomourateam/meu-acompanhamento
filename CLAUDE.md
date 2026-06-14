@@ -1,5 +1,9 @@
 # CLAUDE.md — meu-acompanhamento
 
+## Grafia do nome do dono — SEMPRE "Fabricio" (sem acento)
+
+O dono se chama **Fabricio**, sem acento agudo no "i". Nunca escreva "Fabrício". Vale pra TUDO: respostas em chat, mensagens de commit, descrições de PR, comentários no código, nomes em seed/test data, copy de UI, etc. Se você encontrar "Fabrício" (com acento) já existente no código/banco, NÃO altere automaticamente — sinaliza pro dono e pergunta se quer normalizar. Mas em qualquer texto NOVO que você produzir, é sempre "Fabricio".
+
 ## Arquitetura do produto
 
 Este projeto (`meu-acompanhamento`) é um **braço do MyShape**. A divisão de papéis é:
