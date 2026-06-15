@@ -17,7 +17,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
-import { workoutExtrasService, type LastLoad } from '@/lib/workout/workout-extras-service';
+import { workoutExtrasService, type LastLoad, type LastSetLoad } from '@/lib/workout/workout-extras-service';
 import type { HubSession, WorkoutPlanFull } from '@/lib/workout/types';
 import { ExerciseCard, type CommitSetArgs } from './ExerciseCard';
 import { type SetRowValue } from './SetRow';
@@ -103,6 +103,8 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const [subs, setSubs] = useState<SubMap>(initial?.subs ?? {});
   const [startedAt, setStartedAt] = useState<number | null>(initial?.startedAt ?? null);
   const [lastLoads, setLastLoads] = useState<Record<string, LastLoad>>({});
+  // Carga da última vez POR SÉRIE: exerciseId -> { set_index -> carga }.
+  const [lastLoadsPerSet, setLastLoadsPerSet] = useState<Record<string, Record<number, LastSetLoad>>>({});
   const [nowTs, setNowTs] = useState(() => Date.now());
   const [rest, setRest] = useState<{ min: number; max: number | null } | null>(null);
   const [finishOpen, setFinishOpen] = useState(false);
@@ -270,6 +272,20 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         setLastLoads(m);
       })
       .catch((e) => console.error('Erro ao buscar última carga:', e));
+  }, [token, plan.id]);
+
+  // Última carga POR SÉRIE (pra pré-preencher/mostrar 160/180/200 em vez de
+  // repetir só o último peso em todas as séries).
+  useEffect(() => {
+    workoutExtrasService.getLastLoadsPerSet(token, plan.id)
+      .then((rows) => {
+        const m: Record<string, Record<number, LastSetLoad>> = {};
+        for (const r of rows) {
+          (m[r.planned_exercise_id] ??= {})[r.set_index] = r;
+        }
+        setLastLoadsPerSet(m);
+      })
+      .catch((e) => console.error('Erro ao buscar carga por série:', e));
   }, [token, plan.id]);
 
   // Cronômetro da sessão: tica a cada 1s enquanto houver treino em andamento.
@@ -697,6 +713,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
                 substitutedVideoUrl={subs[ex.id]?.video_url ?? null}
                 substitutedThumbnailUrl={subs[ex.id]?.thumbnail_url ?? null}
                 lastLoad={lastLoads[ex.id] ?? null}
+                lastLoadsBySet={lastLoadsPerSet[ex.id] ?? null}
                 note={exerciseNotes[exKey(ex)] ?? ''}
                 onSaveNote={(v) => handleSaveNote(exKey(ex), v)}
                 prBaseline={ex.exercise_id ? prBaselines[ex.exercise_id] ?? null : null}

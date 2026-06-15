@@ -65,6 +65,17 @@ export interface LastLoad {
   logged_at: string;
 }
 
+// Última carga POR SÉRIE (da última sessão registrada). Permite pré-preencher
+// e mostrar cada série com o peso real daquela série (ex.: 160/180/200) em vez
+// de repetir só o último peso em todas.
+export interface LastSetLoad {
+  planned_exercise_id: string;
+  set_index: number;
+  weight_kg: number | null;
+  reps: number | null;
+  rpe: number | null;
+}
+
 export interface ExerciseVariation {
   id: string;
   name: string;
@@ -187,6 +198,16 @@ export const workoutExtrasService = {
     });
     if (error) throw error;
     return (data as LastLoad[]) ?? [];
+  },
+
+  // Última carga POR SÉRIE (da última sessão) — pra pré-preencher/mostrar cada
+  // série com o peso real daquela série (160/180/200), não só o último peso.
+  async getLastLoadsPerSet(token: string, planId: string): Promise<LastSetLoad[]> {
+    const { data, error } = await supabase.rpc('get_last_loads_per_set_by_token' as any, {
+      p_token: token, p_plan_id: planId,
+    });
+    if (error) throw error;
+    return (data as LastSetLoad[]) ?? [];
   },
 
   // Última carga de AQUECIMENTO por exercício — pra sugerir no próximo treino.
