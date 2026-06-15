@@ -147,6 +147,10 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
   // Peso sugerido POR SÉRIE: usa o peso real daquela série na última vez
   // (ex.: 160/180/200); cai pro peso geral/prescrição quando faltar.
   const weightForSet = (i: number) => lastLoadsBySet?.[i + 1]?.weight_kg ?? suggestedWeight;
+  // Reps sugeridas POR SÉRIE: o que o aluno fez naquela série na última vez
+  // (espelha o peso); cai pra meta da fase quando não há histórico. Só na linha
+  // normal — no unilateral as reps são por lado (somadas), então mantém a meta.
+  const repsForSet = (i: number) => lastLoadsBySet?.[i + 1]?.reps ?? repsTargetForSet(i);
   // Resumo "última vez" POR SÉRIE, ex.: "160kg×10 · 180kg×8 · 200kg×6".
   // Só usa o formato detalhado quando houve 2+ séries (senão, formato simples).
   const lastPerSetSummary = (() => {
@@ -427,7 +431,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   <SetRow
                     index={i}
                     value={row}
-                    defaultReps={repsTargetForSet(i)}
+                    defaultReps={repsForSet(i)}
                     defaultWeight={weightForSet(i)}
                     defaultRpe={rpeTargetForSet(i)}
                     prevBest={{ weight: prBaseline?.max_weight_kg ?? null, oneRm: prBaseline?.estimated_1rm ?? null }}
