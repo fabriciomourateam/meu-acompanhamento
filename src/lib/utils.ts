@@ -118,3 +118,38 @@ export function parseLocalISODate(dateStr: string): Date {
   return new Date(dateStr);
 }
 
+// === Fuso de São Paulo (America/Sao_Paulo, UTC-3) ===========================
+// O acompanhamento é usado por alunos que podem estar fora do Brasil; o "dia"
+// e a "semana" do treino/cardio são sempre o relógio de São Paulo, não o do
+// navegador. Por isso comparações de "hoje"/"esta semana"/"dia da semana" usam
+// estes helpers, e não new Date().getDay()/toISOString() (que pegam o fuso do
+// navegador e erram pra quem está em outro fuso).
+const SAO_PAULO_TZ = 'America/Sao_Paulo';
+
+// Data 'YYYY-MM-DD' no fuso de São Paulo para um instante (default: agora).
+export function getBrtISODate(input: Date | string | number = new Date()): string {
+  const d = input instanceof Date ? input : new Date(input);
+  // en-CA formata como YYYY-MM-DD.
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: SAO_PAULO_TZ, year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(d);
+}
+
+// Dia da semana (0=domingo .. 6=sábado) no fuso de São Paulo.
+export function getBrtDayOfWeek(input: Date | string | number = new Date()): number {
+  const d = input instanceof Date ? input : new Date(input);
+  const wd = new Intl.DateTimeFormat('en-US', { timeZone: SAO_PAULO_TZ, weekday: 'short' }).format(d);
+  return ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].indexOf(wd);
+}
+
+// Segunda-feira (início ISO da semana) no fuso de São Paulo, como 'YYYY-MM-DD'.
+export function getBrtWeekStartISO(input: Date | string | number = new Date()): string {
+  const todayStr = getBrtISODate(input);
+  const diffToMon = (getBrtDayOfWeek(input) + 6) % 7;
+  const [y, m, d] = todayStr.split('-').map(Number);
+  // Aritmética de calendário em UTC pra não reintroduzir o fuso do navegador.
+  const base = new Date(Date.UTC(y, m - 1, d));
+  base.setUTCDate(base.getUTCDate() - diffToMon);
+  return base.toISOString().slice(0, 10);
+}
+

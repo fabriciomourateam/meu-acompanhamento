@@ -183,6 +183,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
       await load();
     } catch (e) {
       console.error('Erro ao confirmar Força:', e);
+      toast({ title: 'Não consegui avançar agora', description: 'Tenta de novo em instantes.', variant: 'destructive' });
     } finally {
       setGateBusy(false);
     }
@@ -199,6 +200,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
       toast({ title: 'Beleza!', description: 'Você fica mais uma semana na fase atual antes de avançar.' });
     } catch (e) {
       console.error('Erro ao repetir fase:', e);
+      toast({ title: 'Não consegui salvar agora', description: 'Tenta de novo em instantes.', variant: 'destructive' });
     } finally {
       setGateBusy(false);
     }
