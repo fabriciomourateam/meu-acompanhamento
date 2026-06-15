@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
-import { sanitizeRichHtml } from '@/lib/utils';
+import { sanitizeRichHtml, getBrtISODate, getBrtDayOfWeek, getBrtWeekStartISO } from '@/lib/utils';
 import { HeartPulse, Plus, Trash2, ChevronLeft, ChevronRight, Play, Pause, RotateCcw, Timer } from 'lucide-react';
 
 interface CardioSubtabProps {
@@ -21,12 +21,10 @@ interface CardioSubtabProps {
   planId?: string | null;
 }
 
-// Segunda-feira da semana atual (date_trunc('week') no Postgres = ISO, começa na segunda).
+// Segunda-feira da semana atual em BRT (date_trunc('week') no Postgres = ISO,
+// começa na segunda). Em São Paulo, não no fuso do navegador do aluno.
 function currentWeekStart(): string {
-  const now = new Date();
-  const diffToMon = (now.getDay() + 6) % 7; // dias desde a segunda
-  const mon = new Date(now.getFullYear(), now.getMonth(), now.getDate() - diffToMon);
-  return mon.toISOString().slice(0, 10);
+  return getBrtWeekStartISO();
 }
 
 export function CardioSubtab({ token, prescribedSessions, patientId, planId }: CardioSubtabProps) {
@@ -52,7 +50,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
     const monthStart = new Date(month.getFullYear(), month.getMonth(), 1).toISOString().slice(0, 10);
     const monthEnd = new Date(month.getFullYear(), month.getMonth() + 1, 0).toISOString().slice(0, 10);
     const weekStart = currentWeekStart();
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getBrtISODate();
     setLoading(true);
     try {
       const [l, t, wk] = await Promise.all([
@@ -83,7 +81,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
   // do dia é atingida. null = sem prescrição pra hoje → qualquer cardio conta.
   const prescribedTodayMin = (() => {
     if (!prescribed) return null;
-    const dow = new Date().getDay();
+    const dow = getBrtDayOfWeek();
     if (!prescribed.dias_semana?.includes(dow)) return null;
     const t = prescribed.modo === 'mesmo'
       ? prescribed.tempo_padrao
@@ -98,7 +96,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
   // (não duplica se já estiver marcada). Best-effort: nunca quebra o fluxo.
   const maybeCompleteGoal = (durationMin: number, performedAt: string) => {
     if (!patientId) return;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = getBrtISODate();
     if (performedAt !== today) return;
     if (prescribedTodayMin != null && durationMin < prescribedTodayMin) return;
     dailyChallengesService.completeChallenge(patientId, 'atividade_fisica')
@@ -244,7 +242,7 @@ function normalizeCardioOption(opt: any, i: number): { label: string; html: stri
 // Pilar 1 — bloco "Cardio prescrito": modalidade/intensidade, pills dos dias
 // (destaca hoje), tempo do dia atual e observações.
 function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio; weekStats: { count: number; min: number } }) {
-  const todayDow = new Date().getDay();
+  const todayDow = getBrtDayOfWeek();
   // Modo "Nx por semana": frequência livre, sem dias fixos (tempo sempre o padrão).
   const byFrequency = (cardio.vezes_semana ?? 0) > 0;
   const isToday = !byFrequency && cardio.dias_semana?.includes(todayDow);
