@@ -39,6 +39,9 @@ interface ExerciseCardProps {
   substitutedThumbnailUrl?: string | null;
   /** Última carga registrada pra este exercício (sugestão de peso). */
   lastLoad?: { weight_kg: number | null; reps: number | null; rpe: number | null } | null;
+  // Carga da última vez POR SÉRIE (set_index 1-based) — pré-preenche/mostra
+  // 160/180/200 em vez de repetir só o último peso em todas as séries.
+  lastLoadsBySet?: Record<number, { weight_kg: number | null; reps: number | null; rpe: number | null }> | null;
   /** Observação do aluno (persiste entre treinos). */
   note?: string;
   /** Salva a observação (chamado no blur). */
@@ -65,7 +68,7 @@ interface ExerciseCardProps {
 
 const EMPTY_SET: SetRowValue = { weightKg: null, reps: null, rpe: null, done: false };
 
-export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight, isFirst, displayLabel }: ExerciseCardProps) {
+export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRequestSubstitute, onRevertSubstitution, substitutedName, substitutedVideoUrl, substitutedThumbnailUrl, lastLoad, lastLoadsBySet, note, onSaveNote, prBaseline, open: openProp, onOpenChange, warmupValues, onWarmupChange, onWarmupCommit, warmupConfig, warmupLastWeight, isFirst, displayLabel }: ExerciseCardProps) {
   const [openInternal, setOpenInternal] = useState(false);
   const open = openProp ?? openInternal;
   const setOpen = onOpenChange ?? setOpenInternal;
@@ -141,6 +144,21 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
 
   // Sugestão de peso: usa a última carga registrada; se não houver, a prescrição.
   const suggestedWeight = lastLoad?.weight_kg ?? exercise.load_kg ?? null;
+  // Peso sugerido POR SÉRIE: usa o peso real daquela série na última vez
+  // (ex.: 160/180/200); cai pro peso geral/prescrição quando faltar.
+  const weightForSet = (i: number) => lastLoadsBySet?.[i + 1]?.weight_kg ?? suggestedWeight;
+  // Resumo "última vez" POR SÉRIE, ex.: "160kg×10 · 180kg×8 · 200kg×6".
+  // Só usa o formato detalhado quando houve 2+ séries (senão, formato simples).
+  const lastPerSetSummary = (() => {
+    if (!lastLoadsBySet) return null;
+    const idxs = Object.keys(lastLoadsBySet).map(Number).sort((a, b) => a - b);
+    if (idxs.length < 2) return null;
+    return idxs.map((idx) => {
+      const s = lastLoadsBySet[idx];
+      const w = s.weight_kg != null ? `${s.weight_kg}kg` : '—';
+      return s.reps != null ? `${w}×${s.reps}` : w;
+    }).join(' · ');
+  })();
 
   return (
     <motion.div
@@ -313,9 +331,16 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 </p>
               )}
               {/* Sugestão: última carga registrada + meta de carga da fase atual */}
-              {(lastLoad?.weight_kg != null || exercise.load_kg != null) && (
+              {(lastPerSetSummary != null || lastLoad?.weight_kg != null || exercise.load_kg != null) && (
                 <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs">
-                  {lastLoad?.weight_kg != null ? (
+                  {lastPerSetSummary != null ? (
+                    // Última vez POR SÉRIE (ex.: 160kg×10 · 180kg×8 · 200kg×6),
+                    // pra refletir pirâmide/queda de carga em vez de só 1 peso.
+                    <span className="text-slate-600">
+                      <span className="text-slate-400">📊 Última vez:</span>{' '}
+                      <strong className="tabular-nums text-slate-800">{lastPerSetSummary}</strong>
+                    </span>
+                  ) : lastLoad?.weight_kg != null ? (
                     // 'Ultima vez' como referencia rapida — so peso × reps.
                     // O RPE foi removido pra nao induzir 'preciso bater igual'
                     // em alunos iniciantes (o RPE prescrito da serie atual ja
@@ -382,7 +407,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     done={row.done}
                     pair={getPair(i)}
                     defaultReps={repsTargetForSet(i)}
-                    defaultWeight={suggestedWeight}
+                    defaultWeight={weightForSet(i)}
                     defaultRpe={rpeTargetForSet(i)}
                     flush={hasTech}
                     onRpeClick={() => setShowRpeHelp(true)}
@@ -403,7 +428,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                     index={i}
                     value={row}
                     defaultReps={repsTargetForSet(i)}
-                    defaultWeight={suggestedWeight}
+                    defaultWeight={weightForSet(i)}
                     defaultRpe={rpeTargetForSet(i)}
                     prevBest={{ weight: prBaseline?.max_weight_kg ?? null, oneRm: prBaseline?.estimated_1rm ?? null }}
                     flush={hasTech}
