@@ -21,9 +21,11 @@ import { CommunityFeed } from '@/components/patient-portal/community/CommunityFe
 import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { WorkoutTab } from '@/components/patient-portal/workout/WorkoutTab';
 import { DietTab } from '@/components/patient-portal/diet/DietTab';
+import { SupportChat } from '@/components/patient-portal/chat/SupportChat';
 import { useDietData } from '@/components/patient-portal/diet/useDietData';
 import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
 import { communityService } from '@/lib/community-service';
+import { chatService } from '@/lib/chat-service';
 import { Utensils } from 'lucide-react';
 
 interface PatientDietPortalProps {
@@ -64,6 +66,11 @@ export function PatientDietPortal({
   const showRanking = portalConfig?.visibility?.tab_ranking !== false;
   const showCommunity = portalConfig?.community?.show_tab !== false;
   const showResults = portalConfig?.visibility?.tab_results !== false;
+  // Aba Suporte: OFF por padrão (rollout gradual). Liberada para todos
+  // (support.show_tab) ou só para pacientes de teste (support.test_patient_ids).
+  const showSupport =
+    portalConfig?.support?.show_tab === true ||
+    (!!patientId && (portalConfig?.support?.test_patient_ids ?? []).includes(patientId));
   // Subabas da Dieta
   const showMeals = portalConfig?.visibility?.diet_meals !== false;
   const showSupplements = portalConfig?.visibility?.diet_supplements !== false;
@@ -76,8 +83,9 @@ export function PatientDietPortal({
     ranking: showRanking,
     community: showCommunity,
     results: showResults,
+    support: showSupport,
   };
-  const ALL_MAIN_TABS = ['diet', 'workout', 'challenges', 'ranking', 'community', 'results'] as const;
+  const ALL_MAIN_TABS = ['diet', 'workout', 'challenges', 'ranking', 'community', 'results', 'support'] as const;
   const TAB_ORDER = ALL_MAIN_TABS.filter((t) => mainTabVisible[t]);
   const hiddenNavTabs = ALL_MAIN_TABS.filter((t) => !mainTabVisible[t]);
   // Primeira subaba visível da Dieta (para o defaultValue do Tabs aninhado)
@@ -144,6 +152,17 @@ export function PatientDietPortal({
     if (activeTab === 'community') setCommunityUnread(0);
   }, [activeTab]);
 
+  // Selo de não-lidas do Suporte (mensagens novas da equipe).
+  const [supportUnread, setSupportUnread] = useState(0);
+  useEffect(() => {
+    if (!patientId || !showSupport) return;
+    chatService.getUnreadCount(patientId).then(setSupportUnread).catch(() => {});
+  }, [patientId, showSupport]);
+  // Ao abrir o Suporte, zera o selo (o SupportChat marca como lido no banco).
+  useEffect(() => {
+    if (activeTab === 'support') setSupportUnread(0);
+  }, [activeTab]);
+
   if (diet.loading) {
     return (
       <div className="space-y-6">
@@ -198,7 +217,7 @@ export function PatientDietPortal({
         value={activeTab as any}
         onChange={(v) => goToTab(v)}
         hidden={hiddenNavTabs as any}
-        badges={{ community: communityUnread }}
+        badges={{ community: communityUnread, support: supportUnread }}
       />
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
@@ -242,6 +261,16 @@ export function PatientDietPortal({
           {showResults && (
             <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Evolução
+            </TabsTrigger>
+          )}
+          {showSupport && (
+            <TabsTrigger value="support" className="relative flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center gap-1.5">
+              Suporte
+              {supportUnread > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
+                  {supportUnread > 9 ? '9+' : supportUnread}
+                </span>
+              )}
             </TabsTrigger>
           )}
         </TabsList>
@@ -341,6 +370,12 @@ export function PatientDietPortal({
                 Comunidade indisponível no momento.
               </p>
             )}
+          </TabsContent>
+        )}
+
+        {showSupport && (
+          <TabsContent value="support" className="mt-6">
+            <SupportChat patientId={patientId} active={activeTab === 'support'} />
           </TabsContent>
         )}
       </Tabs>
