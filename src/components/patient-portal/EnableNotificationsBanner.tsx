@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { BellRing, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pushService } from '@/lib/push-service';
+import { InstallPWAButton } from '@/components/InstallPWAButton';
 
 interface Props {
   patientId: string;
@@ -22,6 +23,7 @@ export function EnableNotificationsBanner({ patientId }: Props) {
   const { toast } = useToast();
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
 
   const iosNeedsInstall = pushService.isIOS() && !pushService.isStandalone();
 
@@ -77,11 +79,18 @@ export function EnableNotificationsBanner({ patientId }: Props) {
         <p className="text-sm font-semibold text-slate-900">Ative seus lembretes</p>
         <p className="text-xs text-slate-600">
           {iosNeedsInstall
-            ? 'No iPhone, adicione o app à Tela de Início e abra por lá para receber avisos.'
-            : 'Receba avisos da sua dieta, respostas na comunidade e o lembrete do check-in.'}
+            ? 'No iPhone, instale o app na Tela de Início para receber as respostas do Fabricio e seus avisos.'
+            : 'Receba as respostas do Fabricio, avisos da sua dieta e o lembrete do check-in.'}
         </p>
       </div>
-      {!iosNeedsInstall && (
+      {iosNeedsInstall ? (
+        <button
+          onClick={() => setShowInstall(true)}
+          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
+        >
+          Como instalar
+        </button>
+      ) : (
         <button
           onClick={handleEnable}
           disabled={busy}
@@ -93,6 +102,9 @@ export function EnableNotificationsBanner({ patientId }: Props) {
       <button onClick={dismiss} aria-label="Dispensar" className="shrink-0 text-slate-400 hover:text-slate-600">
         <X className="h-4 w-4" />
       </button>
+
+      {/* Diálogo de instruções de instalação (reusa o InstallPWAButton). */}
+      <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
     </div>
   );
 }

@@ -16,12 +16,31 @@ interface InstallPWAButtonProps {
   /** Renderiza como item de menu (pro overflow no mobile) em vez de botão. */
   asMenuItem?: boolean;
   className?: string;
+  /** Não renderiza nenhum gatilho — só o diálogo de instruções, controlado por `open`. */
+  triggerless?: boolean;
+  /** Estado controlado externamente do diálogo de instruções (reuso em outros lugares). */
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function InstallPWAButton({ asMenuItem, className }: InstallPWAButtonProps = {}) {
+export function InstallPWAButton({
+  asMenuItem,
+  className,
+  triggerless,
+  open,
+  onOpenChange,
+}: InstallPWAButtonProps = {}) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
-  const [showInstructions, setShowInstructions] = useState(false);
+  const [showInstructionsState, setShowInstructionsState] = useState(false);
+
+  // Diálogo pode ser controlado por fora (open/onOpenChange) ou interno.
+  const controlled = open !== undefined;
+  const showInstructions = controlled ? open : showInstructionsState;
+  const setShowInstructions = (o: boolean) => {
+    if (controlled) onOpenChange?.(o);
+    else setShowInstructionsState(o);
+  };
   const [isIOS, setIsIOS] = useState(false);
   const [isAndroid, setIsAndroid] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -85,7 +104,7 @@ export function InstallPWAButton({ asMenuItem, className }: InstallPWAButtonProp
 
   return (
     <>
-      {asMenuItem ? (
+      {!triggerless && (asMenuItem ? (
         <DropdownMenuItem
           // Abre o dialog após o menu fechar pra evitar conflito de foco entre os dois.
           onSelect={() => setTimeout(() => setShowInstructions(true), 0)}
@@ -104,7 +123,7 @@ export function InstallPWAButton({ asMenuItem, className }: InstallPWAButtonProp
           <Download className="w-4 h-4 sm:mr-2" />
           <span className="hidden sm:inline">Instalar App</span>
         </Button>
-      )}
+      ))}
 
       <Dialog open={showInstructions} onOpenChange={setShowInstructions}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto border-0 bg-[#F5F7FB] shadow-2xl [&>button]:text-[#222222] [&>button]:hover:text-[#00C98A] [&>button]:opacity-100">
