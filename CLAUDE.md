@@ -1,5 +1,12 @@
 # CLAUDE.md — meu-acompanhamento
 
+## Chat interno (substituir WhatsApp) — LEIA antes de mexer
+
+Se for trabalhar no **chat/Suporte** (a feature que substitui o WhatsApp),
+**leia primeiro `docs/chat/SPEC.md` e `docs/chat/PROGRESS.md`** — eles têm o design
+completo, o que já foi feito/validado e o próximo passo. Mantenha esses dois
+arquivos em sincronia com os equivalentes do repo `controle-de-pacientes`.
+
 ## Grafia do nome do dono — SEMPRE "Fabricio" (sem acento)
 
 O dono se chama **Fabricio**, sem acento agudo no "i". Nunca escreva "Fabrício". Vale pra TUDO: respostas em chat, mensagens de commit, descrições de PR, comentários no código, nomes em seed/test data, copy de UI, etc. Se você encontrar "Fabrício" (com acento) já existente no código/banco, NÃO altere automaticamente — sinaliza pro dono e pergunta se quer normalizar. Mas em qualquer texto NOVO que você produzir, é sempre "Fabricio".

@@ -45,6 +45,15 @@ export interface PortalConfig {
     /** Frase exibida nos cards compartilhados (acima do @). Aceita quebras de linha. */
     share_caption: string;
   };
+  // Aba "Suporte" (chat interno com o treinador). Por padrão DESLIGADA — é um
+  // recurso em rollout gradual. Pode ser liberada só para contas de teste
+  // (`test_patient_ids`) e, quando madura, para todos os alunos (`show_tab`).
+  support: {
+    /** Libera a aba de Suporte para TODOS os alunos do treinador. */
+    show_tab: boolean;
+    /** Libera a aba apenas para estes pacientes (ids) — modo teste/rollout. */
+    test_patient_ids?: string[];
+  };
 }
 
 const DEFAULT_CONFIG: PortalConfig = {
@@ -79,6 +88,10 @@ const DEFAULT_CONFIG: PortalConfig = {
   branding: {
     instagram: '',
     share_caption: '',
+  },
+  support: {
+    show_tab: false,
+    test_patient_ids: [],
   },
 };
 
@@ -127,6 +140,12 @@ export const portalSettingsService = {
         branding: {
           instagram: value?.branding?.instagram ?? '',
           share_caption: value?.branding?.share_caption ?? '',
+        },
+        support: {
+          show_tab: value?.support?.show_tab ?? false,
+          test_patient_ids: Array.isArray(value?.support?.test_patient_ids)
+            ? value.support.test_patient_ids
+            : [],
         },
       };
     } catch {
