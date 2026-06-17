@@ -231,3 +231,10 @@ Tudo em **America/Sao_Paulo (BRT, UTC-3)** — datas/horários renderizados com
 correto é **`if chat_is_team_of(v_owner) is not true then raise exception 'Sem permissao'`** — e
 **nunca** `if not chat_is_team_of(...)` (que deixa o anon passar, pois `not null` = null = falso no
 IF). Corrigido em todas as 9 funções `chat_team_*` na migração `20260624`.
+
+### Respostas rápidas — `chat_quick_replies` (Fatia 5, migração 20260625)
+Tabela team-scoped (RLS `chat_is_team_of`, sem anon). CRUD direto por RLS; `chat_qr_increment_use`
+é o único RPC (guard seguro). Acionada no composer do back-office por botão ⚡ ou atalho "/". Variáveis
+`{{nome}}/{{apelido}}/{{primeiro_nome}}/{{plano}}/{{dias_para_vencer}}/{{dia_acompanhamento}}` via
+`applyVars` em `chat-service.ts`. Tabela dedicada (não reusa `whatsapp_templates`) por precisar do
+campo `shortcut` e de criação por toda a equipe.

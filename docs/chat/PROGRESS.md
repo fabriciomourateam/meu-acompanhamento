@@ -354,3 +354,34 @@ deployado.
 > STATUS: implementado e validado no banco; `tsc` limpo no CP e 0 erros novos no MA. Falta a
 > validação manual do dono nos dois apps (emoji, tempo real, tags). Pushed na branch; merge pra
 > `main` só após o ok do dono.
+
+---
+
+## AÇÃO 11 / Fase A — Respostas rápidas (Fatia 5) — feito (back-office)
+
+**Migração `20260625_chat_quick_replies.sql`** (aplicada em produção + commitada). Aditiva.
+- Tabela `chat_quick_replies` (`owner_id, title, shortcut, content, category, media_url, usage_count,
+  is_active, created_by, created_at, updated_at`), índice único `(owner_id, lower(shortcut))`.
+- **RLS só equipe** (4 policies via `chat_is_team_of`; nenhuma p/ anon). CRUD é **direto via RLS**
+  (sem RPC SECURITY DEFINER) → sem superfície pro bug de guard. Único RPC: `chat_qr_increment_use`
+  (contador atômico) já com guard seguro `is not true`. Tabela na publication realtime.
+
+**`chat-service.ts`:** tipos `QuickReply`/`QuickReplyInput`; `listQuickReplies`, `upsertQuickReply`
+(deriva owner via `getTeamOwnerId`), `deleteQuickReply`, `incrementQuickReplyUse`; e **`applyVars`**
+(substitui `{{nome}}`, `{{apelido}}`, `{{primeiro_nome}}`, `{{plano}}`, `{{dias_para_vencer}}`,
+`{{dia_acompanhamento}}`; placeholder desconhecido fica literal). O embed do paciente em
+`listConversations` ganhou `apelido, plano, dias_para_vencer, inicio_acompanhamento` (p/ as variáveis).
+
+**UI (`AtendimentoBoard.tsx`):**
+- `QuickReplyPicker` (botão ⚡ no composer) com busca por atalho/título/conteúdo.
+- **Atalho "/"**: digitar `/algo` no composer abre dropdown filtrando respostas; Enter aplica a 1ª.
+- Ao escolher, o texto entra no composer **com as variáveis já preenchidas** pelo aluno da conversa,
+  pra revisar/completar e enviar; incrementa `usage_count` (ordena por mais usadas).
+- `QuickRepliesManager` (diálogo) pra cadastrar/editar/apagar (título, atalho, texto), aberto pelo
+  "Gerenciar" do picker. Qualquer membro da equipe cria/usa.
+
+**Validação:** smoke por SQL/MCP — equipe insere (RLS ok), anon bloqueado (RLS), `increment` bloqueado
+p/ anon ("Sem permissao"). `tsc --noEmit` limpo no CP. Falta validação manual do dono no app.
+
+> Próximo: Fase B (cadência programada no chat, repintando o motor de automação) e Fase C (régua de
+> ausência multi-canal).
