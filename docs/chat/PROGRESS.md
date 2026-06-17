@@ -112,3 +112,38 @@ lado é zerada — e ele escolhe **qual lado**: a do aluno, a do back-office, ou
 - [ ] Validação manual (Fabricio): limpar cada lado, conferir que o aluno deixa de ver
       no app e a equipe deixa de ver no back-office, que o histórico continua em
       `chat_messages`, e que "Restaurar" traz tudo de volta.
+
+---
+
+## Rodada — Hotfix de regressões + polish + reordenar colunas + demandas internas
+
+### Fase A (hotfix — já mergeada, PR #283)
+- **Tema:** `ThemeContext` voltou a `dark`; o claro é aplicado **só** na rota `/atendimento`
+  (`theme-light` no `<html>` no mount/unmount, padrão do LeadsCRM; sidebar segue dark).
+- **Layout do board:** altura ancorada ao viewport (`100dvh`) com colunas `flex-1` — termina
+  onde a sidebar termina (sem vazão branco); scroll horizontal contido (`min-w-0`), não
+  empurra mais a página/sidebar no mobile.
+- **Badge respeita coluna oculta:** esconder a coluna de um membro também esconde o badge
+  dele no card (badges usam só as lanes visíveis; menu "Mover para" segue completo).
+
+### Fase B (melhorias)
+- **Reordenar colunas (raias):** drag pelo handle (grip) no cabeçalho via `@dnd-kit/sortable`
+  (estratégia horizontal). Aguardando/Resolvido fixas nas pontas. Ordem salva em
+  `localStorage` (`atendimento:lane-order`). IDs `lane:<userId>` distinguem reordenação de
+  card no `onDragEnd`. Cor de cada atendente é estável (indexada pela ordem original).
+- **Demandas internas (só equipe):** migração `20260618_chat_internal_notes.sql` (aplicada via
+  MCP) — tabela `chat_internal_notes` (categoria/texto/status/autor), RLS só `authenticated`
+  (paciente **sem** policy), RPCs `chat_team_add_note`/`chat_team_set_note_status`. No
+  `chat-service`: `listNotes`/`addNote`/`setNoteStatus` + `open_notes_count` no
+  `listConversations`. UI: **selo** (bandeirinha + contagem) no card e seção **"Demandas
+  internas"** no painel da conversa (criar/listar/resolver, chips de categoria). Realtime
+  inclui a tabela.
+- **Polish:** cards com elevação no hover, não-lida vira ponto vermelho no avatar + nome em
+  negrito, selo de demanda; colunas/handle mais limpos.
+
+### Testado / validado
+- ✅ `tsc --noEmit` limpo (Fases A e B).
+- ✅ Migração das notas aplicada; RLS habilitada e só policies `authenticated` (paciente
+  bloqueado, conferido por SQL). Advisors: só os WARN de SECURITY DEFINER já conhecidos.
+- [ ] Validação manual (Fabricio): reordenar colunas (persistir ao recarregar), criar/resolver
+      demanda e ver o selo no card, e o visual geral.
