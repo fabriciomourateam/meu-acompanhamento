@@ -37,6 +37,11 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
 - `assigned_to` (uuid do membro responsável; null fora de "atendendo").
 - `last_message_at`, `last_message_preview`, `last_sender_type`.
 - `unread_for_team`, `unread_for_patient` (bool).
+- `cleared_at_patient`, `cleared_at_team` (timestamptz, null por padrão) — marcas
+  d'água de **"limpar conversa" manual, por lado** (migração `20260617_chat_archive.sql`).
+  Cada lado só exibe mensagens com `created_at >` sua marca d'água; null = mostra tudo.
+  As mensagens **nunca** são apagadas — só muda o que cada lado vê. Equipe pode
+  "Restaurar" (volta a marca pra null) ou ver o histórico completo na hora.
 - `created_at`, `updated_at` (trigger `chat_touch_updated_at`).
 
 ### `chat_messages`
@@ -54,7 +59,8 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
     (reabre se resolvida), `chat_patient_unread_count`.
   - Equipe (authenticated): `chat_team_get_or_create_conversation`,
     `chat_team_send_message` (insere como `team`, assume a conversa, marca
-    `unread_for_patient`).
+    `unread_for_patient`), `chat_team_set_cleared(p_conversation_id, p_side, p_clear)`
+    — limpar/restaurar por lado (`patient` | `team` | `both`), manual.
 - **Nota de segurança conhecida:** as RPCs do paciente recebem `p_patient_id` e são
   chamáveis por `anon` — **mesma superfície de risco já existente nas funções
   `community_*`**. O advisor do Supabase marca `*_security_definer_function_executable`

@@ -73,3 +73,42 @@
 - [ ] Validação manual na UI (Fabricio): drag-and-drop entre colunas, esconder/mostrar
       colunas (persistência ao recarregar), badge de atendente, atalhos do hub abrindo
       os quick-drawers, e o tema claro geral.
+
+---
+
+## Rodada — "Limpar conversa" manual, por lado (sem apagar histórico)
+
+### Decisão do dono
+Nada de limpeza automática. Por padrão aluno e equipe veem **todo o histórico**, sempre,
+e tudo fica salvo no Supabase. Só quando o dono clicar em **Limpar** é que a visão de um
+lado é zerada — e ele escolhe **qual lado**: a do aluno, a do back-office, ou os dois.
+"Restaurar" traz o histórico de volta. As mensagens **nunca** são apagadas.
+
+### Feito
+- **Migração aditiva `20260617_chat_archive.sql`** (aplicada em produção via MCP):
+  - `chat_conversations` ganhou `cleared_at_patient` e `cleared_at_team` (timestamptz,
+    null = mostra tudo). Marca d'água por lado.
+  - `chat_patient_get_messages` agora filtra `created_at > coalesce(cleared_at_patient,
+    -infinity)` → a thread do aluno respeita a limpeza dele. (Resto idêntico.)
+  - Nova RPC `chat_team_set_cleared(p_conversation_id, p_side, p_clear)` (SECURITY DEFINER,
+    `search_path` fixo, checa `chat_is_team_of`): `p_side ∈ {patient,team,both}`;
+    `p_clear=true` marca now(), `false` restaura (null).
+  - Advisors: só os WARN esperados de SECURITY DEFINER (igual aos demais `chat_*`); a nova
+    função **não** entra no `search_path_mutable`. Nenhum ERROR novo.
+- **Back-office `chat-service.ts`:** novo `clearConversation(id, side, clear)` → RPC acima.
+  `ChatConversation` ganhou `cleared_at_patient`/`cleared_at_team`.
+- **`AtendimentoBoard.tsx`:** no painel da conversa, menu **"Limpar"** com: limpar minha
+  conversa (back-office) / limpar a do aluno / limpar dos dois lados / restaurar. A thread
+  da equipe respeita `cleared_at_team` (com aviso "N mensagens anteriores limpas — Ver
+  histórico" pra reexibir na hora). Badge "Limpa p/ o aluno" quando a visão do aluno está limpa.
+- **App do aluno:** sem mudança de código — o RPC já filtra; a thread some sozinha só
+  quando a equipe limpar o lado do aluno.
+
+### Testado / validado
+- ✅ Migração aplicada; colunas e funções conferidas via SQL (MCP).
+- ✅ `tsc --noEmit` limpo no back-office.
+- ℹ️ Conversa de teste existente: aluno Fabricio Hermes
+  (`patient_id e318eb2c-…`, conversa `ec04dd36-…`, 2 mensagens) — ambas marcas null.
+- [ ] Validação manual (Fabricio): limpar cada lado, conferir que o aluno deixa de ver
+      no app e a equipe deixa de ver no back-office, que o histórico continua em
+      `chat_messages`, e que "Restaurar" traz tudo de volta.
