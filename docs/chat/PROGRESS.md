@@ -221,3 +221,35 @@ lado é zerada — e ele escolhe **qual lado**: a do aluno, a do back-office, ou
 - [ ] Validação manual (Fabricio, device com push ativo): equipe responde → push no celular
       do aluno; aluno escreve → push pra equipe inscrita; nudge de instalação/ativação aparece
       e some ao ativar.
+
+---
+
+## Sessão 17/06 — feedback do teste no preview + deploy pra produção
+
+Fabricio testou a Fatia 2/3 no **preview da branch** e trouxe 3 pontos:
+
+1. **Nota de voz agora envia na hora ao parar a gravação** (UX estilo WhatsApp). Antes,
+   `stopRecording` só fazia `setPendingFile` e exigia um 2º toque no enviar. Agora
+   `stopRecording` chama `handleSend(file)` direto. `handleSend` ganhou um param
+   `fileOverride?: File | null`; o anexo manual (clipe → foto/vídeo) com preview e o cancelar
+   gravação seguem iguais. Os botões enviar passaram a `onClick={() => handleSend()}` pra não
+   injetar o `MouseEvent` como arquivo. Vale pros dois apps (`SupportChat.tsx` e
+   `AtendimentoBoard.tsx`).
+2. **"O áudio não chegou no back-office" → era gap de deploy, não bug.** Os dados estavam
+   100% corretos (arquivo `.webm` no Storage, `media_url`/`media_type` preenchidos; o
+   back-office renderiza via `MessageMedia`). A Fatia 2 (mídia) e a Fatia 3 (push) estavam
+   **só na branch**, não em produção (`main`). Por isso o Chrome desktop não mostrava o player.
+   → resolvido levando a branch pra `main` nesta sessão.
+3. **Check-in NÃO mudou.** O envio de feedback de check-in continua indo pro webhook
+   (n8n)/Evolution via `whatsapp-universal-service.sendPatientMessage`
+   (`CheckinFeedbackCard.tsx`, `webhookType:'checkin'`) — nada do chat foi tocado. A mensagem
+   "📌 FEEDBACK DO CHECK-IN" que apareceu na conversa do Júlio César Maia foi **enviada
+   manualmente pelo membro Guido** (`guido@fmteam.com`) via "Nova conversa" + composer do
+   painel de Atendimento (`chat_team_send_message`). Nenhuma função/trigger do banco espelha
+   check-in no chat; só as 3 RPCs `chat_*` tocam `chat_messages`. Sem ação de código.
+
+### Deploy
+- Migrações da Fatia 2/3 já aplicadas no banco de produção (Supabase compartilhado) → o merge
+  foi **só de front-end**. Branch `claude/sharp-dirac-8dgmht` mergeada em `main` nos dois repos
+  (sem sobrescrever nada de `origin/main`; no CP havia 4 commits de WebDiet à frente, em
+  arquivos disjuntos — preservados).
