@@ -385,3 +385,42 @@ p/ anon ("Sem permissao"). `tsc --noEmit` limpo no CP. Falta validação manual 
 
 > Próximo: Fase B (cadência programada no chat, repintando o motor de automação) e Fase C (régua de
 > ausência multi-canal).
+
+---
+
+## AÇÃO 11 / Fase B — Cadência programada no chat (Fatia 6) — feito (back-office)
+
+Repinta o motor de automação do WhatsApp pra entregar também no chat interno. Como o trigger
+`chat_message_notify` já dispara push, "canal chat" = in-app **+** push, sem risco de ban.
+
+**Migração `20260628_chat_cadence.sql`** (aplicada em produção + commitada). Aditiva, default preserva
+o fluxo WhatsApp atual:
+- Coluna `target_channel` (`whatsapp`|`chat`|`both`, default `whatsapp`) em `whatsapp_scheduled_messages`
+  e `whatsapp_sequences`.
+- RPC `chat_system_send_to_patient(patient, body, media_url, media_type, media_mime)` SECURITY DEFINER,
+  search_path fixo, **sem auth.uid()** (chamada pelo cron/edge). Acha/cria a conversa (`on conflict
+  (patient_id)`), insere msg `team`/`sender_user_id=NULL`. **SEGURANÇA: REVOKE de public/anon/
+  authenticated + GRANT só a `service_role`** (verificado: anon=false, authenticated=false,
+  service_role=true). Conversa nova nasce `resolvido` (sem ação pendente da equipe).
+- `materialize_sequence_messages` propaga `seq.target_channel` pra cada agendamento gerado.
+
+**Edge `whatsapp-process-scheduled-v2` (deployada, v12, verify_jwt=true):**
+- Ramo por `target_channel`: `chat` → entrega no chat sem Evolution/instância/janela/limite/anti-ban,
+  marca enviado; `whatsapp` (default) → fluxo **inalterado**; `both` → WhatsApp + espelha no chat
+  (best-effort, entrega no chat mesmo se o WhatsApp falhar/banir).
+- Refactor: bloco de status/recorrência extraído pra `applyPostSendStatus` (compartilhado), `sendToChat`
+  novo. Caminho WhatsApp permanece idêntico.
+
+**Front-end:** `sequence-service.ts` (campo `target_channel` no tipo/create/duplicate);
+`SequenceEditor.tsx` (seletor **Destino**: WhatsApp / Chat interno / Ambos); `ScheduledMessages.tsx`
+(badge 💬/📱+💬 nas agendadas).
+
+**Validação:** RPC testada via rollback (conversa/preview/unread/sender corretos); grants verificados;
+advisors sem achado novo; `tsc` limpo. **Smoke E2E em produção:** mensagem agendada `target_channel='chat'`
+→ cron→edge → inseriu em `chat_messages` (sender `team`), marcou `sent`, HTTP 200
+`{processed:1,errors:0}`, a mensagem WhatsApp real concorrente foi `skipped` (nenhum WhatsApp indevido).
+Dados de teste removidos.
+
+> Falta validação manual do dono (criar sequência destino=Chat, enrollar, ver chegar no app).
+> Pendente desta fase (não-bloqueante): auto-pausa ao aluno responder; pré-visualização "como chega".
+> Próximo: Fase C (régua de ausência multi-canal) — usa este motor + os sinais de atividade.

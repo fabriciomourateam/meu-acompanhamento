@@ -238,3 +238,10 @@ Tabela team-scoped (RLS `chat_is_team_of`, sem anon). CRUD direto por RLS; `chat
 `{{nome}}/{{apelido}}/{{primeiro_nome}}/{{plano}}/{{dias_para_vencer}}/{{dia_acompanhamento}}` via
 `applyVars` em `chat-service.ts`. Tabela dedicada (não reusa `whatsapp_templates`) por precisar do
 campo `shortcut` e de criação por toda a equipe.
+
+### Cadência no chat — target_channel + chat_system_send_to_patient (Fatia 6, migração 20260628)
+`whatsapp_scheduled_messages.target_channel` e `whatsapp_sequences.target_channel`
+(`whatsapp`|`chat`|`both`, default `whatsapp`). O cron/edge `whatsapp-process-scheduled-v2` ramifica:
+`chat` entrega via RPC `chat_system_send_to_patient` (service_role only; sem auth.uid; insere msg `team`
+e dispara push pelo trigger), pulando Evolution/janela/anti-ban; `both` manda nos dois. Sequências
+materializam o canal via `materialize_sequence_messages`. UI: seletor de destino no SequenceEditor.
