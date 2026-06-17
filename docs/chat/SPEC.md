@@ -49,6 +49,15 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
   `sender_user_id` (qual membro enviou — **uso interno; o aluno NUNCA vê**),
   `body`, `created_at`, `read_at`.
 
+### `chat_internal_notes` (demandas internas — SÓ a equipe, migração `20260618`)
+- Notas/pendências sobre um aluno (ex.: "mudar o treino de pernas"), **invisíveis ao
+  aluno**. `id`, `conversation_id` (FK on delete cascade), `owner_id`, `category`
+  (`geral|treino|dieta|suplementacao|financeiro|outro`), `body`, `status` (`open|done`),
+  `created_by`, `created_at`, `resolved_by`, `resolved_at`.
+- **RLS só `authenticated`** (select/insert/update/delete com `chat_is_team_of(owner_id)`);
+  **nenhuma policy pra `anon`** → o app do aluno não acessa. No board, o card mostra um selo
+  (bandeirinha + contagem) quando há demanda `open`.
+
 ### Segurança
 - **RLS (lado equipe):** SELECT/UPDATE em `chat_conversations` e SELECT em
   `chat_messages` permitidos quando `chat_is_team_of(owner_id)` — ou seja, o
@@ -60,7 +69,9 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
   - Equipe (authenticated): `chat_team_get_or_create_conversation`,
     `chat_team_send_message` (insere como `team`, assume a conversa, marca
     `unread_for_patient`), `chat_team_set_cleared(p_conversation_id, p_side, p_clear)`
-    — limpar/restaurar por lado (`patient` | `team` | `both`), manual.
+    — limpar/restaurar por lado (`patient` | `team` | `both`), manual;
+    `chat_team_add_note(p_conversation_id, p_body, p_category)` e
+    `chat_team_set_note_status(p_note_id, p_status)` — demandas internas (só equipe).
 - **Nota de segurança conhecida:** as RPCs do paciente recebem `p_patient_id` e são
   chamáveis por `anon` — **mesma superfície de risco já existente nas funções
   `community_*`**. O advisor do Supabase marca `*_security_definer_function_executable`
@@ -68,10 +79,10 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
   endurecer a comunidade, endurecer o chat junto.
 
 ### Realtime
-- `chat_conversations` e `chat_messages` entram na publication `supabase_realtime`
-  com `replica identity full`. O **back-office** ouve em tempo real (RLS filtra por
-  time). O **app do aluno** usa **polling** (a conexão anon não pode ouvir as
-  tabelas sob RLS) — janela curta (6s) enquanto a aba está aberta.
+- `chat_conversations`, `chat_messages` e `chat_internal_notes` entram na publication
+  `supabase_realtime` com `replica identity full`. O **back-office** ouve em tempo real
+  (RLS filtra por time). O **app do aluno** usa **polling** (a conexão anon não pode ouvir
+  as tabelas sob RLS) — janela curta (6s) enquanto a aba está aberta.
 
 ## Fatiamento
 
