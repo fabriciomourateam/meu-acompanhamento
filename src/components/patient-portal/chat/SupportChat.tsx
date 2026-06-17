@@ -167,15 +167,18 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
     setPendingFile(file);
   };
 
-  const handleSend = async () => {
+  const handleSend = async (fileOverride?: File | null) => {
     const text = body.trim();
     if (sending) return;
-    if (!text && !pendingFile) return;
+    // fileOverride é usado pela nota de voz (envia direto ao parar a gravação,
+    // sem passar pelo estágio de anexo). Senão, usa o anexo pendente.
+    const file = fileOverride ?? pendingFile;
+    if (!text && !file) return;
     setSending(true);
     try {
       let media: ChatMediaInput | null = null;
-      if (pendingFile) {
-        media = await chatService.uploadMedia(patientId, pendingFile);
+      if (file) {
+        media = await chatService.uploadMedia(patientId, file);
       }
       // otimista (texto e/ou mídia)
       const optimistic: SupportMessage = {
@@ -213,7 +216,8 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
 
   const stopRecording = async () => {
     const file = await recorder.stop();
-    if (file) setPendingFile(file);
+    // Envia a nota de voz na hora (estilo WhatsApp), sem estágio de anexo.
+    if (file) await handleSend(file);
   };
 
   const canSend = (!!body.trim() || !!pendingFile) && !sending && !recorder.recording;
@@ -370,7 +374,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             <button
               onClick={stopRecording}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-rose-500 text-white transition active:scale-95"
-              aria-label="Parar e anexar gravação"
+              aria-label="Parar e enviar gravação"
             >
               <Square className="h-5 w-5" />
             </button>
@@ -385,7 +389,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             </button>
           ) : (
             <button
-              onClick={handleSend}
+              onClick={() => handleSend()}
               disabled={!canSend}
               className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white transition active:scale-95 disabled:opacity-40"
               aria-label="Enviar"
