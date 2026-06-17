@@ -44,3 +44,32 @@
 ### Próximo passo
 - Após o OK da validação manual, iniciar **Fatia 2 (mídia)** OU **Fatia 3 (push)**,
   conforme prioridade do Fabricio. Atualizar o SPEC antes de implementar.
+
+---
+
+## Rodada de UI — Repaginação do Atendimento (back-office) + copy do app
+
+### Feito
+- **Tema do back-office em claro/white** por padrão (`ThemeContext` → `'light'`); a
+  sidebar continua dark de propósito (`.theme-light` no `index.css`).
+- **`AtendimentoBoard.tsx` repaginado** (visual branco premium, acento esmeralda):
+  - **Arrastar e soltar** cards entre colunas (@dnd-kit: `DndContext` + `useDraggable`
+    nos cards + `useDroppable` nas colunas + `DragOverlay`). Update otimista +
+    `updateConversation` + refetch. Menu de 3 pontinhos mantido como atalho.
+  - **Esconder/mostrar colunas** via Popover de checkboxes; preferência salva em
+    `localStorage` (`atendimento:hidden-columns`).
+  - **Cor por atendente**: paleta determinística (`LANE_PALETTE`) usada no cabeçalho
+    da raia e num **badge por atendente no rodapé do card** — clicar atribui a conversa
+    àquele atendente (`status:'atendendo', assigned_to`). O atribuído fica destacado.
+  - **Atalhos do hub do aluno** no painel da conversa (Dieta/Treino/Check-in/Anamnese/
+    Evolução) via o evento global `open-quick-drawer` (listener já montado pelo
+    `DashboardLayout` → `GlobalQuickDrawers`). Painel (Sheet) mais largo.
+- **App do aluno:** ajuste de copy do estado-vazio do `SupportChat`
+  ("Mande sua primeira mensagem para dúvidas ou orientações."). Cabeçalho mantido
+  em "Fale com o Fabricio" (decisão travada).
+
+### Testado / validado
+- ✅ `tsc --noEmit` limpo no back-office após a reescrita.
+- [ ] Validação manual na UI (Fabricio): drag-and-drop entre colunas, esconder/mostrar
+      colunas (persistência ao recarregar), badge de atendente, atalhos do hub abrindo
+      os quick-drawers, e o tema claro geral.

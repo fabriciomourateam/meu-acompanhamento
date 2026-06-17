@@ -114,7 +114,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
           <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center text-slate-400">
             <MessageCircle className="h-8 w-8" />
             <p className="text-sm">Nenhuma mensagem ainda.</p>
-            <p className="text-xs">Mande sua primeira mensagem para a equipe.</p>
+            <p className="text-xs">Mande sua primeira mensagem para dúvidas ou orientações.</p>
           </div>
         ) : (
           messages.map((m) => (
