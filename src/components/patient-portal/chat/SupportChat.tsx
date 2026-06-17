@@ -4,7 +4,7 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing } from 'lucide-react';
+import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
@@ -84,7 +84,11 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   const [nudge, setNudge] = useState(false);
   const [nudgeBusy, setNudgeBusy] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
+  // Editar/apagar: id da mensagem em edição e qual bolha está com o menu aberto.
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [menuFor, setMenuFor] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const composerRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const recorder = useAudioRecorder();
 
@@ -167,9 +171,56 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
     setPendingFile(file);
   };
 
+  const startEdit = (m: SupportMessage) => {
+    setEditingId(m.id);
+    setBody(m.body);
+    setMenuFor(null);
+    setPendingFile(null);
+    setTimeout(() => composerRef.current?.focus(), 0);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setBody('');
+  };
+
+  const handleDelete = async (m: SupportMessage) => {
+    setMenuFor(null);
+    if (!window.confirm('Apagar esta mensagem? Ela deixará de aparecer na conversa.')) return;
+    // otimista
+    setMessages((prev) => prev.map((x) => (x.id === m.id ? { ...x, deleted: true } : x)));
+    try {
+      await chatService.deleteMessage(patientId, m.id);
+      await load(false);
+    } catch (e) {
+      console.error('Erro ao apagar mensagem:', e);
+      await load(false);
+    }
+  };
+
   const handleSend = async (fileOverride?: File | null) => {
     const text = body.trim();
     if (sending) return;
+
+    // Modo edição (só texto, nunca com anexo/áudio).
+    if (editingId && !fileOverride) {
+      if (!text) return;
+      const id = editingId;
+      setSending(true);
+      try {
+        setMessages((prev) => prev.map((x) => (x.id === id ? { ...x, body: text, edited: true } : x)));
+        setBody('');
+        setEditingId(null);
+        await chatService.editMessage(patientId, id, text);
+        await load(false);
+      } catch (e) {
+        console.error('Erro ao editar mensagem:', e);
+        await load(false);
+      } finally {
+        setSending(false);
+      }
+      return;
+    }
     // fileOverride é usado pela nota de voz (envia direto ao parar a gravação,
     // sem passar pelo estágio de anexo). Senão, usa o anexo pendente.
     const file = fileOverride ?? pendingFile;
@@ -271,27 +322,72 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             <p className="text-xs">Mande sua primeira mensagem para dúvidas ou orientações.</p>
           </div>
         ) : (
-          messages.map((m) => (
-            <div key={m.id} className={`flex ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
-              <div
-                className={`max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
-                  m.is_mine
-                    ? 'rounded-br-sm bg-emerald-500 text-white'
-                    : 'rounded-bl-sm border border-slate-200 bg-white text-slate-800'
-                }`}
-              >
-                {m.media_url && (
-                  <div className={m.body ? 'mb-1.5' : ''}>
-                    <MediaContent url={m.media_url} type={m.media_type} onOpenImage={setLightbox} />
+          messages.map((m) => {
+            const canModify = m.is_mine && !m.deleted && !m.id.startsWith('tmp-');
+            return (
+              <div key={m.id} className={`group flex items-end gap-1 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
+                {/* Menu de ações (editar/apagar) — só nas minhas mensagens */}
+                {canModify && (
+                  <div className="relative order-1">
+                    <button
+                      type="button"
+                      onClick={() => setMenuFor(menuFor === m.id ? null : m.id)}
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200"
+                      aria-label="Opções da mensagem"
+                    >
+                      <MoreVertical className="h-4 w-4" />
+                    </button>
+                    {menuFor === m.id && (
+                      <div className="absolute bottom-8 right-0 z-10 w-32 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
+                        {m.body && (
+                          <button
+                            type="button"
+                            onClick={() => startEdit(m)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                          >
+                            <Pencil className="h-3.5 w-3.5" /> Editar
+                          </button>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(m)}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50"
+                        >
+                          <Trash2 className="h-3.5 w-3.5" /> Apagar
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
-                {m.body && <div className="whitespace-pre-wrap break-words">{m.body}</div>}
-                <div className={`mt-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
-                  {formatTimeBRT(m.created_at)}
+                <div
+                  className={`order-2 max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
+                    m.is_mine
+                      ? 'rounded-br-sm bg-emerald-500 text-white'
+                      : 'rounded-bl-sm border border-slate-200 bg-white text-slate-800'
+                  }`}
+                >
+                  {m.deleted ? (
+                    <div className={`flex items-center gap-1.5 text-sm italic ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
+                      <Trash2 className="h-3.5 w-3.5" /> Esta mensagem foi apagada
+                    </div>
+                  ) : (
+                    <>
+                      {m.media_url && (
+                        <div className={m.body ? 'mb-1.5' : ''}>
+                          <MediaContent url={m.media_url} type={m.media_type} onOpenImage={setLightbox} />
+                        </div>
+                      )}
+                      {m.body && <div className="whitespace-pre-wrap break-words">{m.body}</div>}
+                    </>
+                  )}
+                  <div className={`mt-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
+                    {formatTimeBRT(m.created_at)}
+                    {m.edited && !m.deleted && <span className="ml-1">(editado)</span>}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
         <div ref={bottomRef} />
       </div>
@@ -315,6 +411,21 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             onClick={() => setPendingFile(null)}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-200"
             aria-label="Remover anexo"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Banner de edição */}
+      {editingId && (
+        <div className="flex items-center gap-2 border-t border-emerald-100 bg-emerald-50 px-3 py-2">
+          <Pencil className="h-4 w-4 shrink-0 text-emerald-600" />
+          <span className="flex-1 text-xs text-emerald-800">Editando mensagem</span>
+          <button
+            onClick={cancelEdit}
+            className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100"
+            aria-label="Cancelar edição"
           >
             <X className="h-4 w-4" />
           </button>
@@ -345,15 +456,18 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             </div>
           ) : (
             <>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={sending}
-                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
-                aria-label="Anexar arquivo"
-              >
-                <Paperclip className="h-5 w-5" />
-              </button>
+              {!editingId && (
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={sending}
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
+                  aria-label="Anexar arquivo"
+                >
+                  <Paperclip className="h-5 w-5" />
+                </button>
+              )}
               <textarea
+                ref={composerRef}
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 placeholder="Escreva uma mensagem..."
@@ -378,7 +492,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             >
               <Square className="h-5 w-5" />
             </button>
-          ) : !body.trim() && !pendingFile && recorder.supported ? (
+          ) : !editingId && !body.trim() && !pendingFile && recorder.supported ? (
             <button
               onClick={startRecording}
               disabled={sending}

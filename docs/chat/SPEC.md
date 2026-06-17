@@ -52,6 +52,13 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
   `20260619_chat_media.sql`) — anexo de mídia da **Fatia 2**. O arquivo fica no
   bucket público `patient-photos` (pasta `chat/`); a coluna guarda só a URL pública.
   `body` pode ser vazio quando há mídia (mensagem só-anexo).
+- `deleted_at`, `deleted_by` (`patient|team`), `edited_at`, `original_body` (migração
+  `20260621_chat_edit_delete.sql`) — **editar/apagar (soft-delete)**. Apagar NÃO remove
+  `body`/mídia do banco (só marca `deleted_at`); editar guarda o texto original em
+  `original_body`. Exibição: o **app do aluno** vê só um aviso "🚫 mensagem apagada"
+  (o `chat_patient_get_messages` zera `body`/mídia das apagadas e devolve `deleted`/`edited`);
+  o **back-office** vê o aviso **+** o conteúdo original esmaecido. Permissões: aluno mexe só
+  nas próprias mensagens; equipe modera qualquer uma.
 
 ### `chat_internal_notes` (demandas internas — SÓ a equipe, migração `20260618`)
 - Notas/pendências sobre um aluno (ex.: "mudar o treino de pernas"), **invisíveis ao
@@ -68,12 +75,16 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
   `auth.uid()` é o dono **ou** membro ativo (`team_members.is_active`) daquele dono.
 - **RPCs SECURITY DEFINER:**
   - Paciente (anon): `chat_patient_get_or_create_conversation`,
-    `chat_patient_get_messages` (marca lido), `chat_patient_send_message`
-    (reabre se resolvida), `chat_patient_unread_count`.
+    `chat_patient_get_messages` (marca lido; devolve `deleted`/`edited` e zera o conteúdo
+    das apagadas), `chat_patient_send_message` (reabre se resolvida),
+    `chat_patient_unread_count`, `chat_patient_edit_message(p_patient_id, p_message_id, p_body)`
+    e `chat_patient_delete_message(p_patient_id, p_message_id)` — só nas próprias mensagens.
   - Equipe (authenticated): `chat_team_get_or_create_conversation`,
     `chat_team_send_message` (insere como `team`, assume a conversa, marca
     `unread_for_patient`), `chat_team_set_cleared(p_conversation_id, p_side, p_clear)`
     — limpar/restaurar por lado (`patient` | `team` | `both`), manual;
+    `chat_team_edit_message(p_message_id, p_body)` e `chat_team_delete_message(p_message_id)`
+    — moderação de qualquer mensagem (soft-delete);
     `chat_team_add_note(p_conversation_id, p_body, p_category)` e
     `chat_team_set_note_status(p_note_id, p_status)` — demandas internas (só equipe).
 - **Nota de segurança conhecida:** as RPCs do paciente recebem `p_patient_id` e são

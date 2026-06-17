@@ -17,6 +17,10 @@ export interface SupportMessage {
   // Fatia 2 (mídia): anexo opcional guardado no bucket público `patient-photos`.
   media_url?: string | null;
   media_type?: 'image' | 'audio' | 'video' | null;
+  // Editar/apagar: mensagem apagada vem com body='' e mídia nula (a UI mostra
+  // um aviso "mensagem apagada"); editada mostra "(editado)".
+  deleted?: boolean;
+  edited?: boolean;
 }
 
 export type ChatMediaType = 'image' | 'audio' | 'video';
@@ -90,6 +94,25 @@ export const chatService = {
     });
     if (error) throw error;
     return data as string;
+  },
+
+  /** Edita uma mensagem do próprio aluno (mantém o texto original no banco). */
+  async editMessage(patientId: string, messageId: string, body: string): Promise<void> {
+    const { error } = await supabase.rpc('chat_patient_edit_message', {
+      p_patient_id: patientId,
+      p_message_id: messageId,
+      p_body: body,
+    });
+    if (error) throw error;
+  },
+
+  /** Apaga (soft-delete) uma mensagem do próprio aluno; o conteúdo fica salvo no banco. */
+  async deleteMessage(patientId: string, messageId: string): Promise<void> {
+    const { error } = await supabase.rpc('chat_patient_delete_message', {
+      p_patient_id: patientId,
+      p_message_id: messageId,
+    });
+    if (error) throw error;
   },
 
   /** Contador de não-lidas para o selo da aba. */

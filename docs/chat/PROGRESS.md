@@ -253,3 +253,36 @@ Fabricio testou a Fatia 2/3 no **preview da branch** e trouxe 3 pontos:
   foi **só de front-end**. Branch `claude/sharp-dirac-8dgmht` mergeada em `main` nos dois repos
   (sem sobrescrever nada de `origin/main`; no CP havia 4 commits de WebDiet à frente, em
   arquivos disjuntos — preservados).
+
+---
+
+## Editar / apagar mensagens (soft-delete) — feito
+
+**Migração `20260621_chat_edit_delete.sql`** (aplicada em produção via MCP + commitada). Aditiva.
+- Colunas novas em `chat_messages`: `deleted_at`, `deleted_by` (`patient|team`), `edited_at`,
+  `original_body`. Apagar **não** remove `body`/mídia — só marca `deleted_at` (conteúdo fica
+  salvo no banco). Editar guarda o texto original em `original_body` e marca `edited_at`.
+- RPCs novas: `chat_patient_edit_message` / `chat_patient_delete_message` (aluno só nas próprias,
+  `sender_type='patient'`), `chat_team_edit_message` / `chat_team_delete_message` (equipe modera
+  qualquer mensagem, via `chat_is_team_of`). Todas atualizam `last_message_preview` se mexerem na
+  última mensagem da conversa.
+- `chat_patient_get_messages` recriado (DROP+CREATE): novos campos `deleted`/`edited` no retorno;
+  para mensagens apagadas devolve `body=''` e mídia nula (o aluno **não** vê o conteúdo).
+
+**Front-end:**
+- App do aluno (`SupportChat.tsx` + `chat-service.ts`): menu "⋯" nas próprias mensagens
+  (Editar/Apagar); apagada vira aviso "🚫 Esta mensagem foi apagada"; editada mostra "(editado)";
+  edição reusa o composer (banner "Editando mensagem" + cancelar).
+- Back-office (`AtendimentoBoard.tsx` + `chat-service.ts`): menu de ações em **qualquer** mensagem;
+  apagada mostra o selo "Mensagem apagada (pela equipe/pelo aluno)" **+ o conteúdo original
+  esmaecido** (a equipe vê o que foi removido); "(editado)" no horário; edição reusa o composer.
+
+**Validação:** smoke por SQL (MCP) na conversa de teste — editar preserva `original_body`, apagar
+preserva o conteúdo no banco com `deleted_by='patient'`, e `chat_patient_get_messages` devolve a
+apagada com `deleted=true` e `body=''` (sem vazar). `tsc` limpo no CP; no MA o `SupportChat.tsx`
+fica limpo (as únicas notas de tipo são o padrão já existente de `types.ts` desatualizado p/ as
+RPCs `chat_*`). Falta a validação manual do dono nos dois apps.
+
+**Auto-envio de áudio (pedido do dono):** já estava em `origin/main` desde a sessão anterior
+(`SupportChat.stopRecording → handleSend(file)`). Sem código novo — só re-verificar no app
+deployado.
