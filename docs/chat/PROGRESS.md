@@ -183,3 +183,41 @@ lado é zerada — e ele escolhe **qual lado**: a do aluno, a do back-office, ou
 - [ ] Validação manual (Fabricio): enviar foto/vídeo/nota de voz dos dois lados; conferir
       render (imagem abre, áudio/vídeo tocam) e entrega (Realtime no back-office, polling 6s
       no app do aluno); mídia sem texto mostra o rótulo no card; negar microfone mostra aviso.
+
+---
+
+## Fatia 3 — Push de mensagem nova — IMPLEMENTADA, falta validação manual
+
+### Feito
+- **Achado-chave:** a infra de Web Push **já existia 100% em produção** (a edge function
+  `send-push`, o wrapper `notify_send_push`, a tabela `push_subscriptions`, as chaves VAPID em
+  `app_config`, o `sw.js`). Os agentes de exploração não acharam no repo porque a `send-push`
+  mora fora dele — confirmado via MCP (`list_edge_functions` + `pg_get_functiondef`).
+- **Banco (prod)**, migração aditiva `controle-de-pacientes/supabase/migrations/20260620_chat_push.sql`:
+  - Trigger `chat_message_notify` AFTER INSERT em `chat_messages` (fn `trg_chat_message_notify`):
+    - `team` → push pro **aluno** (título "Fabricio", corpo = prévia/rótulo de mídia).
+    - `patient` → push pra **equipe** (atendente atribuído; ou dono + `team_members` ativos se
+      a conversa estiver livre).
+    - `perform` dentro de `exception when others then null` (push best-effort; nunca quebra o
+      insert). Prévia replica o rótulo de mídia da Fatia 2.
+  - `notify_send_push` recriado (DROP + CREATE) com param extra `p_save_notification`
+    (default true → 6 callers existentes inalterados). Chat passa `false` (não polui o sino).
+- **App do aluno — empurrão de instalação/ativação:**
+  - `InstallPWAButton.tsx`: diálogo de instruções virou reutilizável (`triggerless` +
+    `open`/`onOpenChange`); botão/menu seguem iguais quando as props não são passadas.
+  - `EnableNotificationsBanner.tsx`: no iPhone, botão "Como instalar" abre as instruções (em
+    vez de beco sem saída); copy passou a citar as respostas do Fabricio.
+  - `SupportChat.tsx`: convite contextual no topo da thread ("Ative as notificações…") →
+    `pushService.subscribe` no Android/desktop ou instruções de instalação no iPhone;
+    dispensável (`localStorage` `chat-notif-nudge-dismissed`); some quando já inscrito.
+
+### Testado / validado
+- ✅ `tsc --noEmit` limpo no app do aluno (só os avisos ambientais pré-existentes).
+- [ ] (Pendente nesta sessão por instabilidade do gateway MCP) `apply_migration` da
+      `20260620_chat_push.sql` + smoke por SQL: inserir msg `team` e `patient` na conversa de
+      teste e conferir que `notify_send_push` enfileirou no `net` e que **não** criou linha em
+      `notifications`; limpar e restaurar. ⚠️ Confirmar que a migração foi aplicada antes de
+      considerar a fatia pronta.
+- [ ] Validação manual (Fabricio, device com push ativo): equipe responde → push no celular
+      do aluno; aluno escreve → push pra equipe inscrita; nudge de instalação/ativação aparece
+      e some ao ativar.

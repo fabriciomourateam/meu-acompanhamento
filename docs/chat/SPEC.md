@@ -92,7 +92,7 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
 
 1. **Chat 1:1 + inbox kanban da equipe (texto)** — ✅ implementado (ver PROGRESS).
 2. **Mídia (áudio/foto/vídeo via Storage `patient-photos`)** — ✅ implementado (ver PROGRESS).
-3. Push de mensagem nova (reusa Web Push do app do aluno).
+3. **Push de mensagem nova (reusa Web Push do app do aluno)** — ✅ implementado (ver PROGRESS).
 4. Tags (treino, dieta, hormônio, financeiro, Fabricio) para roteamento.
 5. Respostas rápidas / pré-salvas (reusa `whatsapp_templates`).
 6. Migração da cadência programada para o app (reusa `whatsapp_scheduled_messages`
@@ -149,10 +149,36 @@ expor os 700 alunos prematuramente.
   de mídia nas bolhas (imagem em `Dialog`).
 - **Realtime/polling** inalterados (a Fatia 2 não muda o transporte).
 
+## Fatia 3 — o que foi construído (push de mensagem nova)
+
+- **Reuso total da infra de Web Push já existente** (não criou tabela/edge/VAPID): a edge
+  function `send-push`, o wrapper SQL `notify_send_push`, a tabela `push_subscriptions`, as
+  chaves VAPID em `app_config` e o `sw.js` do app do aluno.
+- **Banco** (`20260620_chat_push.sql`, aditiva): trigger `chat_message_notify` AFTER INSERT em
+  `chat_messages` (função `trg_chat_message_notify`) que dispara push via `notify_send_push`:
+  - `sender_type='team'` → push pro **aluno** (título "Fabricio", corpo = prévia/rótulo de
+    mídia, `type='chat'`, `data.conversation_id`).
+  - `sender_type='patient'` → push pra **equipe**, roteando como o kanban: se a conversa está
+    atribuída, só o atendente; se está livre (aguardando), o dono + `team_members` ativos.
+  - O `perform` fica em bloco `exception when others then null` → push é best-effort e nunca
+    quebra o envio da mensagem.
+  - `notify_send_push` ganhou o param opcional `p_save_notification` (default true,
+    retrocompatível); o chat passa `false` pra **não** poluir o sino (os dois lados já têm
+    indicador de não-lida próprio).
+- **Empurrão de instalação/ativação (app do aluno):** `InstallPWAButton` virou reutilizável
+  (props `triggerless`/`open`/`onOpenChange`); `EnableNotificationsBanner` mostra "Como
+  instalar" no iPhone (em vez de beco sem saída) e cita as respostas do Fabricio; e o
+  `SupportChat` ganhou um convite contextual ("Ative as notificações…") que chama
+  `pushService.subscribe` (Android/desktop) ou abre as instruções de instalação (iPhone).
+- **Entrega real:** depende do aluno ter o PWA instalado (obrigatório no iPhone) e push
+  ativado. No Android funciona até no navegador; no iPhone só com o app instalado.
+
 ## Decisões travadas
 - Transição paralela/gradual (não corte seco).
 - Mídia no bucket **público** `patient-photos` (pasta `chat/`) — consistente com as
   fotos de evolução/avatar; sem edge function nem URL assinada.
+- Push reusa 100% a infra existente (`send-push` + `notify_send_push`); chat não grava no
+  sino in-app (`save_notification=false`) pra não duplicar com o badge de não-lida.
 - Uma conversa por aluno (thread 1:1). Pro aluno é sempre "Fabricio/MyShape".
 - Kanban com raias = membros da equipe + Aguardando/Resolvido.
 - Multitenant por padrão (reuso de `owner_id` + RLS).

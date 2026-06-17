@@ -4,9 +4,14 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X } from 'lucide-react';
+import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
+import { pushService } from '@/lib/push-service';
+import { InstallPWAButton } from '@/components/InstallPWAButton';
+
+// Lembra (por aparelho) que o aluno dispensou o convite de notificação no chat.
+const NUDGE_DISMISS_KEY = 'chat-notif-nudge-dismissed';
 
 const BRT = 'America/Sao_Paulo';
 const POLL_MS = 6000;
@@ -76,9 +81,40 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [pendingPreview, setPendingPreview] = useState<string | null>(null);
   const [lightbox, setLightbox] = useState<string | null>(null);
+  const [nudge, setNudge] = useState(false);
+  const [nudgeBusy, setNudgeBusy] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const recorder = useAudioRecorder();
+
+  const iosNeedsInstall = pushService.isIOS() && !pushService.isStandalone();
+
+  // Mostra o convite de notificação se o push ainda não está ativo neste aparelho.
+  useEffect(() => {
+    if (localStorage.getItem(NUDGE_DISMISS_KEY) === '1') return;
+    if (!pushService.isSupported() && !iosNeedsInstall) return;
+    pushService.isSubscribed().then((sub) => setNudge(!sub));
+  }, [iosNeedsInstall]);
+
+  const dismissNudge = () => {
+    localStorage.setItem(NUDGE_DISMISS_KEY, '1');
+    setNudge(false);
+  };
+
+  const enableNudge = async () => {
+    if (iosNeedsInstall) {
+      setShowInstall(true);
+      return;
+    }
+    setNudgeBusy(true);
+    try {
+      const res = await pushService.subscribe(patientId);
+      if (res.ok) setNudge(false);
+    } finally {
+      setNudgeBusy(false);
+    }
+  };
 
   const load = useCallback(
     async (showSpinner = false) => {
@@ -194,6 +230,29 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
           <p className="text-[11px] text-emerald-50">Tire suas dúvidas com a equipe por aqui</p>
         </div>
       </div>
+
+      {/* Convite pra ativar notificações (some quando já ativo ou dispensado) */}
+      {nudge && (
+        <div className="flex items-center gap-2 border-b border-amber-100 bg-amber-50 px-3 py-2">
+          <BellRing className="h-4 w-4 shrink-0 text-amber-600" />
+          <p className="min-w-0 flex-1 text-xs text-amber-800">
+            Ative as notificações pra saber na hora que o Fabricio responder.
+          </p>
+          <button
+            onClick={enableNudge}
+            disabled={nudgeBusy}
+            className="shrink-0 rounded-lg bg-amber-600 px-2.5 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-amber-700 disabled:opacity-60"
+          >
+            {nudgeBusy ? <Loader2 className="h-4 w-4 animate-spin" /> : iosNeedsInstall ? 'Instalar' : 'Ativar'}
+          </button>
+          <button onClick={dismissNudge} aria-label="Dispensar" className="shrink-0 text-amber-400 hover:text-amber-600">
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Diálogo de instruções de instalação (iPhone) */}
+      <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
 
       {/* Thread */}
       <div className="flex h-[55vh] flex-col gap-2 overflow-y-auto bg-slate-50 px-3 py-4">
