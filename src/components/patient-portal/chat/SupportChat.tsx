@@ -4,7 +4,7 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2 } from 'lucide-react';
+import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
@@ -14,7 +14,17 @@ import { InstallPWAButton } from '@/components/InstallPWAButton';
 const NUDGE_DISMISS_KEY = 'chat-notif-nudge-dismissed';
 
 const BRT = 'America/Sao_Paulo';
-const POLL_MS = 6000;
+// Realtime Broadcast entrega quase instantâneo; o polling vira só uma rede de
+// segurança (intervalo longo, e pausado quando a aba está em segundo plano).
+const POLL_MS = 25000;
+
+// Emojis curados (sem dependência) — mesma lista do back-office.
+const EMOJI_GROUPS: { label: string; items: string[] }[] = [
+  { label: 'Rostos', items: ['😀', '😁', '😂', '🤣', '😊', '😍', '😘', '😉', '😎', '🤔', '😅', '😴', '😢', '😭', '😡', '🥳', '🤗', '😬'] },
+  { label: 'Gestos', items: ['👍', '👎', '👏', '🙏', '💪', '🤝', '👌', '✌️', '🤙', '👋', '🫶', '🙌'] },
+  { label: 'Fitness', items: ['🏋️', '🏃', '🥗', '🍗', '🍎', '💧', '🔥', '⚡', '⏰', '📈', '✅', '❌'] },
+  { label: 'Símbolos', items: ['❤️', '🎉', '⭐', '💯', '🚀', '📌', '💊', '🩺', '📅', '💬'] },
+];
 
 function formatTimeBRT(iso: string): string {
   return new Date(iso).toLocaleString('pt-BR', {
@@ -87,6 +97,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   // Editar/apagar: id da mensagem em edição e qual bolha está com o menu aberto.
   const [editingId, setEditingId] = useState<string | null>(null);
   const [menuFor, setMenuFor] = useState<string | null>(null);
+  const [emojiOpen, setEmojiOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const composerRef = useRef<HTMLTextAreaElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -141,12 +152,54 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
     load(true);
   }, [load]);
 
-  // Polling enquanto a aba está ativa (pausado durante gravação/anexo pendente
-  // pra não atrapalhar a interação)
+  // Realtime Broadcast: assina o tópico da conversa pra receber as respostas da
+  // equipe quase na hora (o servidor emite um ping sem conteúdo; recarregamos via
+  // RPC escopada). É o caminho principal; o polling abaixo é só fallback.
   useEffect(() => {
     if (!active || !patientId) return;
-    const t = setInterval(() => load(false), POLL_MS);
-    return () => clearInterval(t);
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    chatService
+      .getOrCreateConversation(patientId)
+      .then((id) => {
+        if (cancelled) return;
+        cleanup = chatService.subscribeToConversation(id, () => load(false));
+      })
+      .catch((e) => console.error('Erro ao assinar conversa (realtime):', e));
+    return () => {
+      cancelled = true;
+      cleanup?.();
+    };
+  }, [active, patientId, load]);
+
+  // Polling de fallback (intervalo longo). Pausa quando a aba do navegador está
+  // em segundo plano pra não pesar no servidor com centenas de alunos online.
+  useEffect(() => {
+    if (!active || !patientId) return;
+    let timer: ReturnType<typeof setInterval> | null = null;
+    const start = () => {
+      if (!timer) timer = setInterval(() => load(false), POLL_MS);
+    };
+    const stop = () => {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    };
+    const onVisibility = () => {
+      if (document.hidden) {
+        stop();
+      } else {
+        load(false); // recupera o que perdeu enquanto estava em background
+        start();
+      }
+    };
+    if (!document.hidden) start();
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
   }, [active, patientId, load]);
 
   useEffect(() => {
@@ -182,6 +235,23 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   const cancelEdit = () => {
     setEditingId(null);
     setBody('');
+  };
+
+  // Insere o emoji na posição do cursor do textarea (Parte A).
+  const insertEmoji = (emoji: string) => {
+    const el = composerRef.current;
+    if (!el) {
+      setBody((b) => b + emoji);
+      return;
+    }
+    const start = el.selectionStart ?? body.length;
+    const end = el.selectionEnd ?? body.length;
+    setBody(body.slice(0, start) + emoji + body.slice(end));
+    requestAnimationFrame(() => {
+      el.focus();
+      const pos = start + emoji.length;
+      el.setSelectionRange(pos, pos);
+    });
   };
 
   const handleDelete = async (m: SupportMessage) => {
@@ -433,7 +503,34 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
       )}
 
       {/* Composer */}
-      <div className="border-t border-slate-100 bg-white p-2">
+      <div className="relative border-t border-slate-100 bg-white p-2">
+        {/* Painel de emojis (toggle) */}
+        {emojiOpen && (
+          <div className="absolute bottom-full left-2 z-20 mb-2 w-72 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+            <div className="max-h-52 space-y-2 overflow-y-auto">
+              {EMOJI_GROUPS.map((g) => (
+                <div key={g.label}>
+                  <p className="px-1 pb-1 text-[10px] font-medium uppercase tracking-wide text-slate-400">{g.label}</p>
+                  <div className="grid grid-cols-8 gap-0.5">
+                    {g.items.map((e) => (
+                      <button
+                        key={e}
+                        type="button"
+                        onClick={() => {
+                          insertEmoji(e);
+                          setEmojiOpen(false);
+                        }}
+                        className="flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-slate-100"
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         <div className="flex items-end gap-2">
           <input
             ref={fileInputRef}
@@ -466,6 +563,14 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
                   <Paperclip className="h-5 w-5" />
                 </button>
               )}
+              <button
+                onClick={() => setEmojiOpen((v) => !v)}
+                disabled={sending}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition hover:bg-slate-100 disabled:opacity-40 ${emojiOpen ? 'text-emerald-600' : 'text-slate-500'}`}
+                aria-label="Inserir emoji"
+              >
+                <Smile className="h-5 w-5" />
+              </button>
               <textarea
                 ref={composerRef}
                 value={body}

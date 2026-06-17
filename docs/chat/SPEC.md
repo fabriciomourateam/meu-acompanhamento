@@ -206,3 +206,28 @@ Tudo em **America/Sao_Paulo (BRT, UTC-3)** — datas/horários renderizados com
 - UI no back-office para o profissional editar o flag `support` (test_patient_ids /
   show_tab) — hoje setado via dado em `portal_settings`.
 - Verificação ponta a ponta na UI real (rodar os dois apps) — ver PROGRESS.
+
+---
+
+## Adendo — Tags, Realtime Broadcast e padrão de segurança do guard (Fatia 4)
+
+### Tabela `chat_conversation_tags` (migração `20260623`)
+- `id`, `conversation_id` (FK→`chat_conversations` on delete cascade), `owner_id`, `tag`
+  (`treino|dieta|hormonio|financeiro|fabricio`), `added_by`, `created_at`. Único `(conversation_id, tag)`.
+- **Só a equipe** (RLS `authenticated` via `chat_is_team_of`; nenhuma policy `anon`; nenhuma RPC
+  `chat_patient_*` toca a tabela → o aluno nunca vê tag). Na publication `supabase_realtime`.
+- RPCs: `chat_team_add_tag(conv, tag)` / `chat_team_remove_tag(conv, tag)`.
+
+### Realtime Broadcast (migração `20260622`)
+- Trigger `chat_broadcast` AFTER INSERT OR UPDATE em `chat_messages` → `realtime.send` emite um
+  **ping sem conteúdo** no tópico `chat:conv:<conversation_id>` (canal público, `private=false`).
+  É o canal que o app do aluno (anon) assina, já que não pode ouvir `postgres_changes` da tabela
+  protegida por RLS. O conteúdo continua vindo da RPC escopada `chat_patient_get_messages`.
+- App do aluno: broadcast como caminho principal; **polling de 25s como fallback**, pausado em
+  background. Back-office segue usando `postgres_changes` (conexão autenticada).
+
+### Padrão de segurança do guard (IMPORTANTE para futuras RPCs `chat_team_*`)
+`chat_is_team_of(p_owner)` retorna **NULL** quando `auth.uid()` é null (anon). Por isso o guard
+correto é **`if chat_is_team_of(v_owner) is not true then raise exception 'Sem permissao'`** — e
+**nunca** `if not chat_is_team_of(...)` (que deixa o anon passar, pois `not null` = null = falso no
+IF). Corrigido em todas as 9 funções `chat_team_*` na migração `20260624`.

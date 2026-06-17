@@ -286,3 +286,71 @@ RPCs `chat_*`). Falta a validação manual do dono nos dois apps.
 **Auto-envio de áudio (pedido do dono):** já estava em `origin/main` desde a sessão anterior
 (`SupportChat.stopRecording → handleSend(file)`). Sem código novo — só re-verificar no app
 deployado.
+
+---
+
+## Fatia 4 (Tags) + Emojis + Realtime Broadcast + Correção de segurança — feito
+
+### Realtime Broadcast no app do aluno (substitui o polling de 6s)
+**Migração `20260622_chat_realtime_broadcast.sql`** (aplicada em produção + commitada). Aditiva.
+- Confirmado via MCP que `realtime.send(payload jsonb, event text, topic text, private boolean)`
+  existe no projeto. Função `trg_chat_broadcast()` + trigger `chat_broadcast` AFTER INSERT OR UPDATE
+  em `chat_messages` (cobre msg nova **e** editar/apagar). Emite um **ping sem conteúdo** no tópico
+  `chat:conv:<conversation_id>` (`private=false`, canal público — o aluno é anon). O conteúdo
+  continua vindo da RPC `chat_patient_get_messages` (escopada por `p_patient_id`). Trigger
+  **separado** do de push (`chat_message_notify`).
+- App do aluno (`chat-service.ts` + `SupportChat.tsx`): novo `subscribeToConversation(convId, cb)`
+  (`supabase.channel('chat:conv:'+id,{private:false}).on('broadcast',{event:'chat_changed'},cb)`).
+  No `SupportChat`, ao montar resolve a conversa e assina o broadcast → no evento `load(false)`.
+  **Polling vira fallback**: `POLL_MS` de 6s → **25s**, e **pausa quando a aba está em background**
+  (`visibilitychange`). Entrega quase instantânea com o socket vivo; o polling lento cobre quedas.
+- Validado no banco: insert em `chat_messages` com o trigger ativo não quebra (insert+delete OK).
+  A entrega ao cliente valida-se no app (teste manual do dono).
+
+### Fatia 4 — Tags de assunto (back-office, invisível ao aluno)
+**Migração `20260623_chat_tags.sql`** (aplicada + commitada). Molde = `chat_internal_notes`.
+- Tabela `chat_conversation_tags` (`conversation_id`, `owner_id`, `tag`, `added_by`, `created_at`),
+  índice único `(conversation_id, tag)`. Vocabulário: `treino|dieta|hormonio|financeiro|fabricio`.
+  **RLS só `authenticated`** (4 policies via `chat_is_team_of`); nenhuma p/ `anon`. `replica
+  identity full` + na publication `supabase_realtime`. RPCs `chat_team_add_tag` / `chat_team_remove_tag`.
+- `chat-service.ts`: tipos `ChatTag`/`CHAT_TAGS`/`ConversationTag`; `listConversations` agrega as tags
+  por conversa (2ª query, igual ao `open_notes_count`); `addTag`/`removeTag`; subscribe inclui a
+  tabela de tags.
+- `AtendimentoBoard.tsx`: `TAG_META` (cor por tag), chips no card, `TagEditor` no cabeçalho do
+  painel (toggle add/remove), `TagFilterMenu` no topo (filtra as colunas; preferência em
+  `localStorage` `atendimento:tag-filter`). App do aluno **não** mostra tag nenhuma.
+- Roteamento desta fatia = filtrar + ver os chips (atribuição por raia em 1 clique já existia).
+  Regras automáticas (ex.: "financeiro → raia X") ficam fora desta fatia.
+
+### Seletor de emojis (Parte A) — os dois composers, sem dependência
+- `EmojiPicker` (CP via `Popover`; MA via `<div>` toggle no mesmo estilo do menu "⋯"). Lista curada
+  (~50 emojis em 4 grupos). Botão `Smile` ao lado do `Paperclip`; insere **na posição do cursor**
+  do textarea (`selectionStart/End` + re-foco). Vale também no modo edição.
+
+### Regenerar types do Supabase (Parte D) — só o CP
+- **CP**: `src/integrations/supabase/types.ts` regenerado via MCP (cobre as tabelas/RPCs novas de
+  tags). `tsc --noEmit` **limpo** no CP.
+- **MA: NÃO regenerado.** O `types.ts` do MA é um arquivo **enxuto/mantido à mão** (1388 linhas).
+  Regenerar o schema completo **corrigiria** as ~7 notas das RPCs `chat_patient_*` mas
+  **introduziria ~40 erros novos** em código não-relacionado ao chat (referências a colunas
+  inexistentes no schema real: `diet_foods.name`, `checkins.bioimpedancia`, mismatches de
+  `WeightEntry`/`LaboratoryExam` etc.) — bugs latentes que o types desatualizado mascarava.
+  Decisão: manter o `types.ts` do MA como está (delta **0 erros novos** das minhas edições). As 7
+  notas de RPC do MA seguem pré-existentes. **Sinalizado ao dono:** há código no MA referenciando
+  colunas que não existem mais no banco — vale uma rodada futura de limpeza (fora do escopo).
+
+### Correção de segurança — guard das RPCs `chat_team_*` (NÃO previsto, achado na verificação)
+**Migração `20260624_chat_team_guard_hardening.sql`** (aplicada + commitada).
+- **Bug:** `chat_is_team_of(p_owner)` retorna **NULL** quando `auth.uid()` é null (anon). O padrão
+  `if not chat_is_team_of(v_owner) then raise` **não dispara** com NULL → a checagem era contornada
+  pelo anon (chave pública do app). **Provado:** como anon (role `anon` + claims sem `sub`, igual ao
+  request real do PostgREST) consegui inserir mensagem como EQUIPE (`before=7 → after=8`). Impacto:
+  anon podia se passar pela equipe, apagar/editar qualquer mensagem, limpar conversas, mexer em notas.
+- **Fix (seguro):** as 9 funções `chat_team_*` passaram a usar `if chat_is_team_of(v_owner) is not
+  true then raise`. Equipe logada (true) inalterada; anon (null) e não-equipe (false) bloqueados.
+- **Verificado:** probe anon agora bloqueia (`after==before`, "Sem permissao"); equipe logada segue
+  funcionando (`before=7 → after=8`). Dado de teste limpo; conversa de teste restaurada.
+
+> STATUS: implementado e validado no banco; `tsc` limpo no CP e 0 erros novos no MA. Falta a
+> validação manual do dono nos dois apps (emoji, tempo real, tags). Pushed na branch; merge pra
+> `main` só após o ok do dono.
