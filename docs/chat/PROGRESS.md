@@ -147,3 +147,39 @@ lado é zerada — e ele escolhe **qual lado**: a do aluno, a do back-office, ou
   bloqueado, conferido por SQL). Advisors: só os WARN de SECURITY DEFINER já conhecidos.
 - [ ] Validação manual (Fabricio): reordenar colunas (persistir ao recarregar), criar/resolver
       demanda e ver o selo no card, e o visual geral.
+
+---
+
+## Fatia 2 — Mídia (foto / áudio / vídeo) — IMPLEMENTADA, falta validação manual
+
+### Feito
+- **Banco (prod, `qhzifnyjyxdushxorzrk`)**, migração aditiva
+  `controle-de-pacientes/supabase/migrations/20260619_chat_media.sql`:
+  - `chat_messages` ganhou `media_url`, `media_type` (check `image|audio|video`), `media_mime`.
+  - `chat_patient_send_message` / `chat_team_send_message` ganharam params opcionais
+    `p_media_url/type/mime`; aceitam `body` vazio quando há mídia; `last_message_preview`
+    vira rótulo (📷/🎤/🎬) na mensagem só-mídia. Lógica antiga preservada (reabre resolvida,
+    assume conversa, marcas de "limpar").
+  - `chat_patient_get_messages` retorna `media_url`/`media_type` (mantém filtro
+    `cleared_at_patient` + marcar-como-lido). Recriada com DROP (mudou o RETURNS TABLE);
+    grants `anon, authenticated` reaplicados.
+- **App do aluno (`meu-acompanhamento`):** `chat-service.uploadMedia` + `sendMessage(…, media)`,
+  novo `hooks/use-audio-recorder.ts` (MediaRecorder), `SupportChat.tsx` com botão de anexar,
+  gravar nota de voz, preview do anexo, bolhas de imagem (lightbox)/vídeo/áudio.
+- **Back-office (`controle-de-pacientes`):** `chat-service.uploadChatMedia` +
+  `sendTeamMessage(…, media)`, `hooks/use-audio-recorder.ts`, `AtendimentoBoard.tsx` com os
+  mesmos botões no composer e renderização de mídia (imagem em `Dialog`).
+- **Storage:** bucket público `patient-photos`, pasta `chat/`, upload direto pelo client
+  (mesmo padrão de avatar/evolução/comunidade). Limite de 25 MB/arquivo.
+
+### Testado / validado
+- ✅ Migração aplicada via MCP; colunas conferidas (`information_schema`).
+- ✅ Smoke test por SQL: `chat_patient_send_message` com mídia (sem texto) → mensagem
+  gravada com `media_url/type`; `chat_patient_get_messages` retorna os campos de mídia;
+  `last_message_preview` = "📷 Foto" e a conversa reabriu (`aguardando` + `unread_for_team`).
+  Mensagem de teste removida e a conversa de teste restaurada ao estado original.
+- ✅ `tsc --noEmit` limpo nos dois repos (restam só os avisos ambientais pré-existentes
+  `vite/client` e `baseUrl`).
+- [ ] Validação manual (Fabricio): enviar foto/vídeo/nota de voz dos dois lados; conferir
+      render (imagem abre, áudio/vídeo tocam) e entrega (Realtime no back-office, polling 6s
+      no app do aluno); mídia sem texto mostra o rótulo no card; negar microfone mostra aviso.

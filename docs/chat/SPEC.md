@@ -48,6 +48,10 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
 - `id`, `conversation_id` (FK), `sender_type` (`patient` | `team`),
   `sender_user_id` (qual membro enviou — **uso interno; o aluno NUNCA vê**),
   `body`, `created_at`, `read_at`.
+- `media_url`, `media_type` (`image|audio|video`), `media_mime` (migração
+  `20260619_chat_media.sql`) — anexo de mídia da **Fatia 2**. O arquivo fica no
+  bucket público `patient-photos` (pasta `chat/`); a coluna guarda só a URL pública.
+  `body` pode ser vazio quando há mídia (mensagem só-anexo).
 
 ### `chat_internal_notes` (demandas internas — SÓ a equipe, migração `20260618`)
 - Notas/pendências sobre um aluno (ex.: "mudar o treino de pernas"), **invisíveis ao
@@ -87,7 +91,7 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
 ## Fatiamento
 
 1. **Chat 1:1 + inbox kanban da equipe (texto)** — ✅ implementado (ver PROGRESS).
-2. Mídia (áudio/foto/vídeo via Storage `patient-photos`).
+2. **Mídia (áudio/foto/vídeo via Storage `patient-photos`)** — ✅ implementado (ver PROGRESS).
 3. Push de mensagem nova (reusa Web Push do app do aluno).
 4. Tags (treino, dieta, hormônio, financeiro, Fabricio) para roteamento.
 5. Respostas rápidas / pré-salvas (reusa `whatsapp_templates`).
@@ -124,8 +128,31 @@ A aba aparece se `show_tab === true` **ou** o `patientId` está em `test_patient
 Assim dá pra testar com contas específicas agora e abrir pra todos depois — sem
 expor os 700 alunos prematuramente.
 
+## Fatia 2 — o que foi construído (mídia)
+
+- **Banco** (`20260619_chat_media.sql`, aditiva): colunas `media_url`/`media_type`/
+  `media_mime` em `chat_messages`. As RPCs `chat_patient_send_message` e
+  `chat_team_send_message` ganharam params opcionais `p_media_url`, `p_media_type`,
+  `p_media_mime` e passam a aceitar `body` vazio quando há mídia; o
+  `last_message_preview` vira um rótulo (📷 Foto / 🎤 Áudio / 🎬 Vídeo) na mensagem
+  só-mídia. `chat_patient_get_messages` passou a retornar `media_url`/`media_type`
+  (mantendo o filtro `cleared_at_patient` e o marcar-como-lido). Toda a lógica antiga
+  (reabrir resolvida, marcas de "limpar") foi preservada.
+- **Storage:** upload direto pelo client (anon no app do aluno) pro bucket público
+  `patient-photos`, pasta `chat/` — mesmo padrão de avatar/evolução/comunidade. URL
+  pública via `getPublicUrl`. Limite de 25 MB por arquivo (vídeo é o caso pesado).
+- **App do aluno** (`SupportChat.tsx` + `chat-service.uploadMedia` +
+  `hooks/use-audio-recorder.ts`): botão de anexar (foto/vídeo/áudio) e de gravar nota
+  de voz (MediaRecorder); bolhas renderizam imagem (lightbox), vídeo e áudio.
+- **Back-office** (`AtendimentoBoard.tsx` + `chat-service.uploadChatMedia` +
+  `hooks/use-audio-recorder.ts`): mesmos botões no composer da conversa e renderização
+  de mídia nas bolhas (imagem em `Dialog`).
+- **Realtime/polling** inalterados (a Fatia 2 não muda o transporte).
+
 ## Decisões travadas
 - Transição paralela/gradual (não corte seco).
+- Mídia no bucket **público** `patient-photos` (pasta `chat/`) — consistente com as
+  fotos de evolução/avatar; sem edge function nem URL assinada.
 - Uma conversa por aluno (thread 1:1). Pro aluno é sempre "Fabricio/MyShape".
 - Kanban com raias = membros da equipe + Aguardando/Resolvido.
 - Multitenant por padrão (reuso de `owner_id` + RLS).

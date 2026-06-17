@@ -14,6 +14,27 @@ export interface SupportMessage {
   body: string;
   created_at: string;
   is_mine: boolean;
+  // Fatia 2 (mídia): anexo opcional guardado no bucket público `patient-photos`.
+  media_url?: string | null;
+  media_type?: 'image' | 'audio' | 'video' | null;
+}
+
+export type ChatMediaType = 'image' | 'audio' | 'video';
+
+export interface ChatMediaInput {
+  url: string;
+  type: ChatMediaType;
+  mime: string | null;
+}
+
+/** Limite de upload de mídia do chat (vídeo é o caso pesado). */
+const CHAT_MEDIA_MAX_BYTES = 25 * 1024 * 1024;
+
+function mediaTypeFromFile(file: File): ChatMediaType {
+  if (file.type.startsWith('image/')) return 'image';
+  if (file.type.startsWith('audio/')) return 'audio';
+  if (file.type.startsWith('video/')) return 'video';
+  return 'image';
 }
 
 export const chatService = {
@@ -37,11 +58,35 @@ export const chatService = {
     return (data || []) as SupportMessage[];
   },
 
-  /** Paciente envia mensagem; reabre a conversa se estava resolvida. */
-  async sendMessage(patientId: string, body: string): Promise<string> {
+  /**
+   * Sobe um anexo de mídia (foto/áudio/vídeo) pro bucket público `patient-photos`
+   * (pasta `chat/`) — mesmo padrão de avatar/evolução/comunidade — e devolve a URL
+   * pública + tipo + mime pra anexar na mensagem.
+   */
+  async uploadMedia(patientId: string, file: File): Promise<ChatMediaInput> {
+    if (file.size > CHAT_MEDIA_MAX_BYTES) {
+      throw new Error('Arquivo muito grande (máximo 25 MB).');
+    }
+    const type = mediaTypeFromFile(file);
+    const fallbackExt = type === 'image' ? 'jpg' : type === 'video' ? 'mp4' : 'webm';
+    const ext = (file.name.split('.').pop() || fallbackExt).toLowerCase();
+    const path = `chat/${patientId}_${Date.now()}.${ext}`;
+    const { error } = await supabase.storage
+      .from('patient-photos')
+      .upload(path, file, { upsert: true, contentType: file.type || undefined });
+    if (error) throw error;
+    const { data } = supabase.storage.from('patient-photos').getPublicUrl(path);
+    return { url: data.publicUrl, type, mime: file.type || null };
+  },
+
+  /** Paciente envia mensagem (texto e/ou mídia); reabre a conversa se estava resolvida. */
+  async sendMessage(patientId: string, body: string, media?: ChatMediaInput | null): Promise<string> {
     const { data, error } = await supabase.rpc('chat_patient_send_message', {
       p_patient_id: patientId,
       p_body: body,
+      p_media_url: media?.url ?? null,
+      p_media_type: media?.type ?? null,
+      p_media_mime: media?.mime ?? null,
     });
     if (error) throw error;
     return data as string;
