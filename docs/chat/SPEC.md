@@ -245,3 +245,22 @@ campo `shortcut` e de criação por toda a equipe.
 `chat` entrega via RPC `chat_system_send_to_patient` (service_role only; sem auth.uid; insere msg `team`
 e dispara push pelo trigger), pulando Evolution/janela/anti-ban; `both` manda nos dois. Sequências
 materializam o canal via `materialize_sequence_messages`. UI: seletor de destino no SequenceEditor.
+
+### Régua de ausência — sinais + régua editável (Fase C, migrações 20260629/20260630)
+**Sinal "abriu o app":** `patients.last_seen_at`, carimbado pela RPC `patient_touch_last_seen` (anon),
+chamada no `PatientAuthContext` do app do aluno (throttle 15min). Antes não havia rastreamento de
+abertura de app.
+
+**Atividade:** `patient_last_activity(patient)` = `max()` de chat (msg do aluno), check-in (`checkin`
+por telefone), treino (`workout_session_logs`/`workout_set_logs`), dieta (`diet_daily_consumption`),
+peso (`patient_weight_logs`), diário (`patient_journal_entries`) e `last_seen_at`.
+
+**Régua:** `chat_inactivity_rulers` (1 padrão `plano=null` + N por plano, por owner) → `chat_inactivity_steps`
+(`days_inactive`, `channel` push|chat|whatsapp, `message_kind` text|quick_reply|sequence, `title`/`body`/
+`quick_reply_id`/`sequence_id`, `position`). RLS só-equipe (CRUD direto). `chat_inactivity_state`
+(dedupe por paciente). Avaliador `chat_inactivity_run()` (cron `chat-inactivity-run` 09:00 BRT,
+service_role only) escalona por dias de ausência e despacha no canal do passo (reusa `notify_send_push`/
+`chat_system_send_to_patient`/`whatsapp_scheduled_messages`/sequence-enroll). Elegibilidade = aluno ativo
+(`data_cancelamento`/`data_congelamento` vazios). **Substitui** `run_inactive_check` (cron antigo
+`inactive-check` desagendado; função mantida p/ rollback). Painel "Alunos em risco":
+`chat_inactivity_dashboard(owner,min_days)`; UI em `/regua` (`ReguaAusencia.tsx`).

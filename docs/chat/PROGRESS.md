@@ -424,3 +424,50 @@ Dados de teste removidos.
 > Falta validação manual do dono (criar sequência destino=Chat, enrollar, ver chegar no app).
 > Pendente desta fase (não-bloqueante): auto-pausa ao aluno responder; pré-visualização "como chega".
 > Próximo: Fase C (régua de ausência multi-canal) — usa este motor + os sinais de atividade.
+
+---
+
+## AÇÃO 11 / Fase C — Régua de ausência multi-canal — feito (branch; validação manual pendente)
+
+Detector de inatividade configurável que reengaja alunos que somem. **Substitui** o detector antigo
+`run_inactive_check` (45d, só push) por uma régua editável, multi-passo, multi-canal e por plano.
+
+**Sinais de atividade** — `patient_last_activity(patient)` = `max()` de: chat (msg do aluno),
+check-in (`checkin` por telefone normalizado), treino (`workout_session_logs`/`workout_set_logs`),
+dieta (`diet_daily_consumption`), peso (`patient_weight_logs`), diário (`patient_journal_entries`)
+e **abrir o app** (`patients.last_seen_at`, sinal NOVO).
+
+**Migrações (aplicadas em produção + commitadas):**
+- `20260629_patient_last_seen.sql`: `patients.last_seen_at` + RPC `patient_touch_last_seen` (anon).
+- `20260630_chat_inactivity_ruler.sql`: `patient_last_activity`, `chat_apply_vars`, tabelas
+  `chat_inactivity_rulers`/`_steps`/`_state` (RLS só-equipe, CRUD direto), avaliador
+  `chat_inactivity_run()` (service_role-only; cron `chat-inactivity-run` 09:00 BRT = 12:00 UTC),
+  painel `chat_inactivity_dashboard(owner,min_days)`. Seed migra o aviso de 45d como passo da régua
+  padrão de cada treinador. **Desagenda o cron antigo `inactive-check`** (função preservada p/ rollback).
+
+**Decisões:** régua nova é fonte única (sem push duplicado); "aluno ativo" = `data_cancelamento`/
+`data_congelamento` vazios (reusa convenção do `run_inactive_check`; cobre INATIVO/RESCISÃO/CONGELADO);
+acompanhamento da equipe = painel "Alunos em risco" (sem push pro treinador).
+
+**Anti-onda:** 1004 estados de dedup semeados das notificações `inactive` existentes → quem o sistema
+antigo já avisou NÃO leva re-aviso; a régua rearma só quando o aluno volta e some de novo.
+
+**Avaliador (`chat_inactivity_run`):** por paciente ativo → resolve a régua (plano, senão padrão) →
+`dias_inativo` (BRT) → maior passo `days_inactive <= dias` ainda não disparado neste ciclo (dedup via
+`chat_inactivity_state`) → despacha: `push`→`notify_send_push` (save_notification=false), `chat`→
+`chat_system_send_to_patient`, `whatsapp`→`whatsapp_scheduled_messages` (edge existente), `sequence`→
+enroll + materialize. Variáveis via `chat_apply_vars`. Best-effort (try/catch por paciente).
+
+**Front-end:**
+- App do aluno: ping `patient_touch_last_seen` no `PatientAuthContext` (throttle 15min/dispositivo).
+- Back-office: `chat-service.ts` (rulers/steps/dashboard CRUD); página `/regua` (`Regua.tsx` +
+  `components/regua/ReguaAusencia.tsx`): aba "Alunos em risco" (lista por dias sem atividade + taxa de
+  resposta) e aba "Réguas de ausência" (editor por plano: passos com dias/canal/tipo-de-mensagem,
+  add/remover/reordenar; texto próprio OU resposta rápida OU sequência). Item na sidebar.
+
+**Segurança (advisors):** só os WARN intencionais de SECURITY DEFINER. `chat_inactivity_run` NÃO
+executável por anon/authenticated; `patient_last_activity`/`chat_apply_vars`/`chat_inactivity_dashboard`
+revogados de anon. `tsc` limpo no CP; 0 erros novos no MA.
+
+> Validação manual pendente do dono: criar régua por plano, ver "Alunos em risco", e o disparo
+> escalonado (push→chat→WhatsApp). Cron roda 09:00 BRT. **Não mergeado pra main** — aguardando ok.
