@@ -4,7 +4,7 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile, Check, CheckCheck } from 'lucide-react';
+import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile, Check, CheckCheck, Reply } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
@@ -56,6 +56,17 @@ function dayLabelBRT(iso: string): string {
 // Chave do dia (YYYY-MM-DD em BRT) para detectar troca de data entre mensagens.
 function dayKeyBRT(iso: string): string {
   return new Date(iso).toLocaleDateString('en-CA', { timeZone: BRT });
+}
+
+// Resumo curto de uma mensagem citada (rótulo de quem + prévia do conteúdo).
+function quotedPreview(m: SupportMessage): { who: string; text: string } {
+  const who = m.is_mine ? 'Você' : 'Fabricio';
+  if (m.deleted) return { who, text: 'mensagem apagada' };
+  if (m.body) return { who, text: m.body };
+  if (m.media_type === 'image') return { who, text: '📷 Foto' };
+  if (m.media_type === 'audio') return { who, text: '🎤 Áudio' };
+  if (m.media_type === 'video') return { who, text: '🎬 Vídeo' };
+  return { who, text: 'Anexo' };
 }
 
 function mmss(total: number): string {
@@ -118,6 +129,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   const [showInstall, setShowInstall] = useState(false);
   // Editar/apagar: id da mensagem em edição e qual bolha está com o menu aberto.
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [replyTo, setReplyTo] = useState<SupportMessage | null>(null);
   const [menuFor, setMenuFor] = useState<string | null>(null);
   const [emojiOpen, setEmojiOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -280,9 +292,17 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
 
   const startEdit = (m: SupportMessage) => {
     setEditingId(m.id);
+    setReplyTo(null);
     setBody(m.body);
     setMenuFor(null);
     setPendingFile(null);
+    setTimeout(() => composerRef.current?.focus(), 0);
+  };
+
+  const startReply = (m: SupportMessage) => {
+    setReplyTo(m);
+    setEditingId(null);
+    setMenuFor(null);
     setTimeout(() => composerRef.current?.focus(), 0);
   };
 
@@ -355,6 +375,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
       if (file) {
         media = await chatService.uploadMedia(patientId, file);
       }
+      const replyId = replyTo?.id ?? null;
       // otimista (texto e/ou mídia)
       const optimistic: SupportMessage = {
         id: `tmp-${Date.now()}`,
@@ -364,11 +385,13 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
         is_mine: true,
         media_url: media?.url ?? null,
         media_type: media?.type ?? null,
+        reply_to_message_id: replyId,
       };
       setMessages((prev) => [...prev, optimistic]);
       setBody('');
       setPendingFile(null);
-      await chatService.sendMessage(patientId, text, media);
+      setReplyTo(null);
+      await chatService.sendMessage(patientId, text, media, replyId);
       await load(false);
     } catch (e) {
       console.error('Erro ao enviar mensagem:', e);
@@ -461,20 +484,27 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
                 </div>
               )}
               <div className={`group flex items-end gap-1 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
-                {/* Menu de ações (editar/apagar) — só nas minhas mensagens */}
-                {canModify && (
+                {/* Menu de ações: Responder (qualquer msg) + Editar/Apagar (só as minhas) */}
+                {!m.deleted && !m.id.startsWith('tmp-') && (
                   <div className="relative order-1">
                     <button
                       type="button"
                       onClick={() => setMenuFor(menuFor === m.id ? null : m.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 hover:bg-slate-200"
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-slate-200"
                       aria-label="Opções da mensagem"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>
                     {menuFor === m.id && (
-                      <div className="absolute bottom-8 right-0 z-10 w-32 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg">
-                        {m.body && (
+                      <div className={`absolute bottom-8 z-10 w-32 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg ${m.is_mine ? 'right-0' : 'left-0'}`}>
+                        <button
+                          type="button"
+                          onClick={() => startReply(m)}
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                        >
+                          <Reply className="h-3.5 w-3.5" /> Responder
+                        </button>
+                        {canModify && m.body && (
                           <button
                             type="button"
                             onClick={() => startEdit(m)}
@@ -483,13 +513,15 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
                             <Pencil className="h-3.5 w-3.5" /> Editar
                           </button>
                         )}
-                        <button
-                          type="button"
-                          onClick={() => handleDelete(m)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" /> Apagar
-                        </button>
+                        {canModify && (
+                          <button
+                            type="button"
+                            onClick={() => handleDelete(m)}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" /> Apagar
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -507,6 +539,17 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
                     </div>
                   ) : (
                     <>
+                      {/* Bloco da mensagem citada (resolvido na lista local) */}
+                      {m.reply_to_message_id && (() => {
+                        const q = messages.find((x) => x.id === m.reply_to_message_id);
+                        const p = q ? quotedPreview(q) : { who: '', text: 'mensagem' };
+                        return (
+                          <div className={`mb-1.5 rounded-lg border-l-2 px-2 py-1 text-[11px] ${m.is_mine ? 'border-white/60 bg-white/15' : 'border-emerald-400 bg-slate-100'}`}>
+                            <div className={`font-semibold ${m.is_mine ? 'text-white' : 'text-emerald-700'}`}>{p.who}</div>
+                            <div className={`line-clamp-2 ${m.is_mine ? 'text-emerald-50' : 'text-slate-500'}`}>{p.text}</div>
+                          </div>
+                        );
+                      })()}
                       {m.media_url && (
                         <div className={m.body ? 'mb-1.5' : ''}>
                           <MediaContent url={m.media_url} type={m.media_type} onOpenImage={setLightbox} />
@@ -554,6 +597,26 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             onClick={() => setPendingFile(null)}
             className="rounded-full p-1 text-slate-400 hover:bg-slate-200"
             aria-label="Remover anexo"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+
+      {/* Tarja de "respondendo a…" */}
+      {replyTo && !editingId && (
+        <div className="flex items-center gap-2 border-t border-emerald-100 bg-emerald-50 px-3 py-2">
+          <Reply className="h-4 w-4 shrink-0 text-emerald-600" />
+          <div className="min-w-0 flex-1">
+            <div className="text-[11px] font-semibold text-emerald-700">
+              Respondendo a {quotedPreview(replyTo).who}
+            </div>
+            <div className="truncate text-xs text-emerald-800/70">{quotedPreview(replyTo).text}</div>
+          </div>
+          <button
+            onClick={() => setReplyTo(null)}
+            className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100"
+            aria-label="Cancelar resposta"
           >
             <X className="h-4 w-4" />
           </button>
