@@ -1,7 +1,7 @@
 import { createPortal } from 'react-dom';
-import { Utensils, Target, Trophy, BarChart2, Users, Dumbbell, Headset } from 'lucide-react';
+import { Utensils, Trophy, BarChart2, Users, Dumbbell, Headset } from 'lucide-react';
 
-type TabValue = 'diet' | 'workout' | 'challenges' | 'ranking' | 'community' | 'results' | 'support';
+type TabValue = 'diet' | 'workout' | 'progress' | 'community' | 'results' | 'support';
 
 interface NavItem {
   value: TabValue;
@@ -12,8 +12,7 @@ interface NavItem {
 const NAV_ITEMS: NavItem[] = [
   { value: 'diet',          label: 'Dieta',         Icon: Utensils   },
   { value: 'workout',       label: 'Treino',        Icon: Dumbbell   },
-  { value: 'challenges',    label: 'Metas',         Icon: Target     },
-  { value: 'ranking',       label: 'Ranking',       Icon: Trophy     },
+  { value: 'progress',      label: 'Progresso',     Icon: Trophy     },
   { value: 'community',     label: 'Comunidade',    Icon: Users      },
   { value: 'results',       label: 'Evolução',      Icon: BarChart2  },
   { value: 'support',       label: 'Suporte',       Icon: Headset    },

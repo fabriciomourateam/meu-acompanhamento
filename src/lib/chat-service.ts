@@ -123,4 +123,23 @@ export const chatService = {
     if (error) throw error;
     return (data as number) || 0;
   },
+
+  /**
+   * Realtime Broadcast: entrega quase instantânea de mensagens novas/editadas
+   * sem depender do polling. O aluno é anon e não pode ouvir postgres_changes da
+   * tabela protegida por RLS; por isso o servidor emite um "ping" SEM conteúdo no
+   * tópico da conversa (trigger trg_chat_broadcast -> realtime.send). O conteúdo
+   * continua vindo da RPC chat_patient_get_messages (escopada por p_patient_id).
+   * Retorna o cleanup. O polling segue como fallback (intervalo longo) caso o
+   * socket caia.
+   */
+  subscribeToConversation(conversationId: string, onChange: () => void): () => void {
+    const channel = supabase
+      .channel(`chat:conv:${conversationId}`, { config: { private: false } })
+      .on('broadcast', { event: 'chat_changed' }, () => onChange())
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  },
 };

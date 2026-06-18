@@ -286,3 +286,215 @@ RPCs `chat_*`). Falta a validação manual do dono nos dois apps.
 **Auto-envio de áudio (pedido do dono):** já estava em `origin/main` desde a sessão anterior
 (`SupportChat.stopRecording → handleSend(file)`). Sem código novo — só re-verificar no app
 deployado.
+
+---
+
+## Fatia 4 (Tags) + Emojis + Realtime Broadcast + Correção de segurança — feito
+
+### Realtime Broadcast no app do aluno (substitui o polling de 6s)
+**Migração `20260622_chat_realtime_broadcast.sql`** (aplicada em produção + commitada). Aditiva.
+- Confirmado via MCP que `realtime.send(payload jsonb, event text, topic text, private boolean)`
+  existe no projeto. Função `trg_chat_broadcast()` + trigger `chat_broadcast` AFTER INSERT OR UPDATE
+  em `chat_messages` (cobre msg nova **e** editar/apagar). Emite um **ping sem conteúdo** no tópico
+  `chat:conv:<conversation_id>` (`private=false`, canal público — o aluno é anon). O conteúdo
+  continua vindo da RPC `chat_patient_get_messages` (escopada por `p_patient_id`). Trigger
+  **separado** do de push (`chat_message_notify`).
+- App do aluno (`chat-service.ts` + `SupportChat.tsx`): novo `subscribeToConversation(convId, cb)`
+  (`supabase.channel('chat:conv:'+id,{private:false}).on('broadcast',{event:'chat_changed'},cb)`).
+  No `SupportChat`, ao montar resolve a conversa e assina o broadcast → no evento `load(false)`.
+  **Polling vira fallback**: `POLL_MS` de 6s → **25s**, e **pausa quando a aba está em background**
+  (`visibilitychange`). Entrega quase instantânea com o socket vivo; o polling lento cobre quedas.
+- Validado no banco: insert em `chat_messages` com o trigger ativo não quebra (insert+delete OK).
+  A entrega ao cliente valida-se no app (teste manual do dono).
+
+### Fatia 4 — Tags de assunto (back-office, invisível ao aluno)
+**Migração `20260623_chat_tags.sql`** (aplicada + commitada). Molde = `chat_internal_notes`.
+- Tabela `chat_conversation_tags` (`conversation_id`, `owner_id`, `tag`, `added_by`, `created_at`),
+  índice único `(conversation_id, tag)`. Vocabulário: `treino|dieta|hormonio|financeiro|fabricio`.
+  **RLS só `authenticated`** (4 policies via `chat_is_team_of`); nenhuma p/ `anon`. `replica
+  identity full` + na publication `supabase_realtime`. RPCs `chat_team_add_tag` / `chat_team_remove_tag`.
+- `chat-service.ts`: tipos `ChatTag`/`CHAT_TAGS`/`ConversationTag`; `listConversations` agrega as tags
+  por conversa (2ª query, igual ao `open_notes_count`); `addTag`/`removeTag`; subscribe inclui a
+  tabela de tags.
+- `AtendimentoBoard.tsx`: `TAG_META` (cor por tag), chips no card, `TagEditor` no cabeçalho do
+  painel (toggle add/remove), `TagFilterMenu` no topo (filtra as colunas; preferência em
+  `localStorage` `atendimento:tag-filter`). App do aluno **não** mostra tag nenhuma.
+- Roteamento desta fatia = filtrar + ver os chips (atribuição por raia em 1 clique já existia).
+  Regras automáticas (ex.: "financeiro → raia X") ficam fora desta fatia.
+
+### Seletor de emojis (Parte A) — os dois composers, sem dependência
+- `EmojiPicker` (CP via `Popover`; MA via `<div>` toggle no mesmo estilo do menu "⋯"). Lista curada
+  (~50 emojis em 4 grupos). Botão `Smile` ao lado do `Paperclip`; insere **na posição do cursor**
+  do textarea (`selectionStart/End` + re-foco). Vale também no modo edição.
+
+### Regenerar types do Supabase (Parte D) — só o CP
+- **CP**: `src/integrations/supabase/types.ts` regenerado via MCP (cobre as tabelas/RPCs novas de
+  tags). `tsc --noEmit` **limpo** no CP.
+- **MA: NÃO regenerado.** O `types.ts` do MA é um arquivo **enxuto/mantido à mão** (1388 linhas).
+  Regenerar o schema completo **corrigiria** as ~7 notas das RPCs `chat_patient_*` mas
+  **introduziria ~40 erros novos** em código não-relacionado ao chat (referências a colunas
+  inexistentes no schema real: `diet_foods.name`, `checkins.bioimpedancia`, mismatches de
+  `WeightEntry`/`LaboratoryExam` etc.) — bugs latentes que o types desatualizado mascarava.
+  Decisão: manter o `types.ts` do MA como está (delta **0 erros novos** das minhas edições). As 7
+  notas de RPC do MA seguem pré-existentes. **Sinalizado ao dono:** há código no MA referenciando
+  colunas que não existem mais no banco — vale uma rodada futura de limpeza (fora do escopo).
+
+### Correção de segurança — guard das RPCs `chat_team_*` (NÃO previsto, achado na verificação)
+**Migração `20260624_chat_team_guard_hardening.sql`** (aplicada + commitada).
+- **Bug:** `chat_is_team_of(p_owner)` retorna **NULL** quando `auth.uid()` é null (anon). O padrão
+  `if not chat_is_team_of(v_owner) then raise` **não dispara** com NULL → a checagem era contornada
+  pelo anon (chave pública do app). **Provado:** como anon (role `anon` + claims sem `sub`, igual ao
+  request real do PostgREST) consegui inserir mensagem como EQUIPE (`before=7 → after=8`). Impacto:
+  anon podia se passar pela equipe, apagar/editar qualquer mensagem, limpar conversas, mexer em notas.
+- **Fix (seguro):** as 9 funções `chat_team_*` passaram a usar `if chat_is_team_of(v_owner) is not
+  true then raise`. Equipe logada (true) inalterada; anon (null) e não-equipe (false) bloqueados.
+- **Verificado:** probe anon agora bloqueia (`after==before`, "Sem permissao"); equipe logada segue
+  funcionando (`before=7 → after=8`). Dado de teste limpo; conversa de teste restaurada.
+
+> STATUS: implementado e validado no banco; `tsc` limpo no CP e 0 erros novos no MA. Falta a
+> validação manual do dono nos dois apps (emoji, tempo real, tags). Pushed na branch; merge pra
+> `main` só após o ok do dono.
+
+---
+
+## AÇÃO 11 / Fase A — Respostas rápidas (Fatia 5) — feito (back-office)
+
+**Migração `20260625_chat_quick_replies.sql`** (aplicada em produção + commitada). Aditiva.
+- Tabela `chat_quick_replies` (`owner_id, title, shortcut, content, category, media_url, usage_count,
+  is_active, created_by, created_at, updated_at`), índice único `(owner_id, lower(shortcut))`.
+- **RLS só equipe** (4 policies via `chat_is_team_of`; nenhuma p/ anon). CRUD é **direto via RLS**
+  (sem RPC SECURITY DEFINER) → sem superfície pro bug de guard. Único RPC: `chat_qr_increment_use`
+  (contador atômico) já com guard seguro `is not true`. Tabela na publication realtime.
+
+**`chat-service.ts`:** tipos `QuickReply`/`QuickReplyInput`; `listQuickReplies`, `upsertQuickReply`
+(deriva owner via `getTeamOwnerId`), `deleteQuickReply`, `incrementQuickReplyUse`; e **`applyVars`**
+(substitui `{{nome}}`, `{{apelido}}`, `{{primeiro_nome}}`, `{{plano}}`, `{{dias_para_vencer}}`,
+`{{dia_acompanhamento}}`; placeholder desconhecido fica literal). O embed do paciente em
+`listConversations` ganhou `apelido, plano, dias_para_vencer, inicio_acompanhamento` (p/ as variáveis).
+
+**UI (`AtendimentoBoard.tsx`):**
+- `QuickReplyPicker` (botão ⚡ no composer) com busca por atalho/título/conteúdo.
+- **Atalho "/"**: digitar `/algo` no composer abre dropdown filtrando respostas; Enter aplica a 1ª.
+- Ao escolher, o texto entra no composer **com as variáveis já preenchidas** pelo aluno da conversa,
+  pra revisar/completar e enviar; incrementa `usage_count` (ordena por mais usadas).
+- `QuickRepliesManager` (diálogo) pra cadastrar/editar/apagar (título, atalho, texto), aberto pelo
+  "Gerenciar" do picker. Qualquer membro da equipe cria/usa.
+
+**Validação:** smoke por SQL/MCP — equipe insere (RLS ok), anon bloqueado (RLS), `increment` bloqueado
+p/ anon ("Sem permissao"). `tsc --noEmit` limpo no CP. Falta validação manual do dono no app.
+
+> Próximo: Fase B (cadência programada no chat, repintando o motor de automação) e Fase C (régua de
+> ausência multi-canal).
+
+---
+
+## AÇÃO 11 / Fase B — Cadência programada no chat (Fatia 6) — feito (back-office)
+
+Repinta o motor de automação do WhatsApp pra entregar também no chat interno. Como o trigger
+`chat_message_notify` já dispara push, "canal chat" = in-app **+** push, sem risco de ban.
+
+**Migração `20260628_chat_cadence.sql`** (aplicada em produção + commitada). Aditiva, default preserva
+o fluxo WhatsApp atual:
+- Coluna `target_channel` (`whatsapp`|`chat`|`both`, default `whatsapp`) em `whatsapp_scheduled_messages`
+  e `whatsapp_sequences`.
+- RPC `chat_system_send_to_patient(patient, body, media_url, media_type, media_mime)` SECURITY DEFINER,
+  search_path fixo, **sem auth.uid()** (chamada pelo cron/edge). Acha/cria a conversa (`on conflict
+  (patient_id)`), insere msg `team`/`sender_user_id=NULL`. **SEGURANÇA: REVOKE de public/anon/
+  authenticated + GRANT só a `service_role`** (verificado: anon=false, authenticated=false,
+  service_role=true). Conversa nova nasce `resolvido` (sem ação pendente da equipe).
+- `materialize_sequence_messages` propaga `seq.target_channel` pra cada agendamento gerado.
+
+**Edge `whatsapp-process-scheduled-v2` (deployada, v12, verify_jwt=true):**
+- Ramo por `target_channel`: `chat` → entrega no chat sem Evolution/instância/janela/limite/anti-ban,
+  marca enviado; `whatsapp` (default) → fluxo **inalterado**; `both` → WhatsApp + espelha no chat
+  (best-effort, entrega no chat mesmo se o WhatsApp falhar/banir).
+- Refactor: bloco de status/recorrência extraído pra `applyPostSendStatus` (compartilhado), `sendToChat`
+  novo. Caminho WhatsApp permanece idêntico.
+
+**Front-end:** `sequence-service.ts` (campo `target_channel` no tipo/create/duplicate);
+`SequenceEditor.tsx` (seletor **Destino**: WhatsApp / Chat interno / Ambos); `ScheduledMessages.tsx`
+(badge 💬/📱+💬 nas agendadas).
+
+**Validação:** RPC testada via rollback (conversa/preview/unread/sender corretos); grants verificados;
+advisors sem achado novo; `tsc` limpo. **Smoke E2E em produção:** mensagem agendada `target_channel='chat'`
+→ cron→edge → inseriu em `chat_messages` (sender `team`), marcou `sent`, HTTP 200
+`{processed:1,errors:0}`, a mensagem WhatsApp real concorrente foi `skipped` (nenhum WhatsApp indevido).
+Dados de teste removidos.
+
+> Falta validação manual do dono (criar sequência destino=Chat, enrollar, ver chegar no app).
+> Pendente desta fase (não-bloqueante): auto-pausa ao aluno responder; pré-visualização "como chega".
+> Próximo: Fase C (régua de ausência multi-canal) — usa este motor + os sinais de atividade.
+
+---
+
+## AÇÃO 11 / Fase C — Régua de ausência multi-canal — feito (branch; validação manual pendente)
+
+Detector de inatividade configurável que reengaja alunos que somem. **Substitui** o detector antigo
+`run_inactive_check` (45d, só push) por uma régua editável, multi-passo, multi-canal e por plano.
+
+**Sinais de atividade** — `patient_last_activity(patient)` = `max()` de: chat (msg do aluno),
+check-in (`checkin` por telefone normalizado), treino (`workout_session_logs`/`workout_set_logs`),
+dieta (`diet_daily_consumption`), peso (`patient_weight_logs`), diário (`patient_journal_entries`)
+e **abrir o app** (`patients.last_seen_at`, sinal NOVO).
+
+**Migrações (aplicadas em produção + commitadas):**
+- `20260629_patient_last_seen.sql`: `patients.last_seen_at` + RPC `patient_touch_last_seen` (anon).
+- `20260630_chat_inactivity_ruler.sql`: `patient_last_activity`, `chat_apply_vars`, tabelas
+  `chat_inactivity_rulers`/`_steps`/`_state` (RLS só-equipe, CRUD direto), avaliador
+  `chat_inactivity_run()` (service_role-only; cron `chat-inactivity-run` 09:00 BRT = 12:00 UTC),
+  painel `chat_inactivity_dashboard(owner,min_days)`. Seed migra o aviso de 45d como passo da régua
+  padrão de cada treinador. **Desagenda o cron antigo `inactive-check`** (função preservada p/ rollback).
+
+**Decisões:** régua nova é fonte única (sem push duplicado); "aluno ativo" = `data_cancelamento`/
+`data_congelamento` vazios (reusa convenção do `run_inactive_check`; cobre INATIVO/RESCISÃO/CONGELADO);
+acompanhamento da equipe = painel "Alunos em risco" (sem push pro treinador).
+
+**Anti-onda:** 1004 estados de dedup semeados das notificações `inactive` existentes → quem o sistema
+antigo já avisou NÃO leva re-aviso; a régua rearma só quando o aluno volta e some de novo.
+
+**Avaliador (`chat_inactivity_run`):** por paciente ativo → resolve a régua (plano, senão padrão) →
+`dias_inativo` (BRT) → maior passo `days_inactive <= dias` ainda não disparado neste ciclo (dedup via
+`chat_inactivity_state`) → despacha: `push`→`notify_send_push` (save_notification=false), `chat`→
+`chat_system_send_to_patient`, `whatsapp`→`whatsapp_scheduled_messages` (edge existente), `sequence`→
+enroll + materialize. Variáveis via `chat_apply_vars`. Best-effort (try/catch por paciente).
+
+**Front-end:**
+- App do aluno: ping `patient_touch_last_seen` no `PatientAuthContext` (throttle 15min/dispositivo).
+- Back-office: `chat-service.ts` (rulers/steps/dashboard CRUD); página `/regua` (`Regua.tsx` +
+  `components/regua/ReguaAusencia.tsx`): aba "Alunos em risco" (lista por dias sem atividade + taxa de
+  resposta) e aba "Réguas de ausência" (editor por plano: passos com dias/canal/tipo-de-mensagem,
+  add/remover/reordenar; texto próprio OU resposta rápida OU sequência). Item na sidebar.
+
+**Segurança (advisors):** só os WARN intencionais de SECURITY DEFINER. `chat_inactivity_run` NÃO
+executável por anon/authenticated; `patient_last_activity`/`chat_apply_vars`/`chat_inactivity_dashboard`
+revogados de anon. `tsc` limpo no CP; 0 erros novos no MA.
+
+> Validação manual pendente do dono: criar régua por plano, ver "Alunos em risco", e o disparo
+> escalonado (push→chat→WhatsApp). Cron roda 09:00 BRT. **Não mergeado pra main** — aguardando ok.
+
+---
+
+## Correção (Parte 0 do rollout) — elegibilidade da régua usa o filtro CANÔNICO de ativo
+
+**Bug encontrado:** o filtro de elegibilidade da régua (`data_cancelamento`/`data_congelamento`
+vazios) NÃO cobria INATIVO/RESCISÃO/CONGELADO/Negativado/Pendência — esses estados ficam no TEXTO
+de `patients.plano`, não nas datas. Resultado: a régua avaliava **1589** alunos, incluindo inativos.
+(A frase anterior neste doc dizendo que o filtro "cobre INATIVO/RESCISÃO/CONGELADO" estava errada.)
+
+**Decisão (dono): reusar o filtro que já existe.** O sistema já tem a regra de negócio única de
+aluno ativo:
+- TS: `src/lib/patient-status.ts` → `isPlanoAtivo()` (tokens inativos: inativo/congelado/rescisao/
+  pendencia financeira/negativado; plano vazio = onboarding = ativo).
+- SQL: `public.is_patient_active(uuid)` (espelha o TS; é o mesmo gate do trigger
+  `cancel_scheduled_messages_when_plan_inactive` que corta envio automático quando o plano vira
+  inativo).
+
+**Migração `20260701_chat_inactivity_engageable.sql`** (aplicada na produção): `chat_inactivity_run()`
+e `chat_inactivity_dashboard()` passam a usar `public.is_patient_active(id)` no lugar do filtro
+frouxo. Mudança cirúrgica — resto do corpo idêntico.
+
+**Resultado medido:** base elegível **1589 → 955**; `inativos_que_passam = 0`. (As estimativas
+manuais anteriores — 905/1010/1105 — estavam over-contando por um bug de normalização de acento
+maiúsculo na réplica ad-hoc; a função canônica é a fonte da verdade.) `is_patient_active` é
+plano-only (não checa `vencimento`); se o dono quiser excluir vencidos também, é um passo opcional
+futuro.

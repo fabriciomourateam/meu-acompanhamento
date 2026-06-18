@@ -20,6 +20,22 @@ interface PatientAuthContextType {
 
 const PatientAuthContext = createContext<PatientAuthContextType | undefined>(undefined);
 
+// Carimba "abriu o app" (sinal da régua de ausência). Throttle de 15min por
+// dispositivo pra não martelar o banco a cada navegação/refresh.
+const LAST_SEEN_THROTTLE_MS = 15 * 60 * 1000;
+async function touchLastSeen(patientId: string) {
+  try {
+    const key = `last-seen-ping:${patientId}`;
+    const prev = Number(localStorage.getItem(key) || 0);
+    if (Date.now() - prev < LAST_SEEN_THROTTLE_MS) return;
+    localStorage.setItem(key, String(Date.now()));
+    // cast: RPC nova ainda não está nos types gerados do MA
+    await (supabase.rpc as any)('patient_touch_last_seen', { p_patient_id: patientId });
+  } catch (e) {
+    console.warn('touchLastSeen falhou (não crítico):', e);
+  }
+}
+
 export function PatientAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [patient, setPatient] = useState<Patient | null>(null);
@@ -69,6 +85,7 @@ export function PatientAuthProvider({ children }: { children: ReactNode }) {
 
       if (patientData) {
         setPatient(patientData);
+        void touchLastSeen((patientData as any).id);
       } else {
         // Paciente não vinculado ainda - precisa fazer link
         console.log('Paciente não vinculado ao user');

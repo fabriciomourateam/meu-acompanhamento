@@ -186,7 +186,10 @@ function LeaderboardList({
     );
   }
 
-  const rest = entries.slice(3);
+  // Limita a lista visível ao Top 20 (pódio + 17). O aluno atual sempre aparece:
+  // se estiver fora do top, é mostrado destacado abaixo do separador "...".
+  const TOP_LIMIT = 20;
+  const rest = entries.slice(3, TOP_LIMIT);
   const currentEntry = entries.find(e => e.is_current_patient);
   const currentInRest = rest.some(e => e.is_current_patient);
   const currentInTop3 = entries.slice(0, 3).some(e => e?.is_current_patient);

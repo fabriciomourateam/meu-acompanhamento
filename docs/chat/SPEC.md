@@ -206,3 +206,61 @@ Tudo em **America/Sao_Paulo (BRT, UTC-3)** — datas/horários renderizados com
 - UI no back-office para o profissional editar o flag `support` (test_patient_ids /
   show_tab) — hoje setado via dado em `portal_settings`.
 - Verificação ponta a ponta na UI real (rodar os dois apps) — ver PROGRESS.
+
+---
+
+## Adendo — Tags, Realtime Broadcast e padrão de segurança do guard (Fatia 4)
+
+### Tabela `chat_conversation_tags` (migração `20260623`)
+- `id`, `conversation_id` (FK→`chat_conversations` on delete cascade), `owner_id`, `tag`
+  (`treino|dieta|hormonio|financeiro|fabricio`), `added_by`, `created_at`. Único `(conversation_id, tag)`.
+- **Só a equipe** (RLS `authenticated` via `chat_is_team_of`; nenhuma policy `anon`; nenhuma RPC
+  `chat_patient_*` toca a tabela → o aluno nunca vê tag). Na publication `supabase_realtime`.
+- RPCs: `chat_team_add_tag(conv, tag)` / `chat_team_remove_tag(conv, tag)`.
+
+### Realtime Broadcast (migração `20260622`)
+- Trigger `chat_broadcast` AFTER INSERT OR UPDATE em `chat_messages` → `realtime.send` emite um
+  **ping sem conteúdo** no tópico `chat:conv:<conversation_id>` (canal público, `private=false`).
+  É o canal que o app do aluno (anon) assina, já que não pode ouvir `postgres_changes` da tabela
+  protegida por RLS. O conteúdo continua vindo da RPC escopada `chat_patient_get_messages`.
+- App do aluno: broadcast como caminho principal; **polling de 25s como fallback**, pausado em
+  background. Back-office segue usando `postgres_changes` (conexão autenticada).
+
+### Padrão de segurança do guard (IMPORTANTE para futuras RPCs `chat_team_*`)
+`chat_is_team_of(p_owner)` retorna **NULL** quando `auth.uid()` é null (anon). Por isso o guard
+correto é **`if chat_is_team_of(v_owner) is not true then raise exception 'Sem permissao'`** — e
+**nunca** `if not chat_is_team_of(...)` (que deixa o anon passar, pois `not null` = null = falso no
+IF). Corrigido em todas as 9 funções `chat_team_*` na migração `20260624`.
+
+### Respostas rápidas — `chat_quick_replies` (Fatia 5, migração 20260625)
+Tabela team-scoped (RLS `chat_is_team_of`, sem anon). CRUD direto por RLS; `chat_qr_increment_use`
+é o único RPC (guard seguro). Acionada no composer do back-office por botão ⚡ ou atalho "/". Variáveis
+`{{nome}}/{{apelido}}/{{primeiro_nome}}/{{plano}}/{{dias_para_vencer}}/{{dia_acompanhamento}}` via
+`applyVars` em `chat-service.ts`. Tabela dedicada (não reusa `whatsapp_templates`) por precisar do
+campo `shortcut` e de criação por toda a equipe.
+
+### Cadência no chat — target_channel + chat_system_send_to_patient (Fatia 6, migração 20260628)
+`whatsapp_scheduled_messages.target_channel` e `whatsapp_sequences.target_channel`
+(`whatsapp`|`chat`|`both`, default `whatsapp`). O cron/edge `whatsapp-process-scheduled-v2` ramifica:
+`chat` entrega via RPC `chat_system_send_to_patient` (service_role only; sem auth.uid; insere msg `team`
+e dispara push pelo trigger), pulando Evolution/janela/anti-ban; `both` manda nos dois. Sequências
+materializam o canal via `materialize_sequence_messages`. UI: seletor de destino no SequenceEditor.
+
+### Régua de ausência — sinais + régua editável (Fase C, migrações 20260629/20260630)
+**Sinal "abriu o app":** `patients.last_seen_at`, carimbado pela RPC `patient_touch_last_seen` (anon),
+chamada no `PatientAuthContext` do app do aluno (throttle 15min). Antes não havia rastreamento de
+abertura de app.
+
+**Atividade:** `patient_last_activity(patient)` = `max()` de chat (msg do aluno), check-in (`checkin`
+por telefone), treino (`workout_session_logs`/`workout_set_logs`), dieta (`diet_daily_consumption`),
+peso (`patient_weight_logs`), diário (`patient_journal_entries`) e `last_seen_at`.
+
+**Régua:** `chat_inactivity_rulers` (1 padrão `plano=null` + N por plano, por owner) → `chat_inactivity_steps`
+(`days_inactive`, `channel` push|chat|whatsapp, `message_kind` text|quick_reply|sequence, `title`/`body`/
+`quick_reply_id`/`sequence_id`, `position`). RLS só-equipe (CRUD direto). `chat_inactivity_state`
+(dedupe por paciente). Avaliador `chat_inactivity_run()` (cron `chat-inactivity-run` 09:00 BRT,
+service_role only) escalona por dias de ausência e despacha no canal do passo (reusa `notify_send_push`/
+`chat_system_send_to_patient`/`whatsapp_scheduled_messages`/sequence-enroll). Elegibilidade = aluno ativo
+(`data_cancelamento`/`data_congelamento` vazios). **Substitui** `run_inactive_check` (cron antigo
+`inactive-check` desagendado; função mantida p/ rollback). Painel "Alunos em risco":
+`chat_inactivity_dashboard(owner,min_days)`; UI em `/regua` (`ReguaAusencia.tsx`).
