@@ -565,3 +565,35 @@ futuro.
 - "Digitando…" em tempo real (realtime broadcast de presença).
 - Responder/citar mensagem (coluna reply_to + UI).
 - Reações com emoji (tabela nova + RLS + RPCs + UI nos dois lados).
+---
+
+## Fatia 8 — Polish WhatsApp lote 2: digitando + responder/citar + reações — IMPLEMENTADA
+
+### Digitando…
+- Canal de Realtime Broadcast efêmero `chat:typing:<conv>` (sem banco). App: `chatService.subscribeTyping`;
+  back-office: `subscribeChatTyping`. Cada lado emite ao digitar (throttle ~1.8s) e mostra "digitando…" no
+  cabeçalho quando o outro digita.
+
+### Responder/citar (migração `20260618_chat_reply_to`)
+- Coluna `chat_messages.reply_to_message_id` (auto-FK on delete set null).
+- RPCs de envio (`chat_patient_send_message`/`chat_team_send_message`) ganham `p_reply_to` (default no fim →
+  backward-compatible com chamadas antigas). `chat_patient_get_messages` retorna `reply_to_message_id`.
+- UI dos dois lados: ação "Responder" no menu de qualquer mensagem, tarja de citação no composer e bloco
+  citado dentro da bolha (resolvido na lista local pelo id).
+
+### Reações com emoji (migração `20260618_chat_reactions`)
+- Tabela `chat_message_reactions` (uma por lado/mensagem, `unique(message_id, reactor)`), RLS (equipe lê via
+  `chat_is_team_of`; escrita só por RPC). Trigger de broadcast no mesmo tópico das mensagens + tabela na
+  publication `supabase_realtime` (postgres_changes pro back-office).
+- RPCs toggle `chat_patient_react` / `chat_team_react`. `chat_patient_get_messages` passa a retornar `reactions`
+  (jsonb). Back-office lê via `getReactions(conversationId)`.
+- UI dos dois lados: barra de emojis rápida (👍❤️😂😮😢🙏) no menu da bolha + chips de reação na mensagem
+  (clicar no chip faz toggle da sua reação).
+
+### Build
+`npm run build` limpo nos dois repos.
+
+### Falta validar (manual, na UI real)
+- [ ] "digitando…" aparece dos dois lados quase na hora.
+- [ ] Responder mostra a citação no composer e o bloco citado na bolha enviada.
+- [ ] Reagir mostra o emoji na bolha dos dois lados; re-reagir com a mesma emoji remove.
