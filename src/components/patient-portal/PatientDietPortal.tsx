@@ -57,13 +57,27 @@ export function PatientDietPortal({
   const activeTabStorageKey = `portal_active_tab_${patientId}`;
   const [activeTab, setActiveTab] = useState<string>(() => {
     if (typeof window === 'undefined') return 'diet';
-    return localStorage.getItem(activeTabStorageKey) || 'diet';
+    const stored = localStorage.getItem(activeTabStorageKey) || 'diet';
+    // As abas antigas "Metas" e "Ranking" foram fundidas em "Progresso".
+    if (stored === 'challenges' || stored === 'ranking') return 'progress';
+    return stored;
   });
+  // Sub-aba ativa dentro de "Progresso": Metas / Ranking / Conquistas.
+  const [progressSubtab, setProgressSubtab] = useState<string>('metas');
   // Visibilidade configurável pelo treinador no /admin (default: tudo visível).
   const showDiet = portalConfig?.visibility?.tab_diet !== false;
   const showWorkout = portalConfig?.visibility?.tab_workout !== false && !!token;
   const showChallenges = portalConfig?.challenges?.show_tab !== false;
   const showRanking = portalConfig?.visibility?.tab_ranking !== false;
+  const showGamification = !portalConfig || portalConfig.ranking.show_gamification;
+  // Sub-aba "Conquistas": gamificação e/ou gráficos extras de progresso/aderência.
+  const showConquistas =
+    showRanking &&
+    (showGamification ||
+      !!portalConfig?.ranking?.show_weekly_progress ||
+      !!portalConfig?.ranking?.show_adherence);
+  // "Progresso" funde Metas + Ranking + Conquistas numa aba só (alívio na barra inferior).
+  const showProgress = showChallenges || showRanking;
   const showCommunity = portalConfig?.community?.show_tab !== false;
   const showResults = portalConfig?.visibility?.tab_results !== false;
   // Aba Suporte: OFF por padrão (rollout gradual). Liberada para todos
@@ -79,13 +93,12 @@ export function PatientDietPortal({
   const mainTabVisible: Record<string, boolean> = {
     diet: showDiet,
     workout: showWorkout,
-    challenges: showChallenges,
-    ranking: showRanking,
+    progress: showProgress,
     community: showCommunity,
     results: showResults,
     support: showSupport,
   };
-  const ALL_MAIN_TABS = ['diet', 'workout', 'challenges', 'ranking', 'community', 'results', 'support'] as const;
+  const ALL_MAIN_TABS = ['diet', 'workout', 'progress', 'community', 'results', 'support'] as const;
   const TAB_ORDER = ALL_MAIN_TABS.filter((t) => mainTabVisible[t]);
   const hiddenNavTabs = ALL_MAIN_TABS.filter((t) => !mainTabVisible[t]);
   // Primeira subaba visível da Dieta (para o defaultValue do Tabs aninhado)
@@ -112,7 +125,7 @@ export function PatientDietPortal({
 
   const handleSwipe = (deltaX: number, deltaY: number) => {
     if (Math.abs(deltaX) < 50 || Math.abs(deltaX) < Math.abs(deltaY) * 1.5) return;
-    const idx = TAB_ORDER.indexOf(activeTab);
+    const idx = (TAB_ORDER as readonly string[]).indexOf(activeTab);
     // deltaX > 0 → dedo arrastou para esquerda → próxima aba (à direita)
     // deltaX < 0 → dedo arrastou para direita → aba anterior (à esquerda)
     if (deltaX > 0 && idx < TAB_ORDER.length - 1) goToTab(TAB_ORDER[idx + 1]);
@@ -131,6 +144,19 @@ export function PatientDietPortal({
   useEffect(() => {
     if (TAB_ORDER.length > 0 && !TAB_ORDER.includes(activeTab as any)) {
       setActiveTab(TAB_ORDER[0]);
+    }
+  }, [portalConfig]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Sub-abas visíveis de "Progresso" (na ordem). Se a sub-aba atual sumir
+  // (config do treinador), cai na primeira visível.
+  const progressSubtabs = [
+    showChallenges && 'metas',
+    showRanking && 'ranking',
+    showConquistas && 'conquistas',
+  ].filter(Boolean) as string[];
+  useEffect(() => {
+    if (progressSubtabs.length > 0 && !progressSubtabs.includes(progressSubtab)) {
+      setProgressSubtab(progressSubtabs[0]);
     }
   }, [portalConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -238,14 +264,9 @@ export function PatientDietPortal({
               Treino
             </TabsTrigger>
           )}
-          {showChallenges && (
-            <TabsTrigger value="challenges" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-              Metas
-            </TabsTrigger>
-          )}
-          {showRanking && (
-            <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
-              Ranking
+          {showProgress && (
+            <TabsTrigger value="progress" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+              Progresso
             </TabsTrigger>
           )}
           {showCommunity && (
@@ -299,11 +320,71 @@ export function PatientDietPortal({
           </TabsContent>
         )}
 
-        {/* Aba: Metas (com histórico semanal) */}
-        <TabsContent value="challenges" className="mt-6 space-y-6">
-          <DailyChallengesWidget patientId={patientId} />
-          <WeeklyHabitsGrid patientId={patientId} />
-        </TabsContent>
+        {/* Aba: Progresso — funde Metas + Ranking + Conquistas (sub-abas internas) */}
+        {showProgress && (
+          <TabsContent value="progress" className="mt-6">
+            <Tabs value={progressSubtab} onValueChange={setProgressSubtab} className="w-full">
+              {progressSubtabs.length > 1 && (
+                <TabsList className="flex w-full gap-1 bg-slate-100 p-1 rounded-xl mb-5">
+                  {showChallenges && (
+                    <TabsTrigger value="metas" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-lg transition-all">
+                      Metas
+                    </TabsTrigger>
+                  )}
+                  {showRanking && (
+                    <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-lg transition-all">
+                      Ranking
+                    </TabsTrigger>
+                  )}
+                  {showConquistas && (
+                    <TabsTrigger value="conquistas" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-lg transition-all">
+                      Conquistas
+                    </TabsTrigger>
+                  )}
+                </TabsList>
+              )}
+
+              {showChallenges && (
+                <TabsContent value="metas" className="mt-0 space-y-6">
+                  <DailyChallengesWidget patientId={patientId} />
+                  <WeeklyHabitsGrid patientId={patientId} />
+                </TabsContent>
+              )}
+
+              {showRanking && (
+                <TabsContent value="ranking" className="mt-0 space-y-6">
+                  {trainerUserId && (
+                    <LeaderboardWidget
+                      patientId={patientId}
+                      trainerUserId={trainerUserId}
+                      periods={portalConfig?.ranking?.periods ?? ['monthly', 'all_time']}
+                    />
+                  )}
+                </TabsContent>
+              )}
+
+              {showConquistas && (
+                <TabsContent value="conquistas" className="mt-0 space-y-6">
+                  {showGamification && (
+                    <GamificationWidget
+                      patientId={patientId}
+                      token={token}
+                      onGoToMetas={showChallenges ? () => setProgressSubtab('metas') : undefined}
+                    />
+                  )}
+
+                  {portalConfig?.ranking?.show_weekly_progress && (
+                    <WeeklyProgressChart patientId={patientId} />
+                  )}
+
+                  {portalConfig?.ranking?.show_adherence && (
+                    <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
+                  )}
+                </TabsContent>
+              )}
+            </Tabs>
+          </TabsContent>
+        )}
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
         <TabsContent value="results" className="mt-6 space-y-8">
@@ -321,33 +402,6 @@ export function PatientDietPortal({
               isPatientView={true}
             />
           </section>
-        </TabsContent>
-
-        {/* Aba: Ranking & Conquistas */}
-        <TabsContent value="ranking" className="mt-6 space-y-6">
-          {trainerUserId && (
-            <LeaderboardWidget
-              patientId={patientId}
-              trainerUserId={trainerUserId}
-              periods={portalConfig?.ranking?.periods ?? ['monthly', 'all_time']}
-            />
-          )}
-
-          {(!portalConfig || portalConfig.ranking.show_gamification) && (
-            <GamificationWidget
-              patientId={patientId}
-              token={token}
-              onGoToMetas={showChallenges ? () => goToTab('challenges') : undefined}
-            />
-          )}
-
-          {portalConfig?.ranking?.show_weekly_progress && (
-            <WeeklyProgressChart patientId={patientId} />
-          )}
-
-          {portalConfig?.ranking?.show_adherence && (
-            <AdherenceCharts patientId={patientId} lowAdherenceThreshold={70} />
-          )}
         </TabsContent>
 
         {showCommunity && (
