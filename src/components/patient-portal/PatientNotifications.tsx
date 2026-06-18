@@ -1,9 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Bell, BellRing, Check, Loader2, Smartphone, X } from 'lucide-react';
+import { Bell, BellRing, Check, Loader2, Settings, Smartphone, X } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { pushService, type PortalNotification } from '@/lib/push-service';
+import {
+  notificationPrefsService,
+  NOTIFICATION_CATEGORIES,
+  type NotificationCategory,
+} from '@/lib/notification-prefs-service';
 
 interface PatientNotificationsProps {
   patientId: string;
@@ -44,6 +49,9 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
   const [unread, setUnread] = useState(0);
   const [subscribed, setSubscribed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showPrefs, setShowPrefs] = useState(false);
+  const [muted, setMuted] = useState<NotificationCategory[]>([]);
+  const [prefsBusy, setPrefsBusy] = useState<NotificationCategory | null>(null);
   const [pos, setPos] = useState<{ top: number; right: number; width: number }>({ top: 64, right: 16, width: 320 });
   const btnRef = useRef<HTMLButtonElement>(null);
   const panelRef = useRef<HTMLDivElement>(null);
@@ -57,6 +65,24 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
     if (!patientId) return;
     setItems(await pushService.getNotifications(patientId, 30));
   }, [patientId]);
+
+  const loadMuted = useCallback(async () => {
+    if (!patientId) return;
+    setMuted(await notificationPrefsService.getMuted(patientId));
+  }, [patientId]);
+
+  const handleTogglePref = async (key: NotificationCategory, enabled: boolean) => {
+    // enabled = aluno QUER receber → muted = !enabled
+    setPrefsBusy(key);
+    try {
+      const next = await notificationPrefsService.set(patientId, key, !enabled);
+      setMuted(next);
+      // reflete na hora no sino e no contador
+      await Promise.all([loadList(), refreshCount()]);
+    } finally {
+      setPrefsBusy(null);
+    }
+  };
 
   useEffect(() => {
     if (!patientId) return;
@@ -81,6 +107,7 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
     if (!open) {
       reposition();
       loadList();
+      loadMuted();
     }
     setOpen((o) => !o);
   };
@@ -170,11 +197,57 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
               <Check className="h-3 w-3" /> Marcar lidas
             </button>
           )}
+          <button
+            onClick={() => setShowPrefs((s) => !s)}
+            aria-label="Preferências de notificação"
+            className={`transition-colors ${showPrefs ? 'text-emerald-700' : 'text-slate-400 hover:text-slate-700'}`}
+          >
+            <Settings className="h-4 w-4" />
+          </button>
           <button onClick={() => setOpen(false)} aria-label="Fechar" className="text-slate-400 hover:text-slate-700">
             <X className="h-4 w-4" />
           </button>
         </div>
       </div>
+
+      {/* Preferências: o que aparece aqui no sino. Não afeta o chat. */}
+      {showPrefs && (
+        <div className="border-b bg-white px-4 py-3">
+          <p className="mb-2 text-xs text-slate-500">
+            Escolha o que aparece aqui. As mensagens do Fabricio (chat) sempre chegam.
+          </p>
+          <ul className="space-y-2.5">
+            {NOTIFICATION_CATEGORIES.map((cat) => {
+              const enabled = !muted.includes(cat.key);
+              const isBusy = prefsBusy === cat.key;
+              return (
+                <li key={cat.key} className="flex items-center justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-slate-800">{cat.label}</p>
+                    <p className="text-[11px] leading-tight text-slate-400">{cat.description}</p>
+                  </div>
+                  <button
+                    role="switch"
+                    aria-checked={enabled}
+                    aria-label={`${enabled ? 'Desativar' : 'Ativar'} ${cat.label}`}
+                    disabled={isBusy}
+                    onClick={() => handleTogglePref(cat.key, !enabled)}
+                    className={`relative inline-flex h-6 w-11 flex-none items-center rounded-full transition-colors disabled:opacity-50 ${
+                      enabled ? 'bg-emerald-600' : 'bg-slate-300'
+                    }`}
+                  >
+                    <span
+                      className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform ${
+                        enabled ? 'translate-x-5' : 'translate-x-0.5'
+                      }`}
+                    />
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
 
       {/* Ativar push neste aparelho */}
       <div className="flex items-center justify-between gap-2 border-b bg-slate-50 px-4 py-3">
