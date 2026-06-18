@@ -1,10 +1,14 @@
 // Página pública de download/instalação do app (APK Android).
 // Acessível em /instalar (e /baixar). Sem login.
 // O APK é servido como arquivo estático em /my-shape.apk (pasta public/).
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Download, ShieldCheck, Smartphone, Apple } from 'lucide-react';
+import { ArrowLeft, Download, ShieldCheck, Smartphone, Apple, PlayCircle, X } from 'lucide-react';
 
 const APK_URL = '/my-shape.apk';
+// Vídeo de instalação (Google Drive). O arquivo precisa estar compartilhado
+// como "qualquer pessoa com o link" para tocar aqui dentro.
+const VIDEO_EMBED_URL = 'https://drive.google.com/file/d/1EctBg3Q-gPlsFIS04Ga-Y48zxcWMasKj/preview';
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
@@ -18,6 +22,8 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 export default function InstallApp() {
+  const [showVideo, setShowVideo] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
@@ -39,13 +45,22 @@ export default function InstallApp() {
             <Smartphone className="h-5 w-5 text-emerald-600" /> Android
           </h2>
 
-          <a
-            href={APK_URL}
-            download
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto"
-          >
-            <Download className="h-5 w-5" /> Baixar o App (.apk)
-          </a>
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <a
+              href={APK_URL}
+              download
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+            >
+              <Download className="h-5 w-5" /> Baixar o App (.apk)
+            </a>
+            <button
+              type="button"
+              onClick={() => setShowVideo(true)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-5 py-3.5 text-base font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+            >
+              <PlayCircle className="h-5 w-5" /> Ver vídeo de instalação
+            </button>
+          </div>
 
           <ol className="mt-5 space-y-3">
             <Step n={1}>Toque em <strong>Baixar o app</strong> acima e aguarde o download terminar.</Step>
@@ -94,6 +109,37 @@ export default function InstallApp() {
           Problemas para instalar? Fale com o suporte pelo próprio portal.
         </p>
       </div>
+
+      {/* Modal do vídeo de instalação */}
+      {showVideo && (
+        <div
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4"
+          onClick={() => setShowVideo(false)}
+        >
+          <div
+            className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-black shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setShowVideo(false)}
+              aria-label="Fechar vídeo"
+              className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
+            >
+              <X className="h-5 w-5" />
+            </button>
+            <div className="aspect-video w-full">
+              <iframe
+                src={VIDEO_EMBED_URL}
+                title="Vídeo de instalação"
+                className="h-full w-full"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
