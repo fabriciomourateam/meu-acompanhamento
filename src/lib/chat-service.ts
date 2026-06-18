@@ -25,6 +25,8 @@ export interface SupportMessage {
   read_at?: string | null;
   // Responder/citar: id da mensagem citada (resolvida localmente na lista).
   reply_to_message_id?: string | null;
+  // Reações: no máx uma por lado (patient/team).
+  reactions?: { reactor: 'patient' | 'team'; emoji: string }[] | null;
 }
 
 export type ChatMediaType = 'image' | 'audio' | 'video';
@@ -121,6 +123,16 @@ export const chatService = {
     const { error } = await supabase.rpc('chat_patient_delete_message', {
       p_patient_id: patientId,
       p_message_id: messageId,
+    });
+    if (error) throw error;
+  },
+
+  /** Reage (ou remove a reação) numa mensagem. Mesma emoji = toggle. */
+  async react(patientId: string, messageId: string, emoji: string): Promise<void> {
+    const { error } = await supabase.rpc('chat_patient_react', {
+      p_patient_id: patientId,
+      p_message_id: messageId,
+      p_emoji: emoji,
     });
     if (error) throw error;
   },
