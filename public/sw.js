@@ -1,6 +1,6 @@
 // Service Worker para PWA - Compatível com Vercel
-const CACHE_NAME = 'meu-acompanhamento-v25';
-const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v25';
+const CACHE_NAME = 'meu-acompanhamento-v26';
+const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v26';
 
 // Recursos estáticos para cachear na instalação
 const urlsToCache = [
@@ -10,6 +10,7 @@ const urlsToCache = [
   '/portal-fmteam',
   '/manifest.json',
   '/fmteam-icon.png',
+  '/notification-badge.png',
   '/vite.svg'
 ];
 
@@ -110,7 +111,9 @@ self.addEventListener('push', (event) => {
   const options = {
     body: payload.body || '',
     icon: '/fmteam-icon.png',
-    badge: '/fmteam-icon.png',
+    // badge = ícone pequeno monocromático (Android usa só o alpha). Tem que ser
+    // uma silhueta branca em fundo transparente, senão vira um quadrado estranho.
+    badge: '/notification-badge.png',
     tag: payload.type || 'geral',
     renotify: true,
     data: { url: payload.url || '/', ...(payload.data || {}) }
