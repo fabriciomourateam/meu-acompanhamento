@@ -23,6 +23,8 @@ export interface SupportMessage {
   edited?: boolean;
   // Read receipt (✓✓): quando a equipe leu esta mensagem do aluno. null = só enviada.
   read_at?: string | null;
+  // Responder/citar: id da mensagem citada (resolvida localmente na lista).
+  reply_to_message_id?: string | null;
 }
 
 export type ChatMediaType = 'image' | 'audio' | 'video';
@@ -86,13 +88,19 @@ export const chatService = {
   },
 
   /** Paciente envia mensagem (texto e/ou mídia); reabre a conversa se estava resolvida. */
-  async sendMessage(patientId: string, body: string, media?: ChatMediaInput | null): Promise<string> {
+  async sendMessage(
+    patientId: string,
+    body: string,
+    media?: ChatMediaInput | null,
+    replyTo?: string | null,
+  ): Promise<string> {
     const { data, error } = await supabase.rpc('chat_patient_send_message', {
       p_patient_id: patientId,
       p_body: body,
       p_media_url: media?.url ?? null,
       p_media_type: media?.type ?? null,
       p_media_mime: media?.mime ?? null,
+      p_reply_to: replyTo ?? null,
     });
     if (error) throw error;
     return data as string;
