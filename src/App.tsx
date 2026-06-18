@@ -7,6 +7,7 @@ import PatientPortal from "./pages/PatientPortal";
 
 const AdminPortal = lazy(() => import("./pages/AdminPortal"));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy"));
+const InstallApp = lazy(() => import("./pages/InstallApp"));
 
 const App = () => (
   <ErrorBoundary>
@@ -19,6 +20,8 @@ const App = () => (
         <Route path="/portal/:token" element={<PatientPortal />} />
         <Route path="/admin" element={<Suspense fallback={null}><AdminPortal /></Suspense>} />
         <Route path="/privacidade" element={<Suspense fallback={null}><PrivacyPolicy /></Suspense>} />
+        <Route path="/instalar" element={<Suspense fallback={null}><InstallApp /></Suspense>} />
+        <Route path="/baixar" element={<Suspense fallback={null}><InstallApp /></Suspense>} />
         {/* Rota curinga para portais de outros trainers: /portal-evaner, /portal-nutri-matheus, etc. */}
         <Route path="*" element={<PortalLogin />} />
       </Routes>
