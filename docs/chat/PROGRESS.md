@@ -540,3 +540,28 @@ futuro.
   mensagem e as torna clicáveis (http/https e `www.`). Aplicado no `SupportChat` (app do aluno)
   e nas bolhas do `AtendimentoBoard` (back-office). Idêntico nos dois repos, zero-dependência.
 - `tsc --noEmit` limpo nos dois repos.
+---
+
+## Fatia 7 — Polish WhatsApp (read receipts + separadores + deep-link + badge) — IMPLEMENTADA
+
+### Feito
+- **Banco (prod):** migração `20260618_chat_read_receipts` — `chat_patient_get_messages` recriada (marca
+  read_at das msgs da equipe + retorna read_at); novo `chat_team_mark_read` (marca read_at das msgs do paciente
+  + zera unread_for_team). Validado: assinatura nova traz `read_at`; função do time presente.
+- **App do aluno:** `SupportMessage.read_at`; ✓/✓✓ nas mensagens do aluno; separadores de data (Hoje/Ontem);
+  listener de `open-support-tab` do SW; `sw.js` manda postMessage no clique da notificação de chat; badge
+  monocromático (`notification-badge.png`); bump do cache do SW (v27).
+- **Back-office:** `markTeamRead` via RPC `chat_team_mark_read`; ✓/✓✓ nas mensagens da equipe; separadores de data.
+- **Build:** `npm run build` limpo nos dois repos.
+
+### Falta validar (manual, na UI real)
+- [ ] Aluno manda msg → Fabricio abre a conversa → aluno vê ✓✓ nas mensagens dele.
+- [ ] Fabricio responde → aluno abre → Fabricio vê ✓✓ nas mensagens dele.
+- [ ] Separador "Hoje/Ontem" aparece certo virando o dia (BRT).
+- [ ] Tocar na notificação de chat com o app aberto cai direto na aba Suporte.
+- [ ] Badge da notificação sai como silhueta (não mais quadrado) no Android.
+
+### Próximo (não feito nesta fatia)
+- "Digitando…" em tempo real (realtime broadcast de presença).
+- Responder/citar mensagem (coluna reply_to + UI).
+- Reações com emoji (tabela nova + RLS + RPCs + UI nos dois lados).

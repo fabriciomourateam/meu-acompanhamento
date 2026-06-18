@@ -21,6 +21,8 @@ export interface SupportMessage {
   // um aviso "mensagem apagada"); editada mostra "(editado)".
   deleted?: boolean;
   edited?: boolean;
+  // Read receipt (✓✓): quando a equipe leu esta mensagem do aluno. null = só enviada.
+  read_at?: string | null;
 }
 
 export type ChatMediaType = 'image' | 'audio' | 'video';

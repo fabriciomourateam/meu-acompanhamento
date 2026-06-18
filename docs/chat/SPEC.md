@@ -289,3 +289,29 @@ service_role only) escalona por dias de ausência e despacha no canal do passo (
 (`data_cancelamento`/`data_congelamento` vazios). **Substitui** `run_inactive_check` (cron antigo
 `inactive-check` desagendado; função mantida p/ rollback). Painel "Alunos em risco":
 `chat_inactivity_dashboard(owner,min_days)`; UI em `/regua` (`ReguaAusencia.tsx`).
+---
+
+## Adendo — Polish estilo WhatsApp (Fatia 7): read receipts, separadores de data, deep-link
+
+### Read receipts (✓✓) — migração `20260618_chat_read_receipts`
+A coluna `chat_messages.read_at` (que existia, mas não era populada) passa a ser carimbada por mensagem:
+- **Paciente lendo** (`chat_patient_get_messages`) → marca `read_at = now()` nas mensagens da **equipe** ainda
+  não lidas, e a função passou a **retornar `read_at`** (assinatura nova → DROP+CREATE, re-grant a `anon`/`authenticated`).
+- **Equipe lendo** → novo RPC `chat_team_mark_read(p_conversation_id)` (guard `chat_is_team_of`, `authenticated`)
+  carimba `read_at` nas mensagens do **paciente** e zera `unread_for_team`. O front (`markTeamRead`) passou a
+  chamar esse RPC em vez do `update` direto em `chat_conversations`.
+- **UI:** cada lado mostra ✓ (enviada) / ✓✓ (lida, em azul) só nas **próprias** mensagens. O update de `read_at`
+  dispara o `chat_broadcast`/`postgres_changes`, então o ✓✓ aparece quase na hora no outro lado.
+
+### Separadores de data
+Thread dos dois lados (`SupportChat` e `AtendimentoBoard`) agrupa por dia com um chip central
+**Hoje / Ontem / data** (`dayKeyBRT`/`dayLabelBRT`, sempre em BRT).
+
+### Deep-link da notificação → aba Suporte
+`sw.js`: o payload de push já traz `type`; no `notificationclick`, se `type==='chat'` e há uma janela aberta,
+o SW faz `client.postMessage({type:'open-support-tab'})` (em vez de trocar a URL, pra não perder a sessão por
+token). O `PatientDietPortal` escuta e faz `goToTab('support')`. App fechado: abre na rota padrão (login).
+
+### Badge da notificação (Android)
+`public/notification-badge.png` — silhueta branca do logo em fundo transparente (o Android usa só o alpha do
+`badge`). Corrige o "quadrado" que aparecia quando o badge era o ícone colorido.

@@ -1,6 +1,6 @@
 // Service Worker para PWA - Compatível com Vercel
-const CACHE_NAME = 'meu-acompanhamento-v26';
-const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v26';
+const CACHE_NAME = 'meu-acompanhamento-v27';
+const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v27';
 
 // Recursos estáticos para cachear na instalação
 const urlsToCache = [
@@ -116,7 +116,7 @@ self.addEventListener('push', (event) => {
     badge: '/notification-badge.png',
     tag: payload.type || 'geral',
     renotify: true,
-    data: { url: payload.url || '/', ...(payload.data || {}) }
+    data: { url: payload.url || '/', type: payload.type || 'geral', ...(payload.data || {}) }
   };
 
   event.waitUntil(self.registration.showNotification(title, options));
@@ -125,14 +125,20 @@ self.addEventListener('push', (event) => {
 // Ao clicar na notificação: foca uma aba existente do app ou abre uma nova.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = (event.notification.data && event.notification.data.url) || '/';
+  const data = event.notification.data || {};
+  const targetUrl = data.url || '/';
+  const isChat = data.type === 'chat';
 
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       for (const client of clientList) {
         if ('focus' in client) {
           client.focus();
-          if ('navigate' in client && targetUrl && targetUrl !== '/') {
+          // Chat: o app já está aberto e logado — pede pra abrir a aba Suporte
+          // por mensagem (sem trocar a URL, pra não perder a sessão por token).
+          if (isChat) {
+            client.postMessage({ type: 'open-support-tab' });
+          } else if ('navigate' in client && targetUrl && targetUrl !== '/') {
             client.navigate(targetUrl).catch(() => {});
           }
           return;

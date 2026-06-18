@@ -4,7 +4,7 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile } from 'lucide-react';
+import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile, Check, CheckCheck } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
@@ -35,6 +35,27 @@ function formatTimeBRT(iso: string): string {
     hour: '2-digit',
     minute: '2-digit',
   });
+}
+
+// Rótulo do separador de dia (Hoje / Ontem / data), sempre em BRT.
+function dayLabelBRT(iso: string): string {
+  const fmt = (d: Date) => d.toLocaleDateString('en-CA', { timeZone: BRT }); // YYYY-MM-DD
+  const d = fmt(new Date(iso));
+  const today = fmt(new Date());
+  const yest = fmt(new Date(Date.now() - 86400000));
+  if (d === today) return 'Hoje';
+  if (d === yest) return 'Ontem';
+  return new Date(iso).toLocaleDateString('pt-BR', {
+    timeZone: BRT,
+    day: '2-digit',
+    month: 'long',
+    year: new Date(iso).getFullYear() === new Date().getFullYear() ? undefined : 'numeric',
+  });
+}
+
+// Chave do dia (YYYY-MM-DD em BRT) para detectar troca de data entre mensagens.
+function dayKeyBRT(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-CA', { timeZone: BRT });
 }
 
 function mmss(total: number): string {
@@ -393,10 +414,19 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
             <p className="text-xs">Mande sua primeira mensagem para dúvidas ou orientações.</p>
           </div>
         ) : (
-          messages.map((m) => {
+          messages.map((m, idx) => {
             const canModify = m.is_mine && !m.deleted && !m.id.startsWith('tmp-');
+            const showDay = idx === 0 || dayKeyBRT(m.created_at) !== dayKeyBRT(messages[idx - 1].created_at);
             return (
-              <div key={m.id} className={`group flex items-end gap-1 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
+              <div key={m.id} className="contents">
+              {showDay && (
+                <div className="my-2 flex justify-center">
+                  <span className="rounded-full bg-slate-200 px-3 py-0.5 text-[10px] font-medium text-slate-500">
+                    {dayLabelBRT(m.created_at)}
+                  </span>
+                </div>
+              )}
+              <div className={`group flex items-end gap-1 ${m.is_mine ? 'justify-end' : 'justify-start'}`}>
                 {/* Menu de ações (editar/apagar) — só nas minhas mensagens */}
                 {canModify && (
                   <div className="relative order-1">
@@ -451,11 +481,19 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
                       {m.body && <div className="whitespace-pre-wrap break-words">{renderWithLinks(m.body)}</div>}
                     </>
                   )}
-                  <div className={`mt-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
-                    {formatTimeBRT(m.created_at)}
-                    {m.edited && !m.deleted && <span className="ml-1">(editado)</span>}
+                  <div className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
+                    <span>{formatTimeBRT(m.created_at)}</span>
+                    {m.edited && !m.deleted && <span>(editado)</span>}
+                    {/* ✓✓ lido — só nas minhas mensagens (do aluno) já confirmadas */}
+                    {m.is_mine && !m.deleted && !m.id.startsWith('tmp-') &&
+                      (m.read_at ? (
+                        <CheckCheck className="h-3.5 w-3.5 text-sky-200" aria-label="Lida" />
+                      ) : (
+                        <Check className="h-3.5 w-3.5 text-emerald-100" aria-label="Enviada" />
+                      ))}
                   </div>
                 </div>
+              </div>
               </div>
             );
           })
