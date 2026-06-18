@@ -23,7 +23,7 @@ import { WorkoutTab } from '@/components/patient-portal/workout/WorkoutTab';
 import { DietTab } from '@/components/patient-portal/diet/DietTab';
 import { SupportChat } from '@/components/patient-portal/chat/SupportChat';
 import { useDietData } from '@/components/patient-portal/diet/useDietData';
-import { portalSettingsService, type PortalConfig } from '@/lib/portal-settings-service';
+import { portalSettingsService, shouldShowSupport, type PortalConfig } from '@/lib/portal-settings-service';
 import { communityService } from '@/lib/community-service';
 import { chatService } from '@/lib/chat-service';
 import { Utensils } from 'lucide-react';
@@ -80,11 +80,9 @@ export function PatientDietPortal({
   const showProgress = showChallenges || showRanking;
   const showCommunity = portalConfig?.community?.show_tab !== false;
   const showResults = portalConfig?.visibility?.tab_results !== false;
-  // Aba Suporte: OFF por padrão (rollout gradual). Liberada para todos
-  // (support.show_tab) ou só para pacientes de teste (support.test_patient_ids).
-  const showSupport =
-    portalConfig?.support?.show_tab === true ||
-    (!!patientId && (portalConfig?.support?.test_patient_ids ?? []).includes(patientId));
+  // Aba Suporte: OFF por padrão (rollout gradual). A liberação por coorte
+  // (todos / lista de teste / plano / % da base) vive em `shouldShowSupport`.
+  const showSupport = shouldShowSupport(patientId, patient, portalConfig);
   // Subabas da Dieta
   const showMeals = portalConfig?.visibility?.diet_meals !== false;
   const showSupplements = portalConfig?.visibility?.diet_supplements !== false;

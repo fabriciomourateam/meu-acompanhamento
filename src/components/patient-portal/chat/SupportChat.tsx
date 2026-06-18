@@ -9,6 +9,7 @@ import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/cha
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
+import { renderWithLinks } from '@/lib/linkify';
 
 // Lembra (por aparelho) que o aluno dispensou o convite de notificação no chat.
 const NUDGE_DISMISS_KEY = 'chat-notif-nudge-dismissed';
@@ -447,7 +448,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
                           <MediaContent url={m.media_url} type={m.media_type} onOpenImage={setLightbox} />
                         </div>
                       )}
-                      {m.body && <div className="whitespace-pre-wrap break-words">{m.body}</div>}
+                      {m.body && <div className="whitespace-pre-wrap break-words">{renderWithLinks(m.body)}</div>}
                     </>
                   )}
                   <div className={`mt-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
