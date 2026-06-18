@@ -144,4 +144,31 @@ export const chatService = {
       supabase.removeChannel(channel);
     };
   },
+
+  /**
+   * Indicador "digitando…" via Realtime Broadcast (efêmero, sem banco). Canal
+   * dedicado por conversa. `notify()` avisa o outro lado que estou digitando
+   * (throttle interno); `onTyping` é chamado quando o outro lado digita.
+   * O aluno emite sempre como 'patient' e só reage a 'team'.
+   */
+  subscribeTyping(
+    conversationId: string,
+    onTyping: (sender: 'patient' | 'team') => void,
+  ): { notify: () => void; cleanup: () => void } {
+    const channel = supabase
+      .channel(`chat:typing:${conversationId}`, { config: { broadcast: { self: false } } })
+      .on('broadcast', { event: 'typing' }, (msg) => {
+        const sender = (msg.payload as { sender?: 'patient' | 'team' })?.sender;
+        if (sender) onTyping(sender);
+      })
+      .subscribe();
+    let last = 0;
+    const notify = () => {
+      const now = Date.now();
+      if (now - last < 1800) return; // throttle: no máx ~1 ping/1.8s
+      last = now;
+      channel.send({ type: 'broadcast', event: 'typing', payload: { sender: 'patient' } });
+    };
+    return { notify, cleanup: () => supabase.removeChannel(channel) };
+  },
 };
