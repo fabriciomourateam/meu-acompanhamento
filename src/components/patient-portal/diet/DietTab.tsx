@@ -958,9 +958,9 @@ export function DietTab({
                     <button
                       type="button"
                       onClick={() => goToSupplementCard('supplement')}
-                      className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-blue-100 bg-white px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
                     >
-                      <span className="rounded-xl bg-blue-500/10 p-2.5"><Pill className="h-5 w-5 text-blue-500" /></span>
+                      <span className="rounded-lg bg-blue-500/10 p-1.5"><Pill className="h-4 w-4 text-blue-500" /></span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">Suplementação</span>
                       <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
                     </button>
@@ -969,9 +969,9 @@ export function DietTab({
                     <button
                       type="button"
                       onClick={() => goToSupplementCard('protocol')}
-                      className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-amber-100 bg-white px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
                     >
-                      <span className="rounded-xl bg-amber-500/10 p-2.5"><ListChecks className="h-5 w-5 text-amber-500" /></span>
+                      <span className="rounded-lg bg-amber-500/10 p-1.5"><ListChecks className="h-4 w-4 text-amber-500" /></span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">Protocolo</span>
                       <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
                     </button>
@@ -980,9 +980,9 @@ export function DietTab({
                     <button
                       type="button"
                       onClick={() => goToSupplementCard('manipulated')}
-                      className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-purple-100 bg-white px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
                     >
-                      <span className="rounded-xl bg-purple-500/10 p-2.5"><FlaskConical className="h-5 w-5 text-purple-500" /></span>
+                      <span className="rounded-lg bg-purple-500/10 p-1.5"><FlaskConical className="h-4 w-4 text-purple-500" /></span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">Manipulados</span>
                       <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
                     </button>
