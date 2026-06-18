@@ -24,7 +24,7 @@ export function SubstituteExerciseDialog({
   useEffect(() => {
     if (!open) return;
     setLoading(true);
-    void workoutExtrasService.suggestVariations(token, originalExerciseId, 10)
+    void workoutExtrasService.suggestVariations(token, originalExerciseId, 4)
       .then(setVariations)
       .catch((err) => console.error('Erro ao buscar variações:', err))
       .finally(() => setLoading(false));
