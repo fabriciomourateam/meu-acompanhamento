@@ -471,3 +471,30 @@ revogados de anon. `tsc` limpo no CP; 0 erros novos no MA.
 
 > Validação manual pendente do dono: criar régua por plano, ver "Alunos em risco", e o disparo
 > escalonado (push→chat→WhatsApp). Cron roda 09:00 BRT. **Não mergeado pra main** — aguardando ok.
+
+---
+
+## Correção (Parte 0 do rollout) — elegibilidade da régua usa o filtro CANÔNICO de ativo
+
+**Bug encontrado:** o filtro de elegibilidade da régua (`data_cancelamento`/`data_congelamento`
+vazios) NÃO cobria INATIVO/RESCISÃO/CONGELADO/Negativado/Pendência — esses estados ficam no TEXTO
+de `patients.plano`, não nas datas. Resultado: a régua avaliava **1589** alunos, incluindo inativos.
+(A frase anterior neste doc dizendo que o filtro "cobre INATIVO/RESCISÃO/CONGELADO" estava errada.)
+
+**Decisão (dono): reusar o filtro que já existe.** O sistema já tem a regra de negócio única de
+aluno ativo:
+- TS: `src/lib/patient-status.ts` → `isPlanoAtivo()` (tokens inativos: inativo/congelado/rescisao/
+  pendencia financeira/negativado; plano vazio = onboarding = ativo).
+- SQL: `public.is_patient_active(uuid)` (espelha o TS; é o mesmo gate do trigger
+  `cancel_scheduled_messages_when_plan_inactive` que corta envio automático quando o plano vira
+  inativo).
+
+**Migração `20260701_chat_inactivity_engageable.sql`** (aplicada na produção): `chat_inactivity_run()`
+e `chat_inactivity_dashboard()` passam a usar `public.is_patient_active(id)` no lugar do filtro
+frouxo. Mudança cirúrgica — resto do corpo idêntico.
+
+**Resultado medido:** base elegível **1589 → 955**; `inativos_que_passam = 0`. (As estimativas
+manuais anteriores — 905/1010/1105 — estavam over-contando por um bug de normalização de acento
+maiúsculo na réplica ad-hoc; a função canônica é a fonte da verdade.) `is_patient_active` é
+plano-only (não checa `vencimento`); se o dono quiser excluir vencidos também, é um passo opcional
+futuro.
