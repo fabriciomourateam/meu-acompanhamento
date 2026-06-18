@@ -6,9 +6,9 @@ import { Link } from 'react-router-dom';
 import { ArrowLeft, Download, ShieldCheck, Smartphone, Apple, PlayCircle, X } from 'lucide-react';
 
 const APK_URL = '/my-shape.apk';
-// Vídeo de instalação (Google Drive). O arquivo precisa estar compartilhado
-// como "qualquer pessoa com o link" para tocar aqui dentro.
-const VIDEO_EMBED_URL = 'https://drive.google.com/file/d/1EctBg3Q-gPlsFIS04Ga-Y48zxcWMasKj/preview';
+// Vídeos de instalação (Vimeo embeda sem bloqueio, ao contrário do Drive).
+const VIDEO_ANDROID = 'https://player.vimeo.com/video/1202658029';
+const VIDEO_IPHONE = 'https://player.vimeo.com/video/1202657308';
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
@@ -22,7 +22,7 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
 }
 
 export default function InstallApp() {
-  const [showVideo, setShowVideo] = useState(false);
+  const [videoUrl, setVideoUrl] = useState<string | null>(null);
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
@@ -55,7 +55,7 @@ export default function InstallApp() {
             </a>
             <button
               type="button"
-              onClick={() => setShowVideo(true)}
+              onClick={() => setVideoUrl(VIDEO_ANDROID)}
               className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-5 py-3.5 text-base font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
             >
               <PlayCircle className="h-5 w-5" /> Ver vídeo de instalação
@@ -90,26 +90,20 @@ export default function InstallApp() {
             <Apple className="h-5 w-5 text-slate-700" /> iPhone (iOS)
           </h2>
 
-          <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
             <a
               href="/portal"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
             >
               <Smartphone className="h-5 w-5" /> Acessar o App
             </a>
-            {/* Vídeo: como instalar no iPhone */}
-            <div className="w-full sm:w-auto">
-              <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-                <iframe
-                  src="https://drive.google.com/file/d/1I067yCbufz8t6UHhDBBlE8t_TXr0E6QD/preview"
-                  title="Como instalar no iPhone"
-                  allow="autoplay"
-                  allowFullScreen
-                  className="h-52 w-full sm:h-40 sm:w-72"
-                />
-              </div>
-              <p className="mt-1 text-center text-[11px] text-slate-400 sm:text-left">▶ Veja como instalar no iPhone</p>
-            </div>
+            <button
+              type="button"
+              onClick={() => setVideoUrl(VIDEO_IPHONE)}
+              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-5 py-3.5 text-base font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
+            >
+              <PlayCircle className="h-5 w-5" /> Ver vídeo de instalação
+            </button>
           </div>
 
           <ol className="mt-5 space-y-3">
@@ -126,10 +120,10 @@ export default function InstallApp() {
       </div>
 
       {/* Modal do vídeo de instalação */}
-      {showVideo && (
+      {videoUrl && (
         <div
           className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setShowVideo(false)}
+          onClick={() => setVideoUrl(null)}
         >
           <div
             className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-black shadow-2xl"
@@ -137,7 +131,7 @@ export default function InstallApp() {
           >
             <button
               type="button"
-              onClick={() => setShowVideo(false)}
+              onClick={() => setVideoUrl(null)}
               aria-label="Fechar vídeo"
               className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
             >
@@ -145,10 +139,10 @@ export default function InstallApp() {
             </button>
             <div className="aspect-video w-full">
               <iframe
-                src={VIDEO_EMBED_URL}
+                src={videoUrl}
                 title="Vídeo de instalação"
                 className="h-full w-full"
-                allow="autoplay; encrypted-media"
+                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
                 allowFullScreen
               />
             </div>
