@@ -1,5 +1,5 @@
 import { createPortal } from 'react-dom';
-import { Utensils, Trophy, BarChart2, Users, Dumbbell, Headset } from 'lucide-react';
+import { Utensils, Trophy, BarChart2, Users, Dumbbell, MessageCircle } from 'lucide-react';
 
 type TabValue = 'diet' | 'workout' | 'progress' | 'community' | 'results' | 'support';
 
@@ -15,7 +15,7 @@ const NAV_ITEMS: NavItem[] = [
   { value: 'progress',      label: 'Progresso',     Icon: Trophy     },
   { value: 'community',     label: 'Comunidade',    Icon: Users      },
   { value: 'results',       label: 'Evolução',      Icon: BarChart2  },
-  { value: 'support',       label: 'Suporte',       Icon: Headset    },
+  { value: 'support',       label: 'Suporte',       Icon: MessageCircle },
 ];
 
 interface MobileBottomNavProps {

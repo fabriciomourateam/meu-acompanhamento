@@ -154,6 +154,18 @@ export function DietTab({
   // Estado do botao "Baixar PDF" das orientacoes — guarda o id em download
   // pra mostrar spinner so naquela linha.
   const [downloadingGuidelineId, setDownloadingGuidelineId] = useState<string | null>(null);
+  // Subaba da Dieta controlada (Plano Alimentar / Suplementos / Substituições) — permite
+  // que os atalhos abaixo de "Orientações Nutricionais" pulem pra Suplementos.
+  const [dietSubtab, setDietSubtab] = useState<string>(firstDietSubtab);
+  // Card de Suplementos aberto (controlado) — 'supplement' | 'manipulated' | 'protocol'.
+  const [openSupplementCat, setOpenSupplementCat] = useState<string | null>(null);
+
+  // Atalho: vai pra aba Suplementos e abre o card pedido expandido.
+  const goToSupplementCard = (key: 'supplement' | 'manipulated' | 'protocol') => {
+    setDietSubtab('supplements');
+    setOpenSupplementCat(key);
+    setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 50);
+  };
   const handleDownloadGuidelinePdf = async (guidelineId: string) => {
     if (!patient?.telefone) {
       // toast nao disponivel direto aqui — fallback alert. Quase nunca cai
@@ -343,12 +355,20 @@ export function DietTab({
     colorClass: string,
     bgLightClass: string,
     borderClass: string,
-    defaultOpen: boolean = true
+    defaultOpen: boolean = true,
+    categoryKey?: string
   ) => {
     if (items.length === 0) return null;
 
+    // Quando categoryKey é passado (cards de Suplementos), o card vira controlado
+    // para os atalhos da aba Plano poderem abri-lo expandido.
+    const controlled = categoryKey != null;
+    const collapsibleProps = controlled
+      ? { open: openSupplementCat === categoryKey, onOpenChange: (o: boolean) => setOpenSupplementCat(o ? categoryKey : null) }
+      : { defaultOpen };
+
     return (
-      <Collapsible defaultOpen={defaultOpen} className="space-y-3 group/category bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100">
+      <Collapsible {...collapsibleProps} className="space-y-3 group/category bg-white rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100">
         <CollapsibleTrigger className="w-full flex items-center justify-between p-1 sm:p-2 rounded-2xl hover:bg-slate-50 transition-colors">
           <div className="flex items-center gap-4">
             <div className={`p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-transparent`}>
@@ -423,7 +443,7 @@ export function DietTab({
 
   return (
     <>
-      <Tabs defaultValue={firstDietSubtab} className="w-full">
+      <Tabs value={dietSubtab} onValueChange={setDietSubtab} className="w-full">
         {visibleDietSubtabs > 1 && (
           <TabsList
             className={`grid w-full bg-slate-100 p-1 rounded-lg h-auto ${
@@ -930,6 +950,46 @@ export function DietTab({
                 </div>
               )}
 
+              {/* Atalhos pra aba Suplementos (muita gente não acha a aba). Abre o card já expandido. */}
+              {hasActivePlan && showSupplements &&
+                (supplementGuidelines.length > 0 || protocolGuidelines.length > 0 || manipulatedGuidelines.length > 0) && (
+                <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  {supplementGuidelines.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => goToSupplementCard('supplement')}
+                      className="flex items-center gap-3 rounded-2xl border border-blue-100 bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                    >
+                      <span className="rounded-xl bg-blue-500/10 p-2.5"><Pill className="h-5 w-5 text-blue-500" /></span>
+                      <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">Suplementação</span>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                    </button>
+                  )}
+                  {protocolGuidelines.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => goToSupplementCard('protocol')}
+                      className="flex items-center gap-3 rounded-2xl border border-amber-100 bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                    >
+                      <span className="rounded-xl bg-amber-500/10 p-2.5"><ListChecks className="h-5 w-5 text-amber-500" /></span>
+                      <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">Protocolo</span>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                    </button>
+                  )}
+                  {manipulatedGuidelines.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => goToSupplementCard('manipulated')}
+                      className="flex items-center gap-3 rounded-2xl border border-purple-100 bg-white p-3 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                    >
+                      <span className="rounded-xl bg-purple-500/10 p-2.5"><FlaskConical className="h-5 w-5 text-purple-500" /></span>
+                      <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800">Manipulados</span>
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                    </button>
+                  )}
+                </div>
+              )}
+
               {/* Histórico de Exames - Movido para o final da aba Plano */}
               {patient?.telefone && (
                 <div className="space-y-4">
@@ -979,7 +1039,8 @@ export function DietTab({
                   "text-blue-500",
                   "bg-blue-500/10",
                   "border-blue-100",
-                  false
+                  false,
+                  "supplement"
                 )}
                 {renderCategory(
                   manipulatedGuidelines,
@@ -988,7 +1049,8 @@ export function DietTab({
                   "text-purple-500",
                   "bg-purple-500/10",
                   "border-purple-100",
-                  false
+                  false,
+                  "manipulated"
                 )}
                 {renderCategory(
                   protocolGuidelines,
@@ -997,7 +1059,8 @@ export function DietTab({
                   "text-amber-500",
                   "bg-amber-500/10",
                   "border-amber-100",
-                  false
+                  false,
+                  "protocol"
                 )}
               </div>
 

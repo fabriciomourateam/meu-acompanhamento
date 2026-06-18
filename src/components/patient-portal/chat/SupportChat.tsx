@@ -142,6 +142,8 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
 
   // "Digitando…" do Fabricio (efêmero, via broadcast).
   const [teamTyping, setTeamTyping] = useState(false);
+  // Foto do Fabricio no cabeçalho; se /fabricio.jpg não existir, cai no ícone de chat.
+  const [photoOk, setPhotoOk] = useState(true);
   const typingNotifyRef = useRef<(() => void) | null>(null);
   const teamTypingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
@@ -437,13 +439,22 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
     <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       {/* Cabeçalho */}
       <div className="flex items-center gap-3 border-b border-slate-100 bg-emerald-500 px-4 py-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20">
-          <MessageCircle className="h-5 w-5 text-white" />
+        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20">
+          {photoOk ? (
+            <img
+              src="/fabricio.jpg"
+              alt="Fabricio Moura"
+              className="h-full w-full object-cover"
+              onError={() => setPhotoOk(false)}
+            />
+          ) : (
+            <MessageCircle className="h-5 w-5 text-white" />
+          )}
         </div>
         <div>
-          <p className="text-sm font-semibold text-white">Fale com o Fabricio</p>
+          <p className="text-sm font-semibold text-white">Fabricio Moura</p>
           <p className="text-[11px] text-emerald-50">
-            {teamTyping ? 'Fabricio está digitando…' : 'Tire suas dúvidas com a equipe por aqui'}
+            {teamTyping ? 'Fabricio está digitando…' : 'Mande mensagem para dúvidas e orientações'}
           </p>
         </div>
       </div>

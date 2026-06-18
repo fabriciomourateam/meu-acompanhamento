@@ -90,12 +90,27 @@ export default function InstallApp() {
             <Apple className="h-5 w-5 text-slate-700" /> iPhone (iOS)
           </h2>
 
-          <a
-            href="/portal"
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto"
-          >
-            <Smartphone className="h-5 w-5" /> Acessar o App
-          </a>
+          <div className="mt-4 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <a
+              href="/portal"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto"
+            >
+              <Smartphone className="h-5 w-5" /> Acessar o App
+            </a>
+            {/* Vídeo: como instalar no iPhone */}
+            <div className="w-full sm:w-auto">
+              <div className="overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+                <iframe
+                  src="https://drive.google.com/file/d/1I067yCbufz8t6UHhDBBlE8t_TXr0E6QD/preview"
+                  title="Como instalar no iPhone"
+                  allow="autoplay"
+                  allowFullScreen
+                  className="h-52 w-full sm:h-40 sm:w-72"
+                />
+              </div>
+              <p className="mt-1 text-center text-[11px] text-slate-400 sm:text-left">▶ Veja como instalar no iPhone</p>
+            </div>
+          </div>
 
           <ol className="mt-5 space-y-3">
             <Step n={1}>Abra o portal no <strong>Safari</strong>.</Step>
