@@ -131,13 +131,30 @@ junto com o WhatsApp; migra por coorte, começando pelos alunos que já usam o a
 - Aba **"Suporte"** (ícone Headset) no `MobileBottomNav.tsx` + `PatientDietPortal.tsx`,
   com selo de não-lidas.
 
-### Feature flag (rollout gradual) — app do aluno
+### Feature flag (rollout gradual por coorte) — app do aluno
 `portal-settings-service.ts` → `PortalConfig.support`:
 - `show_tab: boolean` — libera a aba para **todos** os alunos do treinador (default `false`).
-- `test_patient_ids: string[]` — libera só para **pacientes de teste** (rollout).
-A aba aparece se `show_tab === true` **ou** o `patientId` está em `test_patient_ids`.
-Assim dá pra testar com contas específicas agora e abrir pra todos depois — sem
-expor os 700 alunos prematuramente.
+- `test_patient_ids: string[]` — libera só para **pacientes de teste**.
+- `enabled_plans: string[]` — libera para alunos cujo `plano` está na lista (coorte por plano).
+- `rollout_percentage: number` (0–100) — libera para uma fatia da base via **hash determinístico
+  do `patientId`** (mesma coorte em todo refresh).
+A decisão é centralizada em `shouldShowSupport(patientId, patient, config)`: a aba aparece se
+QUALQUER condição bater (show_tab || id ∈ test_patient_ids || plano ∈ enabled_plans ||
+hash(id)%100 < rollout_percentage). Substitui o gating inline antigo no `PatientDietPortal`.
+
+### Rollout & Adoção (back-office) — página `/rollout`
+- **Quem é "ativo/engajável":** fonte única `chat_rollout_config(owner_id, active_planos[],
+  require_vigente)` — allow-list de planos curada pelo dono. Vazia ⇒ fallback `is_patient_active(id)`.
+- **RPCs SECURITY DEFINER** (guard `chat_is_team_of(owner)`), migração
+  `20260702_chat_rollout_config.sql`: `chat_rollout_get/set_config`, `chat_rollout_plan_counts`,
+  `chat_rollout_get/set_support` (lê/escreve `portal_config.support`; `portal_settings.user_id` é
+  TEXT), `chat_adoption_dashboard` (KPIs por plano: engajáveis/push/app-14d/chat) e
+  `chat_adoption_patients` (lista com selos). Flags por paciente via EXISTS (sem fan-out).
+- **UI** (`Rollout.tsx` + `components/rollout/RolloutPanel.tsx`, service `rollout-service.ts`):
+  3 abas — Liberação (coorte: show_tab/planos/%/teste + "quantos atinge"), Adoção (KPIs +
+  por plano + lista de alunos), Quem é ativo (allow-list com contagem ao vivo). Item na sidebar.
+- Base medida hoje: ~785 engajáveis, 14 com push, 0 com last_seen (popula após Fase C em prod),
+  1 usou chat.
 
 ## Fatia 2 — o que foi construído (mídia)
 

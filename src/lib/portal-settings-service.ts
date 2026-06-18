@@ -53,6 +53,11 @@ export interface PortalConfig {
     show_tab: boolean;
     /** Libera a aba apenas para estes pacientes (ids) — modo teste/rollout. */
     test_patient_ids?: string[];
+    /** Libera a aba para alunos cujo `plano` está nesta lista (rollout por coorte). */
+    enabled_plans?: string[];
+    /** Libera a aba para uma fração da base (0–100) via hash determinístico do
+     *  patientId — a mesma coorte em todo refresh. */
+    rollout_percentage?: number;
   };
 }
 
@@ -92,8 +97,45 @@ const DEFAULT_CONFIG: PortalConfig = {
   support: {
     show_tab: false,
     test_patient_ids: [],
+    enabled_plans: [],
+    rollout_percentage: 0,
   },
 };
+
+/** Hash determinístico de uma string → inteiro 0–99 (djb2). Estável entre
+ *  refreshes e sessões, então a mesma coorte de % rollout sempre cai do mesmo lado. */
+function hashTo100(id: string): number {
+  let h = 5381;
+  for (let i = 0; i < id.length; i++) {
+    h = ((h << 5) + h + id.charCodeAt(i)) >>> 0;
+  }
+  return h % 100;
+}
+
+/**
+ * Decide se a aba "Suporte" (chat) deve aparecer para um aluno, conforme o
+ * rollout gradual configurado pelo treinador. Verdadeiro se QUALQUER condição bater:
+ * - `show_tab` ligado (todos os alunos);
+ * - id do aluno está em `test_patient_ids` (lista de teste);
+ * - `plano` do aluno está em `enabled_plans` (coorte por plano);
+ * - o aluno cai na fatia `rollout_percentage` (hash determinístico do id).
+ */
+export function shouldShowSupport(
+  patientId: string | undefined | null,
+  patient: { plano?: string | null } | undefined | null,
+  config: PortalConfig | null | undefined,
+): boolean {
+  const support = config?.support;
+  if (!support) return false;
+  if (support.show_tab === true) return true;
+  if (!patientId) return false;
+  if ((support.test_patient_ids ?? []).includes(patientId)) return true;
+  const plano = patient?.plano;
+  if (plano && (support.enabled_plans ?? []).includes(plano)) return true;
+  const pct = support.rollout_percentage ?? 0;
+  if (pct > 0 && hashTo100(patientId) < pct) return true;
+  return false;
+}
 
 export const portalSettingsService = {
   async getConfig(trainerUserId: string): Promise<PortalConfig> {
@@ -146,6 +188,13 @@ export const portalSettingsService = {
           test_patient_ids: Array.isArray(value?.support?.test_patient_ids)
             ? value.support.test_patient_ids
             : [],
+          enabled_plans: Array.isArray(value?.support?.enabled_plans)
+            ? value.support.enabled_plans
+            : [],
+          rollout_percentage:
+            typeof value?.support?.rollout_percentage === 'number'
+              ? value.support.rollout_percentage
+              : 0,
         },
       };
     } catch {

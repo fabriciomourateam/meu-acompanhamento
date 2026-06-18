@@ -498,3 +498,33 @@ manuais anteriores — 905/1010/1105 — estavam over-contando por um bug de nor
 maiúsculo na réplica ad-hoc; a função canônica é a fonte da verdade.) `is_patient_active` é
 plano-only (não checa `vencimento`); se o dono quiser excluir vencidos também, é um passo opcional
 futuro.
+---
+
+## Rollout por coorte (Parte A) + Página de Rollout & Adoção (Parte B)
+
+**Parte A — gating por coorte (app do aluno `meu-acompanhamento`):**
+- `portal-settings-service.ts`: `PortalConfig.support` ganhou `enabled_plans: string[]` e
+  `rollout_percentage: number` (além de `show_tab`/`test_patient_ids`). Nova função pura
+  `shouldShowSupport(patientId, patient, config)` centraliza o gating (hash djb2 determinístico
+  pro %). `PatientDietPortal.tsx` passou a usar `shouldShowSupport` no lugar do gating inline.
+- `tsc`: 0 erros novos (os 8 erros pré-existentes em portal-settings-service são tipos do Supabase
+  desatualizados no sandbox, presentes com ou sem a mudança).
+
+**Parte B — back-office (`controle-de-pacientes`):**
+- Migração `20260702_chat_rollout_config.sql` (aplicada em produção via MCP): tabela
+  `chat_rollout_config` (allow-list `active_planos` curada pelo dono + `require_vigente`) e 7 RPCs
+  SECURITY DEFINER guardadas por `chat_is_team_of(owner)`: get/set config, plan_counts, get/set
+  support (lê/escreve `portal_config.support`), adoption_dashboard, adoption_patients. Seed da
+  allow-list pro Fabricio com os 14 planos ativos atuais (idempotente).
+- UI: `pages/Rollout.tsx` (tema claro escopado) + `components/rollout/RolloutPanel.tsx` (3 abas:
+  Liberação por coorte, Adoção, Quem é ativo) + `lib/rollout-service.ts`. Rota `/rollout` no
+  `App.tsx` e item "Rollout & Adoção" (ícone Rocket) na `AppSidebar.tsx`.
+- Validação: lógica das RPCs conferida por SQL — engajáveis **785**, push **14** (bate com o
+  histórico), app-14d **0** (last_seen popula agora pós-Fase C), chat **1**. Advisors: meus objetos
+  só geram INFO `rls_enabled_no_policy` (acesso só via RPC, intencional) e os WARN esperados de
+  SECURITY DEFINER. `tsc --noEmit` limpo no back-office (0 erros no projeto inteiro).
+
+> **Não mergeado pra main** — aguardando ok do dono (validação manual da página `/rollout`).
+> A migração já está em produção (aditiva, retrocompatível). Parte A (app do aluno) e Parte B
+> (back-office) estão na branch `claude/sharp-dirac-8dgmht`. Parte A é retrocompatível: campos
+> novos default vazio/0 = sem efeito até o dono configurar.
