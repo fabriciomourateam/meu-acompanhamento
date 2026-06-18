@@ -126,7 +126,7 @@ export default function InstallApp() {
           onClick={() => setVideoUrl(null)}
         >
           <div
-            className="relative w-full max-w-3xl overflow-hidden rounded-2xl bg-black shadow-2xl"
+            className="relative max-h-[90vh] w-auto overflow-hidden rounded-2xl bg-black shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <button
@@ -137,7 +137,8 @@ export default function InstallApp() {
             >
               <X className="h-5 w-5" />
             </button>
-            <div className="aspect-video w-full">
+            {/* Vídeo vertical (gravação de tela do celular, 9:16) */}
+            <div className="aspect-[9/16] h-[90vh] max-h-[90vh] max-w-[92vw]">
               <iframe
                 src={videoUrl}
                 title="Vídeo de instalação"
