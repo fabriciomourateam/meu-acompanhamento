@@ -125,6 +125,11 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const recorder = useAudioRecorder();
 
+  // "Digitando…" do Fabricio (efêmero, via broadcast).
+  const [teamTyping, setTeamTyping] = useState(false);
+  const typingNotifyRef = useRef<(() => void) | null>(null);
+  const teamTypingTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+
   const iosNeedsInstall = pushService.isIOS() && !pushService.isStandalone();
 
   // Mostra o convite de notificação se o push ainda não está ativo neste aparelho.
@@ -193,6 +198,33 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
       cleanup?.();
     };
   }, [active, patientId, load]);
+
+  // "Digitando…": assina o canal efêmero e guarda o notify pra emitir ao digitar.
+  useEffect(() => {
+    if (!active || !patientId) return;
+    let cancelled = false;
+    let cleanup: (() => void) | undefined;
+    chatService
+      .getOrCreateConversation(patientId)
+      .then((id) => {
+        if (cancelled) return;
+        const sub = chatService.subscribeTyping(id, (sender) => {
+          if (sender !== 'team') return;
+          setTeamTyping(true);
+          clearTimeout(teamTypingTimer.current);
+          teamTypingTimer.current = setTimeout(() => setTeamTyping(false), 3500);
+        });
+        typingNotifyRef.current = sub.notify;
+        cleanup = sub.cleanup;
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+      cleanup?.();
+      typingNotifyRef.current = null;
+      clearTimeout(teamTypingTimer.current);
+    };
+  }, [active, patientId]);
 
   // Polling de fallback (intervalo longo). Pausa quando a aba do navegador está
   // em segundo plano pra não pesar no servidor com centenas de alunos online.
@@ -374,7 +406,9 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
         </div>
         <div>
           <p className="text-sm font-semibold text-white">Fale com o Fabricio</p>
-          <p className="text-[11px] text-emerald-50">Tire suas dúvidas com a equipe por aqui</p>
+          <p className="text-[11px] text-emerald-50">
+            {teamTyping ? 'Fabricio está digitando…' : 'Tire suas dúvidas com a equipe por aqui'}
+          </p>
         </div>
       </div>
 
@@ -613,7 +647,10 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
               <textarea
                 ref={composerRef}
                 value={body}
-                onChange={(e) => setBody(e.target.value)}
+                onChange={(e) => {
+                  setBody(e.target.value);
+                  typingNotifyRef.current?.();
+                }}
                 placeholder="Escreva uma mensagem..."
                 rows={1}
                 className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-400"
