@@ -145,6 +145,17 @@ export function PatientDietPortal({
     }
   }, [portalConfig]); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Deep-link da notificação de chat: o service worker manda "open-support-tab"
+  // quando o aluno toca numa notificação do Fabricio com o app já aberto.
+  useEffect(() => {
+    if (!('serviceWorker' in navigator)) return;
+    const onMsg = (e: MessageEvent) => {
+      if (e.data?.type === 'open-support-tab' && showSupport) goToTab('support');
+    };
+    navigator.serviceWorker.addEventListener('message', onMsg);
+    return () => navigator.serviceWorker.removeEventListener('message', onMsg);
+  }, [showSupport]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Sub-abas visíveis de "Progresso" (na ordem). Se a sub-aba atual sumir
   // (config do treinador), cai na primeira visível.
   const progressSubtabs = [
