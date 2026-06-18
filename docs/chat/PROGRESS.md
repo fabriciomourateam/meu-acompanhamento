@@ -528,3 +528,15 @@ futuro.
 > A migração já está em produção (aditiva, retrocompatível). Parte A (app do aluno) e Parte B
 > (back-office) estão na branch `claude/sharp-dirac-8dgmht`. Parte A é retrocompatível: campos
 > novos default vazio/0 = sem efeito até o dono configurar.
+---
+
+## Ajustes: Rollout dentro do Atendimento + links clicáveis no chat
+
+- **Rollout & Adoção movido pra dentro da página Atendimento** (a pedido do dono, pra não
+  poluir a sidebar): `AtendimentoBoard` ganhou um toggle "Conversas | Rollout & Adoção" no
+  cabeçalho; em "Rollout" renderiza o `RolloutPanel` no lugar do kanban (mesma altura/escopo de
+  tema do board). Removidos: item da sidebar, rota `/rollout` e `pages/Rollout.tsx`.
+- **Links clicáveis:** novo `lib/linkify.tsx` (`renderWithLinks`) detecta URLs no corpo da
+  mensagem e as torna clicáveis (http/https e `www.`). Aplicado no `SupportChat` (app do aluno)
+  e nas bolhas do `AtendimentoBoard` (back-office). Idêntico nos dois repos, zero-dependência.
+- `tsc --noEmit` limpo nos dois repos.

@@ -150,11 +150,19 @@ hash(id)%100 < rollout_percentage). Substitui o gating inline antigo no `Patient
   `chat_rollout_get/set_support` (lê/escreve `portal_config.support`; `portal_settings.user_id` é
   TEXT), `chat_adoption_dashboard` (KPIs por plano: engajáveis/push/app-14d/chat) e
   `chat_adoption_patients` (lista com selos). Flags por paciente via EXISTS (sem fan-out).
-- **UI** (`Rollout.tsx` + `components/rollout/RolloutPanel.tsx`, service `rollout-service.ts`):
-  3 abas — Liberação (coorte: show_tab/planos/%/teste + "quantos atinge"), Adoção (KPIs +
-  por plano + lista de alunos), Quem é ativo (allow-list com contagem ao vivo). Item na sidebar.
+- **UI** (`components/rollout/RolloutPanel.tsx`, service `rollout-service.ts`): 3 abas internas —
+  Liberação (coorte: show_tab/planos/%/teste + "quantos atinge"), Adoção (KPIs + por plano +
+  lista de alunos), Quem é ativo (allow-list com contagem ao vivo). **Vive DENTRO da página
+  Atendimento** — toggle "Conversas | Rollout & Adoção" no cabeçalho do board (sem item extra na
+  sidebar nem rota própria, pra não poluir o menu).
 - Base medida hoje: ~785 engajáveis, 14 com push, 0 com last_seen (popula após Fase C em prod),
   1 usou chat.
+
+### Links clicáveis no chat
+As bolhas renderizam o `body` como texto puro; um helper `lib/linkify.tsx` (`renderWithLinks`,
+zero-dependência, idêntico nos dois repos) detecta URLs (http/https e `www.`) e as envolve em
+`<a target="_blank" rel="noopener noreferrer">`. Aplicado no `SupportChat` (app) e nas bolhas do
+`AtendimentoBoard` (back-office). Anexos de mídia continuam abrindo pelo botão "Abrir anexo".
 
 ## Fatia 2 — o que foi construído (mídia)
 
