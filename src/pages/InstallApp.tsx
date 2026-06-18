@@ -44,7 +44,7 @@ export default function InstallApp() {
             download
             className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto"
           >
-            <Download className="h-5 w-5" /> Baixar o app (.apk)
+            <Download className="h-5 w-5" /> Baixar o App (.apk)
           </a>
 
           <ol className="mt-5 space-y-3">
@@ -74,11 +74,16 @@ export default function InstallApp() {
           <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
             <Apple className="h-5 w-5 text-slate-700" /> iPhone (iOS)
           </h2>
-          <ol className="mt-4 space-y-3">
-            <Step n={1}>
-              Abra <a href="https://meu-acompanhamento.vercel.app/portal" className="font-medium text-emerald-600 hover:text-emerald-700">o portal</a>{' '}
-              no <strong>Safari</strong>.
-            </Step>
+
+          <a
+            href="/portal"
+            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700 sm:w-auto"
+          >
+            <Smartphone className="h-5 w-5" /> Acessar o App
+          </a>
+
+          <ol className="mt-5 space-y-3">
+            <Step n={1}>Abra o portal no <strong>Safari</strong>.</Step>
             <Step n={2}>Toque no botão <strong>Compartilhar</strong> (quadrado com seta para cima).</Step>
             <Step n={3}>Escolha <strong>Adicionar à Tela de Início</strong> e confirme.</Step>
             <Step n={4}>O app aparece na tela inicial, igual a um app normal.</Step>
