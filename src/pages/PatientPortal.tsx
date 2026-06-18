@@ -793,13 +793,28 @@ export default function PatientPortal() {
         description: 'Aguarde enquanto criamos seu arquivo'
       });
 
-      const canvas = await html2canvas(exportRef, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#0f172a',
-        logging: false,
-      });
+      // Força a largura "desktop" + avaliação dos breakpoints como web, pra o
+      // export sair no mesmo formato da versão web mesmo quando feito pelo celular.
+      const EXPORT_WIDTH = 1080;
+      const prevWidth = exportRef.style.width;
+      const prevMaxWidth = exportRef.style.maxWidth;
+      exportRef.style.width = `${EXPORT_WIDTH}px`;
+      exportRef.style.maxWidth = `${EXPORT_WIDTH}px`;
+      let canvas: HTMLCanvasElement;
+      try {
+        canvas = await html2canvas(exportRef, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: '#0f172a',
+          logging: false,
+          width: EXPORT_WIDTH,
+          windowWidth: EXPORT_WIDTH,
+        });
+      } finally {
+        exportRef.style.width = prevWidth;
+        exportRef.style.maxWidth = prevMaxWidth;
+      }
 
       if (format === 'png') {
         const dataURL = canvas.toDataURL('image/png', 1.0);

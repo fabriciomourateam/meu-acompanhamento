@@ -205,6 +205,32 @@ export function EvolutionExportPage({
   const maxFat = bodyFatData.length > 0 ? Math.max(...bodyFatData.map(d => d.value)) + 2 : 50;
   const rangeFat = maxFat - minFat || 1;
 
+  // Largura "desktop" usada na exportação. No celular o layout é estreito/empilhado;
+  // aqui forçamos a largura de web + a avaliação dos breakpoints (windowWidth) pra o
+  // PDF/imagem sair no mesmo formato da versão web, independente do aparelho.
+  const EXPORT_WIDTH = 1080;
+  const captureExport = async (): Promise<HTMLCanvasElement> => {
+    const node = exportRef.current as HTMLDivElement;
+    const prevWidth = node.style.width;
+    const prevMaxWidth = node.style.maxWidth;
+    node.style.width = `${EXPORT_WIDTH}px`;
+    node.style.maxWidth = `${EXPORT_WIDTH}px`;
+    try {
+      return await html2canvas(node, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: '#f8fafc',
+        logging: false,
+        width: EXPORT_WIDTH,
+        windowWidth: EXPORT_WIDTH,
+      });
+    } finally {
+      node.style.width = prevWidth;
+      node.style.maxWidth = prevMaxWidth;
+    }
+  };
+
   const exportAsImage = async (format: 'png' | 'jpeg') => {
     if (!exportRef.current) return;
 
@@ -215,13 +241,7 @@ export function EvolutionExportPage({
         description: 'Aguarde enquanto criamos sua imagem'
       });
 
-      const canvas = await html2canvas(exportRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#f8fafc',
-        logging: false,
-      });
+      const canvas = await captureExport();
 
       const dataURL = canvas.toDataURL(`image/${format}`, format === 'jpeg' ? 0.95 : 1.0);
       
@@ -259,13 +279,7 @@ export function EvolutionExportPage({
 
       const { jsPDF } = await import('jspdf');
 
-      const canvas = await html2canvas(exportRef.current, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: '#f8fafc',
-        logging: false,
-      });
+      const canvas = await captureExport();
 
       const imgData = canvas.toDataURL('image/png', 1.0);
       const pdfWidth = 210;
