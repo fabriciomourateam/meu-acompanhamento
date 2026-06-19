@@ -3,6 +3,7 @@ import { dietService } from '@/lib/diet-service';
 import { dietConsumptionService } from '@/lib/diet-consumption-service';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
 import { useToast } from '@/hooks/use-toast';
+import { getSaoPauloISODate } from '@/lib/utils';
 import confetti from 'canvas-confetti';
 
 // Hook que concentra TODO o estado e a lógica da aba de Dieta (carregar planos,
@@ -56,7 +57,7 @@ export function useDietData(patientId: string) {
         next[principalMealId] = chosenMealId;
       }
       try {
-        const today = new Date().toISOString().split('T')[0];
+        const today = getSaoPauloISODate();
         localStorage.setItem(`diet_primary_choice_${patientId}_${today}`, JSON.stringify(next));
       } catch { /* ignora */ }
       return next;
@@ -92,7 +93,7 @@ export function useDietData(patientId: string) {
 
   useEffect(() => {
     // Carregar refeições consumidas do localStorage
-    const today = new Date().toISOString().split('T')[0];
+    const today = getSaoPauloISODate();
     const key = `consumedMeals_${patientId}_${today}`;
     const saved = localStorage.getItem(key);
     if (saved) {
@@ -139,7 +140,7 @@ export function useDietData(patientId: string) {
         console.log('🧹 Removendo IDs de refeições inválidas/antigas');
         setConsumedMeals(validConsumed);
         // Atualizar localStorage também
-        const today = new Date().toISOString().split('T')[0];
+        const today = getSaoPauloISODate();
         const key = `consumedMeals_${patientId}_${today}`;
         localStorage.setItem(key, JSON.stringify(Array.from(validConsumed)));
       }
@@ -296,7 +297,7 @@ export function useDietData(patientId: string) {
     setConsumedMeals(newConsumedMeals);
     setConsumedFoods(newConsumedFoods);
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = getSaoPauloISODate();
     localStorage.setItem(`consumedMeals_${patientId}_${today}`, JSON.stringify(Array.from(newConsumedMeals)));
     localStorage.setItem(`consumedFoods_${patientId}_${today}`, JSON.stringify(Array.from(newConsumedFoods)));
 

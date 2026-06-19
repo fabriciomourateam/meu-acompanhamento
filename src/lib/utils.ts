@@ -107,6 +107,14 @@ export function getLocalISODate(date = new Date()): string {
   return new Date(date.getTime() - offset).toISOString().split('T')[0];
 }
 
+// Retorna a data YYYY-MM-DD SEMPRE no fuso de São Paulo (America/Sao_Paulo).
+// Use para o "dia" de check-ins, consumo de refeições, metas etc. — o dia
+// começa/termina à meia-noite de Brasília, não do navegador do aluno nem em UTC.
+// (en-CA formata como 'YYYY-MM-DD'.)
+export function getSaoPauloISODate(date = new Date()): string {
+  return date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+}
+
 // Converte uma string 'YYYY-MM-DD' para um objeto Date correspondente ao meio-dia local.
 // Isso evita que a data sofra "shift" para o dia anterior devido ao fuso horário (ex: UTF-3)
 export function parseLocalISODate(dateStr: string): Date {

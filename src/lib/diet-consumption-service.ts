@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
-import { getLocalISODate, parseLocalISODate } from '@/lib/utils';
+import { getLocalISODate, parseLocalISODate, getSaoPauloISODate } from '@/lib/utils';
 
 export interface DailyConsumption {
   id?: string;
@@ -52,7 +52,7 @@ export const dietConsumptionService = {
     consumedMealIds: string[],
     planDetails: any
   ): Promise<DailyConsumption> {
-    const today = getLocalISODate();
+    const today = getSaoPauloISODate();
 
     // Calcular totais consumidos
     let totalCalories = 0;
@@ -252,7 +252,7 @@ export const dietConsumptionService = {
         points_earned: points,
         action_type: actionType,
         action_description: actionDescription,
-        action_date: getLocalISODate(),
+        action_date: getSaoPauloISODate(),
       });
 
     return pointsData;
@@ -284,7 +284,7 @@ export const dietConsumptionService = {
     const unlocked: Achievement[] = [];
 
     // Buscar consumo do paciente
-    const todayDate = getLocalISODate();
+    const todayDate = getSaoPauloISODate();
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 30); // Buscar últimos 30 dias para streaks
 
@@ -482,7 +482,7 @@ export const dietConsumptionService = {
         points_earned: -pts,
         action_type: 'achievement_reverted',
         action_description: `Conquista revertida: ${achievement.achievement_name}`,
-        action_date: getLocalISODate(),
+        action_date: getSaoPauloISODate(),
       });
   },
 
