@@ -443,9 +443,13 @@ export function PatientDietPortal({
                 e a frase do rodapé só enquanto o Suporte está aberto. Desktop: inline. */}
             <div
               className="fixed inset-x-0 top-0 z-40 bg-slate-50 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
-              style={{ bottom: 'calc(64px + env(safe-area-inset-bottom))' }}
+              style={{ bottom: 'calc(72px + env(safe-area-inset-bottom))' }}
             >
-              <SupportChat patientId={patientId} active={activeTab === 'support'} />
+              <SupportChat
+                patientId={patientId}
+                active={activeTab === 'support'}
+                onBack={() => goToTab(TAB_ORDER[0] || 'diet')}
+              />
             </div>
           </TabsContent>
         )}
