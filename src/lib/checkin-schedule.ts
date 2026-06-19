@@ -55,6 +55,14 @@ export function isQuinzenal(plano?: string | null): boolean {
 
 // === Aritmética de datas em YYYY-MM-DD (ancorada em UTC, sem fuso do navegador) ===
 
+const YMD_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+/** true só para strings exatamente no formato YYYY-MM-DD com componentes coerentes. */
+function isValidYmd(s: string): boolean {
+  if (!YMD_RE.test(s)) return false;
+  return Number.isFinite(ymdToUTC(s));
+}
+
 function ymdToUTC(s: string): number {
   const [y, m, d] = s.split('-').map(Number);
   return Date.UTC(y, m - 1, d);
@@ -71,8 +79,11 @@ function addDays(s: string, n: number): string {
 }
 
 // Gera as datas de check-in (YYYY-MM-DD) dentro de [from, to], já filtradas por `>= inicio`.
+// Defensivo: validação do `inicio` acontece no chamador (getCheckinCycle); ainda assim os
+// loops têm teto de iterações como circuit-breaker — um NaN jamais pode travar a thread.
 function buildDueDates(inicio: string, from: string, to: string, quinzenal: boolean): string[] {
   const dates: string[] = [];
+  const MAX_ITER = 600; // ~muito além de qualquer janela real (today ± ~105 dias)
 
   if (quinzenal) {
     // Dias 1 e 15 de cada mês do calendário no intervalo.
@@ -83,7 +94,9 @@ function buildDueDates(inicio: string, from: string, to: string, quinzenal: bool
     m -= 1;
     if (m < 1) { m = 12; y -= 1; }
     const toUTC = ymdToUTC(to);
+    let iter = 0;
     while (ymdToUTC(`${y}-${String(m).padStart(2, '0')}-15`) <= toUTC + 31 * 86_400_000) {
+      if (++iter > MAX_ITER) break;
       for (const day of [1, 15]) {
         const d = `${y}-${String(m).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         if (ymdToUTC(d) >= ymdToUTC(from) && ymdToUTC(d) <= toUTC) dates.push(d);
@@ -95,8 +108,9 @@ function buildDueDates(inicio: string, from: string, to: string, quinzenal: bool
     // A cada 30 dias a partir de inicio; a 1ª data é inicio + 30.
     const fromUTC = ymdToUTC(from);
     const toUTC = ymdToUTC(to);
-    for (let k = 1; ; k++) {
-      const dUTC = ymdToUTC(inicio) + k * 30 * 86_400_000;
+    const inicioUTC = ymdToUTC(inicio);
+    for (let k = 1; k <= MAX_ITER; k++) {
+      const dUTC = inicioUTC + k * 30 * 86_400_000;
       if (dUTC > toUTC) break;
       if (dUTC >= fromUTC) dates.push(new Date(dUTC).toISOString().slice(0, 10));
     }
@@ -116,8 +130,15 @@ export interface CheckinCycleInput {
  * Estado pode ser locked | open | overdue.
  */
 export function getCheckinCycle({ inicio, plano, hoje }: CheckinCycleInput): CheckinCycle | null {
-  if (!inicio) return null;
-  const today = hoje || getBrtISODate();
+  // Normaliza/valida o início: a coluna é `date`, mas pode vir como timestamp
+  // ('YYYY-MM-DDT…') ou sujo. Pegamos só os 10 primeiros chars e exigimos
+  // YYYY-MM-DD válido — qualquer coisa fora disso vira NaN no cálculo e poderia
+  // travar a thread, então abortamos cedo (badge some).
+  const inicioYmd = (inicio || '').slice(0, 10);
+  if (!isValidYmd(inicioYmd)) return null;
+  inicio = inicioYmd;
+
+  const today = isValidYmd((hoje || '').slice(0, 10)) ? hoje!.slice(0, 10) : getBrtISODate();
   const quinzenal = isQuinzenal(plano);
 
   // Janela ampla o suficiente pra achar o ciclo atual e o próximo.

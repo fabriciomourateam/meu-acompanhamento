@@ -70,5 +70,16 @@ eq('quinzenal overdue due 01', M.getCheckinCycle({ inicio: '2026-05-01', plano: 
 eq('quinzenal rola pro 15 (12)', M.getCheckinCycle({ inicio: '2026-05-01', plano: q, hoje: '2026-06-12' }).dueDate, '2026-06-15');
 eq('quinzenal next vira mês', M.getCheckinCycle({ inicio: '2026-05-01', plano: q, hoje: '2026-06-15' }).nextDate, '2026-07-01');
 
+// === Robustez: entrada malformada NÃO pode travar (loop infinito) nem explodir ===
+eq('inicio vazio → null', M.getCheckinCycle({ inicio: '', plano, hoje: '2026-01-10' }), null);
+eq('inicio null → null', M.getCheckinStatus({ inicio: null, plano, hoje: '2026-01-10' }), null);
+eq('inicio timestamp ISO → normaliza', M.getCheckinCycle({ inicio: '2026-01-01T00:00:00.000Z', plano, hoje: '2026-01-10' }).state, 'locked');
+// Formato REAL do banco (timestamp without time zone, com espaço): não pode travar.
+eq('inicio timestamp do banco → normaliza', M.getCheckinCycle({ inicio: '2026-01-01 00:00:00', plano, hoje: '2026-01-10' }).state, 'locked');
+eq('inicio timestamp do banco → daysUntil', M.getCheckinCycle({ inicio: '2026-01-01 00:00:00', plano, hoje: '2026-01-10' }).daysUntil, 21);
+eq('inicio lixo → null', M.getCheckinCycle({ inicio: 'sei lá', plano, hoje: '2026-01-10' }), null);
+eq('inicio só números curtos → null', M.getCheckinCycle({ inicio: '123', plano, hoje: '2026-01-10' }), null);
+eq('inicio futuro distante → null (sem janela)', M.getCheckinCycle({ inicio: '2099-01-01', plano, hoje: '2026-01-10' }), null);
+
 console.log(`\n${pass} passaram, ${fail} falharam`);
 process.exit(fail ? 1 : 0);
