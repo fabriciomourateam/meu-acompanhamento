@@ -1,6 +1,6 @@
 // Service Worker para PWA - Compatível com Vercel
-const CACHE_NAME = 'meu-acompanhamento-v27';
-const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v27';
+const CACHE_NAME = 'meu-acompanhamento-v28';
+const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v28';
 
 // Recursos estáticos para cachear na instalação
 const urlsToCache = [

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -72,7 +72,10 @@ export function PatientDietPortal({
   // Check-ins recém-enviados nesta sessão (otimista): fazem a badge virar "feito"
   // sem esperar o reload que recarrega os check-ins do banco.
   const [justSentCheckins, setJustSentCheckins] = useState<any[]>([]);
-  const checkinList = [...(checkins || []), ...justSentCheckins];
+  const checkinList = useMemo(
+    () => [...(checkins || []), ...justSentCheckins],
+    [checkins, justSentCheckins],
+  );
   const handleCheckinDone = () => {
     setJustSentCheckins((prev) => [...prev, { data_preenchimento: new Date().toISOString() }]);
     setCheckinOpen(false);

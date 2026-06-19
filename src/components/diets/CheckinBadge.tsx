@@ -162,13 +162,13 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
     );
   }
 
-  // === Variante full (card grande) ===
+  // === Variante full (card compacto) ===
   return (
     <motion.div
-      initial={{ opacity: 0, y: 16, scale: 0.97 }}
+      initial={{ opacity: 0, y: 12, scale: 0.98 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-      className={`relative overflow-hidden rounded-3xl border-t border-white/15 bg-gradient-to-br ${style.gradient} p-5 sm:p-6 shadow-xl shadow-black/10 ring-1 ring-black/5`}
+      transition={{ type: 'spring', stiffness: 240, damping: 24 }}
+      className={`relative overflow-hidden rounded-2xl border-t border-white/15 bg-gradient-to-br ${style.gradient} px-4 py-3.5 sm:px-5 sm:py-4 shadow-lg shadow-black/10 ring-1 ring-black/5`}
     >
       {/* Shimmer no estado aberto — varre o card convidando pra ação */}
       {state === 'open' && (
@@ -184,36 +184,38 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
       {/* Glow radial atrás do número */}
       <motion.div
         aria-hidden
-        className={`pointer-events-none absolute -top-10 right-2 w-40 h-40 rounded-full blur-3xl ${style.glow}`}
+        className={`pointer-events-none absolute -top-8 right-2 w-32 h-32 rounded-full blur-3xl ${style.glow}`}
         animate={state === 'overdue' ? { opacity: [0.5, 1, 0.5], scale: [1, 1.12, 1] } : undefined}
         transition={state === 'overdue' ? { duration: 1.8, repeat: Infinity, ease: 'easeInOut' } : undefined}
       />
 
-      <div className="relative flex items-start justify-between gap-4">
-        {/* Esquerda: chip de ícone + status */}
-        <div className="flex items-start gap-3">
-          <span className="shrink-0 flex items-center justify-center w-11 h-11 rounded-2xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-inner">
+      <div className="relative flex items-center justify-between gap-3">
+        {/* Esquerda: chip de ícone + status + caption */}
+        <div className="flex items-center gap-3 min-w-0">
+          <span className="shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-inner">
             {style.icon}
           </span>
-          <div>
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">Seu check-in</p>
-            <p className="text-2xl sm:text-3xl font-black text-white leading-tight">{status}</p>
-            {subtitle && <p className="text-xs text-white/70 mt-0.5">{subtitle}</p>}
+          <div className="min-w-0">
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60">Seu check-in</p>
+            <p className="text-xl sm:text-2xl font-bold text-white leading-tight">{status}</p>
+            {subtitle && <p className="text-[11px] text-white/70 mt-0.5 truncate">{subtitle}</p>}
           </div>
         </div>
 
-        {/* Direita: número grandão */}
-        <div className="text-right shrink-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-white/70">{numberLabel}</p>
-          <p className="text-5xl font-black leading-none tabular-nums bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent drop-shadow">
+        {/* Direita: número */}
+        <div className="text-right shrink-0 leading-none">
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60 mb-0.5">{numberLabel}</p>
+          <p className="text-4xl font-black tabular-nums bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
             {bigValue}
           </p>
-          {unit && <p className="text-xs text-white/70 mt-0.5">{unit}</p>}
+          {unit && <p className="text-[11px] text-white/70 mt-0.5">{unit}</p>}
         </div>
       </div>
 
-      {/* Caption única centralizada */}
-      <p className="relative mt-4 text-center text-sm font-medium text-white/90">{caption}</p>
+      {/* Caption — alinhada à esquerda, compacta (não fica perdida no centro) */}
+      {caption && (
+        <p className="relative mt-2.5 text-[13px] leading-snug text-white/85">{caption}</p>
+      )}
 
       {/* Botão (apenas open/overdue) */}
       {showButton && (
@@ -223,7 +225,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
           whileTap={{ scale: 0.97 }}
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative mt-4 w-full flex items-center justify-center gap-2 rounded-2xl bg-white/95 hover:bg-white text-slate-900 font-bold py-3 shadow-lg transition-colors"
+          className="relative mt-3 w-full flex items-center justify-center gap-2 rounded-xl bg-white/95 hover:bg-white text-slate-900 font-bold text-sm py-2.5 shadow-md transition-colors"
         >
           <Camera className="w-4 h-4" />
           Preencher meu check-in

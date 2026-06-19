@@ -699,3 +699,21 @@ app do aluno (o n8n segue em paralelo durante a transição).
       página de check-ins do back-office e chega a confirmação no chat (+push).
 - [ ] Migração `20260703_checkin_chat_confirm.sql` aplicada em prod (via MCP/CLI).
 - [x] Domínio de prod confirmado: `https://my-shape.app`.
+
+### Hotfix + varredura ponta a ponta (2026-06-19)
+- **Loop infinito (app travava no load):** `inicio_acompanhamento` é `timestamp`
+  ("YYYY-MM-DD HH:MM:SS"); o parser de data gerava NaN e o loop de geração de datas
+  não terminava. Corrigido: normaliza/valida o início (slice 0..10 + isValidYmd) e
+  teto de iterações nos loops de `buildDueDates`. Testes cobrem o formato real do banco.
+- **Card redesenhado:** mais compacto (menos altura/padding), caption alinhada à
+  esquerda (não fica perdida centralizada), número text-4xl. Mantém glow/shimmer/pulso.
+- **CheckinOverlay:** z-index acima da barra inferior (z-[10000]); valida `event.origin`
+  no listener de `postMessage` (anti-spoof de 'checkin-done'); fallback "abrir em nova aba"
+  se o iframe não carregar em 12s.
+- **getCheckinStatus:** saneia `hoje` no ramo `done` (evita NaN se vier timestamp).
+- **PatientDietPortal:** `checkinList` memoizado.
+- **Service worker:** cache v27→v28 (limpa o bundle antigo de todos no próximo acesso,
+  sem deslogar — o SW já é network-first, então reload online já pega o fix).
+- **Trigger de confirmação:** não dispara mais no check-in `inicial` da anamnese
+  (cadastro). Validada em produção com rollback: cria 1 confirmação no check-in de
+  evolução, 0 no inicial, sem erro de permissão.

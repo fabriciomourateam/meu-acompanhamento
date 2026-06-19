@@ -213,12 +213,14 @@ export function getCheckinStatus({ inicio, plano, hoje, checkins }: CheckinStatu
 
   if (!fulfilled) return cycle;
 
-  // done: próximo check-in = a data seguinte à atual.
+  // done: próximo check-in = a data seguinte à atual. `hoje` é saneado igual ao
+  // getCheckinCycle (pode chegar como timestamp) pra não gerar NaN no daysUntil.
+  const today = isValidYmd((hoje || '').slice(0, 10)) ? hoje!.slice(0, 10) : getBrtISODate();
   const nextDate = cycle.nextDate;
   return {
     ...cycle,
     state: 'done',
-    daysUntil: nextDate ? diffDays(nextDate, hoje || getBrtISODate()) : cycle.daysUntil,
+    daysUntil: nextDate ? diffDays(nextDate, today) : cycle.daysUntil,
   };
 }
 

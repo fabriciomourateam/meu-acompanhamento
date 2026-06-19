@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Loader2 } from 'lucide-react';
+import { X, Loader2, ExternalLink } from 'lucide-react';
 
 interface CheckinOverlayProps {
   open: boolean;
@@ -17,20 +17,33 @@ const CHECKIN_BASE_URL =
   (import.meta.env.VITE_CHECKIN_BASE_URL as string | undefined) || 'https://my-shape.app';
 const CHECKIN_SLUG = (import.meta.env.VITE_CHECKIN_SLUG as string | undefined) || 'fmteam';
 
+// Origem esperada das mensagens do iframe (pra não aceitar 'checkin-done' de qualquer site).
+let CHECKIN_ORIGIN = '';
+try { CHECKIN_ORIGIN = new URL(CHECKIN_BASE_URL).origin; } catch { /* base inválida */ }
+
 export function CheckinOverlay({ open, phone, onClose, onDone }: CheckinOverlayProps) {
   const [loading, setLoading] = useState(true);
+  const [stuck, setStuck] = useState(false);
 
   // Ouve o aviso de conclusão vindo do iframe (window.parent.postMessage no PublicCheckin).
   useEffect(() => {
     if (!open) return;
     setLoading(true);
+    setStuck(false);
     const handler = (e: MessageEvent) => {
+      // Só aceita mensagem da origem do check-in (evita spoof de 'checkin-done').
+      if (CHECKIN_ORIGIN && e.origin !== CHECKIN_ORIGIN) return;
       const data = e.data;
       const isDone = data === 'checkin-done' || (data && typeof data === 'object' && data.type === 'checkin-done');
       if (isDone) onDone();
     };
     window.addEventListener('message', handler);
-    return () => window.removeEventListener('message', handler);
+    // Se o iframe não carregar em 12s (offline, bloqueio de embed, etc.), oferece fallback.
+    const t = window.setTimeout(() => setStuck(true), 12_000);
+    return () => {
+      window.removeEventListener('message', handler);
+      window.clearTimeout(t);
+    };
   }, [open, onDone]);
 
   const src = `${CHECKIN_BASE_URL}/checkin/${CHECKIN_SLUG}?phone=${encodeURIComponent(phone || '')}&embed=1`;
@@ -42,7 +55,7 @@ export function CheckinOverlay({ open, phone, onClose, onDone }: CheckinOverlayP
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9998] bg-slate-950 flex flex-col"
+          className="fixed inset-0 z-[10000] bg-slate-950 flex flex-col"
           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
         >
           {/* Cabeçalho com fechar */}
@@ -58,10 +71,25 @@ export function CheckinOverlay({ open, phone, onClose, onDone }: CheckinOverlayP
             </button>
           </div>
 
-          {/* Loader enquanto o iframe carrega */}
+          {/* Loader / fallback enquanto o iframe carrega */}
           {loading && (
-            <div className="absolute inset-0 top-14 flex items-center justify-center bg-slate-950 pointer-events-none">
-              <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+            <div className="absolute inset-x-0 top-14 bottom-0 flex flex-col items-center justify-center gap-4 bg-slate-950 px-6 text-center">
+              {!stuck ? (
+                <Loader2 className="w-8 h-8 text-emerald-400 animate-spin" />
+              ) : (
+                <>
+                  <p className="text-sm text-slate-300">Demorou pra carregar aqui dentro.</p>
+                  <a
+                    href={src}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-4 py-2.5 transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    Abrir o check-in em nova aba
+                  </a>
+                </>
+              )}
             </div>
           )}
 
