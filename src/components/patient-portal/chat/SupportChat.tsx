@@ -4,7 +4,7 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile, Check, CheckCheck, Reply } from 'lucide-react';
+import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile, Check, CheckCheck, Reply, ArrowLeft } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
@@ -117,9 +117,11 @@ interface SupportChatProps {
   patientId: string;
   /** Quando true, a aba está visível e o polling roda. */
   active?: boolean;
+  /** Botão "voltar" no cabeçalho (mobile tela cheia). Se ausente, o botão não aparece. */
+  onBack?: () => void;
 }
 
-export function SupportChat({ patientId, active = true }: SupportChatProps) {
+export function SupportChat({ patientId, active = true, onBack }: SupportChatProps) {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(true);
@@ -437,9 +439,9 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
 
   return (
     <div className="flex h-full flex-col overflow-hidden border-0 bg-white sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
-      {/* Cabeçalho */}
-      <div className="flex items-center gap-3 border-b border-slate-100 bg-emerald-500 px-4 py-3">
-        <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20">
+      {/* Cabeçalho (respeita a status bar do celular via safe-area no topo) */}
+      <div className="flex items-center gap-3 border-b border-slate-100 bg-emerald-500 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/20">
           {photoOk ? (
             <img
               src="/fabricio.jpg"
@@ -448,15 +450,25 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
               onError={() => setPhotoOk(false)}
             />
           ) : (
-            <MessageCircle className="h-5 w-5 text-white" />
+            <MessageCircle className="h-6 w-6 text-white" />
           )}
         </div>
-        <div>
-          <p className="text-sm font-semibold text-white">Fabricio Moura</p>
-          <p className="text-[11px] text-emerald-50">
+        <div className="min-w-0 flex-1">
+          <p className="text-base font-semibold text-white">Fabricio Moura</p>
+          <p className="truncate text-xs text-emerald-50">
             {teamTyping ? 'Fabricio está digitando…' : 'Mande mensagem para dúvidas e orientações'}
           </p>
         </div>
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            aria-label="Voltar"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30 active:scale-95 sm:hidden"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+        )}
       </div>
 
       {/* Convite pra ativar notificações (some quando já ativo ou dispensado) */}
