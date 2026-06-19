@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { dietService } from '@/lib/diet-service';
+import { getSaoPauloISODate } from '@/lib/utils';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { DietPlanImportModal } from '@/components/import/DietPlanImportModal';
 import { SaveAsTemplateModal } from './SaveAsTemplateModal';
@@ -214,7 +215,7 @@ export function DietPlansList({ patientId }: DietPlansListProps) {
       setIsDetailsOpen(true);
       
       // Carregar refeições consumidas (banco de dados + localStorage como fallback)
-      const today = new Date().toISOString().split('T')[0];
+      const today = getSaoPauloISODate();
       try {
         const { dietConsumptionService } = await import('@/lib/diet-consumption-service');
         const consumption = await dietConsumptionService.getConsumptionHistory(
@@ -258,7 +259,7 @@ export function DietPlansList({ patientId }: DietPlansListProps) {
   const handleToggleMealConsumed = async (mealId: string) => {
     if (!selectedPlan || !planDetails) return;
     
-    const today = new Date().toISOString().split('T')[0];
+    const today = getSaoPauloISODate();
     const storageKey = `consumed_meals_${selectedPlan.id}_${today}`;
     const newConsumed = new Set(consumedMeals);
     

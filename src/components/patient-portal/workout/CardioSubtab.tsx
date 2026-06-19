@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { workoutExtrasService, type CardioLog, type CardioTotals, type PrescribedCardio } from '@/lib/workout/workout-extras-service';
 import type { HubSession } from '@/lib/workout/types';
+import { getSaoPauloISODate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -406,7 +407,7 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
   const [duration, setDuration] = useState('30');
   const [modality, setModality] = useState('');
   const [intensity, setIntensity] = useState<'leve' | 'moderado' | 'forte' | 'hiit'>('moderado');
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [date, setDate] = useState(getSaoPauloISODate());
   const [notes, setNotes] = useState('');
   const [saving, setSaving] = useState(false);
 
