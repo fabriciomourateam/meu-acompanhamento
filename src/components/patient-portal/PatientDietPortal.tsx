@@ -24,6 +24,7 @@ import { DietTab } from '@/components/patient-portal/diet/DietTab';
 import { SupportChat } from '@/components/patient-portal/chat/SupportChat';
 import { useDietData } from '@/components/patient-portal/diet/useDietData';
 import { portalSettingsService, shouldShowSupport, type PortalConfig } from '@/lib/portal-settings-service';
+import { isOwnerPatient } from '@/lib/owner';
 import { communityService } from '@/lib/community-service';
 import { chatService } from '@/lib/chat-service';
 import { Utensils } from 'lucide-react';
@@ -452,6 +453,7 @@ export function PatientDietPortal({
                 patientId={patientId}
                 active={activeTab === 'support'}
                 onBack={() => goToTab(TAB_ORDER[0] || 'diet')}
+                useInstallPage={isOwnerPatient(patient)}
               />
             </div>
           </TabsContent>

@@ -9,6 +9,7 @@ import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, More
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
 import { pushService } from '@/lib/push-service';
+import { InstallPWAButton } from '@/components/InstallPWAButton';
 import { renderWithLinks } from '@/lib/linkify';
 
 // Lembra (por aparelho) que o aluno dispensou o convite de notificação no chat.
@@ -119,9 +120,12 @@ interface SupportChatProps {
   active?: boolean;
   /** Botão "voltar" no cabeçalho (mobile tela cheia). Se ausente, o botão não aparece. */
   onBack?: () => void;
+  /** Aluno do dono (Fabricio) → nudge de instalar abre a página /instalar; os demais
+   *  treinadores veem o modal genérico. */
+  useInstallPage?: boolean;
 }
 
-export function SupportChat({ patientId, active = true, onBack }: SupportChatProps) {
+export function SupportChat({ patientId, active = true, onBack, useInstallPage }: SupportChatProps) {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(true);
@@ -131,6 +135,7 @@ export function SupportChat({ patientId, active = true, onBack }: SupportChatPro
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [nudge, setNudge] = useState(false);
   const [nudgeBusy, setNudgeBusy] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
   const navigate = useNavigate();
   // Editar/apagar: id da mensagem em edição e qual bolha está com o menu aberto.
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -165,7 +170,8 @@ export function SupportChat({ patientId, active = true, onBack }: SupportChatPro
 
   const enableNudge = async () => {
     if (iosNeedsInstall) {
-      navigate('/instalar');
+      if (useInstallPage) navigate('/instalar');
+      else setShowInstall(true);
       return;
     }
     setNudgeBusy(true);
@@ -490,6 +496,9 @@ export function SupportChat({ patientId, active = true, onBack }: SupportChatPro
           </button>
         </div>
       )}
+
+      {/* Modal de instruções de instalação (iPhone, alunos de outros treinadores) */}
+      <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
 
       {/* Thread */}
       <div className="scrollbar-emerald flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-slate-50 px-3 py-4">

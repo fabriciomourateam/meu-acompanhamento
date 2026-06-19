@@ -3,9 +3,13 @@ import { useNavigate } from 'react-router-dom';
 import { BellRing, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pushService } from '@/lib/push-service';
+import { InstallPWAButton } from '@/components/InstallPWAButton';
 
 interface Props {
   patientId: string;
+  /** Aluno do dono (Fabricio) → "Como instalar" abre a página /instalar; os demais
+   *  treinadores veem o modal genérico de instruções. */
+  isOwner?: boolean;
 }
 
 // Chave para lembrar que o aluno dispensou o convite (por aparelho).
@@ -19,11 +23,12 @@ const DISMISS_KEY = 'notif-banner-dismissed';
  *  - o navegador não suporta push.
  * No iPhone fora do app instalado, mostra a dica de adicionar à Tela de Início.
  */
-export function EnableNotificationsBanner({ patientId }: Props) {
+export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [showInstall, setShowInstall] = useState(false);
 
   const iosNeedsInstall = pushService.isIOS() && !pushService.isStandalone();
 
@@ -85,7 +90,7 @@ export function EnableNotificationsBanner({ patientId }: Props) {
       </div>
       {iosNeedsInstall ? (
         <button
-          onClick={() => navigate('/instalar')}
+          onClick={() => (isOwner ? navigate('/instalar') : setShowInstall(true))}
           className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
         >
           Como instalar
@@ -102,6 +107,9 @@ export function EnableNotificationsBanner({ patientId }: Props) {
       <button onClick={dismiss} aria-label="Dispensar" className="shrink-0 text-slate-400 hover:text-slate-600">
         <X className="h-4 w-4" />
       </button>
+
+      {/* Modal de instruções de instalação (alunos de outros treinadores). */}
+      <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
     </div>
   );
 }
