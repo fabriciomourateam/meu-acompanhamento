@@ -437,8 +437,16 @@ export function PatientDietPortal({
         )}
 
         {showSupport && (
-          <TabsContent value="support" className="mt-6">
-            <SupportChat patientId={patientId} active={activeTab === 'support'} />
+          <TabsContent value="support" className="mt-0 sm:mt-6">
+            {/* Mobile: chat quase tela cheia — camada fixa do topo até logo acima da
+                barra inferior (que fica por cima, z-[9999]). Cobre o card de saudação
+                e a frase do rodapé só enquanto o Suporte está aberto. Desktop: inline. */}
+            <div
+              className="fixed inset-x-0 top-0 z-40 bg-slate-50 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
+              style={{ bottom: 'calc(64px + env(safe-area-inset-bottom))' }}
+            >
+              <SupportChat patientId={patientId} active={activeTab === 'support'} />
+            </div>
           </TabsContent>
         )}
       </Tabs>

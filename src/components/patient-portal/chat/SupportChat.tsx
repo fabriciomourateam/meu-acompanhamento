@@ -436,7 +436,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
   const canSend = (!!body.trim() || !!pendingFile) && !sending && !recorder.recording;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden border-0 bg-white sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
       {/* Cabeçalho */}
       <div className="flex items-center gap-3 border-b border-slate-100 bg-emerald-500 px-4 py-3">
         <div className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-white/20">
@@ -483,7 +483,7 @@ export function SupportChat({ patientId, active = true }: SupportChatProps) {
       <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
 
       {/* Thread */}
-      <div className="flex h-[55vh] flex-col gap-2 overflow-y-auto bg-slate-50 px-3 py-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-slate-50 px-3 py-4">
         {loading ? (
           <div className="flex flex-1 items-center justify-center text-slate-400">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando...
