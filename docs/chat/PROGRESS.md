@@ -626,3 +626,25 @@ futuro.
 ### Falta validar (manual, na UI real)
 - [ ] App do aluno: Suporte sem barra de abas, chat até embaixo, ← volta; scrollbar clara.
 - [ ] Back-office: 3ª aba "Régua de ausência" abre o painel sem erro 500 no console.
+
+---
+
+## "Instalar app" passa a abrir a página /instalar (2026-06-19)
+
+Antes existiam dois caminhos de instalação desincronizados: o modal antigo
+(`InstallPWAButton`, instruções genéricas de PWA, sem APK/vídeo) e a página nova
+`/instalar` (`pages/InstallApp.tsx`, com APK do Android + vídeos). O modal estava
+desatualizado.
+
+- `InstallPWAButton` virou um botão simples que **navega pra `/instalar`** (mantém o
+  visual do header e some quando o app já está instalado/standalone). Removido todo o
+  dialog antigo (Collapsible/Card, `beforeinstallprompt`, props mortos `triggerless`/
+  `open`/`onOpenChange`/`asMenuItem`).
+- Banner de notificações iOS ("Como instalar") e o nudge de instalar do chat agora
+  navegam pra `/instalar` (não abrem mais o modal embutido).
+- `pages/InstallApp.tsx`: "Voltar" ficou inteligente (`navigate(-1)` quando há histórico,
+  senão `/`) pra voltar pra tela de onde o aluno veio.
+- Tradeoff: perdeu-se o install nativo `beforeinstallprompt` (one-tap no Chrome/desktop),
+  coerente com a estratégia APK-first; pode ser readicionado à página depois.
+
+`npm run build` limpo.

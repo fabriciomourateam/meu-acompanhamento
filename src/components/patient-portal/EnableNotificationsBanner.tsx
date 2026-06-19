@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BellRing, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pushService } from '@/lib/push-service';
-import { InstallPWAButton } from '@/components/InstallPWAButton';
 
 interface Props {
   patientId: string;
@@ -21,9 +21,9 @@ const DISMISS_KEY = 'notif-banner-dismissed';
  */
 export function EnableNotificationsBanner({ patientId }: Props) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
-  const [showInstall, setShowInstall] = useState(false);
 
   const iosNeedsInstall = pushService.isIOS() && !pushService.isStandalone();
 
@@ -85,7 +85,7 @@ export function EnableNotificationsBanner({ patientId }: Props) {
       </div>
       {iosNeedsInstall ? (
         <button
-          onClick={() => setShowInstall(true)}
+          onClick={() => navigate('/instalar')}
           className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
         >
           Como instalar
@@ -102,9 +102,6 @@ export function EnableNotificationsBanner({ patientId }: Props) {
       <button onClick={dismiss} aria-label="Dispensar" className="shrink-0 text-slate-400 hover:text-slate-600">
         <X className="h-4 w-4" />
       </button>
-
-      {/* Diálogo de instruções de instalação (reusa o InstallPWAButton). */}
-      <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
     </div>
   );
 }
