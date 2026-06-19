@@ -347,3 +347,13 @@ token). O `PatientDietPortal` escuta e faz `goToTab('support')`. App fechado: ab
 - [ ] "digitando…" aparece dos dois lados quase na hora.
 - [ ] Responder mostra a citação no composer e o bloco citado na bolha enviada.
 - [ ] Reagir mostra o emoji na bolha dos dois lados; re-reagir com a mesma emoji remove.
+
+---
+
+## Cross-ref: Check-in no app do aluno (2026-06-19)
+
+O check-in passou a ser embutido no app do aluno (iframe da rota `/checkin` do back-office)
+com um card de estado do ciclo e confirmação automática **no chat** ao receber o check-in
+(trigger `AFTER INSERT ON checkin` → `chat_system_send_to_patient`, gated pela mesma régua
+de rollout do Suporte). Design e estado completo desta fatia ficam no **PROGRESS.md**
+(seção "Check-in no app do aluno"). Mantido aqui só como ponteiro pra não duplicar.

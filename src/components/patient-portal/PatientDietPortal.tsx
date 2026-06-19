@@ -22,6 +22,8 @@ import { MobileBottomNav } from '@/components/patient-portal/MobileBottomNav';
 import { WorkoutTab } from '@/components/patient-portal/workout/WorkoutTab';
 import { DietTab } from '@/components/patient-portal/diet/DietTab';
 import { SupportChat } from '@/components/patient-portal/chat/SupportChat';
+import { CheckinBadge } from '@/components/diets/CheckinBadge';
+import { CheckinOverlay } from '@/components/checkin/CheckinOverlay';
 import { useDietData } from '@/components/patient-portal/diet/useDietData';
 import { portalSettingsService, shouldShowSupport, type PortalConfig } from '@/lib/portal-settings-service';
 import { isOwnerPatient } from '@/lib/owner';
@@ -65,6 +67,16 @@ export function PatientDietPortal({
   });
   // Sub-aba ativa dentro de "Progresso": Metas / Ranking / Conquistas.
   const [progressSubtab, setProgressSubtab] = useState<string>('metas');
+  // Check-in embutido (iframe do formulário do back-office).
+  const [checkinOpen, setCheckinOpen] = useState(false);
+  // Check-ins recém-enviados nesta sessão (otimista): fazem a badge virar "feito"
+  // sem esperar o reload que recarrega os check-ins do banco.
+  const [justSentCheckins, setJustSentCheckins] = useState<any[]>([]);
+  const checkinList = [...(checkins || []), ...justSentCheckins];
+  const handleCheckinDone = () => {
+    setJustSentCheckins((prev) => [...prev, { data_preenchimento: new Date().toISOString() }]);
+    setCheckinOpen(false);
+  };
   // Visibilidade configurável pelo treinador no /admin (default: tudo visível).
   const showDiet = portalConfig?.visibility?.tab_diet !== false;
   const showWorkout = portalConfig?.visibility?.tab_workout !== false && !!token;
@@ -313,6 +325,14 @@ export function PatientDietPortal({
 
         {/* Aba: Dieta — sub-tabs Plano Alimentar + Suplementos + Substituições */}
         <TabsContent value="diet" className="mt-6 space-y-4">
+          {/* Atalho de check-in: só aparece quando a janela está aberta ou atrasada */}
+          <CheckinBadge
+            variant="mini"
+            inicio={patient?.inicio_acompanhamento}
+            plano={patient?.plano}
+            checkins={checkinList}
+            onFill={() => setCheckinOpen(true)}
+          />
           <DietTab
             diet={diet}
             patientId={patientId}
@@ -401,6 +421,13 @@ export function PatientDietPortal({
 
         {/* Aba: Resultados (Fusão de Progresso e Evolução) */}
         <TabsContent value="results" className="mt-6 space-y-8">
+          {/* Card "Seu Check-in" — estado do ciclo (locked/aberto/atrasado/feito) */}
+          <CheckinBadge
+            inicio={patient?.inicio_acompanhamento}
+            plano={patient?.plano}
+            checkins={checkinList}
+            onFill={() => setCheckinOpen(true)}
+          />
           <section>
             <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
               <span className="text-2xl">⚖️</span> Evolução Corporal
@@ -459,6 +486,14 @@ export function PatientDietPortal({
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Formulário de check-in embutido (iframe do back-office) */}
+      <CheckinOverlay
+        open={checkinOpen}
+        phone={patient?.telefone}
+        onClose={() => setCheckinOpen(false)}
+        onDone={handleCheckinDone}
+      />
     </div>
   );
 }

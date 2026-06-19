@@ -653,3 +653,48 @@ treinadores → modal genérico**.
 > (commit `a2e30d2`). Revertido em favor do roteamento por dono acima.
 
 `npm run build` limpo.
+
+---
+
+## Check-in no app do aluno (2026-06-19) — meu-acompanhamento + controle-de-pacientes
+
+Registrado aqui pra manter os dois PROGRESS em sincronia. Traz o check-in pra dentro do
+app do aluno (o n8n segue em paralelo durante a transição).
+
+### Feito
+- **Agenda do ciclo** (`meu-acompanhamento/src/lib/checkin-schedule.ts`, puro, BRT):
+  `getCheckinCycle` / `getCheckinStatus` decidem `locked | open | overdue | done`.
+  - Coorte **quinzenal** (planos PREMIUM Parceria/Semestral/Trimestral/Antigo|Anual) =
+    dias 1 e 15 do calendário; demais = a cada 30 dias a partir de `inicio_acompanhamento`
+    (1ª data = inicio+30).
+  - Janela abre `WINDOW_OPEN_DAYS=3` dias antes. Vencimento +`OVERDUE_GRACE_DAYS=1` ainda
+    é "aberto"; a partir de 2 dias vira "atrasado". Atraso persiste até preencher OU até a
+    janela do próximo ciclo abrir (rola sozinho). `done` = check-in enviado dentro da janela.
+  - Verificação: `npm run test:checkin` (script esbuild, 21 casos — mensal, quinzenal,
+    rolagem, done, virada de mês).
+- **Card "Seu Check-in"** (`src/components/diets/CheckinBadge.tsx`): topo da aba Evolução,
+  premium (sem barra, caption centralizada, glow radial, borda de luz, chip de ícone de
+  vidro, número tabular, entrada spring; shimmer no aberto, pulso no atrasado, confete no
+  feito). Variante `mini` (atalho 1 linha) no topo da Dieta, só em aberto/atrasado.
+- **Overlay embutido** (`src/components/checkin/CheckinOverlay.tsx`): iframe da rota
+  `/checkin/<slug>?phone=<tel>&embed=1` do back-office (envs `VITE_CHECKIN_BASE_URL`
+  default `https://dashboard-fmteam.vercel.app`, `VITE_CHECKIN_SLUG` default `fmteam`).
+  Fecha ao receber `postMessage('checkin-done')` e a badge vira "feito" otimista.
+- **Formulário** (`controle-de-pacientes/src/pages/PublicCheckin.tsx`): aceita `?phone=`
+  (auto-seleciona o paciente, pula a tela de telefone) e `?embed=1` (avisa o app pai ao
+  concluir). Link público normal `/checkin/:token` inalterado.
+- **Confirmação no chat** (migração `20260703_checkin_chat_confirm.sql`): trigger
+  `AFTER INSERT ON checkin` resolve o paciente por telefone (restrito ao dono do check-in)
+  e, se o dono tem rollout de chat e o plano é elegível (mesma régua do Suporte), entrega
+  "✅ Recebemos seu check-in, {nome}! Em até 48h úteis o Fabricio te envia o feedback. 💪"
+  via `chat_system_send_to_patient` (in-app + push). Best-effort: nunca derruba o insert.
+
+### Build / testes
+- `npm run build` limpo nos dois repos. `npm run test:checkin` 21/21 no app do aluno.
+
+### Falta validar (manual, na UI real — precisa do Fabricio)
+- [ ] Aluno mensal e quinzenal: contagem/estado corretos no card e no atalho.
+- [ ] Botão abre o iframe; preencher → overlay fecha, badge vira "feito", linha aparece na
+      página de check-ins do back-office e chega a confirmação no chat (+push).
+- [ ] Migração `20260703_checkin_chat_confirm.sql` aplicada em prod (via MCP/CLI).
+- [ ] Confirmar domínio de prod do back-office em `VITE_CHECKIN_BASE_URL`.

@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit -p tsconfig.json",
-    "check:refs": "node scripts/check-refs.mjs"
+    "check:refs": "node scripts/check-refs.mjs",
+    "test:checkin": "node scripts/checkin-schedule.test.mjs"
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.14",
