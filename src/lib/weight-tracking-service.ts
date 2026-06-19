@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { getCurrentUserId } from './auth-helpers';
+import { getSaoPauloISODate } from './utils';
 
 export interface WeightEntry {
   id: string;
@@ -45,7 +46,7 @@ export const weightTrackingService = {
         ...entry,
         user_id: userId,
         tipo: entry.tipo, // Campo obrigatório
-        data_pesagem: entry.data_pesagem || new Date().toISOString().split('T')[0],
+        data_pesagem: entry.data_pesagem || getSaoPauloISODate(),
       })
       .select()
       .single();

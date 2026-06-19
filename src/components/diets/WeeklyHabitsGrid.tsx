@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { dailyChallengesService } from '@/lib/daily-challenges-service';
+import { getSaoPauloISODate, shiftISODate } from '@/lib/utils';
 import { Droplets, Dumbbell, Moon, Check } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -33,19 +34,12 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
     try {
       setLoading(true);
 
-      // Calcular início e fim da semana atual (domingo a sábado)
-      const now = new Date();
-      const dayOfWeek = now.getDay(); // 0 = domingo, 6 = sábado
-      const startOfWeek = new Date(now);
-      startOfWeek.setDate(now.getDate() - dayOfWeek);
-      startOfWeek.setHours(0, 0, 0, 0);
-
-      const endOfWeek = new Date(startOfWeek);
-      endOfWeek.setDate(startOfWeek.getDate() + 6);
-      endOfWeek.setHours(23, 59, 59, 999);
-
-      const startDate = startOfWeek.toISOString().split('T')[0];
-      const endDate = endOfWeek.toISOString().split('T')[0];
+      // Início e fim da semana atual (domingo a sábado), no fuso de São Paulo —
+      // o "dia"/semana vira à meia-noite de Brasília (não no fuso do navegador).
+      const todayStr = getSaoPauloISODate();
+      const dayOfWeek = new Date(`${todayStr}T12:00:00Z`).getUTCDay(); // 0 = domingo
+      const startDate = shiftISODate(todayStr, -dayOfWeek);
+      const endDate = shiftISODate(startDate, 6);
 
       // Buscar desafios completados na semana
       const challenges = await dailyChallengesService.getChallengesHistory(
@@ -89,12 +83,10 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
   };
 
   const getDateForDay = (dayIndex: number): string => {
-    const now = new Date();
-    const dayOfWeek = now.getDay();
-    const startOfWeek = new Date(now);
-    startOfWeek.setDate(now.getDate() - dayOfWeek);
-    startOfWeek.setDate(startOfWeek.getDate() + dayIndex);
-    return startOfWeek.toISOString().split('T')[0];
+    const todayStr = getSaoPauloISODate();
+    const dayOfWeek = new Date(`${todayStr}T12:00:00Z`).getUTCDay();
+    const sundayStr = shiftISODate(todayStr, -dayOfWeek);
+    return shiftISODate(sundayStr, dayIndex);
   };
 
   const isCompleted = (challengeKey: 'agua' | 'atividade' | 'sono', dayIndex: number): boolean => {

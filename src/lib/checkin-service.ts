@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { getSaoPauloISODate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 type CheckinInsert = Database['public']['Tables']['checkin']['Insert'];
@@ -260,12 +261,13 @@ export const checkinService = {
 
   // Buscar checkins preenchidos hoje
   async getFilledToday(): Promise<Checkin[]> {
-    const today = new Date().toISOString().split('T')[0];
+    // Janela do dia em horário de Brasília (UTC-3), não em UTC.
+    const today = getSaoPauloISODate();
     const { data, error } = await supabase
       .from('checkin')
       .select('*')
-      .gte('data_preenchimento', `${today}T00:00:00`)
-      .lte('data_preenchimento', `${today}T23:59:59`)
+      .gte('data_preenchimento', `${today}T00:00:00-03:00`)
+      .lte('data_preenchimento', `${today}T23:59:59-03:00`)
       .order('data_preenchimento', { ascending: false });
 
     if (error) throw error;

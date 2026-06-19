@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { weightTrackingService } from '@/lib/weight-tracking-service';
+import { getSaoPauloISODate } from '@/lib/utils';
 import { Scale, Sunrise, Calendar } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
@@ -34,7 +35,7 @@ export function WeightInput({
   const [loading, setLoading] = useState(false);
   const [peso, setPeso] = useState('');
   const [tipo, setTipo] = useState<'jejum' | 'dia'>('jejum');
-  const [dataPesagem, setDataPesagem] = useState(initialDate || new Date().toISOString().split('T')[0]);
+  const [dataPesagem, setDataPesagem] = useState(initialDate || getSaoPauloISODate());
   const [observacoes, setObservacoes] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,7 +73,7 @@ export function WeightInput({
       setPeso('');
       setObservacoes('');
       setTipo('jejum');
-      setDataPesagem(new Date().toISOString().split('T')[0]);
+      setDataPesagem(getSaoPauloISODate());
 
       onOpenChange(false);
       if (onSuccess) {
@@ -139,7 +140,7 @@ export function WeightInput({
               value={dataPesagem}
               onChange={(e) => setDataPesagem(e.target.value)}
               className="bg-slate-700/50 border-slate-600 text-white"
-              max={new Date().toISOString().split('T')[0]}
+              max={getSaoPauloISODate()}
             />
           </div>
 

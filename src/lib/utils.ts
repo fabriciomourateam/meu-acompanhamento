@@ -115,6 +115,15 @@ export function getSaoPauloISODate(date = new Date()): string {
   return date.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
 }
 
+// Desloca uma data 'YYYY-MM-DD' por N dias (pode ser negativo) sem sofrer com
+// fuso: ancora ao meio-dia UTC, então somar/subtrair dias inteiros nunca cruza
+// a fronteira do dia errado. Útil pra contar streak (hoje, ontem, ...).
+export function shiftISODate(dateStr: string, days: number): string {
+  const d = new Date(`${dateStr}T12:00:00Z`);
+  d.setUTCDate(d.getUTCDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
 // Converte uma string 'YYYY-MM-DD' para um objeto Date correspondente ao meio-dia local.
 // Isso evita que a data sofra "shift" para o dia anterior devido ao fuso horário (ex: UTF-3)
 export function parseLocalISODate(dateStr: string): Date {

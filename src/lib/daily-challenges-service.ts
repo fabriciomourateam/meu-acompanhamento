@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { getSaoPauloISODate, shiftISODate } from '@/lib/utils';
 
 export interface DailyChallenge {
   challenge_key: string;
@@ -47,7 +48,7 @@ export const dailyChallengesService = {
     challengeKey: string,
     notes?: string
   ): Promise<PatientDailyChallenge> {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getSaoPauloISODate();
     
     // Verificar se já está completo hoje
     const { data: existing } = await supabase
@@ -105,7 +106,7 @@ export const dailyChallengesService = {
     patientId: string,
     challengeKey: string
   ): Promise<void> {
-    const today = new Date().toISOString().split('T')[0];
+    const today = getSaoPauloISODate();
     
     const { error } = await supabase
       .from('patient_daily_challenges')
@@ -124,7 +125,7 @@ export const dailyChallengesService = {
     patientId: string,
     date?: string
   ): Promise<string[]> {
-    const targetDate = date || new Date().toISOString().split('T')[0];
+    const targetDate = date || getSaoPauloISODate();
     
     const { data, error } = await supabase
       .from('patient_daily_challenges')
@@ -174,14 +175,10 @@ export const dailyChallengesService = {
       new Set((data || []).map((r: { completion_date: string }) => r.completion_date))
     ).sort((a, b) => b.localeCompare(a)); // desc
 
-    // Calcular streak consecutiva contando para trás a partir de hoje (ou ontem)
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    const todayStr = today.toISOString().split('T')[0];
-
-    const yesterday = new Date(today);
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayStr = yesterday.toISOString().split('T')[0];
+    // Calcular streak consecutiva contando para trás a partir de hoje (ou ontem),
+    // sempre no fuso de São Paulo (o "dia" termina à meia-noite de Brasília).
+    const todayStr = getSaoPauloISODate();
+    const yesterdayStr = shiftISODate(todayStr, -1);
 
     // Se não tem nem hoje nem ontem, streak é 0
     if (uniqueDates.length === 0 || (uniqueDates[0] !== todayStr && uniqueDates[0] !== yesterdayStr)) {
@@ -192,23 +189,18 @@ export const dailyChallengesService = {
 
     // Contar dias consecutivos
     let streak = 0;
-    let cursor = new Date(today);
-
-    // Se o primeiro data é ontem, começa de ontem
-    if (uniqueDates[0] === yesterdayStr && uniqueDates[0] !== todayStr) {
-      cursor = new Date(yesterday);
-    }
+    // Se a data mais recente é ontem (ainda não fez hoje), começa de ontem.
+    let cursorStr = (uniqueDates[0] === yesterdayStr && uniqueDates[0] !== todayStr) ? yesterdayStr : todayStr;
 
     for (let i = 0; i < uniqueDates.length; i++) {
-      const expected = cursor.toISOString().split('T')[0];
-      if (uniqueDates[i] === expected) {
+      if (uniqueDates[i] === cursorStr) {
         streak++;
-        cursor.setDate(cursor.getDate() - 1);
-      } else if (uniqueDates[i] < expected) {
+        cursorStr = shiftISODate(cursorStr, -1);
+      } else if (uniqueDates[i] < cursorStr) {
         // Gap: streak quebrou
         break;
       }
-      // uniqueDates[i] > expected can't happen since sorted desc and we advance cursor
+      // uniqueDates[i] > cursorStr não ocorre (lista desc e o cursor anda pra trás)
     }
 
     await this._upsertStreak(patientId, streak);
@@ -277,7 +269,7 @@ export const dailyChallengesService = {
 
     if (!templates || templates.length === 0) return;
 
-    const today = new Date().toISOString().split('T')[0];
+    const today = getSaoPauloISODate();
 
     for (const milestone of milestones) {
       if (streak < milestone.days) continue;

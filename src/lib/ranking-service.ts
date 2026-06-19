@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { getSaoPauloISODate, shiftISODate } from '@/lib/utils';
 
 export type RankingPeriod = 'weekly' | 'monthly' | 'yearly' | 'all_time';
 
@@ -12,25 +13,24 @@ export interface LeaderboardEntry {
 }
 
 function getStartDate(period: RankingPeriod): string | null {
-  const now = new Date();
-
   if (period === 'all_time') return null;
 
+  // Tudo ancorado no "hoje" de São Paulo (a semana/mês vira à meia-noite de Brasília).
+  const todayStr = getSaoPauloISODate();
+
   if (period === 'weekly') {
-    const day = now.getDay();
-    const diff = day === 0 ? -6 : 1 - day;
-    const monday = new Date(now);
-    monday.setDate(now.getDate() + diff);
-    monday.setHours(0, 0, 0, 0);
-    return monday.toISOString().split('T')[0];
+    // dia da semana da data SP (0=Dom..6=Sáb) via âncora ao meio-dia UTC.
+    const day = new Date(`${todayStr}T12:00:00Z`).getUTCDay();
+    const diff = day === 0 ? -6 : 1 - day; // volta até a segunda
+    return shiftISODate(todayStr, diff);
   }
 
   if (period === 'monthly') {
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    return `${todayStr.slice(0, 7)}-01`;
   }
 
   if (period === 'yearly') {
-    return `${now.getFullYear()}-01-01`;
+    return `${todayStr.slice(0, 4)}-01-01`;
   }
 
   return null;
