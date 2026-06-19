@@ -597,3 +597,32 @@ futuro.
 - [ ] "digitando…" aparece dos dois lados quase na hora.
 - [ ] Responder mostra a citação no composer e o bloco citado na bolha enviada.
 - [ ] Reagir mostra o emoji na bolha dos dois lados; re-reagir com a mesma emoji remove.
+
+---
+
+## Suporte tela cheia + Régua dentro do Atendimento + fix 500 (2026-06-19)
+
+### App do aluno (meu-acompanhamento)
+- No mobile, ao abrir o Suporte a barra de abas inferior some (chat tela cheia, saída pela
+  setinha ← do cabeçalho). O wrapper fixo do chat vai até `env(safe-area-inset-bottom)`.
+- Corrigida a barra de rolagem do chat, que herdava os tokens dark do `:root` (o app não
+  aplica `.theme-light`): a thread agora usa `.scrollbar-emerald` (clara/verde).
+
+### Back-office (controle-de-pacientes)
+- "Régua de ausência" saiu da sidebar/rota própria e virou a **3ª aba interna do Atendimento**
+  (Conversas | Rollout & Adoção | Régua de ausência), reusando `ReguaAusencia`. Removidos o
+  item da sidebar, a rota `/regua` e a página órfã `pages/Regua.tsx`.
+
+### Fix do erro 500 (RPC chat_inactivity_dashboard)
+- Causa: query ~10,3 s (recomputava `patient_last_activity`/`is_patient_active` por paciente
+  sobre ~1.4k pacientes) > `statement_timeout=8s` do role `authenticated` → 500.
+- Correção (migração `20260702_chat_inactivity_dashboard_perf.sql`, aplicada via MCP): corpo
+  reescrito com CTE `materialized` (cada função 1x/paciente → ~2,7 s), assinatura/retorno e
+  check `chat_is_team_of` idênticos, `statement_timeout='20s'` de folga na função.
+
+### Build
+`npm run build` (app do aluno) e `tsc --noEmit` (back-office) limpos.
+
+### Falta validar (manual, na UI real)
+- [ ] App do aluno: Suporte sem barra de abas, chat até embaixo, ← volta; scrollbar clara.
+- [ ] Back-office: 3ª aba "Régua de ausência" abre o painel sem erro 500 no console.
