@@ -247,13 +247,16 @@ export function PatientDietPortal({
         </Card>
       )}
 
-      {/* Bottom nav mobile — fora do Tabs mas controla o value */}
-      <MobileBottomNav
-        value={activeTab as any}
-        onChange={(v) => goToTab(v)}
-        hidden={hiddenNavTabs as any}
-        badges={{ community: communityUnread, support: supportUnread }}
-      />
+      {/* Bottom nav mobile — fora do Tabs mas controla o value.
+          No Suporte a barra some (chat tela cheia, saída pela setinha ← do cabeçalho). */}
+      {activeTab !== 'support' && (
+        <MobileBottomNav
+          value={activeTab as any}
+          onChange={(v) => goToTab(v)}
+          hidden={hiddenNavTabs as any}
+          badges={{ community: communityUnread, support: supportUnread }}
+        />
+      )}
 
       {/* Abas: Plano Alimentar, Metas, Resultados e Ranking */}
       <Tabs
@@ -443,7 +446,7 @@ export function PatientDietPortal({
                 e a frase do rodapé só enquanto o Suporte está aberto. Desktop: inline. */}
             <div
               className="fixed inset-x-0 top-0 z-40 bg-slate-50 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
-              style={{ bottom: 'calc(72px + env(safe-area-inset-bottom))' }}
+              style={{ bottom: 'env(safe-area-inset-bottom)' }}
             >
               <SupportChat
                 patientId={patientId}
