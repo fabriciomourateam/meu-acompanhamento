@@ -2,7 +2,7 @@
 // Acessível em /instalar (e /baixar). Sem login.
 // O APK é servido como arquivo estático em /my-shape.apk (pasta public/).
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Download, ShieldCheck, Smartphone, Apple, PlayCircle, X } from 'lucide-react';
 
 const APK_URL = '/my-shape.apk';
@@ -23,13 +23,25 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
 
 export default function InstallApp() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  // Volta pra tela de onde o aluno veio (Dieta, chat, banner). Se a página foi
+  // aberta direto por link externo (sem histórico), cai na home.
+  const goBack = () => {
+    if (window.history.length > 1) navigate(-1);
+    else navigate('/');
+  };
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-8">
       <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <Link to="/" className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700">
+        <button
+          type="button"
+          onClick={goBack}
+          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700"
+        >
           <ArrowLeft className="h-4 w-4" /> Voltar
-        </Link>
+        </button>
 
         <div className="mt-4 flex items-center gap-4">
           <img src="/app-icon-512.png" alt="My Shape" className="h-16 w-16 rounded-2xl shadow-sm" />

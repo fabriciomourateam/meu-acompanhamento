@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -21,6 +22,9 @@ interface InstallPWAButtonProps {
   /** Estado controlado externamente do diálogo de instruções (reuso em outros lugares). */
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** Quando true, o botão do header navega pra página /instalar (APK + vídeos) em vez
+   *  de abrir o modal genérico. Usado só para os alunos do dono (Fabricio). */
+  useInstallPage?: boolean;
 }
 
 export function InstallPWAButton({
@@ -29,7 +33,9 @@ export function InstallPWAButton({
   triggerless,
   open,
   onOpenChange,
+  useInstallPage,
 }: InstallPWAButtonProps = {}) {
+  const navigate = useNavigate();
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [isInstalled, setIsInstalled] = useState(false);
   const [showInstructionsState, setShowInstructionsState] = useState(false);
@@ -80,7 +86,11 @@ export function InstallPWAButton({
   }, []);
 
   const handleInstallClick = () => {
-    // Sempre abrir dialog com instruções
+    // Alunos do dono vão pra página /instalar (APK + vídeos); os demais veem o modal.
+    if (useInstallPage) {
+      navigate('/instalar');
+      return;
+    }
     setShowInstructions(true);
   };
 
@@ -107,7 +117,7 @@ export function InstallPWAButton({
       {!triggerless && (asMenuItem ? (
         <DropdownMenuItem
           // Abre o dialog após o menu fechar pra evitar conflito de foco entre os dois.
-          onSelect={() => setTimeout(() => setShowInstructions(true), 0)}
+          onSelect={() => setTimeout(() => (useInstallPage ? navigate('/instalar') : setShowInstructions(true)), 0)}
           className={cn('text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5', className)}
         >
           <Download className="w-4 h-4 mr-2 text-emerald-500" />

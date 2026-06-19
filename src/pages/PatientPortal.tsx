@@ -15,6 +15,7 @@ import { validateToken } from '@/lib/patient-portal-service';
 import { detectAchievements } from '@/lib/achievement-system';
 import { analyzeTrends } from '@/lib/trends-analysis';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
+import { isOwnerPatient } from '@/lib/owner';
 import { MembersAreaButton } from '@/components/patient-portal/MembersAreaButton';
 import { PatientDietPortal } from '@/components/patient-portal/PatientDietPortal';
 import { ImpersonatePatientModal } from '@/components/admin/ImpersonatePatientModal';
@@ -1108,7 +1109,7 @@ export default function PatientPortal() {
               {patientId && <PatientNotifications patientId={patientId} />}
               {/* Botão de instalar: ícone-só no mobile, ícone+texto no desktop.
                   Some sozinho quando o app já está instalado. */}
-              <InstallPWAButton />
+              <InstallPWAButton useInstallPage={isOwnerPatient(patient)} />
 
               {/* Menu de ações */}
               <DropdownMenu>
@@ -1181,7 +1182,7 @@ export default function PatientPortal() {
           </motion.div>
 
           {/* Convite para ativar lembretes/avisos por push */}
-          {patientId && <EnableNotificationsBanner patientId={patientId} />}
+          {patientId && <EnableNotificationsBanner patientId={patientId} isOwner={isOwnerPatient(patient)} />}
 
           {/* Plano Alimentar, Metas e Progresso */}
           {patientId && (

@@ -4,6 +4,7 @@
 // Fatia 2: mídia (foto/vídeo/áudio) — anexar arquivo e gravar nota de voz.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Send, Loader2, MessageCircle, Paperclip, Mic, Square, X, BellRing, MoreVertical, Pencil, Trash2, Smile, Check, CheckCheck, Reply, ArrowLeft } from 'lucide-react';
 import { chatService, type SupportMessage, type ChatMediaInput } from '@/lib/chat-service';
 import { useAudioRecorder } from '@/hooks/use-audio-recorder';
@@ -119,9 +120,12 @@ interface SupportChatProps {
   active?: boolean;
   /** Botão "voltar" no cabeçalho (mobile tela cheia). Se ausente, o botão não aparece. */
   onBack?: () => void;
+  /** Aluno do dono (Fabricio) → nudge de instalar abre a página /instalar; os demais
+   *  treinadores veem o modal genérico. */
+  useInstallPage?: boolean;
 }
 
-export function SupportChat({ patientId, active = true, onBack }: SupportChatProps) {
+export function SupportChat({ patientId, active = true, onBack, useInstallPage }: SupportChatProps) {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [body, setBody] = useState('');
   const [loading, setLoading] = useState(true);
@@ -132,6 +136,7 @@ export function SupportChat({ patientId, active = true, onBack }: SupportChatPro
   const [nudge, setNudge] = useState(false);
   const [nudgeBusy, setNudgeBusy] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
+  const navigate = useNavigate();
   // Editar/apagar: id da mensagem em edição e qual bolha está com o menu aberto.
   const [editingId, setEditingId] = useState<string | null>(null);
   const [replyTo, setReplyTo] = useState<SupportMessage | null>(null);
@@ -165,7 +170,8 @@ export function SupportChat({ patientId, active = true, onBack }: SupportChatPro
 
   const enableNudge = async () => {
     if (iosNeedsInstall) {
-      setShowInstall(true);
+      if (useInstallPage) navigate('/instalar');
+      else setShowInstall(true);
       return;
     }
     setNudgeBusy(true);
@@ -491,7 +497,7 @@ export function SupportChat({ patientId, active = true, onBack }: SupportChatPro
         </div>
       )}
 
-      {/* Diálogo de instruções de instalação (iPhone) */}
+      {/* Modal de instruções de instalação (iPhone, alunos de outros treinadores) */}
       <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
 
       {/* Thread */}

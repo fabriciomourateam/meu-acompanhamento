@@ -626,3 +626,30 @@ futuro.
 ### Falta validar (manual, na UI real)
 - [ ] App do aluno: Suporte sem barra de abas, chat até embaixo, ← volta; scrollbar clara.
 - [ ] Back-office: 3ª aba "Régua de ausência" abre o painel sem erro 500 no console.
+
+---
+
+## "Instalar app" roteado por treinador: Fabricio → /instalar, outros → modal (2026-06-19)
+
+O app é multitenant (atende outros treinadores via `/portal-<slug>`). A página `/instalar`
+(`pages/InstallApp.tsx`) é da marca My Shape + APK do Fabricio; o modal antigo
+(`InstallPWAButton`) é genérico (instruções de "adicionar à tela inicial"), serve pra
+qualquer treinador. Decisão: **alunos do Fabricio → página `/instalar`; alunos de outros
+treinadores → modal genérico**.
+
+- Novo helper `src/lib/owner.ts` (`OWNER_USER_ID` + `isOwnerPatient(patient)`) — fonte única
+  do "é dono?" (mesmo UUID já usado em `MembersAreaButton`/`DietTab`).
+- `InstallPWAButton` mantém o modal antigo e ganhou a prop `useInstallPage`: quando true, o
+  botão do header navega pra `/instalar`; senão abre o modal (comportamento original).
+- Header (`PatientPortal`), banner iOS (`EnableNotificationsBanner`) e nudge do chat
+  (`SupportChat`) recebem `isOwner`/`useInstallPage` e roteiam: dono → `/instalar`,
+  demais → modal `triggerless`.
+- `pages/InstallApp.tsx`: "Voltar" inteligente (`navigate(-1)` com fallback `/`).
+- Chat: nome/foto "Fabricio Moura" seguem fixos — confirmado que NÃO vazam pra outros
+  treinadores (flag `support` é por treinador, default off). Tornar dinâmico fica pra quando/se
+  o chat for aberto a terceiros.
+
+> Correção: uma versão anterior desta etapa fazia TODOS os gatilhos abrirem `/instalar`
+> (commit `a2e30d2`). Revertido em favor do roteamento por dono acima.
+
+`npm run build` limpo.
