@@ -678,16 +678,17 @@ app do aluno (o n8n segue em paralelo durante a transição).
   feito). Variante `mini` (atalho 1 linha) no topo da Dieta, só em aberto/atrasado.
 - **Overlay embutido** (`src/components/checkin/CheckinOverlay.tsx`): iframe da rota
   `/checkin/<slug>?phone=<tel>&embed=1` do back-office (envs `VITE_CHECKIN_BASE_URL`
-  default `https://dashboard-fmteam.vercel.app`, `VITE_CHECKIN_SLUG` default `fmteam`).
+  default `https://my-shape.app`, `VITE_CHECKIN_SLUG` default `fmteam`).
   Fecha ao receber `postMessage('checkin-done')` e a badge vira "feito" otimista.
 - **Formulário** (`controle-de-pacientes/src/pages/PublicCheckin.tsx`): aceita `?phone=`
   (auto-seleciona o paciente, pula a tela de telefone) e `?embed=1` (avisa o app pai ao
   concluir). Link público normal `/checkin/:token` inalterado.
 - **Confirmação no chat** (migração `20260703_checkin_chat_confirm.sql`): trigger
   `AFTER INSERT ON checkin` resolve o paciente por telefone (restrito ao dono do check-in)
-  e, se o dono tem rollout de chat e o plano é elegível (mesma régua do Suporte), entrega
-  "✅ Recebemos seu check-in, {nome}! Em até 48h úteis o Fabricio te envia o feedback. 💪"
-  via `chat_system_send_to_patient` (in-app + push). Best-effort: nunca derruba o insert.
+  e, se a aba Suporte está realmente visível pra ele (mesma régua do `shouldShowSupport`:
+  show_tab/test_patient_ids/enabled_plans/rollout_percentage), entrega "✅ Recebemos seu
+  check-in, {nome}! Em até 48h úteis eu te envio o feedback! 💪" via `chat_system_send_to_patient`
+  (in-app + push). Se o chat não está liberado pro aluno, nada é enviado. Best-effort.
 
 ### Build / testes
 - `npm run build` limpo nos dois repos. `npm run test:checkin` 21/21 no app do aluno.
@@ -697,4 +698,4 @@ app do aluno (o n8n segue em paralelo durante a transição).
 - [ ] Botão abre o iframe; preencher → overlay fecha, badge vira "feito", linha aparece na
       página de check-ins do back-office e chega a confirmação no chat (+push).
 - [ ] Migração `20260703_checkin_chat_confirm.sql` aplicada em prod (via MCP/CLI).
-- [ ] Confirmar domínio de prod do back-office em `VITE_CHECKIN_BASE_URL`.
+- [x] Domínio de prod confirmado: `https://my-shape.app`.

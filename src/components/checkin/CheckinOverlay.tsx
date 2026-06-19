@@ -14,7 +14,7 @@ interface CheckinOverlayProps {
 // Domínio do back-office (onde vive a rota /checkin) e slug do dono. Configuráveis
 // por env; defaults apontam pra produção do MyShape.
 const CHECKIN_BASE_URL =
-  (import.meta.env.VITE_CHECKIN_BASE_URL as string | undefined) || 'https://dashboard-fmteam.vercel.app';
+  (import.meta.env.VITE_CHECKIN_BASE_URL as string | undefined) || 'https://my-shape.app';
 const CHECKIN_SLUG = (import.meta.env.VITE_CHECKIN_SLUG as string | undefined) || 'fmteam';
 
 export function CheckinOverlay({ open, phone, onClose, onDone }: CheckinOverlayProps) {
