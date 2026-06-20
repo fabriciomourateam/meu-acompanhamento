@@ -264,8 +264,8 @@ export function PatientDietPortal({
       )}
 
       {/* Bottom nav mobile — fora do Tabs mas controla o value.
-          No Suporte a barra some (chat tela cheia, saída pela setinha ← do cabeçalho). */}
-      {activeTab !== 'support' && (
+          No Suporte e no check-in a barra some (tela cheia, saída pelo X/← do topo). */}
+      {activeTab !== 'support' && !checkinOpen && (
         <MobileBottomNav
           value={activeTab as any}
           onChange={(v) => goToTab(v)}

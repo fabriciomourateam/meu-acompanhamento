@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Loader2, ExternalLink } from 'lucide-react';
 
@@ -48,7 +49,10 @@ export function CheckinOverlay({ open, phone, onClose, onDone }: CheckinOverlayP
 
   const src = `${CHECKIN_BASE_URL}/checkin/${CHECKIN_SLUG}?phone=${encodeURIComponent(phone || '')}&embed=1`;
 
-  return (
+  // Renderizado via portal no <body>: escapa os stacking contexts criados pelos
+  // motion.div/transform ancestrais, garantindo que o overlay (z-[10000]) fique
+  // ACIMA da barra de navegação inferior em vez de atrás dela.
+  return createPortal(
     <AnimatePresence>
       {open && (
         <motion.div
@@ -102,6 +106,7 @@ export function CheckinOverlay({ open, phone, onClose, onDone }: CheckinOverlayP
           />
         </motion.div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body,
   );
 }
