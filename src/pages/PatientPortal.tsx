@@ -1222,7 +1222,7 @@ export default function PatientPortal() {
                       disabled={exporting}
                       className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
                     >
-                      <FileText className="w-4 h-4 mr-2 text-purple-500" />
+                      <TrendingUp className="w-4 h-4 mr-2 text-purple-500" />
                       Exportar Evolução
                     </DropdownMenuItem>
                   )}
