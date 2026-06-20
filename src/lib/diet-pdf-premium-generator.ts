@@ -110,7 +110,7 @@ function subsLineHtml(subs: any[]): string {
     const q = s.quantity != null ? `${s.quantity} ${s.unit || ''}`.trim() : '';
     return `${q ? q + ' de ' : ''}${s.food_name}`;
   }).join(' · ');
-  return `<div style="margin:6px 0 0 20px;font-size:12px;color:#64748b;line-height:1.5;"><span style="color:#d97706;font-weight:600;">🔁 Substituir por:</span> ${items}</div>`;
+  return `<div style="margin:6px 0 0 20px;font-size:12px;color:#64748b;line-height:1.5;"><span style="color:#d97706;font-weight:600;">🔁 Pode substituir por:</span> ${items}</div>`;
 }
 
 // Card de 1 alimento (tema claro): nome + quantidade (+medida), observação e
