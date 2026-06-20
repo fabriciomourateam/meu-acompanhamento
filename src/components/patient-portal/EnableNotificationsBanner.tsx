@@ -12,8 +12,11 @@ interface Props {
   isOwner?: boolean;
 }
 
-// Chave para lembrar que o aluno dispensou o convite (por aparelho).
-const DISMISS_KEY = 'notif-banner-dismissed';
+// Quando o aluno dispensa (X), guarda o TIMESTAMP. O banner volta a aparecer
+// depois de SNOOZE_DAYS dias se ele ainda não instalou/ativou (em vez de sumir
+// pra sempre). Chave nova: ignora o valor '1' legado (faz reaparecer 1x).
+const DISMISS_KEY = 'notif-banner-dismissed-at';
+const SNOOZE_DAYS = 7;
 
 /**
  * Convite visível para o aluno ATIVAR os lembretes/avisos por push.
@@ -35,13 +38,15 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   useEffect(() => {
     if (!patientId) return;
     if (!pushService.isSupported() && !iosNeedsInstall) return;
-    if (localStorage.getItem(DISMISS_KEY) === '1') return;
+    // Soneca de 7 dias: se dispensou há menos que isso, não mostra ainda.
+    const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) || 0);
+    if (dismissedAt && Date.now() - dismissedAt < SNOOZE_DAYS * 24 * 60 * 60 * 1000) return;
     // Só mostra se ainda não estiver inscrito neste aparelho.
     pushService.isSubscribed().then((sub) => setVisible(!sub));
   }, [patientId, iosNeedsInstall]);
 
   const dismiss = () => {
-    localStorage.setItem(DISMISS_KEY, '1');
+    localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setVisible(false);
   };
 
@@ -76,8 +81,8 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   if (!visible) return null;
 
   return (
-    <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 px-4 py-3 shadow-sm">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+    <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 shadow-sm">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
         <BellRing className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
@@ -91,7 +96,7 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
       {iosNeedsInstall ? (
         <button
           onClick={() => (isOwner ? navigate('/instalar') : setShowInstall(true))}
-          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700"
+          className="shrink-0 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-700"
         >
           Como instalar
         </button>
@@ -99,7 +104,7 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
         <button
           onClick={handleEnable}
           disabled={busy}
-          className="shrink-0 rounded-lg bg-emerald-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-emerald-700 disabled:opacity-60"
+          className="shrink-0 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-700 disabled:opacity-60"
         >
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Ativar'}
         </button>
