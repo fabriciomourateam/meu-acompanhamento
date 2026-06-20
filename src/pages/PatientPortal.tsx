@@ -16,7 +16,6 @@ import { detectAchievements } from '@/lib/achievement-system';
 import { analyzeTrends } from '@/lib/trends-analysis';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
 import { isOwnerPatient } from '@/lib/owner';
-import { MembersAreaButton } from '@/components/patient-portal/MembersAreaButton';
 import { PatientDietPortal } from '@/components/patient-portal/PatientDietPortal';
 import { ImpersonatePatientModal } from '@/components/admin/ImpersonatePatientModal';
 import { dietService } from '@/lib/diet-service';
@@ -51,6 +50,8 @@ import {
   MoreVertical,
   Eye,
   FileImage,
+  Crown,
+  ExternalLink,
   LogOut
 } from 'lucide-react';
 import {
@@ -71,6 +72,10 @@ import type { Database } from '@/integrations/supabase/types';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 type Patient = Database['public']['Tables']['patients']['Row'];
+
+// Portal externo de conteúdos/aulas dos alunos do Fabricio. Entrada fica no
+// menu (⋮) como mini-card, só para os alunos do dono (isOwnerPatient).
+const MEMBERS_URL = 'https://area-de-membros-fabriciomourateam.vercel.app/';
 
 const getDailyMotivationalPhrase = () => {
   const phrases = [
@@ -1101,15 +1106,10 @@ export default function PatientPortal() {
                 )}
               </div>
             </div>
-            {/* Header da direita em coluna: linha de cima com os icones-acao,
-                linha de baixo com o chip 'Area de Membros' que assume w-full —
-                fica com a largura exata do grupo de botoes acima. */}
-            <div className="hide-in-pdf shrink-0 flex flex-col items-stretch gap-1.5">
-              <div className="flex gap-1 sm:gap-2 items-center justify-end">
+            {/* Header da direita: só notificações (🔔) + menu (⋮). O instalar e a
+                Área de Membros migraram pra dentro do menu, deixando o topo limpo. */}
+            <div className="hide-in-pdf shrink-0 flex gap-1 sm:gap-2 items-center justify-end">
               {patientId && <PatientNotifications patientId={patientId} />}
-              {/* Botão de instalar: ícone-só no mobile, ícone+texto no desktop.
-                  Some sozinho quando o app já está instalado. */}
-              <InstallPWAButton useInstallPage={isOwnerPatient(patient)} />
 
               {/* Menu de ações */}
               <DropdownMenu>
@@ -1122,7 +1122,27 @@ export default function PatientPortal() {
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700 w-56 shadow-lg">
+                <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700 w-64 shadow-lg">
+                  {/* Área de Membros: mini-card dourado em destaque no topo do menu
+                      (só para alunos do dono). Leva ao portal externo de conteúdos. */}
+                  {isOwnerPatient(patient) && (
+                    <>
+                      <DropdownMenuItem
+                        onSelect={() => window.open(MEMBERS_URL, '_blank', 'noopener,noreferrer')}
+                        className="cursor-pointer p-1 focus:bg-transparent"
+                      >
+                        <div className="flex w-full items-center gap-2 rounded-lg bg-gradient-to-r from-yellow-500 via-amber-400 to-yellow-600 px-3 py-2.5 text-white shadow-sm">
+                          <Crown className="w-5 h-5 shrink-0 drop-shadow-sm" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-sm font-bold leading-tight drop-shadow-sm">Área de Membros</p>
+                            <p className="text-[11px] leading-tight text-white/90">Aulas, materiais e conteúdos</p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 shrink-0 opacity-90" />
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                    </>
+                  )}
                   <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Dieta</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={handleExportDietPremiumPDF}
@@ -1155,6 +1175,9 @@ export default function PatientPortal() {
                   )}
 
                   <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                  {/* Instalar app: item rotulado (some sozinho quando já instalado).
+                      Substitui o antigo ícone ⬇️ solto no cabeçalho. */}
+                  <InstallPWAButton asMenuItem useInstallPage={isOwnerPatient(patient)} />
                   <DropdownMenuItem
                     onClick={loadPortalData}
                     className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
@@ -1171,12 +1194,6 @@ export default function PatientPortal() {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              </div>
-              {/* Linha de baixo: chip 'Area de Membros' com w-full pra ocupar
-                  exatamente a largura do grupo de botoes acima (proporcional). */}
-              {patient?.user_id === 'a9798432-60bd-4ac8-a035-d139a47ad59b' && (
-                <MembersAreaButton installed={pwaInstalled} />
-              )}
             </div>
           </div>
           </motion.div>
