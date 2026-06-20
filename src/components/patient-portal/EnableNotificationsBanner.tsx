@@ -23,6 +23,9 @@ interface BeforeInstallPromptEvent extends Event {
 // legado (faz reaparecer 1x pra quem já tinha dispensado o banner antigo).
 const DISMISS_KEY = 'notif-banner-dismissed-at';
 const SNOOZE_DAYS = 7;
+// Folga pra deixar o Chrome disparar o beforeinstallprompt antes de decidirmos o
+// texto, evitando o banner trocar de "Ativar" pra "Instalar" na cara do aluno.
+const SETTLE_MS = 1000;
 
 /**
  * Convite progressivo logo abaixo do cabeçalho:
@@ -41,6 +44,7 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   const [busy, setBusy] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [ready, setReady] = useState(false);
 
   const isStandalone = pushService.isStandalone();
   const iosNeedsInstall = pushService.isIOS() && !isStandalone;
@@ -60,21 +64,23 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
     return () => window.removeEventListener('beforeinstallprompt', handler);
   }, []);
 
+  // Espera a folga pra só então decidir/mostrar (ver SETTLE_MS).
   useEffect(() => {
-    if (!patientId) return;
+    const t = setTimeout(() => setReady(true), SETTLE_MS);
+    return () => clearTimeout(t);
+  }, []);
+
+  useEffect(() => {
+    if (!patientId || !ready) return;
     // Nada a oferecer: nem dá pra instalar, nem dá pra ativar push.
     if (!needsInstall && !pushService.isSupported()) return;
     // Soneca de 7 dias: se dispensou há menos que isso, não mostra ainda.
     const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) || 0);
     if (dismissedAt && Date.now() - dismissedAt < SNOOZE_DAYS * 24 * 60 * 60 * 1000) return;
-    // Se ainda não instalou, prioriza o convite pra instalar.
-    if (needsInstall) {
-      setVisible(true);
-      return;
-    }
-    // Já instalado: só mostra se ainda não estiver inscrito neste aparelho.
+    // Quem já recebe avisos neste aparelho não é incomodado — nem pra ativar,
+    // nem pra instalar. Caso contrário, mostra (modo instalar tem prioridade).
     pushService.isSubscribed().then((sub) => setVisible(!sub));
-  }, [patientId, needsInstall]);
+  }, [patientId, needsInstall, ready]);
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, String(Date.now()));
