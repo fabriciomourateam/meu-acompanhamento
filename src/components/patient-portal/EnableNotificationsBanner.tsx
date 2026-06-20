@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BellRing, Loader2, X } from 'lucide-react';
+import { BellRing, Download, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pushService } from '@/lib/push-service';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
@@ -12,19 +12,27 @@ interface Props {
   isOwner?: boolean;
 }
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
+
 // Quando o aluno dispensa (X), guarda o TIMESTAMP. O banner volta a aparecer
 // depois de SNOOZE_DAYS dias se ele ainda não instalou/ativou (em vez de sumir
-// pra sempre). Chave nova: ignora o valor '1' legado (faz reaparecer 1x).
+// pra sempre). Cada novo X reinicia a contagem. Chave nova: ignora o valor '1'
+// legado (faz reaparecer 1x pra quem já tinha dispensado o banner antigo).
 const DISMISS_KEY = 'notif-banner-dismissed-at';
 const SNOOZE_DAYS = 7;
 
 /**
- * Convite visível para o aluno ATIVAR os lembretes/avisos por push.
- * Aparece logo abaixo do cabeçalho na primeira visita e some quando:
- *  - já está inscrito neste aparelho;
- *  - o aluno dispensa (X) — fica guardado no localStorage;
- *  - o navegador não suporta push.
- * No iPhone fora do app instalado, mostra a dica de adicionar à Tela de Início.
+ * Convite progressivo logo abaixo do cabeçalho:
+ *  1) se o app ainda NÃO está instalado e dá pra instalar neste aparelho
+ *     (iPhone via "Tela de Início"; Android/desktop via prompt nativo do Chrome/Edge),
+ *     empurra a INSTALAÇÃO;
+ *  2) se já está instalado mas as notificações estão desligadas, empurra ATIVAR push.
+ *
+ * Some quando: já está inscrito; o aluno dispensa (X) — volta depois de 7 dias;
+ * ou não há nada a oferecer (sem suporte a push e sem como instalar).
  */
 export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   const { toast } = useToast();
@@ -32,22 +40,62 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   const [visible, setVisible] = useState(false);
   const [busy, setBusy] = useState(false);
   const [showInstall, setShowInstall] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
-  const iosNeedsInstall = pushService.isIOS() && !pushService.isStandalone();
+  const isStandalone = pushService.isStandalone();
+  const iosNeedsInstall = pushService.isIOS() && !isStandalone;
+  // Android/desktop só contam como "instalável" quando o navegador oferece o
+  // prompt nativo (beforeinstallprompt). Assim não enchemos o saco de quem usa
+  // um navegador sem suporte a instalação (ex.: Firefox desktop).
+  const canPromptInstall = !isStandalone && !!deferredPrompt;
+  const needsInstall = iosNeedsInstall || canPromptInstall;
+
+  // Captura o evento de instalação do Chrome/Edge (Android e desktop).
+  useEffect(() => {
+    const handler = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
 
   useEffect(() => {
     if (!patientId) return;
-    if (!pushService.isSupported() && !iosNeedsInstall) return;
+    // Nada a oferecer: nem dá pra instalar, nem dá pra ativar push.
+    if (!needsInstall && !pushService.isSupported()) return;
     // Soneca de 7 dias: se dispensou há menos que isso, não mostra ainda.
     const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) || 0);
     if (dismissedAt && Date.now() - dismissedAt < SNOOZE_DAYS * 24 * 60 * 60 * 1000) return;
-    // Só mostra se ainda não estiver inscrito neste aparelho.
+    // Se ainda não instalou, prioriza o convite pra instalar.
+    if (needsInstall) {
+      setVisible(true);
+      return;
+    }
+    // Já instalado: só mostra se ainda não estiver inscrito neste aparelho.
     pushService.isSubscribed().then((sub) => setVisible(!sub));
-  }, [patientId, iosNeedsInstall]);
+  }, [patientId, needsInstall]);
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, String(Date.now()));
     setVisible(false);
+  };
+
+  const handleInstall = async () => {
+    // Android/desktop: dispara o prompt nativo do navegador.
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      setDeferredPrompt(null);
+      if (outcome === 'accepted') {
+        toast({ title: 'App instalado! 🎉', description: 'Abra pelo ícone na tela inicial pra ativar os lembretes.' });
+        setVisible(false);
+      }
+      return;
+    }
+    // iPhone/iPad (e fallback): mostra as instruções de "Adicionar à Tela de Início".
+    if (isOwner) navigate('/instalar');
+    else setShowInstall(true);
   };
 
   const handleEnable = async () => {
@@ -83,22 +131,24 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   return (
     <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 shadow-sm">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
-        <BellRing className="h-5 w-5" />
+        {needsInstall ? <Download className="h-5 w-5" /> : <BellRing className="h-5 w-5" />}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-slate-900">Ative seus lembretes</p>
+        <p className="text-sm font-semibold text-slate-900">
+          {needsInstall ? 'Instale o app' : 'Ative seus lembretes'}
+        </p>
         <p className="text-xs text-slate-600">
-          {iosNeedsInstall
-            ? 'No iPhone, instale o app na Tela de Início para receber as respostas do Fabricio e seus avisos.'
+          {needsInstall
+            ? 'Tenha o app na tela inicial pra abrir rápido e receber as respostas do Fabricio e seus avisos.'
             : 'Receba as respostas do Fabricio, avisos da sua dieta e o lembrete do check-in.'}
         </p>
       </div>
-      {iosNeedsInstall ? (
+      {needsInstall ? (
         <button
-          onClick={() => (isOwner ? navigate('/instalar') : setShowInstall(true))}
+          onClick={handleInstall}
           className="shrink-0 rounded-lg bg-indigo-600 px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-indigo-700"
         >
-          Como instalar
+          {deferredPrompt ? 'Instalar' : 'Como instalar'}
         </button>
       ) : (
         <button
