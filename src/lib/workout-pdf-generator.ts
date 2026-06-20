@@ -127,7 +127,7 @@ function sessionCardHtml(s: WorkoutSessionForPDF): string {
         <div style="display:flex;align-items:center;gap:12px;">
           <span style="font-size:28px;">${emoji}</span>
           <span style="font-size:20px;font-weight:700;color:#0f172a;">${s.name}</span>
-          ${s.focus ? `<span style="font-size:13px;color:#64748b;font-style:italic;">${s.focus}</span>` : ''}
+          ${s.focus && s.focus.trim().toLowerCase() !== (s.name || '').trim().toLowerCase() ? `<span style="font-size:13px;color:#64748b;font-style:italic;">${s.focus}</span>` : ''}
         </div>
         ${dia ? `<span style="background:rgba(99,102,241,0.15);color:#4f46e5;padding:6px 12px;border-radius:20px;font-size:13px;font-weight:500;border:1px solid rgba(99,102,241,0.3);">📅 ${dia}</span>` : ''}
       </div>
@@ -190,7 +190,6 @@ export class WorkoutPDFGenerator {
           <div style="flex:1;">
             <div style="font-size:28px;font-weight:700;color:#0f172a;margin-bottom:8px;">🏋️ Plano de Treino</div>
             <div style="display:inline-block;background:rgba(59,130,246,0.12);color:#2563eb;padding:8px 16px;border-radius:20px;font-size:14px;font-weight:600;border:1px solid rgba(59,130,246,0.3);">${patient.nome}</div>
-            ${plan.name ? `<div style="font-size:13px;color:#64748b;margin-top:8px;">${plan.name}</div>` : ''}
           </div>
         </div>
       </div>
