@@ -112,7 +112,7 @@ function subsLineHtml(subs: any[]): string {
     const q = s.quantity != null ? `${s.quantity} ${s.unit || ''}`.trim() : '';
     return `${q ? q + ' de ' : ''}${s.food_name}`;
   }).join(' · ');
-  return `<div style="margin:6px 0 0 20px;font-size:12px;color:#94a3b8;line-height:1.5;"><span style="color:#f59e0b;font-weight:600;">🔁 Substituir por:</span> ${items}</div>`;
+  return `<div style="margin:6px 0 0 20px;font-size:12px;color:#94a3b8;line-height:1.5;"><span style="color:#f59e0b;font-weight:600;">🔁 Pode substituir por:</span> ${items}</div>`;
 }
 
 // Card de 1 alimento: nome + quantidade (+medida caseira), observação e
