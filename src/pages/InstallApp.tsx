@@ -1,9 +1,14 @@
 // Página pública de download/instalação do app (APK Android).
 // Acessível em /instalar (e /baixar). Sem login.
 // O APK é servido como arquivo estático em /my-shape.apk (pasta public/).
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, ShieldCheck, Smartphone, Apple, PlayCircle, X } from 'lucide-react';
+import { ArrowLeft, Download, Globe, ShieldCheck, Smartphone, Apple, PlayCircle, X } from 'lucide-react';
+
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
+}
 
 const APK_URL = '/my-shape.apk';
 // Vídeos de instalação (Vimeo embeda sem bloqueio, ao contrário do Drive).
@@ -23,7 +28,36 @@ function Step({ n, children }: { n: number; children: React.ReactNode }) {
 
 export default function InstallApp() {
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
+  // Plano B do Android: instalar o PWA direto pelo navegador (sem .apk), pra
+  // quem trava na instalação por "fonte desconhecida" ou bloqueio do celular.
+  const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
+  const [pwaInstalled, setPwaInstalled] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const onPrompt = (e: Event) => {
+      e.preventDefault();
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
+    };
+    const onInstalled = () => {
+      setPwaInstalled(true);
+      setDeferredPrompt(null);
+    };
+    window.addEventListener('beforeinstallprompt', onPrompt);
+    window.addEventListener('appinstalled', onInstalled);
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt);
+      window.removeEventListener('appinstalled', onInstalled);
+    };
+  }, []);
+
+  const installPwa = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    setDeferredPrompt(null);
+    if (outcome === 'accepted') setPwaInstalled(true);
+  };
 
   // Volta pra tela de onde o aluno veio (Dieta, chat, banner). Se a página foi
   // aberta direto por link externo (sem histórico), cai na home.
@@ -93,6 +127,38 @@ export default function InstallApp() {
               O app é seguro e oficial do seu acompanhamento. As atualizações de conteúdo chegam
               automaticamente — você não precisa baixar de novo.
             </span>
+          </div>
+
+          {/* Plano B: instalar pelo navegador (PWA), sem baixar o .apk. */}
+          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+            <p className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+              <Globe className="h-4 w-4 text-emerald-600" /> Não conseguiu instalar o arquivo?
+            </p>
+            {pwaInstalled ? (
+              <p className="mt-1 text-sm text-emerald-700">
+                App instalado! Procure o ícone do <strong>My Shape</strong> na tela inicial.
+              </p>
+            ) : (
+              <>
+                <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                  Dá pra instalar direto pelo navegador, sem baixar arquivo nenhum.
+                </p>
+                {deferredPrompt ? (
+                  <button
+                    type="button"
+                    onClick={installPwa}
+                    className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
+                  >
+                    <Download className="h-5 w-5" /> Instalar pelo navegador
+                  </button>
+                ) : (
+                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
+                    No <strong>Chrome</strong>: toque nos três pontinhos (⋮) no canto superior e
+                    escolha <strong>Instalar app</strong> (ou "Adicionar à tela inicial").
+                  </p>
+                )}
+              </>
+            )}
           </div>
         </section>
 
