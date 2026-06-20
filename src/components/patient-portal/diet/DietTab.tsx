@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
   Dialog,
   DialogContent,
@@ -574,6 +575,40 @@ export function DietTab({
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Seletor de dietas (quando há 2+ liberadas) — abaixo do card de macros */}
+              {diet.releasedPlans.length > 1 && (
+                <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
+                  <CardContent className="p-3 sm:p-4">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-slate-900 mb-0.5">Suas dietas</p>
+                        <p className="text-xs text-slate-500">Você tem {diet.releasedPlans.length} dietas ativas — escolha qual seguir hoje</p>
+                      </div>
+                      <Select value={diet.activePlan?.id} onValueChange={diet.handleChangePlan}>
+                        <SelectTrigger className="w-full sm:w-[280px] bg-white border-slate-300 text-slate-700 min-h-[44px]">
+                          <SelectValue placeholder="Selecione um plano" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-slate-200 text-slate-700">
+                          {diet.releasedPlans.map((plan: any) => (
+                            <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-100 focus:bg-slate-100 cursor-pointer">
+                              <div className="flex items-center gap-2">
+                                <Utensils className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                                <span className="truncate">{plan.name}</span>
+                                {(plan.status === 'active' || plan.active) && (
+                                  <Badge className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 flex-shrink-0">
+                                    Ativo
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Refeições e Substituições - Conteúdo original */}
               {hasActivePlan && planDetails?.diet_meals && planDetails.diet_meals.length > 0 && (

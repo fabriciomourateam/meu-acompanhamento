@@ -310,9 +310,9 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
         ref={btnRef}
         onClick={toggleOpen}
         aria-label="Notificações"
-        className="relative inline-flex h-9 w-9 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50/60 text-emerald-700 transition-colors hover:bg-emerald-100"
+        className="relative inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-emerald-200 bg-emerald-50/60 text-emerald-700 transition-colors hover:bg-emerald-100"
       >
-        {unread > 0 ? <BellRing className="h-5 w-5" /> : <Bell className="h-5 w-5" />}
+        {unread > 0 ? <BellRing className="h-4 w-4 sm:h-5 sm:w-5" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5" />}
         {unread > 0 && (
           <Badge
             className="absolute -right-1.5 -top-1.5 h-5 min-w-5 justify-center rounded-full px-1 text-[10px]"

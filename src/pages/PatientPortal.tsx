@@ -1108,7 +1108,7 @@ export default function PatientPortal() {
             </div>
             {/* Header da direita: só notificações (🔔) + menu (⋮). O instalar e a
                 Área de Membros migraram pra dentro do menu, deixando o topo limpo. */}
-            <div className="hide-in-pdf shrink-0 flex gap-1 sm:gap-2 items-center justify-end">
+            <div className="hide-in-pdf shrink-0 flex flex-col sm:flex-row gap-1.5 sm:gap-2 items-end sm:items-center justify-end">
               {patientId && <PatientNotifications patientId={patientId} />}
 
               {/* Menu de ações */}
@@ -1117,7 +1117,7 @@ export default function PatientPortal() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-700 min-w-[40px] px-0"
+                    className="border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-700 h-8 w-8 sm:h-9 sm:w-9 min-w-0 p-0"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </Button>
