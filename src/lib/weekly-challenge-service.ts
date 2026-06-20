@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { getBrtISODate } from '@/lib/utils';
 
 export interface WeeklyChallenge {
   id?: string;
@@ -29,9 +30,13 @@ export interface ActiveChallengeStatus {
   completed_at: string | null;
 }
 
-/** ISO week key (YYYY-Www) pra now() ou para uma data específica. */
+/** ISO week key (YYYY-Www) no fuso de São Paulo (BRT) — precisa casar com a
+ *  chave que a RPC get_weekly_challenge_by_token calcula no banco (também BRT),
+ *  senão na virada de domingo→segunda o admin gravaria a semana errada. */
 export function currentWeekKey(d: Date = new Date()): string {
-  const date = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  // Componentes Y-M-D do dia em São Paulo (não do fuso do navegador).
+  const [y, m, day0] = getBrtISODate(d).split('-').map(Number);
+  const date = new Date(Date.UTC(y, m - 1, day0));
   const day = date.getUTCDay() || 7;
   date.setUTCDate(date.getUTCDate() + 4 - day);
   const yearStart = new Date(Date.UTC(date.getUTCFullYear(), 0, 1));
