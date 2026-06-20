@@ -22,6 +22,9 @@ import { dietService } from '@/lib/diet-service';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { DietPDFGenerator } from '@/lib/diet-pdf-generator';
 import { DietPremiumPDFGenerator } from '@/lib/diet-pdf-premium-generator';
+import { WorkoutPDFGenerator } from '@/lib/workout-pdf-generator';
+import { workoutService } from '@/lib/workout/workout-service';
+import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
 import { classificarIMC } from '@/lib/body-calculations';
 
 // Lazy load componentes pesados com tipagem
@@ -46,9 +49,9 @@ import {
   Settings,
   Smartphone,
   FileText,
+  Dumbbell,
   Scale,
   MoreVertical,
-  Eye,
   FileImage,
   Crown,
   ExternalLink,
@@ -784,6 +787,59 @@ export default function PatientPortal() {
     }
   }
 
+  // Exporta o treino em PDF (mesmo visual da dieta). Busca o hub de treino +
+  // cardio prescrito e gera com o plano + treinos. Notas internas não entram
+  // (a RPC não as expõe).
+  async function handleExportWorkout() {
+    if (!token) return;
+    try {
+      setExporting(true);
+      toast({
+        title: 'Gerando PDF do treino...',
+        description: 'Aguarde enquanto criamos seu plano de treino'
+      });
+
+      const hub = await workoutService.getHub(token, null);
+      if (!hub?.plan) {
+        toast({
+          title: 'Erro',
+          description: 'Nenhum plano de treino ativo encontrado',
+          variant: 'destructive'
+        });
+        setExporting(false);
+        return;
+      }
+
+      // Treino convencional: tudo que não é cardio/guidelines/mobility.
+      const sessions = (hub.sessions ?? []).filter((s: any) => {
+        const t = s.session_type ?? 'workout';
+        return t === 'workout';
+      });
+      const cardio = await workoutExtrasService
+        .getPrescribedCardio(token, hub.plan.id)
+        .catch(() => null);
+
+      await WorkoutPDFGenerator.generatePDF(
+        { plan: hub.plan as any, sessions: sessions as any, cardio: cardio as any },
+        { nome: patient?.nome || 'Aluno' }
+      );
+
+      setExporting(false);
+      toast({
+        title: 'PDF do treino gerado! 🎉',
+        description: 'Seu plano de treino foi baixado com sucesso'
+      });
+    } catch (error: any) {
+      console.error('Erro ao gerar PDF do treino:', error);
+      toast({
+        title: 'Erro',
+        description: error.message || 'Não foi possível gerar o PDF do treino',
+        variant: 'destructive'
+      });
+      setExporting(false);
+    }
+  }
+
   // Função para exportar evolução diretamente
   function handleExportEvolution(format: 'png' | 'pdf') {
     setEvolutionExportMode(format);
@@ -1143,7 +1199,7 @@ export default function PatientPortal() {
                       <DropdownMenuSeparator className="bg-slate-200 my-1" />
                     </>
                   )}
-                  <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Dieta</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Exportar</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={handleExportDietPremiumPDF}
                     disabled={exporting}
@@ -1152,26 +1208,23 @@ export default function PatientPortal() {
                     <FileText className="w-4 h-4 mr-2 text-emerald-500" />
                     {exporting ? 'Gerando...' : 'Exportar Dieta'}
                   </DropdownMenuItem>
-
+                  <DropdownMenuItem
+                    onClick={handleExportWorkout}
+                    disabled={exporting}
+                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
+                  >
+                    <Dumbbell className="w-4 h-4 mr-2 text-orange-500" />
+                    {exporting ? 'Gerando...' : 'Exportar Treino'}
+                  </DropdownMenuItem>
                   {patient && (
-                    <>
-                      <DropdownMenuSeparator className="bg-slate-200 my-1" />
-                      <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Evolução</DropdownMenuLabel>
-                      <DropdownMenuItem
-                        onClick={() => setShowEvolutionExport(true)}
-                        className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
-                      >
-                        <Eye className="w-4 h-4 mr-2 text-blue-500" />
-                        Visualizar relatório
-                      </DropdownMenuItem>
-                      <DropdownMenuItem
-                        onClick={() => handleExportEvolution('pdf')}
-                        className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
-                      >
-                        <FileText className="w-4 h-4 mr-2 text-purple-500" />
-                        Exportar Evolução
-                      </DropdownMenuItem>
-                    </>
+                    <DropdownMenuItem
+                      onClick={() => handleExportEvolution('pdf')}
+                      disabled={exporting}
+                      className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
+                    >
+                      <FileText className="w-4 h-4 mr-2 text-purple-500" />
+                      Exportar Evolução
+                    </DropdownMenuItem>
                   )}
 
                   <DropdownMenuSeparator className="bg-slate-200 my-1" />

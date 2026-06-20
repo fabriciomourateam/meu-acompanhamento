@@ -10,11 +10,10 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, ChevronRight, AlertTriangle, Download } from 'lucide-react';
+import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
-import { WorkoutPDFGenerator } from '@/lib/workout-pdf-generator';
 import type { WorkoutHub, HubSession } from '@/lib/workout/types';
 import { GuidelinesBanner } from './GuidelinesBanner';
 import { PhaseAdvanceBanner } from './PhaseAdvanceBanner';
@@ -106,7 +105,6 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
   // Portão de adesão antes de uma fase de Força (<50% na fase anterior).
   const [forcaGate, setForcaGate] = useState<{ planId: string; adherence: number } | null>(null);
   const [gateBusy, setGateBusy] = useState(false);
-  const [exporting, setExporting] = useState(false);
 
   const load = useCallback(async () => {
     if (!token) return;
@@ -271,24 +269,6 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
   const activePlanId = selectedPlanId ?? plan.id;
 
-  // Exporta o treino em PDF (mesmo visual da dieta). Busca o cardio prescrito e
-  // gera com o plano + treinos. Notas internas não entram (a RPC não as expõe).
-  const handleExportWorkout = async () => {
-    setExporting(true);
-    try {
-      const cardio = await workoutExtrasService.getPrescribedCardio(token, activePlanId).catch(() => null);
-      await WorkoutPDFGenerator.generatePDF(
-        { plan: plan as any, sessions: workoutSessions as any, cardio: cardio as any },
-        { nome: patientName || 'Aluno' },
-      );
-      toast({ title: 'PDF do treino gerado! ✅', description: 'Seu treino foi baixado.' });
-    } catch (e) {
-      toast({ title: 'Erro ao gerar PDF', description: (e as Error).message, variant: 'destructive' });
-    } finally {
-      setExporting(false);
-    }
-  };
-
   // Navegacao entre planos (quando ha mais de um): o card 'PlanHeader' vira
   // o seletor — setas laterais ◂ ▸ alternam entre os planos disponiveis.
   // Substitui os chips de cima 'MUSCULACAO / Vacuum' que duplicavam o card.
@@ -342,15 +322,6 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
               onNext={plans.length > 1 ? () => goToPlan(1) : undefined}
               positionLabel={plans.length > 1 ? `${planIndex + 1}/${plans.length}` : undefined}
             />
-          )}
-
-          {workoutSessions.length > 0 && (
-            <div className="flex justify-end">
-              <Button onClick={() => void handleExportWorkout()} disabled={exporting} variant="outline" size="sm" className="gap-1.5">
-                <Download className="h-4 w-4" />
-                {exporting ? 'Gerando...' : 'Exportar Treino'}
-              </Button>
-            </div>
           )}
 
           {/* Bloco de Mobilidade — em destaque ACIMA do treino convencional.
