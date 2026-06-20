@@ -83,10 +83,29 @@ function fmtQty(food: any): string {
   return base;
 }
 
-// Linha de substituições de um alimento.
-function foodSubsHtml(food: any): string {
-  const subs = Array.isArray(food.substitutions) ? food.substitutions : [];
-  if (subs.length === 0) return '';
+// Extrai as substituições lidando com os 2 formatos do banco:
+//  - food.substitutions: jsonb array (formato nativo)
+//  - food.notes = '{"substitutions":[...]}' (legado de import WebDiet) — sem
+//    tratar, isso vinha como "código" cru no PDF.
+// Retorna { subs, notes } com notes só se for texto real (sem o JSON).
+function extractSubs(food: any): { subs: any[]; notes: string | null } {
+  let subs: any[] = Array.isArray(food.substitutions) ? food.substitutions : [];
+  let notes: string | null = (food.notes && String(food.notes).trim()) || null;
+  if (notes && notes.startsWith('{') && notes.includes('substitutions')) {
+    try {
+      const parsed = JSON.parse(notes);
+      if (parsed && Array.isArray(parsed.substitutions)) {
+        if (subs.length === 0) subs = parsed.substitutions;
+        notes = (typeof parsed.notes === 'string' && parsed.notes.trim()) ? parsed.notes.trim() : null;
+      }
+    } catch { /* não é JSON — mantém como texto */ }
+  }
+  return { subs, notes };
+}
+
+// Linha de substituições (nome + quantidade, sem macros pra ficar limpo).
+function subsLineHtml(subs: any[]): string {
+  if (!subs || subs.length === 0) return '';
   const items = subs.map((s: any) => {
     const q = s.quantity != null ? `${s.quantity} ${s.unit || ''}`.trim() : '';
     return `${q ? q + ' de ' : ''}${s.food_name}`;
@@ -94,22 +113,19 @@ function foodSubsHtml(food: any): string {
   return `<div style="margin:6px 0 0 20px;font-size:12px;color:#64748b;line-height:1.5;"><span style="color:#d97706;font-weight:600;">🔁 Substituir por:</span> ${items}</div>`;
 }
 
-// Card de 1 alimento (tema claro): nome, qtd (+medida), macros, observação e substituições.
+// Card de 1 alimento (tema claro): nome + quantidade (+medida), observação e
+// substituições. SEM macros por alimento (a pedido do dono).
 function foodCardHtml(food: any): string {
-  const macros = (food.protein || food.carbs || food.fats)
-    ? `<span style="color:#94a3b8;"> · P ${food.protein ?? 0} C ${food.carbs ?? 0} G ${food.fats ?? 0}</span>` : '';
+  const { subs, notes } = extractSubs(food);
   return `
     <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:12px 16px;margin-bottom:8px;">
-      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
-        <div style="display:flex;align-items:center;gap:12px;min-width:0;">
-          <div style="width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
-          <span style="font-size:15px;font-weight:600;color:#1e293b;">${food.food_name}</span>
-          <span style="font-size:14px;color:#64748b;white-space:nowrap;">• ${fmtQty(food)}</span>
-        </div>
-        <span style="font-size:12px;color:#64748b;font-weight:500;white-space:nowrap;text-align:right;">${food.calories ? `${food.calories} kcal` : ''}${macros}</span>
+      <div style="display:flex;align-items:center;gap:12px;min-width:0;">
+        <div style="width:8px;height:8px;border-radius:50%;background:#10b981;flex-shrink:0;"></div>
+        <span style="font-size:15px;font-weight:600;color:#1e293b;">${food.food_name}</span>
+        <span style="font-size:14px;color:#64748b;">• ${fmtQty(food)}</span>
       </div>
-      ${food.notes ? `<div style="margin:6px 0 0 20px;font-size:12px;color:#64748b;font-style:italic;">📝 ${food.notes}</div>` : ''}
-      ${foodSubsHtml(food)}
+      ${notes ? `<div style="margin:6px 0 0 20px;font-size:12px;color:#64748b;font-style:italic;">📝 ${notes}</div>` : ''}
+      ${subsLineHtml(subs)}
     </div>`;
 }
 
