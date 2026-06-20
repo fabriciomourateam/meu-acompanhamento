@@ -1,5 +1,6 @@
 // Sistema de Análise de Tendências e Insights
 import type { Database } from '@/integrations/supabase/types';
+import { parseLocalISODate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 
@@ -242,12 +243,14 @@ function analyzeStressPattern(checkins: Checkin[]): Trend | null {
 
 function analyzeWeekendVsWeekday(checkins: Checkin[]): Trend | null {
   const weekdayCheckins = checkins.filter(c => {
-    const day = new Date(c.data_checkin).getDay();
+    // data_checkin é date-only: parseLocalISODate ancora ao meio-dia local pra
+    // o dia-da-semana refletir a data BRT, não o fuso do navegador.
+    const day = parseLocalISODate(c.data_checkin).getDay();
     return day >= 1 && day <= 5; // Segunda a Sexta
   });
 
   const weekendCheckins = checkins.filter(c => {
-    const day = new Date(c.data_checkin).getDay();
+    const day = parseLocalISODate(c.data_checkin).getDay();
     return day === 0 || day === 6; // Sábado e Domingo
   });
 

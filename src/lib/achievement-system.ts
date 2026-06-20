@@ -1,5 +1,6 @@
 // Sistema de Conquistas e Badges
 import type { Database } from '@/integrations/supabase/types';
+import { parseLocalISODate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 
@@ -282,7 +283,8 @@ function calculateStreak(checkins: Checkin[]): number {
   if (checkins.length === 0) return 0;
 
   const dates = checkins.map(c => {
-    const date = new Date(c.data_checkin);
+    // date-only → meio-dia local, pra y/m/d refletirem a data BRT e não o fuso do navegador.
+    const date = parseLocalISODate(c.data_checkin);
     return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
   }).sort((a, b) => b - a); // Mais recente primeiro
 
@@ -310,7 +312,7 @@ function detectPerfectWeeks(checkins: Checkin[]): number {
   const weekMap = new Map<string, Checkin[]>();
 
   checkins.forEach(checkin => {
-    const date = new Date(checkin.data_checkin);
+    const date = parseLocalISODate(checkin.data_checkin);
     const weekStart = new Date(date);
     weekStart.setDate(date.getDate() - date.getDay());
     const weekKey = weekStart.toISOString().split('T')[0];
