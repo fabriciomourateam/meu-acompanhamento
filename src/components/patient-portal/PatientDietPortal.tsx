@@ -229,8 +229,8 @@ export function PatientDietPortal({
           As de periodização/PR são espelhadas pra tabela `notifications` por
           trigger no banco, então caem nesse mesmo sino — não há mais sino aqui. */}
 
-      {/* Seletor de Planos (quando houver múltiplos planos liberados) */}
-      {diet.releasedPlans.length > 1 && (
+      {/* Seletor de Planos (quando houver múltiplos planos liberados) — só na aba Dieta */}
+      {activeTab === 'diet' && diet.releasedPlans.length > 1 && (
         <Card className="bg-white rounded-2xl border border-slate-200 shadow-sm">
           <CardContent className="p-3 sm:p-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
