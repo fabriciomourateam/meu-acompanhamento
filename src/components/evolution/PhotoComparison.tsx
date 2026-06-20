@@ -13,6 +13,7 @@ import { getMediaType } from "@/lib/media-utils";
 import { convertGoogleDriveUrl, isGoogleDriveUrl } from "@/lib/google-drive-utils";
 import { GoogleDriveImage } from "@/components/ui/google-drive-image";
 import type { Database } from "@/integrations/supabase/types";
+import { parseLocalISODate } from "@/lib/utils";
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 type Patient = Database['public']['Tables']['patients']['Row'];
@@ -253,7 +254,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
       initialPhotos.push({
         url: originalUrl, // Usar URL original, não convertida
-        date: patientWithInitialData.data_fotos_iniciais ? new Date(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
+        date: patientWithInitialData.data_fotos_iniciais ? parseLocalISODate(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
         weight: patientWithInitialData.peso_inicial?.toString() || 'N/A',
         checkinId: 'initial-frente',
         photoNumber: 0,
@@ -267,7 +268,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
       const originalUrl = patientWithInitialData.foto_inicial_lado;
       initialPhotos.push({
         url: originalUrl,
-        date: patientWithInitialData.data_fotos_iniciais ? new Date(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
+        date: patientWithInitialData.data_fotos_iniciais ? parseLocalISODate(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
         weight: patientWithInitialData.peso_inicial?.toString() || 'N/A',
         checkinId: 'initial-lado',
         photoNumber: 0,
@@ -281,7 +282,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
       const originalUrl = patientWithInitialData.foto_inicial_lado_2;
       initialPhotos.push({
         url: originalUrl,
-        date: patientWithInitialData.data_fotos_iniciais ? new Date(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
+        date: patientWithInitialData.data_fotos_iniciais ? parseLocalISODate(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
         weight: patientWithInitialData.peso_inicial?.toString() || 'N/A',
         checkinId: 'initial-lado-2',
         photoNumber: 0,
@@ -295,7 +296,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
       const originalUrl = patientWithInitialData.foto_inicial_costas;
       initialPhotos.push({
         url: originalUrl,
-        date: patientWithInitialData.data_fotos_iniciais ? new Date(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
+        date: patientWithInitialData.data_fotos_iniciais ? parseLocalISODate(patientWithInitialData.data_fotos_iniciais).toLocaleDateString('pt-BR') : 'Data Inicial',
         weight: patientWithInitialData.peso_inicial?.toString() || 'N/A',
         checkinId: 'initial-costas',
         photoNumber: 0,
@@ -318,7 +319,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
         : checkin.foto_1;
       photos.push({
         url: url || checkin.foto_1,
-        date: new Date(checkin.data_checkin).toLocaleDateString('pt-BR'),
+        date: parseLocalISODate(checkin.data_checkin).toLocaleDateString('pt-BR'),
         weight: checkin.peso || 'N/A',
         checkinId: checkin.id,
         photoNumber: 1,
@@ -333,7 +334,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
         : checkin.foto_2;
       photos.push({
         url: url || checkin.foto_2,
-        date: new Date(checkin.data_checkin).toLocaleDateString('pt-BR'),
+        date: parseLocalISODate(checkin.data_checkin).toLocaleDateString('pt-BR'),
         weight: checkin.peso || 'N/A',
         checkinId: checkin.id,
         photoNumber: 2,
@@ -348,7 +349,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
         : checkin.foto_3;
       photos.push({
         url: url || checkin.foto_3,
-        date: new Date(checkin.data_checkin).toLocaleDateString('pt-BR'),
+        date: parseLocalISODate(checkin.data_checkin).toLocaleDateString('pt-BR'),
         weight: checkin.peso || 'N/A',
         checkinId: checkin.id,
         photoNumber: 3,
@@ -363,7 +364,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
         : checkin.foto_4;
       photos.push({
         url: url || checkin.foto_4,
-        date: new Date(checkin.data_checkin).toLocaleDateString('pt-BR'),
+        date: parseLocalISODate(checkin.data_checkin).toLocaleDateString('pt-BR'),
         weight: checkin.peso || 'N/A',
         checkinId: checkin.id,
         photoNumber: 4,

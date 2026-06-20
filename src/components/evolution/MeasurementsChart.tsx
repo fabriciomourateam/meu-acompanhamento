@@ -3,6 +3,7 @@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Ruler } from 'lucide-react';
+import { parseLocalISODate } from '@/lib/utils';
 
 function norm(s: string): string {
   return s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
@@ -54,7 +55,7 @@ export function MeasurementsChart({ checkins }: { checkins: any[] }) {
     .slice()
     .reverse()
     .map((c) => ({
-      date: c?.data_checkin ? new Date(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
+      date: c?.data_checkin ? parseLocalISODate(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }) : '',
       cintura: extractMeasure(c, 'cintura'),
       quadril: extractMeasure(c, 'quadril'),
     }))

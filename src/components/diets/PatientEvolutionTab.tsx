@@ -17,6 +17,7 @@ import { MeasurementsChart } from '@/components/evolution/MeasurementsChart';
 import { AIInsights } from '@/components/evolution/AIInsights';
 import { DailyWeightsList } from '@/components/evolution/DailyWeightsList';
 import { detectAchievements } from '@/lib/achievement-system';
+import { parseLocalISODate } from '@/lib/utils';
 import {
   Activity,
   Calendar,
@@ -292,7 +293,7 @@ export function PatientEvolutionTab({
   checkins.slice().reverse().forEach((c) => {
     if (c.peso) {
       weightData.push({
-        data: new Date(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+        data: parseLocalISODate(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
         peso: parseFloat(c.peso.replace(',', '.'))
       });
     }
@@ -374,7 +375,7 @@ export function PatientEvolutionTab({
                 label="Peso Atual"
                 value={parseFloat(checkins[0].peso.replace(',', '.')).toFixed(1)}
                 unit="kg"
-                subtitle={new Date(checkins[0].data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
+                subtitle={parseLocalISODate(checkins[0].data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
               />
             )}
 

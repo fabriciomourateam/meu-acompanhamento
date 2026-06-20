@@ -1,6 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
-import { getSaoPauloISODate } from '@/lib/utils';
+import { getSaoPauloISODate, getBrtISODate, shiftISODate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 type CheckinInsert = Database['public']['Tables']['checkin']['Insert'];
@@ -173,10 +173,8 @@ export const checkinService = {
 
   // Buscar checkins do mês atual
   async getCurrentMonth(): Promise<Checkin[]> {
-    const currentDate = new Date();
-    const year = currentDate.getFullYear();
-    const month = String(currentDate.getMonth() + 1).padStart(2, '0');
-    const mesAno = `${year}-${month}`;
+    // Mês atual no fuso de São Paulo (não o do servidor/UTC).
+    const mesAno = getBrtISODate().slice(0, 7); // YYYY-MM
 
     const { data, error } = await supabase
       .from('checkin')
@@ -200,8 +198,8 @@ export const checkinService = {
       .from('checkin')
       .select('*', { count: 'exact', head: true });
 
-    // Checkins deste mês
-    const currentMonth = new Date().toISOString().slice(0, 7);
+    // Checkins deste mês (mês em São Paulo, não em UTC).
+    const currentMonth = getBrtISODate().slice(0, 7);
     const { count: checkinsThisMonth } = await supabase
       .from('checkin')
       .select('*', { count: 'exact', head: true })
@@ -276,13 +274,14 @@ export const checkinService = {
 
   // Buscar checkins preenchidos na última semana
   async getFilledLastWeek(): Promise<Checkin[]> {
-    const oneWeekAgo = new Date();
-    oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    // 7 dias atrás ancorado no dia de São Paulo, não no fuso do servidor
+    // (que pode ser UTC e perder check-ins na virada do dia).
+    const sevenDaysAgo = shiftISODate(getBrtISODate(), -7);
 
     const { data, error } = await supabase
       .from('checkin')
       .select('*')
-      .gte('data_preenchimento', oneWeekAgo.toISOString())
+      .gte('data_preenchimento', `${sevenDaysAgo}T00:00:00-03:00`)
       .order('data_preenchimento', { ascending: false });
 
     if (error) throw error;

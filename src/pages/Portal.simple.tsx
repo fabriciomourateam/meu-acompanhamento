@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LogOut } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
+import { parseLocalISODate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 
@@ -97,7 +98,7 @@ export default function Portal() {
                     <div>
                       <p className="text-sm text-muted-foreground">Último Check-in</p>
                       <p className="text-lg">
-                        {new Date(checkins[0].data_checkin).toLocaleDateString('pt-BR')}
+                        {parseLocalISODate(checkins[0].data_checkin).toLocaleDateString('pt-BR')}
                       </p>
                       {checkins[0].peso && (
                         <p className="text-sm text-muted-foreground mt-2">
@@ -126,7 +127,7 @@ export default function Portal() {
                         <div className="flex justify-between items-start">
                           <div>
                             <p className="font-semibold">
-                              {new Date(checkin.data_checkin).toLocaleDateString('pt-BR', {
+                              {parseLocalISODate(checkin.data_checkin).toLocaleDateString('pt-BR', {
                                 day: '2-digit',
                                 month: 'long',
                                 year: 'numeric'

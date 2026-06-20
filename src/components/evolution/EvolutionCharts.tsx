@@ -18,6 +18,7 @@ import {
   Bar,
   Scatter
 } from "recharts";
+import { parseLocalISODate } from '@/lib/utils';
 import { TrendingUp, Activity, Target, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -125,7 +126,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
     if (pesoValue) {
       const dataPoint = {
         id: `daily-${weight.id}`,
-        data: new Date(weight.data_pesagem).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+        data: parseLocalISODate(weight.data_pesagem).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
         dataCompleta: weight.data_pesagem,
         peso: parseFloat(pesoValue.toString()),
         tipo: `Peso ${weight.tipo === 'jejum' ? 'Jejum' : 'Dia'}`,
@@ -146,7 +147,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
         : parseFloat(pesoCheckin.toString());
       const dataPoint = {
         id: c.id,
-        data: new Date(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+        data: parseLocalISODate(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
         dataCompleta: c.data_checkin,
         peso: pesoValue,
         tipo: index === 0 ? '1º Check-in' : 'Check-in',
@@ -162,7 +163,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
 
   // Preparar dados para gráfico de pontuações
   const scoresData = checkinsOrdenados.map(c => ({
-    data: new Date(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+    data: parseLocalISODate(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
     treino: parseFloat(c.pontos_treinos || '0') || 0,
     cardio: parseFloat(c.pontos_cardios || '0') || 0,
     sono: parseFloat(c.pontos_sono || '0') || 0,
@@ -248,7 +249,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
     };
 
     return {
-      data: new Date(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
+      data: parseLocalISODate(c.data_checkin).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' }),
       treino: extractNumberFromText(c.treino),
       cardio: extractNumberFromText(c.cardio),
       sono: extractNumberFromText(c.sono),
@@ -715,7 +716,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                   Análise multidimensional do check-in
                   {selectedCheckin && (
                     <span className="ml-2">
-                      - {new Date(selectedCheckin.data_checkin).toLocaleDateString('pt-BR', {
+                      - {parseLocalISODate(selectedCheckin.data_checkin).toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: 'long',
                         year: 'numeric'

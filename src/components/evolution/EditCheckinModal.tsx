@@ -10,6 +10,7 @@ import { Loader2 } from 'lucide-react';
 import type { Database } from '@/integrations/supabase/types';
 import { cleanWeight } from '@/lib/weight-utils';
 import { extractMeasurements } from '@/lib/measurement-utils';
+import { parseLocalISODate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 
@@ -164,7 +165,7 @@ export function EditCheckinModal({ checkin, open, onOpenChange, onSuccess }: Edi
             <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-slate-900 border-slate-700">
                 <DialogHeader>
                     <DialogTitle className="text-white">
-                        Editar Check-in - {new Date(checkin.data_checkin).toLocaleDateString('pt-BR')}
+                        Editar Check-in - {parseLocalISODate(checkin.data_checkin).toLocaleDateString('pt-BR')}
                     </DialogTitle>
                 </DialogHeader>
 

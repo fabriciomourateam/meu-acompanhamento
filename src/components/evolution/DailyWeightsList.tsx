@@ -15,6 +15,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { parseLocalISODate } from '@/lib/utils';
 
 interface DailyWeightsListProps {
   telefone: string;
@@ -173,7 +174,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
                               </Badge>
                             </div>
                             <p className="text-slate-400 text-sm mt-1">
-                              {new Date(weight.data_pesagem).toLocaleDateString('pt-BR', {
+                              {parseLocalISODate(weight.data_pesagem).toLocaleDateString('pt-BR', {
                                 day: '2-digit',
                                 month: 'long',
                                 year: 'numeric'
@@ -219,7 +220,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
               registrado em{' '}
               <strong>
                 {weightToDelete 
-                  ? new Date(weightToDelete.data_pesagem).toLocaleDateString('pt-BR')
+                  ? parseLocalISODate(weightToDelete.data_pesagem).toLocaleDateString('pt-BR')
                   : ''
                 }
               </strong>{' '}

@@ -9,6 +9,7 @@ import { convertGoogleDriveUrl } from "@/lib/google-drive-utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { extractMeasurements } from "@/lib/measurement-utils";
 import type { Database } from "@/integrations/supabase/types";
+import { parseLocalISODate } from "@/lib/utils";
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 
@@ -127,7 +128,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
           {checkinsOrdenados.map((checkin, index) => {
             const previousCheckin = index > 0 ? checkinsOrdenados[index - 1] : null;
             const weightTrend = getWeightTrend(checkin.peso, previousCheckin?.peso || null);
-            const checkinDate = new Date(checkin.data_checkin);
+            const checkinDate = parseLocalISODate(checkin.data_checkin);
             const isFirst = index === 0;
             const isLast = index === checkinsOrdenados.length - 1;
             const isExpanded = expandedCards.has(checkin.id);

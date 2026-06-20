@@ -9,6 +9,7 @@ import { useFeedbackTemplates } from '../../hooks/use-feedback-templates';
 import { extractMeasurements } from '../../lib/measurement-utils';
 import { PromptEditor } from './PromptEditor';
 import { toast } from 'sonner';
+import { parseLocalISODate } from '@/lib/utils';
 
 interface CheckinFeedbackSectionProps {
   telefone: string;
@@ -181,7 +182,7 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
         <Card className="bg-slate-800/50 border-slate-700/50">
           <CardHeader>
             <CardTitle className="text-base text-slate-200">
-              📅 Último Check-in ({new Date(latestCheckin.data_checkin).toLocaleDateString('pt-BR')})
+              📅 Último Check-in ({parseLocalISODate(latestCheckin.data_checkin).toLocaleDateString('pt-BR')})
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
