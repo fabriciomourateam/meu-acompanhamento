@@ -90,6 +90,15 @@ function techBadges(ex: WorkoutExerciseForPDF): string {
   return techs.map((t) => `<span style="background:rgba(139,92,246,0.12);color:#7c3aed;padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600;margin-left:6px;">${t.emoji ? t.emoji + ' ' : ''}${t.name ?? ''}</span>`).join('');
 }
 
+// Explicação das técnicas avançadas DO exercício, logo abaixo dele — pra o
+// aluno saber o que fazer sem precisar ir até o fim do PDF. Só mostra as que
+// têm descrição cadastrada.
+function techExplanationsHtml(ex: WorkoutExerciseForPDF): string {
+  const techs = (Array.isArray(ex.techniques) ? ex.techniques : []).filter((t) => t && (t.name || t.emoji) && t.description);
+  if (techs.length === 0) return '';
+  return techs.map((t) => `<div style="margin:6px 0 0 28px;padding:8px 12px;background:rgba(139,92,246,0.08);border-left:3px solid #7c3aed;border-radius:0 8px 8px 0;font-size:12px;color:#5b21b6;line-height:1.55;"><b>${t.emoji ? t.emoji + ' ' : ''}${t.name}:</b> ${t.description}</div>`).join('');
+}
+
 function exerciseCardHtml(ex: WorkoutExerciseForPDF, idx: number): string {
   const detalhe = [
     setsReps(ex) !== '—' ? `<b>Séries × Reps:</b> ${setsReps(ex)}` : '',
@@ -111,6 +120,7 @@ function exerciseCardHtml(ex: WorkoutExerciseForPDF, idx: number): string {
       ${detalhe ? `<div style="margin:6px 0 0 28px;font-size:13px;color:#475569;">${detalhe}</div>` : ''}
       ${warmup}
       ${ex.notes ? `<div style="margin:4px 0 0 28px;font-size:12px;color:#64748b;font-style:italic;">📝 ${ex.notes}</div>` : ''}
+      ${techExplanationsHtml(ex)}
     </div>`;
 }
 
@@ -133,39 +143,6 @@ function sessionCardHtml(s: WorkoutSessionForPDF): string {
       </div>
       ${s.notes ? `<div style="background:rgba(245,158,11,0.1);border-left:4px solid #f59e0b;padding:14px 16px;margin-bottom:16px;border-radius:0 10px 10px 0;"><div style="font-size:13px;font-weight:700;color:#b45309;margin-bottom:6px;">📋 Observações deste treino</div><div style="font-size:14px;color:#92400e;line-height:1.6;">${s.notes}</div></div>` : ''}
       <div style="display:flex;flex-direction:column;gap:8px;">${exercisesHtml}</div>
-    </div>`;
-}
-
-// Junta as técnicas únicas usadas em todos os treinos (dedup por nome) pra
-// montar a legenda com a explicação de cada uma — assim o aluno sabe o que
-// fazer (ex.: 🔻 Drop-set: ...).
-function collectTechniques(sessions: WorkoutSessionForPDF[]): Array<{ name?: string; emoji?: string | null; description?: string | null }> {
-  const map = new Map<string, { name?: string; emoji?: string | null; description?: string | null }>();
-  for (const s of sessions) {
-    for (const ex of (s.exercises || [])) {
-      for (const t of (ex.techniques || [])) {
-        if (!t) continue;
-        const key = (t.name || '').trim().toLowerCase();
-        if (key && !map.has(key)) map.set(key, t);
-      }
-    }
-  }
-  return [...map.values()];
-}
-
-function techniquesLegendHtml(sessions: WorkoutSessionForPDF[]): string {
-  const techs = collectTechniques(sessions).filter((t) => t && (t.name || t.emoji));
-  if (techs.length === 0) return '';
-  return `
-    <div style="margin:32px 32px 0 32px;padding-top:24px;border-top:2px solid #e2e8f0;">
-      <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:10px;">📖 Legenda das Técnicas</div>
-      <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;">
-        ${techs.map((t) => `
-          <div>
-            <div style="font-size:14px;font-weight:700;color:#7c3aed;">${t.emoji ? t.emoji + ' ' : ''}${t.name || ''}</div>
-            ${t.description ? `<div style="font-size:13px;color:#475569;line-height:1.6;margin-top:3px;">${t.description}</div>` : '<div style="font-size:13px;color:#94a3b8;font-style:italic;margin-top:3px;">Sem descrição cadastrada.</div>'}
-          </div>`).join('')}
-      </div>
     </div>`;
 }
 
@@ -238,7 +215,6 @@ export class WorkoutPDFGenerator {
         <div style="display:flex;flex-direction:column;gap:20px;">${sessionsHtml}</div>
       </div>
       ${cardioHtml(cardio)}
-      ${techniquesLegendHtml(sessions)}
       ${planNotesHtml}
       <div style="margin-top:32px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;">
         <div style="font-size:12px;color:#64748b;">${branding.footer_text || branding.company_name || 'Plano de Treino Personalizado'}</div>
