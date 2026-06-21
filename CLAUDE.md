@@ -45,19 +45,21 @@ Refeições alternativas são modeladas como **refeições-filhas** via a coluna
 
 A semântica é **"coma OU a principal OU a opção"**, nunca as duas.
 
-## Pendências / requisitos conhecidos
+## Refeições-opção na UI — comportamento já implementado
 
-1. **Macros e calorias do card superior de Dieta NÃO devem contabilizar as
-   refeições-opção.** Como elas são substitutas (`parent_meal_id != NULL`), somar
-   principal + opção infla os totais (dupla contagem). O somatório exibido no card
-   de topo deve considerar apenas as refeições principais (`parent_meal_id IS NULL`).
-   - Obs.: hoje as refeições-opção vêm com `exclude_from_macros = false` no banco.
+Os dois requisitos abaixo **já estão resolvidos** em
+`src/components/patient-portal/diet/DietTab.tsx` (documentado aqui pra contexto, não
+é mais pendência):
 
-2. **Sinalizar visualmente que a refeição é uma opção.** Hoje usa o emoji 🔁 no
-   nome. Avaliar um indicador visual mais claro/consistente (ex.: trocar o
-   marcador/"gartinho" por um ícone circular, badge "Opção", ou agrupar
-   visualmente sob a refeição principal) que sugira que é uma alternativa, e não
-   uma refeição adicional.
+1. **Macros/calorias do card de topo NÃO contam as refeições-opção.** O somatório
+   roda só sobre as refeições "em uso" do grupo via `isCountedMeal()` / `isOptionMeal()`
+   — opção (`parent_meal_id != NULL`) e principal rebaixada após troca ficam de fora,
+   sem dupla contagem.
+
+2. **Sinalização visual da opção.** O emoji 🔁 foi removido do nome e substituído por
+   um badge "Opção" (`<OptionBadge />`); as opções vêm agrupadas/recolhidas sob a
+   principal (indentadas, borda esquerda emerald, fundo mais claro), com botões
+   "Usar hoje" / "Desfazer" e badge "Em uso hoje" para a troca do dia.
 
 ## Fuso horário — SEMPRE São Paulo (America/Sao_Paulo, UTC-3)
 
