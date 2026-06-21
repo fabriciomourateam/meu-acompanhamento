@@ -97,7 +97,7 @@ export default function InstallApp() {
               download
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
             >
-              <Download className="h-5 w-5" /> Baixar o App (.apk)
+              <Download className="h-5 w-5" /> Baixar App
             </a>
             <button
               type="button"
