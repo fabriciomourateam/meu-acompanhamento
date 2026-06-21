@@ -640,7 +640,11 @@ export function EvolutionExportPage({
 
           {/* Evolução do Peso - Gráfico de Linha SVG (mostrar mesmo com 1 ponto) */}
           {weightData.length >= 1 && (() => {
-            const svgWidth = 800;
+            // svgWidth casa com a largura real do card no export (EXPORT_WIDTH
+            // 1080 − p-8 64 − p-6 48 = 968): viewBox == container ⇒ escala 1.0,
+            // o gráfico preenche a largura toda (antes era 800 e sobrava espaço
+            // vazio à direita no html2canvas).
+            const svgWidth = 968;
             const svgHeight = 200;
             const padding = { top: 30, right: 40, bottom: 40, left: 50 };
             const chartWidth = svgWidth - padding.left - padding.right;
@@ -700,7 +704,7 @@ export function EvolutionExportPage({
 
           {/* Evolução do % de Gordura Corporal - Gráfico de Linha SVG (mostrar mesmo com 1 ponto) */}
           {bodyFatData.length >= 1 && (() => {
-            const svgWidth = 800;
+            const svgWidth = 968;
             const svgHeight = 180;
             const padding = { top: 30, right: 40, bottom: 40, left: 50 };
             const chartWidth = svgWidth - padding.left - padding.right;
@@ -755,7 +759,7 @@ export function EvolutionExportPage({
 
           {/* Evolução das Pontuações - Gráfico de Linhas SVG */}
           {scoreData.length > 0 && (() => {
-            const svgWidth = 800;
+            const svgWidth = 968;
             const svgHeight = 220;
             const padding = { top: 30, right: 40, bottom: 40, left: 50 };
             const chartWidth = svgWidth - padding.left - padding.right;
