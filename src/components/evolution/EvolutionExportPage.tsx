@@ -117,8 +117,11 @@ export function EvolutionExportPage({
   const isNeutral = variacao !== null && Math.abs(variacao) < 0.1;
   const lastBodyComp = bodyCompositions[0];
 
-  // Altura em metros para cálculos
-  const alturaMetros = patient.altura_inicial ? parseFloat(patient.altura_inicial.toString()) : null;
+  // Altura: o banco guarda em CENTÍMETROS (ex.: 180). Normaliza pra metros pros
+  // cálculos de IMC/TMB, tolerando o caso raro de já vir em metros (< 3).
+  const alturaRaw = patient.altura_inicial ? parseFloat(patient.altura_inicial.toString()) : null;
+  const alturaMetros = alturaRaw && alturaRaw > 0 ? (alturaRaw > 3 ? alturaRaw / 100 : alturaRaw) : null;
+  const alturaCmDisplay = alturaMetros ? Math.round(alturaMetros * 100) : null;
   const pesoParaCalculo = pesoAtual || pesoInicial;
   
   // Calcular IMC
@@ -474,11 +477,11 @@ export function EvolutionExportPage({
             )}
 
             {/* Altura - Violet */}
-            {patient.altura_inicial && (
+            {alturaCmDisplay && (
               <MetricCard
                 title="Altura"
-                value={patient.altura_inicial.toString()}
-                unit="m"
+                value={alturaCmDisplay.toString()}
+                unit="cm"
                 subtitle="Altura"
                 bgColor="rgba(139, 92, 246, 0.25)"
                 iconBg="bg-violet-500/30"
