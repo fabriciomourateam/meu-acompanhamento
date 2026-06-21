@@ -467,10 +467,10 @@ export function PatientEvolutionTab({
           <CardContent className="p-6 text-center">
             <Activity className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
             <p className="text-slate-900 text-base font-semibold mb-1">
-              Ainda não há check-ins registrados
+              Tudo pronto pra começar! ✨
             </p>
             <p className="text-xs text-slate-500">
-              Os dados de evolução aparecerão aqui quando houver check-ins registrados
+              Faça seu primeiro check-in e acompanhe sua evolução por aqui.
             </p>
           </CardContent>
         </Card>
