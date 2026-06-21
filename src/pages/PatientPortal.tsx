@@ -868,7 +868,7 @@ export default function PatientPortal() {
           scale: 2,
           useCORS: true,
           allowTaint: true,
-          backgroundColor: '#0f172a',
+          backgroundColor: '#f8fafc',
           logging: false,
           width: EXPORT_WIDTH,
           windowWidth: EXPORT_WIDTH,
