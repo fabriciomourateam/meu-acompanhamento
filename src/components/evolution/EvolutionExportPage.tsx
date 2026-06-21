@@ -672,7 +672,7 @@ export function EvolutionExportPage({
                 <h3 className="text-lg font-bold text-slate-900 mb-2">📈 Evolução do Peso</h3>
                 <p className="text-slate-500 text-sm mb-4">Acompanhamento do peso ao longo do tempo</p>
                 
-                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
+                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ display: 'block', maxWidth: '100%' }}>
                   {/* Linhas de grade horizontais */}
                   {[0, 1, 2, 3, 4].map(i => {
                     const y = padding.top + (i / 4) * chartHeight;
@@ -732,7 +732,7 @@ export function EvolutionExportPage({
                 <h3 className="text-lg font-bold text-slate-900 mb-2">🔥 Evolução do % de Gordura Corporal</h3>
                 <p className="text-slate-500 text-sm mb-4">Acompanhamento da composição corporal</p>
                 
-                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
+                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ display: 'block', maxWidth: '100%' }}>
                   {/* Linhas de grade horizontais */}
                   {[0, 1, 2, 3].map(i => {
                     const y = padding.top + (i / 3) * chartHeight;
@@ -803,7 +803,7 @@ export function EvolutionExportPage({
                 <h3 className="text-lg font-bold text-slate-900 mb-2">🏆 Evolução das Pontuações</h3>
                 <p className="text-slate-500 text-sm mb-4">Performance em diferentes categorias</p>
                 
-                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
+                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ display: 'block', maxWidth: '100%' }}>
                   {/* Linhas de grade horizontais */}
                   {[0, 2, 4, 6, 8, 10].map((val, i) => {
                     const y = padding.top + chartHeight - (val / maxScore) * chartHeight;
