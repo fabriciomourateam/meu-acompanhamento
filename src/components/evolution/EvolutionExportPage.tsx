@@ -61,6 +61,7 @@ export function EvolutionExportPage({
 }: EvolutionExportPageProps) {
   const { toast } = useToast();
   const exportRef = useRef<HTMLDivElement>(null);
+  const exportedRef = useRef(false);
   const [exporting, setExporting] = useState(false);
   const [ready, setReady] = useState(false);
 
@@ -68,9 +69,12 @@ export function EvolutionExportPage({
     setTimeout(() => setReady(true), 500);
   }, []);
 
-  // Se for export direto, executar quando estiver pronto
+  // Se for export direto, executar quando estiver pronto. O guard exportedRef
+  // evita disparo duplo: setExporting no pai re-renderiza e passa um novo
+  // onDirectExport, o que reativava este effect e baixava 2x.
   useEffect(() => {
-    if (ready && directExportMode && onDirectExport && exportRef.current) {
+    if (ready && directExportMode && onDirectExport && exportRef.current && !exportedRef.current) {
+      exportedRef.current = true;
       onDirectExport(exportRef.current, directExportMode);
     }
   }, [ready, directExportMode, onDirectExport]);
@@ -668,7 +672,7 @@ export function EvolutionExportPage({
                 <h3 className="text-lg font-bold text-slate-900 mb-2">📈 Evolução do Peso</h3>
                 <p className="text-slate-500 text-sm mb-4">Acompanhamento do peso ao longo do tempo</p>
                 
-                <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
+                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
                   {/* Linhas de grade horizontais */}
                   {[0, 1, 2, 3, 4].map(i => {
                     const y = padding.top + (i / 4) * chartHeight;
@@ -728,7 +732,7 @@ export function EvolutionExportPage({
                 <h3 className="text-lg font-bold text-slate-900 mb-2">🔥 Evolução do % de Gordura Corporal</h3>
                 <p className="text-slate-500 text-sm mb-4">Acompanhamento da composição corporal</p>
                 
-                <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
+                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
                   {/* Linhas de grade horizontais */}
                   {[0, 1, 2, 3].map(i => {
                     const y = padding.top + (i / 3) * chartHeight;
@@ -799,7 +803,7 @@ export function EvolutionExportPage({
                 <h3 className="text-lg font-bold text-slate-900 mb-2">🏆 Evolução das Pontuações</h3>
                 <p className="text-slate-500 text-sm mb-4">Performance em diferentes categorias</p>
                 
-                <svg width="100%" height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} className="overflow-visible">
+                <svg width={svgWidth} height={svgHeight} viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="xMidYMid meet" className="overflow-visible" style={{ maxWidth: '100%', height: 'auto' }}>
                   {/* Linhas de grade horizontais */}
                   {[0, 2, 4, 6, 8, 10].map((val, i) => {
                     const y = padding.top + chartHeight - (val / maxScore) * chartHeight;
