@@ -23,7 +23,7 @@ export interface WorkoutExerciseForPDF {
   warmup_sets?: number | null;
   warmup_reps?: string | null;
   muscle_group?: string | null;
-  techniques?: Array<{ name?: string; emoji?: string | null; applies_to?: string | null }> | null;
+  techniques?: Array<{ name?: string; emoji?: string | null; applies_to?: string | null; description?: string | null }> | null;
 }
 export interface WorkoutSessionForPDF {
   id?: string;
@@ -136,6 +136,39 @@ function sessionCardHtml(s: WorkoutSessionForPDF): string {
     </div>`;
 }
 
+// Junta as técnicas únicas usadas em todos os treinos (dedup por nome) pra
+// montar a legenda com a explicação de cada uma — assim o aluno sabe o que
+// fazer (ex.: 🔻 Drop-set: ...).
+function collectTechniques(sessions: WorkoutSessionForPDF[]): Array<{ name?: string; emoji?: string | null; description?: string | null }> {
+  const map = new Map<string, { name?: string; emoji?: string | null; description?: string | null }>();
+  for (const s of sessions) {
+    for (const ex of (s.exercises || [])) {
+      for (const t of (ex.techniques || [])) {
+        if (!t) continue;
+        const key = (t.name || '').trim().toLowerCase();
+        if (key && !map.has(key)) map.set(key, t);
+      }
+    }
+  }
+  return [...map.values()];
+}
+
+function techniquesLegendHtml(sessions: WorkoutSessionForPDF[]): string {
+  const techs = collectTechniques(sessions).filter((t) => t && (t.name || t.emoji));
+  if (techs.length === 0) return '';
+  return `
+    <div style="margin:32px 32px 0 32px;padding-top:24px;border-top:2px solid #e2e8f0;">
+      <div style="font-size:20px;font-weight:700;color:#0f172a;margin-bottom:16px;display:flex;align-items:center;gap:10px;">📖 Legenda das Técnicas</div>
+      <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;">
+        ${techs.map((t) => `
+          <div>
+            <div style="font-size:14px;font-weight:700;color:#7c3aed;">${t.emoji ? t.emoji + ' ' : ''}${t.name || ''}</div>
+            ${t.description ? `<div style="font-size:13px;color:#475569;line-height:1.6;margin-top:3px;">${t.description}</div>` : '<div style="font-size:13px;color:#94a3b8;font-style:italic;margin-top:3px;">Sem descrição cadastrada.</div>'}
+          </div>`).join('')}
+      </div>
+    </div>`;
+}
+
 function cardioHtml(c: PrescribedCardioForPDF | null | undefined): string {
   if (!c) return '';
   const freq = c.dias_semana && c.dias_semana.length > 0
@@ -205,6 +238,7 @@ export class WorkoutPDFGenerator {
         <div style="display:flex;flex-direction:column;gap:20px;">${sessionsHtml}</div>
       </div>
       ${cardioHtml(cardio)}
+      ${techniquesLegendHtml(sessions)}
       ${planNotesHtml}
       <div style="margin-top:32px;padding-top:20px;border-top:1px solid #e2e8f0;text-align:center;">
         <div style="font-size:12px;color:#64748b;">${branding.footer_text || branding.company_name || 'Plano de Treino Personalizado'}</div>
