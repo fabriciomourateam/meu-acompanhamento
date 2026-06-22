@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
 import { formatTextToPlain, sanitizeRichHtml } from '@/lib/utils';
+import { useTheme } from '@/lib/theme';
 import { supabase } from '@/integrations/supabase/client';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
 import { PatientSubstitutionsTab } from '@/components/patient-portal/substitutions/PatientSubstitutionsTab';
@@ -144,6 +145,11 @@ export function DietTab({
     handleToggleMealConsumed,
     handleToggleFoodConsumed,
   } = diet;
+
+  // Tema atual (claro/escuro) — usado nos poucos lugares com estilo INLINE,
+  // onde o Tailwind `dark:` não consegue sobrescrever (cards de refeição/alimento).
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   // Cache de gramas-por-unidade dos alimentos do modal de Substituições.
   // O MyShape grava substituições só com {food_name, unit, quantity} — sem
@@ -694,9 +700,13 @@ export function DietTab({
                             >
                               <div
                                 style={{
-                                  backgroundColor: isConsumed ? '#d1fae5' : (showAsOption ? '#f8fafc' : 'white'),
-                                  borderColor: isConsumed ? '#6ee7b7' : '#e2e8f0',
-                                  color: '#0f172a'
+                                  backgroundColor: isConsumed
+                                    ? (isDark ? '#064e3b' : '#d1fae5')
+                                    : (showAsOption ? (isDark ? '#0f172a' : '#f8fafc') : (isDark ? '#1e293b' : 'white')),
+                                  borderColor: isConsumed
+                                    ? (isDark ? '#065f46' : '#6ee7b7')
+                                    : (isDark ? '#334155' : '#e2e8f0'),
+                                  color: isDark ? '#e2e8f0' : '#0f172a'
                                 }}
                                 // Opção: menos indent, borda esquerda fina emerald
                                 // (em vez de slate-300 grossa) — indica filiação com
@@ -820,7 +830,7 @@ export function DietTab({
                                           return (
                                             <div
                                               key={food.id || foodIndex}
-                                              style={{ backgroundColor: 'white' }}
+                                              style={{ backgroundColor: isDark ? '#0f172a' : 'white' }}
                                               className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${foodConsumed
                                                 ? 'border-emerald-100 dark:border-emerald-900/40'
                                                 : 'border-slate-100 dark:border-slate-800 hover:border-emerald-200 shadow-sm'
