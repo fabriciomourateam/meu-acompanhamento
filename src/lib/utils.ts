@@ -76,6 +76,78 @@ export function sanitizeRichHtml(html: string | null | undefined): string {
   return DOMPurify.sanitize(doc.body.innerHTML, { ADD_ATTR: ["target", "rel"] });
 }
 
+// ---------------------------------------------------------------------------
+// Adaptação de cores de conteúdo (rich text do back-office) para o tema ESCURO.
+// O Fabricio colore textos no editor (vermelho, azul, verde, e às vezes
+// preto/cinza-escuro). No dark, cores muito escuras somem. Esta função clareia
+// SÓ as cores escuras demais — mantendo o matiz (vermelho continua vermelho,
+// verde continua verde) — pra tudo ficar legível sem perder a intenção de cor.
+// ---------------------------------------------------------------------------
+const NAMED_COLORS: Record<string, string> = {
+  black: "#000000", gray: "#808080", grey: "#808080", silver: "#c0c0c0",
+  navy: "#000080", maroon: "#800000", purple: "#800080", green: "#008000",
+  olive: "#808000", teal: "#008080", darkgreen: "#006400", darkblue: "#00008b",
+  darkred: "#8b0000", midnightblue: "#191970", indigo: "#4b0082",
+};
+
+function parseColor(c: string): [number, number, number] | null {
+  let s = c.trim().toLowerCase();
+  if (NAMED_COLORS[s]) s = NAMED_COLORS[s];
+  let m = s.match(/^#([0-9a-f]{3})$/);
+  if (m) return [0, 1, 2].map((i) => parseInt(m![1][i] + m![1][i], 16)) as [number, number, number];
+  m = s.match(/^#([0-9a-f]{6})$/);
+  if (m) return [0, 2, 4].map((i) => parseInt(m![1].slice(i, i + 2), 16)) as [number, number, number];
+  m = s.match(/^rgba?\(([^)]+)\)/);
+  if (m) {
+    const p = m[1].split(",").map((x) => parseFloat(x));
+    if (p.length >= 3) return [p[0], p[1], p[2]];
+  }
+  return null;
+}
+
+function rgbToHsl(r: number, g: number, b: number): [number, number, number] {
+  r /= 255; g /= 255; b /= 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0; const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
+    else if (max === g) h = (b - r) / d + 2;
+    else h = (r - g) / d + 4;
+    h /= 6;
+  }
+  return [h, s, l];
+}
+
+function hslToCss(h: number, s: number, l: number): string {
+  return `hsl(${Math.round(h * 360)}, ${Math.round(s * 100)}%, ${Math.round(l * 100)}%)`;
+}
+
+// Se a cor for escura demais p/ fundo escuro, sobe a luminosidade mantendo
+// matiz/saturação. Retorna nova cor CSS ou null (mantém a original).
+function lightenIfDark(value: string): string | null {
+  const rgb = parseColor(value);
+  if (!rgb) return null;
+  const [h, s, l] = rgbToHsl(rgb[0], rgb[1], rgb[2]);
+  if (l >= 0.55) return null; // já é claro o bastante
+  const newL = s < 0.2 ? 0.85 : 0.72; // cinza/preto -> bem claro; cores -> claras mantendo cor
+  return hslToCss(h, s, newL);
+}
+
+export function adaptHtmlColorsForDark(html: string | null | undefined): string {
+  if (!html) return "";
+  return html
+    .replace(/color\s*:\s*([^;"'}]+)/gi, (full, val) => {
+      const lit = lightenIfDark(val);
+      return lit ? `color: ${lit}` : full;
+    })
+    .replace(/(<font[^>]*\scolor\s*=\s*)["']?([^"'>\s]+)["']?/gi, (full, pre, val) => {
+      const lit = lightenIfDark(val);
+      return lit ? `${pre}"${lit}"` : full;
+    });
+}
+
 // Utilitário para formatar texto que pode conter HTML ou entidades codificadas (ex: &lt;p&gt;)
 // e garantir que será exibido como texto limpo preservando as quebras de linha.
 export function formatTextToPlain(text: string | null | undefined): string {

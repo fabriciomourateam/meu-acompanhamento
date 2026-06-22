@@ -13,7 +13,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { calcularTotaisPlano } from '@/utils/diet-calculations';
-import { formatTextToPlain, sanitizeRichHtml } from '@/lib/utils';
+import { formatTextToPlain, sanitizeRichHtml, adaptHtmlColorsForDark } from '@/lib/utils';
 import { useTheme } from '@/lib/theme';
 import { supabase } from '@/integrations/supabase/client';
 import { ExamsHistory } from '@/components/exams/ExamsHistory';
@@ -150,6 +150,10 @@ export function DietTab({
   // onde o Tailwind `dark:` não consegue sobrescrever (cards de refeição/alimento).
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  // Sanitiza o rich text e, no escuro, clareia cores escuras demais do conteúdo
+  // (texto que o Fabricio colore no back-office) pra não sumir no fundo escuro.
+  const richHtml = (s: string | null | undefined) =>
+    isDark ? adaptHtmlColorsForDark(sanitizeRichHtml(s)) : sanitizeRichHtml(s);
 
   // Cache de gramas-por-unidade dos alimentos do modal de Substituições.
   // O MyShape grava substituições só com {food_name, unit, quantity} — sem
@@ -411,7 +415,7 @@ export function DietTab({
                       <div className="h-px w-full bg-slate-100 dark:bg-slate-800 mb-3" />
                       <div
                         className="text-sm text-slate-600 dark:text-slate-200 leading-relaxed whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600 dark:prose-strong:text-white dark:prose-headings:text-white"
-                        dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(guideline.content) }}
+                        dangerouslySetInnerHTML={{ __html: richHtml(guideline.content) }}
                       />
                       {/* Botao de baixar PDF com papel timbrado do nutri.
                           Disponivel quando ha guideline.id (item salvo no banco
@@ -929,7 +933,7 @@ export function DietTab({
                                         </p>
                                         <div
                                           className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed prose prose-sm max-w-none prose-p:my-1"
-                                          dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(meal.instructions) }}
+                                          dangerouslySetInnerHTML={{ __html: richHtml(meal.instructions) }}
                                         />
                                       </div>
                                     )}
