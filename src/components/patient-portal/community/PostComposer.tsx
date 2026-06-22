@@ -98,13 +98,13 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm">
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
         maxLength={5000}
         placeholder="Compartilhe uma conquista, dúvida ou motivação com a comunidade..."
-        className="min-h-[80px] resize-none bg-white border-slate-200 text-slate-900 placeholder:text-slate-400 focus-visible:ring-emerald-500"
+        className="min-h-[80px] resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:ring-emerald-500"
       />
 
       {imagePreview && (
@@ -129,7 +129,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
               'rounded-full px-3 py-1 text-xs font-medium transition-colors',
               category === c.value
                 ? 'bg-emerald-500 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200',
             )}
           >
             {c.emoji} {c.label}
@@ -147,7 +147,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
             size="sm"
             onClick={() => cameraRef.current?.click()}
             disabled={preparingImage}
-            className="text-slate-600 hover:text-emerald-600"
+            className="text-slate-600 dark:text-slate-400 hover:text-emerald-600"
             title="Tirar foto"
           >
             {preparingImage ? <Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> : <Camera className="mr-1.5 h-4 w-4" />}
@@ -159,7 +159,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
             size="sm"
             onClick={() => galleryRef.current?.click()}
             disabled={preparingImage}
-            className="text-slate-600 hover:text-emerald-600"
+            className="text-slate-600 dark:text-slate-400 hover:text-emerald-600"
             title="Escolher da galeria"
           >
             <ImagePlus className="mr-1.5 h-4 w-4" /> Galeria

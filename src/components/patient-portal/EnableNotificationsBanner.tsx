@@ -135,15 +135,15 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   if (!visible) return null;
 
   return (
-    <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-blue-50 px-4 py-3 shadow-sm">
-      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-700">
+    <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-gradient-to-r from-indigo-50 dark:from-indigo-950/40 to-blue-50 dark:to-blue-950/40 px-4 py-3 shadow-sm">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300">
         {needsInstall ? <Download className="h-5 w-5" /> : <BellRing className="h-5 w-5" />}
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold text-slate-900">
+        <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
           {needsInstall ? 'Instale o app' : 'Ative seus lembretes'}
         </p>
-        <p className="text-xs text-slate-600">
+        <p className="text-xs text-slate-600 dark:text-slate-400">
           {needsInstall
             ? 'Tenha o app na tela inicial pra abrir rápido e receber as respostas do Fabricio e seus avisos.'
             : 'Receba as respostas do Fabricio, avisos da sua dieta e o lembrete do check-in.'}
@@ -165,7 +165,7 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Ativar'}
         </button>
       )}
-      <button onClick={dismiss} aria-label="Dispensar" className="shrink-0 text-slate-400 hover:text-slate-600">
+      <button onClick={dismiss} aria-label="Dispensar" className="shrink-0 text-slate-400 dark:text-slate-500 hover:text-slate-600">
         <X className="h-4 w-4" />
       </button>
 

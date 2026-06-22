@@ -100,7 +100,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
   const repliesOf = (id: string) => comments.filter((c) => c.parent_comment_id === id);
 
   const renderActions = (c: CommunityComment, canReply: boolean) => (
-    <div className="mt-1 flex items-center gap-3 pl-1 text-[11px] text-slate-400">
+    <div className="mt-1 flex items-center gap-3 pl-1 text-[11px] text-slate-400 dark:text-slate-500">
       <span>{timeAgo(c.created_at)}</span>
       {canReply && (
         <button
@@ -129,9 +129,9 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
     <li key={c.id} className="flex gap-2">
       <CommunityAvatar name={c.author_name} photo={c.author_photo} className={isReply ? 'h-6 w-6' : 'h-7 w-7'} />
       <div className="flex-1">
-        <div className="rounded-2xl bg-slate-100 px-3 py-2">
-          <p className="text-xs font-semibold text-slate-700">{c.author_name}</p>
-          <p className="whitespace-pre-wrap break-words text-sm text-slate-700">{c.content}</p>
+        <div className="rounded-2xl bg-slate-100 dark:bg-slate-800 px-3 py-2">
+          <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">{c.author_name}</p>
+          <p className="whitespace-pre-wrap break-words text-sm text-slate-700 dark:text-slate-200">{c.content}</p>
         </div>
         {renderActions(c, !isReply)}
 
@@ -151,7 +151,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
               }}
               maxLength={2000}
               placeholder={`Respondendo ${c.author_name}...`}
-              className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+              className="flex-1 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-1.5 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
             />
             <Button
               size="icon"
@@ -168,10 +168,10 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
   );
 
   return (
-    <div className="mt-3 border-t border-slate-100 pt-3">
+    <div className="mt-3 border-t border-slate-100 dark:border-slate-800 pt-3">
       {loading ? (
         <div className="flex justify-center py-2">
-          <Loader2 className="h-4 w-4 animate-spin text-slate-400" />
+          <Loader2 className="h-4 w-4 animate-spin text-slate-400 dark:text-slate-500" />
         </div>
       ) : (
         <ul className="space-y-3">
@@ -180,7 +180,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
               <ul className="space-y-3">
                 {renderComment(root, false)}
                 {repliesOf(root.id).length > 0 && (
-                  <ul className="ml-6 space-y-3 border-l border-slate-100 pl-3">
+                  <ul className="ml-6 space-y-3 border-l border-slate-100 dark:border-slate-800 pl-3">
                     {repliesOf(root.id).map((reply) => renderComment(reply, true))}
                   </ul>
                 )}
@@ -188,7 +188,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
             </li>
           ))}
           {roots.length === 0 && (
-            <p className="py-1 text-center text-xs text-slate-400">Seja o primeiro a comentar.</p>
+            <p className="py-1 text-center text-xs text-slate-400 dark:text-slate-500">Seja o primeiro a comentar.</p>
           )}
         </ul>
       )}
@@ -205,7 +205,7 @@ export function CommentSection({ patientId, postId, onCountChange }: CommentSect
           }}
           maxLength={2000}
           placeholder="Escreva um comentário..."
-          className="flex-1 rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-900 placeholder:text-slate-400 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
+          className="flex-1 rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-4 py-2 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 outline-none focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400"
         />
         <Button
           size="icon"

@@ -8,12 +8,12 @@ interface SmartVideoPlayerProps {
 
 export function SmartVideoPlayer({ url, className }: SmartVideoPlayerProps) {
   const src = detectVideoSource(url);
-  const wrap = `relative w-full aspect-video rounded-lg overflow-hidden bg-slate-100 ${className || ''}`;
+  const wrap = `relative w-full aspect-video rounded-lg overflow-hidden bg-slate-100 dark:bg-slate-800 ${className || ''}`;
 
   if (src === 'none') {
     return (
       <div className={wrap}>
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 gap-2">
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 gap-2">
           <Film className="w-8 h-8" />
           <span className="text-xs">Sem vídeo</span>
         </div>

@@ -327,7 +327,7 @@ export function PatientDietPortal({
           <TabsContent value="progress" className="mt-6">
             <Tabs value={progressSubtab} onValueChange={setProgressSubtab} className="w-full">
               {progressSubtabs.length > 1 && (
-                <TabsList className="flex w-full gap-1 bg-slate-100 p-1 rounded-xl mb-5">
+                <TabsList className="flex w-full gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-5">
                   {showChallenges && (
                     <TabsTrigger value="metas" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-lg transition-all">
                       Metas
@@ -398,7 +398,7 @@ export function PatientDietPortal({
             onFill={() => setCheckinOpen(true)}
           />
           <section>
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
               <span className="text-2xl">⚖️</span> Evolução Corporal
             </h3>
             <PatientEvolutionTab
@@ -429,7 +429,7 @@ export function PatientDietPortal({
                 themeSchedule={portalConfig?.community?.theme_schedule || []}
               />
             ) : (
-              <p className="py-12 text-center text-sm text-slate-400">
+              <p className="py-12 text-center text-sm text-slate-400 dark:text-slate-500">
                 Comunidade indisponível no momento.
               </p>
             )}
@@ -442,7 +442,7 @@ export function PatientDietPortal({
                 barra inferior (que fica por cima, z-[9999]). Cobre o card de saudação
                 e a frase do rodapé só enquanto o Suporte está aberto. Desktop: inline. */}
             <div
-              className="fixed inset-x-0 top-0 z-40 bg-slate-50 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
+              className="fixed inset-x-0 top-0 z-40 bg-slate-50 dark:bg-slate-900 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
               style={{ bottom: 'env(safe-area-inset-bottom)' }}
             >
               <SupportChat

@@ -79,7 +79,7 @@ export function WeeklyChallengeCard({ token }: Props) {
               initial={{ width: 0 }}
               animate={{ width: `${pct}%` }}
               transition={{ duration: 1.0, ease: 'easeOut' }}
-              className="h-full bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+              className="h-full bg-white dark:bg-slate-900 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]"
             />
           </div>
           {!data.completed && remaining > 0 && (

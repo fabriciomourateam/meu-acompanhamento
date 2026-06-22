@@ -79,7 +79,7 @@ function WeightInput({ value, placeholder, onChange, ariaLabel }: {
         onChange(n === '' || n === '.' ? null : Number(n));
       }}
       onBlur={() => setText(null)}
-      className="h-10 text-center font-semibold tabular-nums bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
+      className="h-10 text-center font-semibold tabular-nums bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
       aria-label={ariaLabel}
     />
   );
@@ -100,7 +100,7 @@ function RepsInput({ value, placeholder, onChange, ariaLabel }: {
         const n = e.target.value.replace(/[^0-9]/g, '');
         onChange(n === '' ? null : Number(n));
       }}
-      className="h-10 text-center font-semibold tabular-nums bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
+      className="h-10 text-center font-semibold tabular-nums bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
       aria-label={ariaLabel}
     />
   );
@@ -150,14 +150,14 @@ export function UnilateralSetRow({ index, done, pair, defaultReps, defaultWeight
 
   return (
     <div
-      className={`p-2 ${flush ? `rounded-t-lg ${done ? 'bg-emerald-50' : 'bg-slate-50'}` : `rounded-lg border ${done ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`}`}
+      className={`p-2 ${flush ? `rounded-t-lg ${done ? 'bg-emerald-50 dark:bg-emerald-950/40' : 'bg-slate-50 dark:bg-slate-900'}` : `rounded-lg border ${done ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`}`}
     >
       <div className="flex items-center gap-2">
         {/* Número da série + badge "Unilateral" */}
         <div className="flex flex-col items-center justify-center gap-1 w-11 shrink-0">
           <span
             className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-              done ? 'bg-emerald-600 text-white' : 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
+              done ? 'bg-emerald-600 text-white' : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200'
             }`}
           >
             {index + 1}
@@ -169,7 +169,7 @@ export function UnilateralSetRow({ index, done, pair, defaultReps, defaultWeight
         <div className="flex-1 min-w-0 space-y-1.5">
           {(['e', 'd'] as const).map((side) => (
             <div key={side} className="grid grid-cols-[20px_1fr_1fr] items-center gap-1.5">
-              <span className={`text-center text-[11px] font-bold ${side === 'e' ? 'text-sky-600' : 'text-orange-500'}`}>
+              <span className={`text-center text-[11px] font-bold ${side === 'e' ? 'text-sky-600 dark:text-sky-400' : 'text-orange-500'}`}>
                 {side === 'e' ? 'E' : 'D'}
               </span>
               <WeightInput
@@ -194,7 +194,7 @@ export function UnilateralSetRow({ index, done, pair, defaultReps, defaultWeight
             type="button"
             onClick={onRpeClick}
             disabled={!onRpeClick}
-            className="inline-flex items-center justify-center rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-bold tabular-nums text-slate-500 disabled:cursor-default"
+            className="inline-flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[11px] font-bold tabular-nums text-slate-500 dark:text-slate-400 disabled:cursor-default"
             aria-label={`RPE prescrito série ${index + 1}`}
             title="O que é RPE?"
           >
@@ -207,7 +207,7 @@ export function UnilateralSetRow({ index, done, pair, defaultReps, defaultWeight
             className={`h-10 w-10 p-0 ${
               done
                 ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
-                : 'bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200'
+                : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50'
             }`}
             onClick={handleDone}
             aria-label={done ? 'Série feita' : 'Marcar série feita'}
@@ -218,8 +218,8 @@ export function UnilateralSetRow({ index, done, pair, defaultReps, defaultWeight
       </div>
 
       {/* Total combinado (o que conta no volume) */}
-      <p className="mt-1.5 pl-[52px] text-[10px] text-slate-400">
-        Conta como <strong className="text-slate-500">{totalReps || '—'} reps</strong> no total (os dois lados somados).
+      <p className="mt-1.5 pl-[52px] text-[10px] text-slate-400 dark:text-slate-500">
+        Conta como <strong className="text-slate-500 dark:text-slate-400">{totalReps || '—'} reps</strong> no total (os dois lados somados).
       </p>
     </div>
   );

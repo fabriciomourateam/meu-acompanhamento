@@ -89,7 +89,7 @@ function OptionBadge() {
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
         aria-expanded={open}
         aria-label="O que e uma refeicao opcao?"
-        className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-600 transition-colors hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
+        className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
       >
         <RefreshCw className="w-3 h-3" />
         Opção
@@ -97,10 +97,10 @@ function OptionBadge() {
       {open && (
         <div
           role="tooltip"
-          className="absolute left-0 top-full z-30 mt-1.5 w-[240px] rounded-lg border border-emerald-200 bg-white dark:bg-slate-900 p-3 text-xs leading-relaxed text-slate-700 dark:text-slate-200 shadow-xl"
+          className="absolute left-0 top-full z-30 mt-1.5 w-[240px] rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 p-3 text-xs leading-relaxed text-slate-700 dark:text-slate-200 shadow-xl"
         >
           <p className="mb-1 flex items-center gap-1.5 font-semibold text-slate-900 dark:text-slate-100">
-            <RefreshCw className="w-3.5 h-3.5 text-emerald-600" />
+            <RefreshCw className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
             Refeição alternativa
           </p>
           <p>
@@ -420,7 +420,7 @@ export function DietTab({
                             variant="outline"
                             disabled={downloadingGuidelineId === guideline.id}
                             onClick={() => void handleDownloadGuidelinePdf(guideline.id)}
-                            className="gap-1.5 bg-white dark:bg-slate-900 border-slate-300 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+                            className="gap-1.5 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
                           >
                             {downloadingGuidelineId === guideline.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -482,7 +482,7 @@ export function DietTab({
           {!hasActivePlan ? (
             <Card className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <CardContent className="p-5 sm:p-6 text-center">
-                <Utensils className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-3" />
+                <Utensils className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Nenhum plano ativo</h3>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   Seu nutricionista ainda não liberou um plano alimentar para você.
@@ -529,7 +529,7 @@ export function DietTab({
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center">
                         <p className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100">{Math.round(caloriasConsumidas)}</p>
-                        <p className="text-xs text-slate-400 mt-0.5 font-medium">/ {Math.round(metaCalorias)} kcal</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 mt-0.5 font-medium">/ {Math.round(metaCalorias)} kcal</p>
                       </div>
                     </div>
 
@@ -537,9 +537,9 @@ export function DietTab({
                     <div className="flex-1 space-y-3 sm:space-y-4">
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Carbos</span>
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Carbos</span>
                           <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                            {carboidratosConsumidos.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaCarboidratos.toFixed(0)}g</span>
+                            {carboidratosConsumidos.toFixed(0)}<span className="text-xs text-slate-400 dark:text-slate-500 font-normal"> / {metaCarboidratos.toFixed(0)}g</span>
                           </span>
                         </div>
                         <div className="bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -549,9 +549,9 @@ export function DietTab({
                       </div>
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Proteínas</span>
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Proteínas</span>
                           <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                            {proteinasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaProteinas.toFixed(0)}g</span>
+                            {proteinasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 dark:text-slate-500 font-normal"> / {metaProteinas.toFixed(0)}g</span>
                           </span>
                         </div>
                         <div className="bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -561,9 +561,9 @@ export function DietTab({
                       </div>
                       <div>
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">Gorduras</span>
+                          <span className="text-xs font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Gorduras</span>
                           <span className="text-sm font-bold text-slate-800 dark:text-slate-200">
-                            {gordurasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 font-normal"> / {metaGorduras.toFixed(0)}g</span>
+                            {gordurasConsumidas.toFixed(0)}<span className="text-xs text-slate-400 dark:text-slate-500 font-normal"> / {metaGorduras.toFixed(0)}g</span>
                           </span>
                         </div>
                         <div className="bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 overflow-hidden">
@@ -586,7 +586,7 @@ export function DietTab({
                         <p className="text-xs text-slate-500 dark:text-slate-400">Você tem {diet.releasedPlans.length} dietas ativas — escolha qual seguir hoje</p>
                       </div>
                       <Select value={diet.activePlan?.id} onValueChange={diet.handleChangePlan}>
-                        <SelectTrigger className="w-full sm:w-[280px] bg-white dark:bg-slate-900 border-slate-300 text-slate-700 dark:text-slate-200 min-h-[44px]">
+                        <SelectTrigger className="w-full sm:w-[280px] bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 min-h-[44px]">
                           <SelectValue placeholder="Selecione um plano" />
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
@@ -596,7 +596,7 @@ export function DietTab({
                                 <Utensils className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                 <span className="truncate">{plan.name}</span>
                                 {(plan.status === 'active' || plan.active) && (
-                                  <Badge className="ml-2 bg-emerald-50 text-emerald-700 border-emerald-200 flex-shrink-0">
+                                  <Badge className="ml-2 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50 flex-shrink-0">
                                     Ativo
                                   </Badge>
                                 )}
@@ -718,7 +718,7 @@ export function DietTab({
                                           ? `${st} - ${et}`
                                           : st || (sg ? sg.slice(0, 5) : null);
                                         return label && !showAsOption ? (
-                                          <Badge className={`flex-shrink-0 text-xs sm:text-sm font-semibold border tabular-nums whitespace-nowrap ${isConsumed ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'}`}>
+                                          <Badge className={`flex-shrink-0 text-xs sm:text-sm font-semibold border tabular-nums whitespace-nowrap ${isConsumed ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50' : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'}`}>
                                             {label}
                                           </Badge>
                                         ) : null;
@@ -746,7 +746,7 @@ export function DietTab({
                                           type="button"
                                           onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, meal.id); }}
                                           title="Usar esta opção no lugar da refeição principal hoje"
-                                          className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50"
+                                          className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50"
                                         >
                                           <ArrowLeftRight className="w-3 h-3" />
                                           Usar hoje
@@ -764,7 +764,7 @@ export function DietTab({
                                         </button>
                                       )}
                                       <Badge className={`text-xs sm:text-sm font-semibold border hidden sm:inline-flex ${isConsumed
-                                        ? 'bg-emerald-100 text-emerald-700 border-emerald-200'
+                                        ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50'
                                         : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
                                         }`}>
                                         {mealConsumedKcal.toFixed(0)} / {(mealTotals.calorias || 0).toFixed(0)} kcal
@@ -780,7 +780,7 @@ export function DietTab({
                                         // Reduz o "ruído verde" da tela inteira com vários cards.
                                         className={`w-7 h-7 sm:w-8 sm:h-8 p-0 rounded-full transition-all duration-200 min-h-[36px] min-w-[36px] ${isConsumed
                                           ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
-                                          : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
+                                          : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 shadow-none'
                                           }`}
                                       >
                                         {isConsumed ? (
@@ -822,7 +822,7 @@ export function DietTab({
                                               key={food.id || foodIndex}
                                               style={{ backgroundColor: 'white' }}
                                               className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${foodConsumed
-                                                ? 'border-emerald-100'
+                                                ? 'border-emerald-100 dark:border-emerald-900/40'
                                                 : 'border-slate-100 dark:border-slate-800 hover:border-emerald-200 shadow-sm'
                                                 }`}
                                             >
@@ -840,7 +840,7 @@ export function DietTab({
                                                     {foodConsumed ? (
                                                       <CheckCircle className="w-5 h-5 text-emerald-500" />
                                                     ) : (
-                                                      <div className="w-5 h-5 rounded-full border-2 border-slate-300" />
+                                                      <div className="w-5 h-5 rounded-full border-2 border-slate-300 dark:border-slate-700" />
                                                     )}
                                                   </button>
                                                   <div className="flex-1 min-w-0">
@@ -890,14 +890,14 @@ export function DietTab({
                                                         setSubstitutionsModalOpen(true);
                                                       }}
                                                       title="Ver alimentos substitutos com porções equivalentes"
-                                                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 transition-colors hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
+                                                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
                                                     >
                                                       <RefreshCw className="w-3 h-3" />
                                                       Substitutos
                                                     </button>
                                                   )}
                                                   <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${foodConsumed
-                                                    ? 'bg-slate-50 dark:bg-slate-900 text-slate-400 border-slate-100 dark:border-slate-800'
+                                                    ? 'bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-800'
                                                     : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
                                                     } border`}>
                                                     {food.calories} kcal
@@ -912,13 +912,13 @@ export function DietTab({
                                       <p className="text-sm text-[#777777] text-center py-4">Nenhum alimento adicionado</p>
                                     )}
                                     {meal.instructions && meal.instructions.replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, '').trim() && (
-                                      <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                                        <p className="text-xs text-amber-700 font-medium mb-1 flex items-center gap-2">
+                                      <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-lg">
+                                        <p className="text-xs text-amber-700 dark:text-amber-300 font-medium mb-1 flex items-center gap-2">
                                           <AlertTriangle className="w-3 h-3" />
                                           Observações:
                                         </p>
                                         <div
-                                          className="text-sm text-amber-800 leading-relaxed prose prose-sm max-w-none prose-p:my-1"
+                                          className="text-sm text-amber-800 dark:text-amber-300 leading-relaxed prose prose-sm max-w-none prose-p:my-1"
                                           dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(meal.instructions) }}
                                         />
                                       </div>
@@ -954,14 +954,14 @@ export function DietTab({
 
               {/* Mensagem quando não há refeições */}
               {hasActivePlan && planDetails && (!planDetails.diet_meals || planDetails.diet_meals.length === 0) && (
-                <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-amber-200">
+                <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-amber-200 dark:border-amber-900/50">
                   <CardContent className="p-6 sm:p-8 text-center">
                     <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-3 sm:mb-4" />
                     <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Refeições não disponíveis</h3>
                     <p className="text-sm sm:text-base text-[#777777] mb-4">
                       Não foi possível carregar as refeições deste plano alimentar.
                     </p>
-                    <p className="text-xs text-amber-600 bg-amber-50 p-3 rounded-lg">
+                    <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 p-3 rounded-lg">
                       <strong>Possível causa:</strong> As políticas de segurança (RLS) do Supabase podem estar bloqueando o acesso.
                       Verifique se as políticas RLS para as tabelas <code>diet_meals</code> e <code>diet_foods</code> permitem leitura para usuários anônimos ou autenticados.
                     </p>
@@ -979,7 +979,7 @@ export function DietTab({
                       ClipboardList,
                       "text-emerald-500",
                       "bg-emerald-500/10",
-                      "border-emerald-100"
+                      "border-emerald-100 dark:border-emerald-900/40"
                     )}
                   </div>
                 </div>
@@ -993,33 +993,33 @@ export function DietTab({
                     <button
                       type="button"
                       onClick={() => goToSupplementCard('supplement')}
-                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-blue-100 bg-white dark:bg-slate-900 px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-blue-100 dark:border-blue-900/40 bg-white dark:bg-slate-900 px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
                     >
                       <span className="rounded-lg bg-blue-500/10 p-1.5"><Pill className="h-4 w-4 text-blue-500" /></span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800 dark:text-slate-200">Suplementação</span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                     </button>
                   )}
                   {protocolGuidelines.length > 0 && (
                     <button
                       type="button"
                       onClick={() => goToSupplementCard('protocol')}
-                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-amber-100 bg-white dark:bg-slate-900 px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-amber-100 dark:border-amber-900/40 bg-white dark:bg-slate-900 px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
                     >
                       <span className="rounded-lg bg-amber-500/10 p-1.5"><ListChecks className="h-4 w-4 text-amber-500" /></span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800 dark:text-slate-200">Protocolo</span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                     </button>
                   )}
                   {manipulatedGuidelines.length > 0 && (
                     <button
                       type="button"
                       onClick={() => goToSupplementCard('manipulated')}
-                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-purple-100 bg-white dark:bg-slate-900 px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
+                      className="flex min-h-[48px] items-center gap-2.5 rounded-xl border border-purple-100 dark:border-purple-900/40 bg-white dark:bg-slate-900 px-3 py-2 text-left shadow-sm transition hover:shadow-md active:scale-[0.99]"
                     >
                       <span className="rounded-lg bg-purple-500/10 p-1.5"><FlaskConical className="h-4 w-4 text-purple-500" /></span>
                       <span className="min-w-0 flex-1 text-sm font-semibold text-slate-800 dark:text-slate-200">Manipulados</span>
-                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400" />
+                      <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
                     </button>
                   )}
                 </div>
@@ -1047,7 +1047,7 @@ export function DietTab({
           {!hasActivePlan ? (
             <Card className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <CardContent className="p-5 sm:p-6 text-center">
-                <Pill className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-3" />
+                <Pill className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Sem suplementação</h3>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   Seu nutricionista ainda não cadastrou informações de suplementação.
@@ -1057,7 +1057,7 @@ export function DietTab({
           ) : supplementGuidelines.length === 0 && manipulatedGuidelines.length === 0 && protocolGuidelines.length === 0 ? (
             <Card className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm">
               <CardContent className="p-5 sm:p-6 text-center">
-                <Pill className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 mx-auto mb-3" />
+                <Pill className="w-10 h-10 sm:w-12 sm:h-12 text-slate-400 dark:text-slate-500 mx-auto mb-3" />
                 <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 mb-1">Sem protocolos ativos</h3>
                 <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
                   Não há suplementos, manipulados ou protocolos definidos para este plano.
@@ -1073,7 +1073,7 @@ export function DietTab({
                   Pill,
                   "text-blue-500",
                   "bg-blue-500/10",
-                  "border-blue-100",
+                  "border-blue-100 dark:border-blue-900/40",
                   false,
                   "supplement"
                 )}
@@ -1083,7 +1083,7 @@ export function DietTab({
                   FlaskConical,
                   "text-purple-500",
                   "bg-purple-500/10",
-                  "border-purple-100",
+                  "border-purple-100 dark:border-purple-900/40",
                   false,
                   "manipulated"
                 )}
@@ -1093,7 +1093,7 @@ export function DietTab({
                   ListChecks,
                   "text-amber-500",
                   "bg-amber-500/10",
-                  "border-amber-100",
+                  "border-amber-100 dark:border-amber-900/40",
                   false,
                   "protocol"
                 )}
@@ -1115,7 +1115,7 @@ export function DietTab({
                     </div>
                     <Button
                       onClick={() => window.open('https://area-de-membros-fabriciomourateam.vercel.app/#/suplementos-lista', '_blank')}
-                      className="shrink-0 bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 font-semibold px-3 py-2 h-auto rounded-lg text-xs sm:text-sm whitespace-nowrap"
+                      className="shrink-0 bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 font-semibold px-3 py-2 h-auto rounded-lg text-xs sm:text-sm whitespace-nowrap"
                     >
                       Ver lista
                       <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
@@ -1148,7 +1148,7 @@ export function DietTab({
               <span className="truncate">Opções de Substituição</span>
             </DialogTitle>
             <DialogDescription className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 pr-8">
-              Você pode substituir <strong className="text-emerald-600">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
+              Você pode substituir <strong className="text-emerald-600 dark:text-emerald-400">{selectedFoodSubstitutions?.foodName}</strong> por qualquer uma das opções abaixo
             </DialogDescription>
           </DialogHeader>
 
@@ -1156,7 +1156,7 @@ export function DietTab({
             {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-xl border border-emerald-200 bg-emerald-50 hover:bg-emerald-100 hover:border-emerald-300 transition-all group"
+                className="p-3 sm:p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 hover:border-emerald-300 transition-all group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">
@@ -1179,12 +1179,12 @@ export function DietTab({
                         if (grams > 0 && !isBase && !isAVontade) {
                           const gramsLabel = grams < 10 ? `${grams.toFixed(1).replace(/\.0$/, '')}g` : `${Math.round(grams)}g`;
                           return (
-                            <span className="font-medium text-emerald-600">
+                            <span className="font-medium text-emerald-600 dark:text-emerald-400">
                               {sub.quantity} {sub.unit} <span className="opacity-70">({gramsLabel})</span>
                             </span>
                           );
                         }
-                        return <span className="font-medium text-emerald-600">{sub.quantity} {sub.unit}</span>;
+                        return <span className="font-medium text-emerald-600 dark:text-emerald-400">{sub.quantity} {sub.unit}</span>;
                       })()}
                       {sub.custom_unit_name && (
                         <span className="ml-2 text-xs block sm:inline mt-1 sm:mt-0 opacity-70">
@@ -1199,8 +1199,8 @@ export function DietTab({
             ))}
           </div>
 
-          <div className="mt-4 p-3 bg-cyan-50 border border-cyan-200 rounded-lg">
-            <p className="text-xs text-cyan-700 flex items-center gap-2">
+          <div className="mt-4 p-3 bg-cyan-50 dark:bg-cyan-950/40 border border-cyan-200 dark:border-cyan-900/50 rounded-lg">
+            <p className="text-xs text-cyan-700 dark:text-cyan-300 flex items-center gap-2">
               <Info className="w-4 h-4" />
               <span>
                 Essas são opções equivalentes que você pode usar no lugar do alimento original.

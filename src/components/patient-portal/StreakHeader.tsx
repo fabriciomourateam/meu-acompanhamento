@@ -54,18 +54,18 @@ export function StreakHeader({ patientId, patientName, levelName, levelColor }: 
             {/* whitespace-nowrap mantem 'Bom dia, Deborah 👋' SEMPRE numa linha so.
                 Se nao couber, o truncate corta com '...' no fim — melhor que ver
                 o emoji 'caindo' pra linha de baixo separado do texto. */}
-            <h1 className="text-base sm:text-lg font-bold text-slate-900 leading-tight whitespace-nowrap truncate">
+            <h1 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight whitespace-nowrap truncate">
                 {greetingForNow()}, {fn} <span aria-hidden>👋</span>
             </h1>
             <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 min-w-0">
                 {showSurname && (
-                    <p className="text-[11px] sm:text-xs text-slate-500 truncate">{fullName}</p>
+                    <p className="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 truncate">{fullName}</p>
                 )}
                 {streak !== null && streak > 0 && (
                     <motion.span
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
-                        className="inline-flex items-center gap-0.5 rounded-full bg-orange-100 border border-orange-200 text-orange-600 px-1.5 py-0 text-[10px] font-bold shrink-0"
+                        className="inline-flex items-center gap-0.5 rounded-full bg-orange-100 dark:bg-orange-950/50 border border-orange-200 dark:border-orange-900/50 text-orange-600 dark:text-orange-400 px-1.5 py-0 text-[10px] font-bold shrink-0"
                     >
                         <Flame className="w-3 h-3 fill-orange-500 text-orange-500" />
                         {streak} {streak === 1 ? 'dia' : 'dias'}

@@ -21,10 +21,10 @@ function splitName(name: string): { primary: string; modifiers: string | null } 
 }
 
 function calorieChip(kcal: number): { emoji: string; label: string; classes: string } {
-  if (kcal < 100) return { emoji: "🌿", label: "Leve", classes: "bg-emerald-50 text-emerald-700 border-emerald-200" };
-  if (kcal < 300) return { emoji: "⚡", label: "Médio", classes: "bg-yellow-50 text-yellow-700 border-yellow-200" };
-  if (kcal < 500) return { emoji: "🔥", label: "Denso", classes: "bg-orange-50 text-orange-700 border-orange-200" };
-  return { emoji: "💥", label: "Calórico", classes: "bg-red-50 text-red-700 border-red-200" };
+  if (kcal < 100) return { emoji: "🌿", label: "Leve", classes: "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50" };
+  if (kcal < 300) return { emoji: "⚡", label: "Médio", classes: "bg-yellow-50 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-900/50" };
+  if (kcal < 500) return { emoji: "🔥", label: "Denso", classes: "bg-orange-50 dark:bg-orange-950/40 text-orange-700 dark:text-orange-300 border-orange-200 dark:border-orange-900/50" };
+  return { emoji: "💥", label: "Calórico", classes: "bg-red-50 dark:bg-red-950/40 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900/50" };
 }
 
 function compactNum(n: number): string {
@@ -49,7 +49,7 @@ export function FoodCard({ food, onSelect, isFavorite, onToggleFavorite }: FoodC
     <button
       type="button"
       onClick={onSelect}
-      className="group relative flex h-full w-full flex-col gap-1.5 overflow-hidden rounded-2xl border border-slate-200 bg-white p-2.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md hover:shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+      className="group relative flex h-full w-full flex-col gap-1.5 overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5 text-left shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md hover:shadow-emerald-500/10 focus:outline-none focus:ring-2 focus:ring-emerald-400"
     >
       {/* Topo: emoji + chip de densidade + estrela */}
       <div className="flex items-start justify-between gap-1.5">
@@ -70,7 +70,7 @@ export function FoodCard({ food, onSelect, isFavorite, onToggleFavorite }: FoodC
           role="button"
           tabIndex={0}
           aria-label={isFavorite ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:text-amber-500"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-slate-400 dark:text-slate-500 transition hover:text-amber-500"
           onKeyDown={(e) => {
             if (e.key === "Enter" || e.key === " ") {
               e.preventDefault();
@@ -84,11 +84,11 @@ export function FoodCard({ food, onSelect, isFavorite, onToggleFavorite }: FoodC
 
       {/* Nome */}
       <div className="flex w-full flex-col gap-0.5">
-        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900">
+        <h3 className="line-clamp-2 text-sm font-semibold leading-snug text-slate-900 dark:text-slate-100">
           {primary}
         </h3>
         {modifiers && (
-          <p className="line-clamp-1 text-[11px] leading-tight text-slate-500">{modifiers}</p>
+          <p className="line-clamp-1 text-[11px] leading-tight text-slate-500 dark:text-slate-400">{modifiers}</p>
         )}
         {measure && (
           <p className="text-[11px] leading-tight text-emerald-600/90">
@@ -98,24 +98,24 @@ export function FoodCard({ food, onSelect, isFavorite, onToggleFavorite }: FoodC
       </div>
 
       {/* Rodapé: kcal grande + macros embaixo */}
-      <div className="mt-auto pt-1.5 border-t border-slate-100">
+      <div className="mt-auto pt-1.5 border-t border-slate-100 dark:border-slate-800">
         <div className="flex items-baseline gap-1 tabular-nums">
-          <span className="text-xl font-extrabold text-emerald-600">
+          <span className="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">
             {compactNum(food.calories_per_100g)}
           </span>
-          <span className="text-[11px] text-slate-500">kcal/100g</span>
+          <span className="text-[11px] text-slate-500 dark:text-slate-400">kcal/100g</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[10px] tabular-nums text-slate-600 mt-0.5">
+        <div className="flex items-center gap-1.5 text-[10px] tabular-nums text-slate-600 dark:text-slate-400 mt-0.5">
           <span>
-            <span className="font-semibold text-rose-600">P</span> {compactNum(food.protein_per_100g)}
+            <span className="font-semibold text-rose-600 dark:text-rose-400">P</span> {compactNum(food.protein_per_100g)}
           </span>
           <span aria-hidden className="text-slate-300">·</span>
           <span>
-            <span className="font-semibold text-sky-600">C</span> {compactNum(food.carbs_per_100g)}
+            <span className="font-semibold text-sky-600 dark:text-sky-400">C</span> {compactNum(food.carbs_per_100g)}
           </span>
           <span aria-hidden className="text-slate-300">·</span>
           <span>
-            <span className="font-semibold text-amber-600">G</span> {compactNum(food.fats_per_100g)}
+            <span className="font-semibold text-amber-600 dark:text-amber-400">G</span> {compactNum(food.fats_per_100g)}
           </span>
         </div>
       </div>

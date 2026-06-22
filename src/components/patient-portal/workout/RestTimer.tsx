@@ -137,7 +137,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
           {/* Barra grossa que enche até o fim do descanso; marcador no mínimo */}
           <div className="relative mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-white/25">
             <div
-              className="h-full rounded-full bg-white transition-[width] duration-200 ease-linear"
+              className="h-full rounded-full bg-white dark:bg-slate-900 transition-[width] duration-200 ease-linear"
               style={{ width: `${elapsedPct}%` }}
             />
             {hasRange && (

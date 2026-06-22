@@ -20,9 +20,9 @@ function MacroPill({
   labelColor: string;
 }) {
   return (
-    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-2 py-0.5 text-xs font-medium">
+    <span className="inline-flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-0.5 text-xs font-medium">
       <span className={`font-semibold ${labelColor}`}>{label}</span>
-      <span className="text-slate-600">{value.toFixed(1)}g</span>
+      <span className="text-slate-600 dark:text-slate-400">{value.toFixed(1)}g</span>
     </span>
   );
 }
@@ -34,9 +34,9 @@ function diffLabel(diff: number): string {
 
 function diffColor(diff: number): string {
   const abs = Math.abs(diff);
-  if (abs < 5) return "text-emerald-600";
-  if (abs < 8) return "text-amber-600";
-  return "text-rose-600";
+  if (abs < 5) return "text-emerald-600 dark:text-emerald-400";
+  if (abs < 8) return "text-amber-600 dark:text-amber-400";
+  return "text-rose-600 dark:text-rose-400";
 }
 
 type InputMode = "grams" | "units";
@@ -94,15 +94,15 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
   const fatsDiff = targetFats - base.fats_per_100g * baseMult;
 
   const labelColors = {
-    kcal: "text-slate-500",
-    prot: "text-rose-600",
-    carb: "text-sky-600",
-    gord: "text-amber-600",
+    kcal: "text-slate-500 dark:text-slate-400",
+    prot: "text-rose-600 dark:text-rose-400",
+    carb: "text-sky-600 dark:text-sky-400",
+    gord: "text-amber-600 dark:text-amber-400",
   };
 
   const chipBase =
-    "border border-slate-200 bg-white text-slate-700 hover:border-emerald-300";
-  const activeChip = "border-emerald-500 bg-emerald-100 text-emerald-800 font-semibold shadow-sm shadow-emerald-500/20";
+    "border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:border-emerald-300";
+  const activeChip = "border-emerald-500 bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-semibold shadow-sm shadow-emerald-500/20";
 
   const gramPresets = [50, 100, 150, 200];
   const unitPresets = [0.5, 1, 2, 3];
@@ -112,12 +112,12 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="mt-3 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm"
+      className="mt-3 w-full overflow-hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-sm"
     >
       {/* Aviso de grupos diferentes */}
       {!sameGroup && (
         <div className="px-4 pt-3">
-          <Badge className="flex w-full items-start gap-2 whitespace-normal rounded-xl border border-amber-300 bg-amber-100 px-3 py-2 text-left text-xs font-medium text-amber-800">
+          <Badge className="flex w-full items-start gap-2 whitespace-normal rounded-xl border border-amber-300 bg-amber-100 dark:bg-amber-950/50 px-3 py-2 text-left text-xs font-medium text-amber-800 dark:text-amber-300">
             <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
             <span>
               <strong>Atenção:</strong> grupos nutricionais diferentes — equivalência apenas calórica.
@@ -129,19 +129,19 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
 
       <div className="p-3 sm:p-4">
         {/* Seletor de quantidade */}
-        <div className="mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+        <div className="mb-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <label className="text-xs sm:text-sm font-semibold text-slate-600">
+            <label className="text-xs sm:text-sm font-semibold text-slate-600 dark:text-slate-400">
               Quantidade de {base.name}
             </label>
 
             {baseUnit && (
-              <div className="flex rounded-full border border-slate-200 bg-white text-xs">
+              <div className="flex rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-xs">
                 <button
                   type="button"
                   onClick={switchToGrams}
                   className={`rounded-full px-3 py-1 transition ${
-                    inputMode === "grams" ? activeChip : "text-slate-500"
+                    inputMode === "grams" ? activeChip : "text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   Gramas
@@ -150,7 +150,7 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
                   type="button"
                   onClick={switchToUnits}
                   className={`rounded-full px-3 py-1 transition ${
-                    inputMode === "units" ? activeChip : "text-slate-500"
+                    inputMode === "units" ? activeChip : "text-slate-500 dark:text-slate-400"
                   }`}
                 >
                   {baseUnit.unit.charAt(0).toUpperCase() + baseUnit.unit.slice(1)}
@@ -172,9 +172,9 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
                     const n = Number(e.target.value);
                     if (Number.isFinite(n) && n > 0) handleGramsChange(n);
                   }}
-                  className="h-8 w-20 rounded-lg border border-slate-200 bg-white px-2 text-right text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
+                  className="h-8 w-20 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 text-right text-sm text-slate-900 dark:text-slate-100 focus:border-emerald-400 focus:outline-none"
                 />
-                <span className="text-sm text-slate-500">g</span>
+                <span className="text-sm text-slate-500 dark:text-slate-400">g</span>
               </div>
               <div className="flex flex-wrap gap-2">
                 {gramPresets.map((p) => (
@@ -204,9 +204,9 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
                     const n = Number(e.target.value);
                     if (Number.isFinite(n) && n > 0) handleUnitCountChange(n);
                   }}
-                  className="h-8 w-20 rounded-lg border border-slate-200 bg-white px-2 text-right text-sm text-slate-900 focus:border-emerald-400 focus:outline-none"
+                  className="h-8 w-20 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 text-right text-sm text-slate-900 dark:text-slate-100 focus:border-emerald-400 focus:outline-none"
                 />
-                <span className="max-w-[80px] truncate text-sm text-slate-500">
+                <span className="max-w-[80px] truncate text-sm text-slate-500 dark:text-slate-400">
                   {baseUnit!.unit}
                 </span>
               </div>
@@ -224,32 +224,32 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
                   </button>
                 ))}
               </div>
-              <p className="mt-1.5 text-right text-xs text-slate-400">= {baseGrams}g</p>
+              <p className="mt-1.5 text-right text-xs text-slate-400 dark:text-slate-500">= {baseGrams}g</p>
             </>
           )}
         </div>
 
         {/* Frase de equivalência */}
-        <p className="text-sm leading-relaxed text-slate-700">
-          <span className="font-bold text-slate-900">
+        <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-200">
+          <span className="font-bold text-slate-900 dark:text-slate-100">
             {inputMode === "units" && baseUnit
               ? `${unitCount} ${baseUnit.unit} de ${base.name} (${baseGrams}g)`
               : `${baseGrams}g de ${base.name}`}
           </span>
           {inputMode === "grams" && baseHousehold && (
-            <span className="text-slate-500"> ({baseHousehold})</span>
+            <span className="text-slate-500 dark:text-slate-400"> ({baseHousehold})</span>
           )}
           {" "}equivalem a{" "}
-          <span className="font-bold text-emerald-600">
+          <span className="font-bold text-emerald-600 dark:text-emerald-400">
             {equivalentGrams}g de {target.name}
           </span>
-          {targetHousehold && <span className="text-slate-500"> ≈ {targetHousehold}</span>}
+          {targetHousehold && <span className="text-slate-500 dark:text-slate-400"> ≈ {targetHousehold}</span>}
         </p>
 
         {/* Dois painéis de macros lado a lado */}
         <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-3">
-          <div className="rounded-xl bg-slate-50 p-2.5">
-            <p className="mb-2 truncate text-[11px] sm:text-xs font-semibold text-slate-500">
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-900 p-2.5">
+            <p className="mb-2 truncate text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">
               {base.name} ({baseGrams}g)
             </p>
             <div className="flex flex-wrap gap-1">
@@ -260,8 +260,8 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
             </div>
           </div>
 
-          <div className="rounded-xl bg-slate-50 p-2.5">
-            <p className="mb-2 truncate text-[11px] sm:text-xs font-semibold text-slate-500">
+          <div className="rounded-xl bg-slate-50 dark:bg-slate-900 p-2.5">
+            <p className="mb-2 truncate text-[11px] sm:text-xs font-semibold text-slate-500 dark:text-slate-400">
               {target.name} ({equivalentGrams}g)
             </p>
             <div className="flex flex-wrap gap-1">
@@ -274,7 +274,7 @@ export function InlineComparison({ base, target }: InlineComparisonProps) {
         </div>
 
         {/* Linha de diferença */}
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-500">
+        <div className="mt-3 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
           <span>Diferença:</span>
           <span>
             Prot <span className={`font-semibold ${diffColor(proteinDiff)}`}>{diffLabel(proteinDiff)}</span>

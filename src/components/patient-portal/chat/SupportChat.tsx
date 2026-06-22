@@ -444,9 +444,9 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
   const canSend = (!!body.trim() || !!pendingFile) && !sending && !recorder.recording;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden border-0 bg-white sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden border-0 bg-white dark:bg-slate-900 sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
       {/* Cabeçalho (respeita a status bar do celular via safe-area no topo) */}
-      <div className="flex items-center gap-3 border-b border-slate-100 bg-emerald-500 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+      <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 bg-emerald-500 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/20">
           {photoOk ? (
             <img
@@ -479,9 +479,9 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
 
       {/* Convite pra ativar notificações (some quando já ativo ou dispensado) */}
       {nudge && (
-        <div className="flex items-center gap-2 border-b border-amber-100 bg-amber-50 px-3 py-2">
-          <BellRing className="h-4 w-4 shrink-0 text-amber-600" />
-          <p className="min-w-0 flex-1 text-xs text-amber-800">
+        <div className="flex items-center gap-2 border-b border-amber-100 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/40 px-3 py-2">
+          <BellRing className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
+          <p className="min-w-0 flex-1 text-xs text-amber-800 dark:text-amber-300">
             Ative as notificações pra saber na hora que o Fabricio responder.
           </p>
           <button
@@ -501,13 +501,13 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
       <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
 
       {/* Thread */}
-      <div className="scrollbar-emerald flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-slate-50 px-3 py-4">
+      <div className="scrollbar-emerald flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-slate-50 dark:bg-slate-900 px-3 py-4">
         {loading ? (
-          <div className="flex flex-1 items-center justify-center text-slate-400">
+          <div className="flex flex-1 items-center justify-center text-slate-400 dark:text-slate-500">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando...
           </div>
         ) : messages.length === 0 ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center text-slate-400">
+          <div className="flex flex-1 flex-col items-center justify-center gap-2 px-6 text-center text-slate-400 dark:text-slate-500">
             <MessageCircle className="h-8 w-8" />
             <p className="text-sm">Nenhuma mensagem ainda.</p>
             <p className="text-xs">Mande sua primeira mensagem para dúvidas ou orientações.</p>
@@ -520,7 +520,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
               <div key={m.id} className="contents">
               {showDay && (
                 <div className="my-2 flex justify-center">
-                  <span className="rounded-full bg-slate-200 px-3 py-0.5 text-[10px] font-medium text-slate-500">
+                  <span className="rounded-full bg-slate-200 dark:bg-slate-800 px-3 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
                     {dayLabelBRT(m.created_at)}
                   </span>
                 </div>
@@ -532,14 +532,14 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                     <button
                       type="button"
                       onClick={() => setMenuFor(menuFor === m.id ? null : m.id)}
-                      className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 opacity-0 transition group-hover:opacity-100 hover:bg-slate-200"
+                      className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 dark:text-slate-500 opacity-0 transition group-hover:opacity-100 hover:bg-slate-200"
                       aria-label="Opções da mensagem"
                     >
                       <MoreVertical className="h-4 w-4" />
                     </button>
                     {menuFor === m.id && (
-                      <div className={`absolute bottom-8 z-10 w-40 overflow-hidden rounded-lg border border-slate-200 bg-white py-1 shadow-lg ${m.is_mine ? 'right-0' : 'left-0'}`}>
-                        <div className="flex items-center justify-between gap-0.5 border-b border-slate-100 px-1.5 pb-1.5 pt-1">
+                      <div className={`absolute bottom-8 z-10 w-40 overflow-hidden rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-1 shadow-lg ${m.is_mine ? 'right-0' : 'left-0'}`}>
+                        <div className="flex items-center justify-between gap-0.5 border-b border-slate-100 dark:border-slate-800 px-1.5 pb-1.5 pt-1">
                           {REACTION_EMOJIS.map((e) => (
                             <button
                               key={e}
@@ -554,7 +554,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                         <button
                           type="button"
                           onClick={() => startReply(m)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50"
                         >
                           <Reply className="h-3.5 w-3.5" /> Responder
                         </button>
@@ -562,7 +562,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           <button
                             type="button"
                             onClick={() => startEdit(m)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 hover:bg-slate-50"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50"
                           >
                             <Pencil className="h-3.5 w-3.5" /> Editar
                           </button>
@@ -571,7 +571,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           <button
                             type="button"
                             onClick={() => handleDelete(m)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 hover:bg-rose-50"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50"
                           >
                             <Trash2 className="h-3.5 w-3.5" /> Apagar
                           </button>
@@ -584,11 +584,11 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                   className={`order-2 max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
                     m.is_mine
                       ? 'rounded-br-sm bg-emerald-500 text-white'
-                      : 'rounded-bl-sm border border-slate-200 bg-white text-slate-800'
+                      : 'rounded-bl-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200'
                   }`}
                 >
                   {m.deleted ? (
-                    <div className={`flex items-center gap-1.5 text-sm italic ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
+                    <div className={`flex items-center gap-1.5 text-sm italic ${m.is_mine ? 'text-emerald-50' : 'text-slate-400 dark:text-slate-500'}`}>
                       <Trash2 className="h-3.5 w-3.5" /> Esta mensagem foi apagada
                     </div>
                   ) : (
@@ -598,9 +598,9 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                         const q = messages.find((x) => x.id === m.reply_to_message_id);
                         const p = q ? quotedPreview(q) : { who: '', text: 'mensagem' };
                         return (
-                          <div className={`mb-1.5 rounded-lg border-l-2 px-2 py-1 text-[11px] ${m.is_mine ? 'border-white/60 bg-white/15' : 'border-emerald-400 bg-slate-100'}`}>
-                            <div className={`font-semibold ${m.is_mine ? 'text-white' : 'text-emerald-700'}`}>{p.who}</div>
-                            <div className={`line-clamp-2 ${m.is_mine ? 'text-emerald-50' : 'text-slate-500'}`}>{p.text}</div>
+                          <div className={`mb-1.5 rounded-lg border-l-2 px-2 py-1 text-[11px] ${m.is_mine ? 'border-white/60 bg-white/15' : 'border-emerald-400 bg-slate-100 dark:bg-slate-800'}`}>
+                            <div className={`font-semibold ${m.is_mine ? 'text-white' : 'text-emerald-700 dark:text-emerald-300'}`}>{p.who}</div>
+                            <div className={`line-clamp-2 ${m.is_mine ? 'text-emerald-50' : 'text-slate-500 dark:text-slate-400'}`}>{p.text}</div>
                           </div>
                         );
                       })()}
@@ -612,7 +612,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                       {m.body && <div className="whitespace-pre-wrap break-words">{renderWithLinks(m.body)}</div>}
                     </>
                   )}
-                  <div className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400'}`}>
+                  <div className={`mt-1 flex items-center justify-end gap-1 text-[10px] ${m.is_mine ? 'text-emerald-50' : 'text-slate-400 dark:text-slate-500'}`}>
                     <span>{formatTimeBRT(m.created_at)}</span>
                     {m.edited && !m.deleted && <span>(editado)</span>}
                     {/* ✓✓ lido — só nas minhas mensagens (do aluno) já confirmadas */}
@@ -631,7 +631,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           key={i}
                           type="button"
                           onClick={() => handleReact(m, r.emoji)}
-                          className={`rounded-full px-1.5 py-0.5 text-xs leading-none ring-1 ${m.is_mine ? 'bg-white/20 ring-white/30' : 'bg-slate-100 ring-slate-200'}`}
+                          className={`rounded-full px-1.5 py-0.5 text-xs leading-none ring-1 ${m.is_mine ? 'bg-white/20 ring-white/30' : 'bg-slate-100 dark:bg-slate-800 ring-slate-200'}`}
                         >
                           {r.emoji}
                         </button>
@@ -649,22 +649,22 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
 
       {/* Preview do anexo pendente */}
       {pendingFile && (
-        <div className="flex items-center gap-3 border-t border-slate-100 bg-slate-50 px-3 py-2">
+        <div className="flex items-center gap-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 px-3 py-2">
           {pendingFile.type.startsWith('image/') && pendingPreview ? (
             <img src={pendingPreview} alt="" className="h-12 w-12 rounded-lg object-cover" />
           ) : pendingFile.type.startsWith('video/') && pendingPreview ? (
             <video src={pendingPreview} className="h-12 w-12 rounded-lg object-cover" />
           ) : (
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 text-emerald-600">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
               <Mic className="h-5 w-5" />
             </div>
           )}
-          <span className="flex-1 truncate text-xs text-slate-600">
+          <span className="flex-1 truncate text-xs text-slate-600 dark:text-slate-400">
             {pendingFile.name || 'Nota de voz'}
           </span>
           <button
             onClick={() => setPendingFile(null)}
-            className="rounded-full p-1 text-slate-400 hover:bg-slate-200"
+            className="rounded-full p-1 text-slate-400 dark:text-slate-500 hover:bg-slate-200"
             aria-label="Remover anexo"
           >
             <X className="h-4 w-4" />
@@ -674,10 +674,10 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
 
       {/* Tarja de "respondendo a…" */}
       {replyTo && !editingId && (
-        <div className="flex items-center gap-2 border-t border-emerald-100 bg-emerald-50 px-3 py-2">
-          <Reply className="h-4 w-4 shrink-0 text-emerald-600" />
+        <div className="flex items-center gap-2 border-t border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2">
+          <Reply className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-semibold text-emerald-700">
+            <div className="text-[11px] font-semibold text-emerald-700 dark:text-emerald-300">
               Respondendo a {quotedPreview(replyTo).who}
             </div>
             <div className="truncate text-xs text-emerald-800/70">{quotedPreview(replyTo).text}</div>
@@ -694,9 +694,9 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
 
       {/* Banner de edição */}
       {editingId && (
-        <div className="flex items-center gap-2 border-t border-emerald-100 bg-emerald-50 px-3 py-2">
-          <Pencil className="h-4 w-4 shrink-0 text-emerald-600" />
-          <span className="flex-1 text-xs text-emerald-800">Editando mensagem</span>
+        <div className="flex items-center gap-2 border-t border-emerald-100 dark:border-emerald-900/40 bg-emerald-50 dark:bg-emerald-950/40 px-3 py-2">
+          <Pencil className="h-4 w-4 shrink-0 text-emerald-600 dark:text-emerald-400" />
+          <span className="flex-1 text-xs text-emerald-800 dark:text-emerald-300">Editando mensagem</span>
           <button
             onClick={cancelEdit}
             className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100"
@@ -708,14 +708,14 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
       )}
 
       {/* Composer */}
-      <div className="relative border-t border-slate-100 bg-white p-2">
+      <div className="relative border-t border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 p-2">
         {/* Painel de emojis (toggle) */}
         {emojiOpen && (
-          <div className="absolute bottom-full left-2 z-20 mb-2 w-72 rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+          <div className="absolute bottom-full left-2 z-20 mb-2 w-72 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-lg">
             <div className="max-h-52 space-y-2 overflow-y-auto">
               {EMOJI_GROUPS.map((g) => (
                 <div key={g.label}>
-                  <p className="px-1 pb-1 text-[10px] font-medium uppercase tracking-wide text-slate-400">{g.label}</p>
+                  <p className="px-1 pb-1 text-[10px] font-medium uppercase tracking-wide text-slate-400 dark:text-slate-500">{g.label}</p>
                   <div className="grid grid-cols-8 gap-0.5">
                     {g.items.map((e) => (
                       <button
@@ -745,7 +745,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
             onChange={onPickFile}
           />
           {recorder.recording ? (
-            <div className="flex flex-1 items-center gap-2 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-600">
+            <div className="flex flex-1 items-center gap-2 rounded-xl border border-rose-200 dark:border-rose-900/50 bg-rose-50 dark:bg-rose-950/40 px-3 py-2.5 text-sm text-rose-600 dark:text-rose-400">
               <span className="h-2.5 w-2.5 animate-pulse rounded-full bg-rose-500" />
               Gravando… {mmss(recorder.seconds)}
               <button
@@ -762,7 +762,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={sending}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 disabled:opacity-40"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 disabled:opacity-40"
                   aria-label="Anexar arquivo"
                 >
                   <Paperclip className="h-5 w-5" />
@@ -771,7 +771,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
               <button
                 onClick={() => setEmojiOpen((v) => !v)}
                 disabled={sending}
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition hover:bg-slate-100 disabled:opacity-40 ${emojiOpen ? 'text-emerald-600' : 'text-slate-500'}`}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition hover:bg-slate-100 disabled:opacity-40 ${emojiOpen ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}
                 aria-label="Inserir emoji"
               >
                 <Smile className="h-5 w-5" />
@@ -785,7 +785,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                 }}
                 placeholder="Escreva uma mensagem..."
                 rows={1}
-                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-slate-200 px-3 py-2.5 text-sm text-slate-800 outline-none focus:border-emerald-400"
+                className="max-h-28 min-h-[44px] flex-1 resize-none rounded-xl border border-slate-200 dark:border-slate-700 px-3 py-2.5 text-sm text-slate-800 dark:text-slate-200 outline-none focus:border-emerald-400"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();

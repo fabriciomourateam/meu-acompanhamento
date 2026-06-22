@@ -22,13 +22,13 @@ import {
 // rose, sky, amber, violet, indigo, slate). Antes indexava por `preset`,
 // o que ignorava a cor escolhida no preset custom.
 const PHASE_COLORS: Record<string, string> = {
-  emerald: 'border-emerald-300 bg-emerald-50 text-emerald-900',
-  rose: 'border-rose-300 bg-rose-50 text-rose-900',
-  sky: 'border-sky-300 bg-sky-50 text-sky-900',
-  amber: 'border-amber-300 bg-amber-50 text-amber-900',
-  violet: 'border-violet-300 bg-violet-50 text-violet-900',
-  indigo: 'border-indigo-300 bg-indigo-50 text-indigo-900',
-  slate: 'border-slate-300 bg-slate-50 text-slate-900',
+  emerald: 'border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-900 dark:text-emerald-200',
+  rose: 'border-rose-300 bg-rose-50 dark:bg-rose-950/40 text-rose-900 dark:text-rose-200',
+  sky: 'border-sky-300 bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200',
+  amber: 'border-amber-300 bg-amber-50 dark:bg-amber-950/40 text-amber-900 dark:text-amber-200',
+  violet: 'border-violet-300 bg-violet-50 dark:bg-violet-950/40 text-violet-900 dark:text-violet-200',
+  indigo: 'border-indigo-300 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-900 dark:text-indigo-200',
+  slate: 'border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 text-slate-900 dark:text-slate-100',
 };
 const PHASE_DOT: Record<string, string> = {
   emerald: 'bg-emerald-500',
@@ -156,7 +156,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
             aria-label="O que e periodização?"
             // Icone (i) com contraste forte — fundo branco solido + borda
             // current (pega cor da fase). Estado focused: ring suave.
-            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white border border-slate-200 text-current/60 text-[9px] font-bold shadow-sm hover:bg-current/10 hover:text-current hover:border-slate-300 hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/30"
+            className="inline-flex h-3.5 w-3.5 items-center justify-center rounded-full bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-current/60 text-[9px] font-bold shadow-sm hover:bg-current/10 hover:text-current hover:border-slate-300 hover:scale-105 transition focus:outline-none focus-visible:ring-2 focus-visible:ring-current/30"
             onClick={(e) => { e.stopPropagation(); setInfoOpen((v) => !v); }}
           >
             i
@@ -172,27 +172,27 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                   setinha apontando pro (i) e sombra forte pra destacar do card. */}
               <div
                 role="tooltip"
-                className="absolute left-0 top-full z-30 mt-2 w-[290px] rounded-xl border border-slate-200 bg-white text-slate-800 shadow-2xl overflow-hidden"
+                className="absolute left-0 top-full z-30 mt-2 w-[290px] rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 shadow-2xl overflow-hidden"
               >
                 {/* Setinha apontando pro (i) */}
-                <div className="absolute -top-1.5 left-4 h-3 w-3 rotate-45 bg-white border-l border-t border-slate-200" />
+                <div className="absolute -top-1.5 left-4 h-3 w-3 rotate-45 bg-white dark:bg-slate-900 border-l border-t border-slate-200 dark:border-slate-700" />
                 <div className={cn('px-3.5 py-2 border-b font-bold text-sm flex items-center gap-2', color)}>
                   <span className="text-base leading-none">📈</span>
                   <span>Periodização</span>
                 </div>
                 <div className="px-3.5 py-3 text-xs leading-relaxed">
                   <p>
-                    Seu treino <strong className="font-semibold text-slate-900">evolui em fases</strong>. A cada algumas semanas, séries, cargas e RPE mudam
+                    Seu treino <strong className="font-semibold text-slate-900 dark:text-slate-100">evolui em fases</strong>. A cada algumas semanas, séries, cargas e RPE mudam
                     automaticamente pra você continuar progredindo sem estagnar.
                   </p>
-                  <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-slate-100">
-                    <span className="text-[11px] text-slate-500">
+                  <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
+                    <span className="text-[11px] text-slate-500 dark:text-slate-400">
                       Fase {periodization.current_phase_index + 1} de {periodization.phases.length} agora
                     </span>
                     <button
                       type="button"
                       onClick={() => setInfoOpen(false)}
-                      className="text-[11px] font-semibold text-slate-600 hover:text-slate-900"
+                      className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-900"
                     >
                       Entendi
                     </button>
@@ -212,7 +212,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
         </div>
         {isDeload && (
-          <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900">
+          <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900 dark:text-sky-200">
             🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
           </div>
         )}
@@ -251,17 +251,17 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
 
       {nextPhase && (
         <AlertDialog open={confirmAdvance} onOpenChange={(v) => !advancing && setConfirmAdvance(v)}>
-          <AlertDialogContent className="bg-white border-slate-200">
+          <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
             <AlertDialogHeader>
-              <AlertDialogTitle className="text-slate-800">Avançar para {nextPhase.label}?</AlertDialogTitle>
-              <AlertDialogDescription className="text-slate-500">
+              <AlertDialogTitle className="text-slate-800 dark:text-slate-200">Avançar para {nextPhase.label}?</AlertDialogTitle>
+              <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
                 Normalmente as fases avançam <strong>sozinhas</strong> conforme as semanas passam. Só avance
                 manualmente se o seu treinador orientou. Ao confirmar, as cargas e séries da nova fase já
                 passam a valer.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={advancing} className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100">
+              <AlertDialogCancel disabled={advancing} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100">
                 Cancelar
               </AlertDialogCancel>
               <AlertDialogAction
@@ -297,7 +297,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                     <span
                       className={cn(
                         'z-10 flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ring-2 ring-white',
-                        status === 'done' ? 'bg-emerald-500 text-white' : status === 'current' ? `${dot} text-white` : 'bg-slate-200 text-slate-500',
+                        status === 'done' ? 'bg-emerald-500 text-white' : status === 'current' ? `${dot} text-white` : 'bg-slate-200 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
                       )}
                     >
                       {status === 'done' ? '✓' : i + 1}
@@ -305,13 +305,13 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                     <div
                       className={cn(
                         'min-w-0 flex-1 rounded-lg border px-2.5 py-1.5 text-xs',
-                        status === 'current' ? 'border-purple-300 bg-purple-50' : 'border-slate-200 bg-white',
+                        status === 'current' ? 'border-purple-300 bg-purple-50 dark:bg-purple-950/40' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
                         status === 'done' && 'opacity-70',
                       )}
                     >
                       <div className="flex flex-wrap items-center gap-1.5">
-                        <span className="font-semibold text-slate-800">{ph.label}</span>
-                        {duration && <span className="text-slate-400">· {duration}</span>}
+                        <span className="font-semibold text-slate-800 dark:text-slate-200">{ph.label}</span>
+                        {duration && <span className="text-slate-400 dark:text-slate-500">· {duration}</span>}
                         {status === 'current' && (
                           <span className="rounded bg-purple-600 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white">Atual</span>
                         )}
@@ -319,14 +319,14 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                           <span
                             className={cn(
                               'rounded px-1.5 py-0.5 text-[10px] font-bold',
-                              ph.load_pct_change > 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700',
+                              ph.load_pct_change > 0 ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300' : 'bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300',
                             )}
                           >
                             {ph.load_pct_change > 0 ? '↑' : '↓'} carga {ph.load_pct_change > 0 ? '+' : ''}{ph.load_pct_change}%
                           </span>
                         )}
                       </div>
-                      {summary && <div className="mt-0.5 text-slate-500">{summary}</div>}
+                      {summary && <div className="mt-0.5 text-slate-500 dark:text-slate-400">{summary}</div>}
                     </div>
                   </li>
                 );

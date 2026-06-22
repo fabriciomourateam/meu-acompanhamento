@@ -21,11 +21,11 @@ function parseRpe(v: number | string | null | undefined): number | null {
  *  do aluno ler o numero. Verde=baixa, ambar=media, laranja=alta, vermelho=falha. */
 function rpeChipColors(rpe: number | string | null | undefined): string {
   const n = parseRpe(rpe);
-  if (n == null) return 'bg-slate-100 text-slate-500 hover:bg-slate-200 focus:ring-slate-400';
-  if (n >= 10) return 'bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-400';
-  if (n >= 9) return 'bg-orange-100 text-orange-700 hover:bg-orange-200 focus:ring-orange-400';
-  if (n >= 8) return 'bg-amber-100 text-amber-700 hover:bg-amber-200 focus:ring-amber-400';
-  return 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200 focus:ring-emerald-400';
+  if (n == null) return 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-200 focus:ring-slate-400';
+  if (n >= 10) return 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 hover:bg-red-200 focus:ring-red-400';
+  if (n >= 9) return 'bg-orange-100 dark:bg-orange-950/50 text-orange-700 dark:text-orange-300 hover:bg-orange-200 focus:ring-orange-400';
+  if (n >= 8) return 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 hover:bg-amber-200 focus:ring-amber-400';
+  return 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-200 focus:ring-emerald-400';
 }
 
 interface SetRowProps {
@@ -96,16 +96,16 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
   };
 
   const baseInput =
-    'h-11 text-center font-semibold tabular-nums bg-white border-slate-300 text-slate-900 placeholder:text-slate-400 placeholder:font-normal ' +
+    'h-11 text-center font-semibold tabular-nums bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal ' +
     'focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400';
-  const stepBtn = 'hidden sm:inline-flex h-11 w-9 p-0 shrink-0 border-slate-300 bg-white text-slate-600 hover:bg-slate-100 hover:text-slate-900';
+  const stepBtn = 'hidden sm:inline-flex h-11 w-9 p-0 shrink-0 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-900';
 
   return (
     <div
       className={`grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] items-center gap-1.5 sm:gap-2 p-1.5 ${
         flush
-          ? `rounded-t-lg ${value.done ? 'bg-emerald-50' : 'bg-slate-50'}`
-          : `rounded-lg border ${value.done ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`
+          ? `rounded-t-lg ${value.done ? 'bg-emerald-50 dark:bg-emerald-950/40' : 'bg-slate-50 dark:bg-slate-900'}`
+          : `rounded-lg border ${value.done ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-900/50' : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700'}`
       }`}
     >
       {/* Mini-cartão da série: número + alvo de reps (estilo MyShape) */}
@@ -126,13 +126,13 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
             value.done
               ? 'bg-emerald-600 text-white'
-              : 'bg-blue-50 text-blue-700 ring-1 ring-blue-200'
+              : 'bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 ring-1 ring-blue-200'
           }`}
         >
           {index + 1}
         </span>
         {defaultRepsLabel != null && (
-          <span className="mt-1 text-[9px] font-medium text-slate-400">Alvo: {defaultRepsLabel}</span>
+          <span className="mt-1 text-[9px] font-medium text-slate-400 dark:text-slate-500">Alvo: {defaultRepsLabel}</span>
         )}
       </div>
 
@@ -211,7 +211,7 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         className={`h-11 w-11 p-0 shrink-0 ${
           value.done
             ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
-            : 'bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
+            : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 shadow-none'
         }`}
         onClick={handleDone}
         aria-label={value.done ? 'Série feita' : 'Marcar série feita'}

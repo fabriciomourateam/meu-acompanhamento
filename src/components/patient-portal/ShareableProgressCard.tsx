@@ -85,7 +85,7 @@ export function ShareableProgressCard({ trainerProfile, patientName, stats, port
         </div>
 
         {portalUrl && (
-          <div className="absolute bottom-6 right-6 rounded bg-white p-1">
+          <div className="absolute bottom-6 right-6 rounded bg-white dark:bg-slate-900 p-1">
             <QRCodeSVG value={portalUrl} size={48} />
           </div>
         )}

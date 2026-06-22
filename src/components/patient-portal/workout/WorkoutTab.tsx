@@ -52,21 +52,21 @@ function PlanHeader({
   const freq = ci > 0 ? raw.slice(ci + 1).trim() : '';
   const isSelector = !!(onPrev || onNext);
   return (
-    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 bg-white px-2 py-1.5 text-sm text-slate-700 shadow-sm">
+    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm">
       {isSelector ? (
         <button
           type="button"
           onClick={onPrev}
           aria-label="Plano anterior"
-          className="shrink-0 rounded-full p-1.5 text-emerald-700 transition-colors hover:bg-emerald-50"
+          className="shrink-0 rounded-full p-1.5 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-50"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
       ) : null}
       <div className="flex-1 min-w-0 text-center">
-        <span className="font-bold text-slate-800">{title}</span>{freq ? `: ${freq}` : ''}
+        <span className="font-bold text-slate-800 dark:text-slate-200">{title}</span>{freq ? `: ${freq}` : ''}
         {positionLabel && (
-          <span className="ml-2 text-[11px] font-medium text-slate-400">{positionLabel}</span>
+          <span className="ml-2 text-[11px] font-medium text-slate-400 dark:text-slate-500">{positionLabel}</span>
         )}
       </div>
       {isSelector ? (
@@ -74,7 +74,7 @@ function PlanHeader({
           type="button"
           onClick={onNext}
           aria-label="Próximo plano"
-          className="shrink-0 rounded-full p-1.5 text-emerald-700 transition-colors hover:bg-emerald-50"
+          className="shrink-0 rounded-full p-1.5 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-50"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -240,11 +240,11 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
   if (!hub?.plan) {
     return (
-      <Card className="bg-white border-slate-200 shadow-sm">
+      <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm">
         <CardContent className="p-8 text-center space-y-3">
           <Dumbbell className="w-12 h-12 mx-auto text-slate-300" />
-          <h3 className="font-semibold text-slate-700">Nenhum treino liberado</h3>
-          <p className="text-sm text-slate-500">Seu treinador ainda não liberou um plano. Assim que ele liberar, ele aparece aqui.</p>
+          <h3 className="font-semibold text-slate-700 dark:text-slate-200">Nenhum treino liberado</h3>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Seu treinador ainda não liberou um plano. Assim que ele liberar, ele aparece aqui.</p>
         </CardContent>
       </Card>
     );
@@ -258,7 +258,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
       <div className="space-y-3">
         <button
           onClick={() => setOpenSessionId(null)}
-          className="flex items-center gap-1 text-sm font-medium text-slate-600 hover:text-slate-900"
+          className="flex items-center gap-1 text-sm font-medium text-slate-600 dark:text-slate-400 hover:text-slate-900"
         >
           <ChevronLeft className="h-4 w-4" /> Voltar pros treinos
         </button>
@@ -294,18 +294,18 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
       />
 
       <Tabs value={subtab} onValueChange={(v) => setSubtab(v as typeof subtab)}>
-        <TabsList className="grid w-full grid-cols-3 bg-slate-100 p-1 rounded-lg h-auto">
-          <TabsTrigger value="workouts" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg h-auto">
+          <TabsTrigger value="workouts" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
             <Dumbbell className="h-4 w-4 mr-1.5" />
             Treinos
             {workoutSessions.length > 1 && <span className="ml-1 text-xs opacity-70">{workoutSessions.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="cardios" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
+          <TabsTrigger value="cardios" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
             <HeartPulse className="h-4 w-4 mr-1.5" />
             Cardios
             {cardioSessions.length > 1 && <span className="ml-1 text-xs opacity-70">{cardioSessions.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
             <BarChart3 className="h-4 w-4 mr-1.5" />
             Análise
           </TabsTrigger>
@@ -334,7 +334,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
           )}
 
           {workoutSessions.length === 0 ? (
-            <p className="py-6 text-center text-sm italic text-slate-500">Nenhum treino cadastrado neste plano.</p>
+            <p className="py-6 text-center text-sm italic text-slate-500 dark:text-slate-400">Nenhum treino cadastrado neste plano.</p>
           ) : (
             workoutSessions.map((s, i) => {
               // Evita subtitulo identico ao titulo (caso comum: 'Quadriceps + Gluteos'
@@ -344,16 +344,16 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
                 <button
                   key={s.id}
                   onClick={() => setOpenSessionId(s.id)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 bg-white p-3 text-left shadow-sm transition hover:border-blue-300 hover:shadow"
+                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-left shadow-sm transition hover:border-blue-300 hover:shadow"
                 >
                   <span className="inline-flex shrink-0 items-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-2.5 py-1 text-xs font-bold text-white">
                     {sessionBadge(plan.session_naming_style, i, s.day_of_week)}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <div className="truncate font-semibold text-slate-800">{s.name}</div>
-                    {showFocus && <div className="truncate text-xs text-slate-500">{s.focus}</div>}
+                    <div className="truncate font-semibold text-slate-800 dark:text-slate-200">{s.name}</div>
+                    {showFocus && <div className="truncate text-xs text-slate-500 dark:text-slate-400">{s.focus}</div>}
                   </div>
-                  <span className="shrink-0 text-xs text-slate-400">{s.exercises.length} exec.</span>
+                  <span className="shrink-0 text-xs text-slate-400 dark:text-slate-500">{s.exercises.length} exec.</span>
                 </button>
               );
             })
@@ -371,17 +371,17 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
       {/* Portão de adesão antes de uma fase de Força */}
       <Dialog open={!!forcaGate} onOpenChange={(o) => !o && !gateBusy && setForcaGate(null)}>
-        <DialogContent className="bg-white border-slate-200 text-slate-900">
+        <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" /> Pronto pra avançar pra Força?
             </DialogTitle>
           </DialogHeader>
-          <div className="space-y-3 text-sm text-slate-600">
+          <div className="space-y-3 text-sm text-slate-600 dark:text-slate-400">
             <p>
-              Sua adesão nas últimas semanas foi de <strong className="text-slate-900">{forcaGate?.adherence ?? 0}%</strong>.
+              Sua adesão nas últimas semanas foi de <strong className="text-slate-900 dark:text-slate-100">{forcaGate?.adherence ?? 0}%</strong>.
             </p>
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-amber-900">
+            <div className="rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50 dark:bg-amber-950/40 p-3 text-amber-900 dark:text-amber-200">
               ⚠️ Você completou menos de 50% dos treinos previstos. A fase de Força aumenta a carga (+10%) —
               recomendamos repetir a fase atual por mais uma semana antes de avançar.
             </div>
@@ -391,7 +391,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
               variant="outline"
               onClick={() => void handleRepeatPhase()}
               disabled={gateBusy}
-              className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100"
+              className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100"
             >
               Repetir a semana
             </Button>
