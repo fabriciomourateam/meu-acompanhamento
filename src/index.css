@@ -41,6 +41,12 @@
 /* Modern Personal Trainer Dashboard Design System */
 @layer base {
   :root {
+    /* O portal é renderizado em tema claro (cores claras explícitas nos
+       componentes). Forçamos color-scheme: light para que navegadores com
+       "modo escuro para sites" (Chrome Android / força-escuro) não auto-invertam
+       as cores — sem isso, o aluno com o celular em modo escuro vê o app escuro. */
+    color-scheme: only light;
+
     /* Premium Dark Theme - Cinzas Escuros e Dourados */
     --background: 240 10% 3.9%;
     --foreground: 0 0% 98%;
