@@ -21,8 +21,9 @@
       try {
         var t = localStorage.getItem('ma-theme');
         var r = document.documentElement;
+        var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         // Claro (padrão) = sem classe nenhuma, idêntico ao app de hoje.
-        if (t === 'dark') { r.classList.add('dark'); r.style.colorScheme = 'dark'; }
+        if (dark) { r.classList.add('dark'); r.style.colorScheme = 'dark'; }
         else { r.style.colorScheme = 'only light'; }
       } catch (e) {}
     })();

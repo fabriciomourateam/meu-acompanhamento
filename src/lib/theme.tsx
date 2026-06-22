@@ -1,18 +1,32 @@
-import { createContext, useContext, useEffect, useState, useCallback } from "react";
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 
-export type Theme = "light" | "dark";
+// Modo escolhido pelo aluno. "system" segue o aparelho; "light" é o fallback/padrão.
+export type ThemeMode = "light" | "dark" | "system";
+// Tema realmente aplicado na tela.
+export type ResolvedTheme = "light" | "dark";
 
 const STORAGE_KEY = "ma-theme";
 
+function systemPrefersDark(): boolean {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches;
+}
+
+function resolve(mode: ThemeMode): ResolvedTheme {
+  if (mode === "system") return systemPrefersDark() ? "dark" : "light";
+  return mode;
+}
+
 /**
  * Aplica o tema no <html>:
- * - light (padrão): NENHUMA classe nova — fica idêntico ao app de produção de hoje.
+ * - light: NENHUMA classe nova — idêntico ao app de produção de hoje.
  * - dark: classe `dark` (ativa os `dark:` do Tailwind) + variáveis escuras do `:root`.
- * Mantemos `color-scheme` coerente pra o navegador não auto-inverter.
+ * `color-scheme` é declarado explicitamente pra o navegador/SO NÃO forçar
+ * auto-dark/inversão por conta própria (Chrome Android Auto Dark, etc.).
  */
-function applyTheme(theme: Theme) {
+function applyResolved(resolved: ResolvedTheme) {
   const root = document.documentElement;
-  if (theme === "dark") {
+  if (resolved === "dark") {
     root.classList.add("dark");
     root.style.colorScheme = "dark";
   } else {
@@ -21,43 +35,66 @@ function applyTheme(theme: Theme) {
   }
 }
 
-function getInitialTheme(): Theme {
+function getInitialMode(): ThemeMode {
   if (typeof window === "undefined") return "light";
   const saved = window.localStorage.getItem(STORAGE_KEY);
-  // Padrão é SEMPRE claro; só fica escuro se o aluno escolheu explicitamente.
-  return saved === "dark" ? "dark" : "light";
+  if (saved === "dark" || saved === "light" || saved === "system") return saved;
+  // Padrão é SEMPRE claro; só muda se o aluno escolher.
+  return "light";
 }
 
 type ThemeContextValue = {
-  theme: Theme;
-  setTheme: (t: Theme) => void;
+  /** Modo escolhido: light | dark | system */
+  mode: ThemeMode;
+  /** Tema efetivamente aplicado: light | dark */
+  resolvedTheme: ResolvedTheme;
+  setMode: (m: ThemeMode) => void;
+  /** Alterna rápido entre claro e escuro (ignora system). */
   toggleTheme: () => void;
 };
 
 const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>(getInitialTheme);
+  const [mode, setModeState] = useState<ThemeMode>(getInitialMode);
+  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() => resolve(getInitialMode()));
+  const mediaRef = useRef<MediaQueryList | null>(null);
 
+  // Aplica sempre que o tema resolvido muda.
   useEffect(() => {
-    applyTheme(theme);
-  }, [theme]);
+    applyResolved(resolvedTheme);
+  }, [resolvedTheme]);
 
-  const setTheme = useCallback((t: Theme) => {
-    setThemeState(t);
+  // No modo "system", escuta mudanças do aparelho em tempo real.
+  useEffect(() => {
+    if (mode !== "system") {
+      setResolvedTheme(resolve(mode));
+      return;
+    }
+    setResolvedTheme(systemPrefersDark() ? "dark" : "light");
+    if (!window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    mediaRef.current = mq;
+    const onChange = (e: MediaQueryListEvent) => setResolvedTheme(e.matches ? "dark" : "light");
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [mode]);
+
+  const setMode = useCallback((m: ThemeMode) => {
+    setModeState(m);
     try {
-      window.localStorage.setItem(STORAGE_KEY, t);
+      window.localStorage.setItem(STORAGE_KEY, m);
     } catch {
       /* localStorage indisponível (modo privado) — ok, segue só na sessão */
     }
   }, []);
 
   const toggleTheme = useCallback(() => {
-    setTheme(theme === "dark" ? "light" : "dark");
-  }, [theme, setTheme]);
+    setMode(resolvedTheme === "dark" ? "light" : "dark");
+  }, [resolvedTheme, setMode]);
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
+    <ThemeContext.Provider value={{ mode, resolvedTheme, setMode, toggleTheme }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -67,7 +104,7 @@ export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
   if (!ctx) {
     // Fallback seguro se algo for renderizado fora do provider.
-    return { theme: "light", setTheme: () => {}, toggleTheme: () => {} };
+    return { mode: "light", resolvedTheme: "light", setMode: () => {}, toggleTheme: () => {} };
   }
   return ctx;
 }
