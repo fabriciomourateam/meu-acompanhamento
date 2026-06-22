@@ -53,7 +53,7 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId 
 
   return (
     <div
-      className={`rounded-lg border bg-amber-50/60 dark:bg-amber-950/25 overflow-hidden transition-all ${
+      className={`rounded-lg border bg-amber-50/60 dark:bg-slate-900 overflow-hidden transition-all ${
         seen ? 'border-amber-200 dark:border-amber-900/50' : 'border-amber-300 ring-2 ring-amber-300/40 animate-pulse-soft'
       }`}
     >
