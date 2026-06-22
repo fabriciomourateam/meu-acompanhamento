@@ -561,11 +561,11 @@ canvas {
    estes hexes. Usamos `html.dark` p/ ganhar especificidade do utilitário.
    ============================================================ */
 .dark {
-  --d-bg: #0b141a;          /* fundo da página (mais profundo) */
-  --d-surface: #111b21;     /* cards */
-  --d-elevated: #202c33;    /* superfícies elevadas / nested / hover */
-  --d-border: #2a3942;      /* bordas */
-  --d-border-subtle: #1f2a30;
+  --d-bg: #080f13;          /* fundo da página (mais profundo p/ os cards "saltarem") */
+  --d-surface: #151f27;     /* cards — um tom acima do fundo, com leve presença */
+  --d-elevated: #1f2b33;    /* superfícies elevadas / nested / hover */
+  --d-border: #2d3c46;      /* bordas mais definidas (dão contorno premium ao card) */
+  --d-border-subtle: #1d282f;
   --d-text: #e9edef;        /* texto primário */
   --d-text-2: #cdd6db;      /* secundário forte */
   --d-text-muted: #8696a0;  /* secundário */
@@ -575,6 +575,10 @@ html.dark .dark\:bg-slate-950 { background-color: var(--d-bg); }
 html.dark .dark\:bg-slate-900 { background-color: var(--d-surface); }
 html.dark .dark\:bg-slate-800 { background-color: var(--d-elevated); }
 html.dark .dark\:\!bg-slate-900 { background-color: var(--d-surface) !important; }
+/* Realce sutil no topo do card (profundidade premium) sem sombra/gradiente que
+   conflite — borda interna clara de 1px só no topo. */
+html.dark .dark\:bg-slate-900,
+html.dark .dark\:\!bg-slate-900 { box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04); }
 html.dark .dark\:border-slate-700 { border-color: var(--d-border); }
 html.dark .dark\:border-slate-800 { border-color: var(--d-border-subtle); }
 html.dark .dark\:text-slate-100 { color: var(--d-text); }
