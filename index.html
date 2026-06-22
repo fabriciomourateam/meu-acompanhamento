@@ -15,6 +15,17 @@
        impede que navegadores com "modo escuro para sites" (ex.: Chrome Android,
        força-escuro) auto-invertam as cores e deixem o app escuro no aparelho do aluno. -->
   <meta name="color-scheme" content="only light" />
+  <!-- Aplica o tema escolhido (padrão claro) antes do React montar, evitando flash. -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('ma-theme');
+        var r = document.documentElement;
+        if (t === 'dark') { r.classList.add('dark'); r.style.colorScheme = 'dark'; }
+        else { r.classList.add('theme-light'); r.style.colorScheme = 'only light'; }
+      } catch (e) {}
+    })();
+  </script>
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="My Shape" />

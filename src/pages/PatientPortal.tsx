@@ -67,6 +67,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { WeightInput } from '@/components/evolution/WeightInput';
 import { StreakHeader } from '@/components/patient-portal/StreakHeader';
+import { ThemeToggleMenuItem } from '@/components/patient-portal/ThemeToggleMenuItem';
 import { PatientNotifications } from '@/components/patient-portal/PatientNotifications';
 import { EnableNotificationsBanner } from '@/components/patient-portal/EnableNotificationsBanner';
 import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
@@ -1091,7 +1092,7 @@ export default function PatientPortal() {
         />
       )}
       {/* Fundo "clean com respiro verde": base clara + brilho emerald descendo do topo */}
-      <div className="absolute inset-0 bg-slate-50">
+      <div className="absolute inset-0 bg-slate-50 dark:bg-slate-950">
         {/* respiro verde vindo do topo (conversa com o header) */}
         <div className="absolute inset-0 bg-[radial-gradient(120%_55%_at_50%_-8%,rgba(16,185,129,0.16),transparent_60%)]" />
         {/* leve profundidade teal no rodapé */}
@@ -1112,11 +1113,11 @@ export default function PatientPortal() {
             className={
               levelData?.current_color
                 ? `rounded-2xl p-[1.5px] bg-gradient-to-br ${levelData.current_color} shadow-sm`
-                : 'rounded-2xl border border-slate-200 shadow-sm'
+                : 'rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm'
             }
           >
           <div
-            className="rounded-[14px] bg-white px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
+            className="rounded-[14px] bg-white dark:bg-slate-900 px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
               {patientId && (
@@ -1178,7 +1179,7 @@ export default function PatientPortal() {
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700 w-64 shadow-lg">
+                <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 w-64 shadow-lg">
                   {/* Área de Membros: mini-card dourado em destaque no topo do menu
                       (só para alunos do dono). Leva ao portal externo de conteúdos. */}
                   {isOwnerPatient(patient) && (
@@ -1238,6 +1239,9 @@ export default function PatientPortal() {
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Atualizar dados
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                  {/* Alternar tema claro/escuro (padrão é claro). */}
+                  <ThemeToggleMenuItem />
                   <DropdownMenuItem
                     onClick={handleLogout}
                     className="text-red-600 hover:bg-red-50 cursor-pointer py-2.5"
