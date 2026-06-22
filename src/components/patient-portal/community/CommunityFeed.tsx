@@ -188,7 +188,7 @@ export function CommunityFeed({
           onClick={() => load(false)}
           disabled={refreshing}
           title="Atualizar"
-          className="shrink-0 rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+          className="shrink-0 rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700"
         >
           <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin')} />
         </button>
@@ -230,7 +230,7 @@ export function CommunityFeed({
               </button>
               <button
                 onClick={() => setCategory('all')}
-                className="rounded-full border border-slate-200 dark:border-slate-700 px-4 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 transition-colors hover:bg-slate-50"
+                className="rounded-full border border-slate-200 dark:border-slate-700 px-4 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 Ver tudo
               </button>

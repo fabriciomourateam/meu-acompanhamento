@@ -207,7 +207,7 @@ export function UnilateralSetRow({ index, done, pair, defaultReps, defaultWeight
             className={`h-10 w-10 p-0 ${
               done
                 ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
-                : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50'
+                : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50'
             }`}
             onClick={handleDone}
             aria-label={done ? 'Série feita' : 'Marcar série feita'}

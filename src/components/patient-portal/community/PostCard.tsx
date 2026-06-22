@@ -133,7 +133,7 @@ export function PostCard({
           <p className="text-[11px] text-slate-400 dark:text-slate-500">{timeAgo(post.created_at)}</p>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-full p-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 hover:text-slate-600">
+          <DropdownMenuTrigger className="rounded-full p-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600">
             <MoreVertical className="h-4 w-4" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
@@ -182,15 +182,15 @@ export function PostCard({
           className={cn(
             'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
             post.my_reactions.length > 0
-              ? 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50'
-              : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100',
+              ? 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+              : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
           )}
         >
           <SmilePlus className="h-4 w-4" /> Reagir
         </button>
         <button
           onClick={() => setShowComments((v) => !v)}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
         >
           <MessageCircle className="h-4 w-4" />
           {post.comment_count > 0 ? post.comment_count : ''} Comentar
@@ -198,7 +198,7 @@ export function PostCard({
         <button
           onClick={handleShare}
           disabled={sharing}
-          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100"
+          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
           title="Compartilhar como imagem"
         >
           {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
@@ -250,7 +250,7 @@ export function PostCard({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100">
+            <AlertDialogCancel className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-rose-500 text-white hover:bg-rose-600">

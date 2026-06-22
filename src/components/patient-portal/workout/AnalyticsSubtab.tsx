@@ -26,11 +26,11 @@ export function AnalyticsSubtab({ token, planId, patientName }: AnalyticsSubtabP
     <div className="space-y-3">
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
         <TabsList className="grid w-full grid-cols-5 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg h-auto">
-          <TabsTrigger value="calendar" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
-          <TabsTrigger value="volume" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
-          <TabsTrigger value="groups" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
-          <TabsTrigger value="rpe" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
-          <TabsTrigger value="adherence" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
+          <TabsTrigger value="calendar" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
+          <TabsTrigger value="volume" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
+          <TabsTrigger value="groups" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
+          <TabsTrigger value="rpe" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
+          <TabsTrigger value="adherence" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
         </TabsList>
         <TabsContent value="calendar" className="mt-3"><CalendarView token={token} /></TabsContent>
         <TabsContent value="volume" className="mt-3"><VolumeChart token={token} /></TabsContent>
@@ -77,7 +77,7 @@ function ShareProgressSection({ token, planId, patientName }: { token: string; p
 
   return (
     <>
-      <Button onClick={() => void handleOpen()} variant="outline" className="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100">
+      <Button onClick={() => void handleOpen()} variant="outline" className="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
         <Share2 className="mr-1.5 h-4 w-4" /> Compartilhar progresso
       </Button>
 

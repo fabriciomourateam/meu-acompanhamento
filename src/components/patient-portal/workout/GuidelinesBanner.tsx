@@ -47,13 +47,13 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId 
 
   return (
     <div
-      className={`rounded-lg border bg-amber-50/60 overflow-hidden transition-all ${
+      className={`rounded-lg border bg-amber-50/60 dark:bg-amber-950/60 overflow-hidden transition-all ${
         seen ? 'border-amber-200 dark:border-amber-900/50' : 'border-amber-300 ring-2 ring-amber-300/40 animate-pulse-soft'
       }`}
     >
       <button
         onClick={handleClick}
-        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40"
+        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40 dark:hover:bg-amber-900/40"
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
           📌 Orientações importantes

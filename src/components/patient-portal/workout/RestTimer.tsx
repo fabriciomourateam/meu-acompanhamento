@@ -127,7 +127,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
             <Button
               size="sm"
               variant="ghost"
-              className="text-white hover:bg-white/15 h-9 w-9 p-0 shrink-0"
+              className="text-white hover:bg-white/15 dark:hover:bg-slate-800/15 h-9 w-9 p-0 shrink-0"
               onClick={() => onDoneRef.current()}
               aria-label="Pular descanso"
             >

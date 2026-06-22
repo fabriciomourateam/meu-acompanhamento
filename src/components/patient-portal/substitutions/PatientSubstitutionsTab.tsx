@@ -248,7 +248,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
             type="button"
             onClick={() => setSearch("")}
             aria-label="Limpar busca"
-            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 dark:text-slate-500 transition hover:bg-slate-100 hover:text-slate-700"
+            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 text-slate-400 dark:text-slate-500 transition hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700"
           >
             <X className="h-4 w-4" />
           </button>
@@ -309,7 +309,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
           <button
             type="button"
             onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
-            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-4 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
+            className="inline-flex items-center gap-1.5 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-4 py-1.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400"
           >
             Carregar mais
             <span className="text-[10px] font-normal text-slate-400 dark:text-slate-500">

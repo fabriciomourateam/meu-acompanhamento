@@ -113,7 +113,7 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
                   key={n}
                   type="button"
                   onClick={() => setRating(n)}
-                  className="p-1.5 rounded-md hover:bg-slate-100"
+                  className="p-1.5 rounded-md hover:bg-slate-100 dark:hover:bg-slate-800"
                   aria-label={`Nota ${n}`}
                 >
                   <Star className={`w-7 h-7 ${rating != null && n <= rating ? 'fill-amber-400 text-amber-400' : 'text-slate-300'}`} />
@@ -158,14 +158,14 @@ export function FinishSessionDialog({ open, onOpenChange, doneSets, totalVolumeK
           <button
             type="button"
             onClick={handleShareSocial}
-            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50"
+            className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 transition hover:bg-slate-50 dark:hover:bg-slate-800"
           >
             <Share2 className="h-3.5 w-3.5 text-violet-500" /> Compartilhar nas redes sociais
           </button>
         </div>
 
         <div className="flex gap-2 justify-end">
-          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={busy} className="text-slate-600 dark:text-slate-400 hover:bg-slate-100 hover:text-slate-900">Cancelar</Button>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={busy} className="text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900">Cancelar</Button>
           <Button onClick={handle} disabled={busy} className="bg-emerald-600 hover:bg-emerald-700 text-white">
             {busy ? 'Salvando…' : 'Finalizar'}
           </Button>

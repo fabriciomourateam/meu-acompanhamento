@@ -74,7 +74,7 @@ export function SubstituteExerciseDialog({
             <button
               key={v.id}
               onClick={() => handleSelect(v)}
-              className="flex items-center gap-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-left transition hover:border-amber-300 hover:bg-amber-50/50 hover:shadow-sm"
+              className="flex items-center gap-2 rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-left transition hover:border-amber-300 hover:bg-amber-50/50 dark:hover:bg-amber-950/40 hover:shadow-sm"
             >
               {v.thumbnail_url ? (
                 <img src={v.thumbnail_url} alt="" className="h-12 w-12 rounded object-cover" crossOrigin="anonymous" />

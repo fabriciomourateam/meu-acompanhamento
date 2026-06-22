@@ -143,7 +143,7 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
           <h3 className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Prescritos pelo trainer</h3>
           <div className="space-y-2">
             {prescribedSessions.map((s) => (
-              <div key={s.id} className="rounded-lg border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 p-3">
+              <div key={s.id} className="rounded-lg border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 dark:bg-cyan-950/40 p-3">
                 <div className="font-medium text-cyan-900 dark:text-cyan-200">{s.name}</div>
                 {s.notes && (
                   <div className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 dark:text-cyan-300 prose-p:my-1" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(s.notes) }} />
@@ -162,14 +162,14 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
         <div className="mb-2 flex items-center justify-between">
           <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Histórico</h3>
           <div className="flex items-center gap-1">
-            <button onClick={() => shiftMonth(-1)} className="rounded p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100" aria-label="Mês anterior">
+            <button onClick={() => shiftMonth(-1)} className="rounded p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Mês anterior">
               <ChevronLeft className="h-4 w-4" />
             </button>
             <span className="min-w-[7.5rem] text-center text-xs font-medium capitalize text-slate-600 dark:text-slate-400">{monthLabel}</span>
             <button
               onClick={() => shiftMonth(1)}
               disabled={isCurrentMonth}
-              className="rounded p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 disabled:opacity-30"
+              className="rounded p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30"
               aria-label="Próximo mês"
             >
               <ChevronRight className="h-4 w-4" />
@@ -507,7 +507,7 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100">Cancelar</Button>
+          <Button variant="outline" onClick={onClose} className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</Button>
           <Button onClick={() => void handleSave()} disabled={saving || !duration} className="bg-cyan-600 text-white hover:bg-cyan-700">
             {saving ? 'Salvando…' : 'Salvar'}
           </Button>

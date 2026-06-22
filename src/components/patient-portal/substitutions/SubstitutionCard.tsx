@@ -56,7 +56,7 @@ export function SubstitutionCard({ original, referenceGrams, sub }: Substitution
           onClick={handleShare}
           title="Compartilhar no WhatsApp"
           aria-label="Compartilhar no WhatsApp"
-          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition hover:bg-emerald-100 hover:text-emerald-700"
+          className="absolute right-3 top-3 z-10 flex h-8 w-8 items-center justify-center rounded-full bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 transition hover:bg-emerald-100 dark:hover:bg-emerald-900/40 hover:text-emerald-700"
           style={{ top: isLowSimilarity ? '3.25rem' : '0.75rem' }}
         >
           <Share2 className="h-4 w-4" />

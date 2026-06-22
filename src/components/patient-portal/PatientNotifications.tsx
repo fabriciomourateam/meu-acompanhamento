@@ -264,7 +264,7 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
             className={`h-7 rounded-lg px-3 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50 ${
               subscribed
                 ? 'bg-emerald-600 text-white hover:bg-emerald-700'
-                : 'border border-emerald-300 bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50'
+                : 'border border-emerald-300 bg-white dark:bg-slate-900 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
             }`}
           >
             {subscribed ? 'Ativado' : 'Ativar'}
@@ -286,8 +286,8 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
               <li key={n.id}>
                 <button
                   onClick={() => handleClickItem(n)}
-                  className={`flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-slate-50 ${typeAccent(n.type)} ${
-                    n.read ? '' : 'bg-emerald-50/60'
+                  className={`flex w-full flex-col items-start gap-0.5 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${typeAccent(n.type)} ${
+                    n.read ? '' : 'bg-emerald-50/60 dark:bg-emerald-500/10'
                   }`}
                 >
                   <div className="flex w-full items-center justify-between gap-2">
@@ -310,7 +310,7 @@ export function PatientNotifications({ patientId }: PatientNotificationsProps) {
         ref={btnRef}
         onClick={toggleOpen}
         aria-label="Notificações"
-        className="relative inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/60 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-100"
+        className="relative inline-flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/60 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
       >
         {unread > 0 ? <BellRing className="h-4 w-4 sm:h-5 sm:w-5" /> : <Bell className="h-4 w-4 sm:h-5 sm:w-5" />}
         {unread > 0 && (

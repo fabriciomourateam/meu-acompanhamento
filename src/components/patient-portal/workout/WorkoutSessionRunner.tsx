@@ -644,7 +644,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
           (workout_sessions.notes). Texto puro com quebras de linha preservadas.
           Aparece antes da lista de exercicios pra o aluno ler antes de comecar. */}
       {session.notes && session.notes.trim() && (
-        <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/70 p-3">
+        <div className="rounded-xl border border-amber-200 dark:border-amber-900/50 bg-amber-50/70 dark:bg-amber-950/70 p-3">
           <div className="flex items-start gap-2">
             <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
             <div className="flex-1 min-w-0">
@@ -734,7 +734,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             return (
               <div
                 key={g.key}
-                className="rounded-xl border-2 border-sky-200 dark:border-sky-900/50 bg-sky-50/60 p-2 space-y-2"
+                className="rounded-xl border-2 border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/60 p-2 space-y-2"
               >
                 <div className="flex items-center gap-2 px-1 text-[11px] font-semibold text-sky-700 dark:text-sky-300">
                   <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 dark:bg-sky-950/50 px-2 py-0.5">
@@ -766,7 +766,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={resetting} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100">
+            <AlertDialogCancel disabled={resetting} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction

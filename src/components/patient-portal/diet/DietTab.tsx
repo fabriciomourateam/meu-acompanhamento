@@ -90,7 +90,7 @@ function OptionBadge() {
         onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
         aria-expanded={open}
         aria-label="O que e uma refeicao opcao?"
-        className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
+        className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-100 dark:hover:bg-emerald-900/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
       >
         <RefreshCw className="w-3 h-3" />
         Opção
@@ -460,7 +460,7 @@ export function DietTab({
             {showMeals && (
               <TabsTrigger
                 value="meals"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all"
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all"
               >
                 Plano Alimentar
               </TabsTrigger>
@@ -468,7 +468,7 @@ export function DietTab({
             {showSupplements && (
               <TabsTrigger
                 value="supplements"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all"
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all"
               >
                 Suplementos
               </TabsTrigger>
@@ -476,7 +476,7 @@ export function DietTab({
             {showSubstitutions && (
               <TabsTrigger
                 value="substitutions"
-                className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all"
+                className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all"
               >
                 Substituições
               </TabsTrigger>
@@ -597,7 +597,7 @@ export function DietTab({
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
                           {diet.releasedPlans.map((plan: any) => (
-                            <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-100 focus:bg-slate-100 cursor-pointer">
+                            <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 cursor-pointer">
                               <div className="flex items-center gap-2">
                                 <Utensils className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                 <span className="truncate">{plan.name}</span>
@@ -728,7 +728,7 @@ export function DietTab({
                                           ? `${st} - ${et}`
                                           : st || (sg ? sg.slice(0, 5) : null);
                                         return label && !showAsOption ? (
-                                          <Badge className={`flex-shrink-0 text-xs sm:text-sm font-semibold border tabular-nums whitespace-nowrap ${isConsumed ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50' : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'}`}>
+                                          <Badge className={`flex-shrink-0 text-xs sm:text-sm font-semibold border tabular-nums whitespace-nowrap ${isConsumed ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50' : '!bg-emerald-50 dark:!bg-emerald-950/40 !text-emerald-600 dark:!text-emerald-400 !border-emerald-100 dark:!border-emerald-900/40'}`}>
                                             {label}
                                           </Badge>
                                         ) : null;
@@ -756,7 +756,7 @@ export function DietTab({
                                           type="button"
                                           onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, meal.id); }}
                                           title="Usar esta opção no lugar da refeição principal hoje"
-                                          className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50"
+                                          className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
                                         >
                                           <ArrowLeftRight className="w-3 h-3" />
                                           Usar hoje
@@ -767,7 +767,7 @@ export function DietTab({
                                           type="button"
                                           onClick={(e) => { e.stopPropagation(); setPrimaryChoice(principalId, principalId); }}
                                           title="Desfazer a troca e voltar à refeição original"
-                                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-50"
+                                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
                                         >
                                           <RefreshCw className="w-3 h-3" />
                                           Desfazer
@@ -775,7 +775,7 @@ export function DietTab({
                                       )}
                                       <Badge className={`text-xs sm:text-sm font-semibold border hidden sm:inline-flex ${isConsumed
                                         ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-900/50'
-                                        : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
+                                        : '!bg-emerald-50 dark:!bg-emerald-950/40 !text-emerald-600 dark:!text-emerald-400 !border-emerald-100 dark:!border-emerald-900/40'
                                         }`}>
                                         {mealConsumedKcal.toFixed(0)} / {(mealTotals.calorias || 0).toFixed(0)} kcal
                                       </Badge>
@@ -790,7 +790,7 @@ export function DietTab({
                                         // Reduz o "ruído verde" da tela inteira com vários cards.
                                         className={`w-7 h-7 sm:w-8 sm:h-8 p-0 rounded-full transition-all duration-200 min-h-[36px] min-w-[36px] ${isConsumed
                                           ? 'bg-emerald-500 hover:bg-emerald-600 text-white shadow-sm'
-                                          : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 shadow-none'
+                                          : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 shadow-none'
                                           }`}
                                       >
                                         {isConsumed ? (
@@ -900,7 +900,7 @@ export function DietTab({
                                                         setSubstitutionsModalOpen(true);
                                                       }}
                                                       title="Ver alimentos substitutos com porções equivalentes"
-                                                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
+                                                      className="inline-flex items-center gap-1 rounded-full border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-0.5 text-[11px] font-medium text-emerald-600 dark:text-emerald-400 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/40 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-0"
                                                     >
                                                       <RefreshCw className="w-3 h-3" />
                                                       Substitutos
@@ -908,7 +908,7 @@ export function DietTab({
                                                   )}
                                                   <Badge className={`text-xs font-medium text-right min-w-[60px] sm:min-w-[70px] ${foodConsumed
                                                     ? 'bg-slate-50 dark:bg-slate-900 text-slate-400 dark:text-slate-500 border-slate-100 dark:border-slate-800'
-                                                    : '!bg-emerald-50 !text-emerald-600 !border-emerald-100'
+                                                    : '!bg-emerald-50 dark:!bg-emerald-950/40 !text-emerald-600 dark:!text-emerald-400 !border-emerald-100 dark:!border-emerald-900/40'
                                                     } border`}>
                                                     {food.calories} kcal
                                                   </Badge>
@@ -942,7 +942,7 @@ export function DietTab({
                                 {!isOption && optionCount > 0 && (
                                   <button
                                     onClick={(e) => { e.stopPropagation(); toggleOptionGroup(meal.id); }}
-                                    className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 dark:border-slate-800 px-4 py-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 transition-colors rounded-b-xl hover:text-slate-700 hover:bg-slate-50"
+                                    className="flex w-full items-center justify-center gap-1.5 border-t border-slate-100 dark:border-slate-800 px-4 py-1.5 text-[11px] font-medium text-slate-500 dark:text-slate-400 transition-colors rounded-b-xl hover:text-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800"
                                   >
                                     <RefreshCw className="w-3 h-3" />
                                     {optionsCollapsed
@@ -1125,7 +1125,7 @@ export function DietTab({
                     </div>
                     <Button
                       onClick={() => window.open('https://area-de-membros-fabriciomourateam.vercel.app/#/suplementos-lista', '_blank')}
-                      className="shrink-0 bg-white dark:bg-slate-900 hover:bg-emerald-50 text-emerald-600 dark:text-emerald-400 font-semibold px-3 py-2 h-auto rounded-lg text-xs sm:text-sm whitespace-nowrap"
+                      className="shrink-0 bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 font-semibold px-3 py-2 h-auto rounded-lg text-xs sm:text-sm whitespace-nowrap"
                     >
                       Ver lista
                       <ExternalLink className="w-3.5 h-3.5 ml-1.5" />
@@ -1148,7 +1148,7 @@ export function DietTab({
           <DialogHeader className="relative pb-4 border-b border-slate-200 dark:border-slate-700">
             <button
               onClick={() => setSubstitutionsModalOpen(false)}
-              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-100 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+              className="absolute right-0 top-0 rounded-full p-2 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
               aria-label="Fechar"
             >
               <X className="w-5 h-5 text-slate-500 dark:text-slate-400 hover:text-slate-900" />
@@ -1166,7 +1166,7 @@ export function DietTab({
             {selectedFoodSubstitutions?.substitutions.map((sub: any, index: number) => (
               <div
                 key={index}
-                className="p-3 sm:p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 hover:border-emerald-300 transition-all group"
+                className="p-3 sm:p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 hover:border-emerald-300 transition-all group"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                   <div className="flex-1 min-w-0">

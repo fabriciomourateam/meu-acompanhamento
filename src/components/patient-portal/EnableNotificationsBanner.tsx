@@ -135,7 +135,7 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   if (!visible) return null;
 
   return (
-    <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-indigo-200 dark:border-indigo-900/50 bg-gradient-to-r from-indigo-50 dark:from-indigo-950/40 to-blue-50 dark:to-blue-950/40 px-4 py-3 shadow-sm">
+    <div className="hide-in-pdf mx-auto mb-4 flex max-w-3xl items-center gap-3 rounded-xl border border-indigo-200 dark:border-indigo-500/20 bg-gradient-to-r from-indigo-50 dark:from-indigo-500/10 to-blue-50 dark:to-slate-800 px-4 py-3 shadow-sm">
       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300">
         {needsInstall ? <Download className="h-5 w-5" /> : <BellRing className="h-5 w-5" />}
       </div>

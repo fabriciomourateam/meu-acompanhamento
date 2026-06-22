@@ -58,7 +58,7 @@ function PlanHeader({
           type="button"
           onClick={onPrev}
           aria-label="Plano anterior"
-          className="shrink-0 rounded-full p-1.5 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-50"
+          className="shrink-0 rounded-full p-1.5 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
         >
           <ChevronLeft className="h-4 w-4" />
         </button>
@@ -74,7 +74,7 @@ function PlanHeader({
           type="button"
           onClick={onNext}
           aria-label="Próximo plano"
-          className="shrink-0 rounded-full p-1.5 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-50"
+          className="shrink-0 rounded-full p-1.5 text-emerald-700 dark:text-emerald-300 transition-colors hover:bg-emerald-50 dark:hover:bg-emerald-950/40"
         >
           <ChevronRight className="h-4 w-4" />
         </button>
@@ -295,17 +295,17 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
 
       <Tabs value={subtab} onValueChange={(v) => setSubtab(v as typeof subtab)}>
         <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg h-auto">
-          <TabsTrigger value="workouts" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
+          <TabsTrigger value="workouts" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
             <Dumbbell className="h-4 w-4 mr-1.5" />
             Treinos
             {workoutSessions.length > 1 && <span className="ml-1 text-xs opacity-70">{workoutSessions.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="cardios" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
+          <TabsTrigger value="cardios" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
             <HeartPulse className="h-4 w-4 mr-1.5" />
             Cardios
             {cardioSessions.length > 1 && <span className="ml-1 text-xs opacity-70">{cardioSessions.length}</span>}
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="data-[state=active]:bg-white dark:data-[state=active]:bg-slate-700 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
             <BarChart3 className="h-4 w-4 mr-1.5" />
             Análise
           </TabsTrigger>
@@ -391,7 +391,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
               variant="outline"
               onClick={() => void handleRepeatPhase()}
               disabled={gateBusy}
-              className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100"
+              className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
               Repetir a semana
             </Button>

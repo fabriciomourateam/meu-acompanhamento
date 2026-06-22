@@ -261,7 +261,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel disabled={advancing} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100">
+              <AlertDialogCancel disabled={advancing} className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
                 Cancelar
               </AlertDialogCancel>
               <AlertDialogAction

@@ -470,7 +470,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
             type="button"
             onClick={onBack}
             aria-label="Voltar"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 dark:bg-slate-950/20 text-white transition hover:bg-white/30 active:scale-95 sm:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 dark:bg-slate-950/20 text-white transition hover:bg-white/30 dark:hover:bg-slate-800/30 active:scale-95 sm:hidden"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -545,7 +545,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                               key={e}
                               type="button"
                               onClick={() => handleReact(m, e)}
-                              className="flex h-7 w-7 items-center justify-center rounded-full text-base hover:bg-slate-100"
+                              className="flex h-7 w-7 items-center justify-center rounded-full text-base hover:bg-slate-100 dark:hover:bg-slate-800"
                             >
                               {e}
                             </button>
@@ -554,7 +554,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                         <button
                           type="button"
                           onClick={() => startReply(m)}
-                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+                          className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                         >
                           <Reply className="h-3.5 w-3.5" /> Responder
                         </button>
@@ -562,7 +562,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           <button
                             type="button"
                             onClick={() => startEdit(m)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800"
                           >
                             <Pencil className="h-3.5 w-3.5" /> Editar
                           </button>
@@ -571,7 +571,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           <button
                             type="button"
                             onClick={() => handleDelete(m)}
-                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50"
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40"
                           >
                             <Trash2 className="h-3.5 w-3.5" /> Apagar
                           </button>
@@ -684,7 +684,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
           </div>
           <button
             onClick={() => setReplyTo(null)}
-            className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100"
+            className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
             aria-label="Cancelar resposta"
           >
             <X className="h-4 w-4" />
@@ -699,7 +699,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
           <span className="flex-1 text-xs text-emerald-800 dark:text-emerald-300">Editando mensagem</span>
           <button
             onClick={cancelEdit}
-            className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100"
+            className="rounded-full p-1 text-emerald-500 hover:bg-emerald-100 dark:hover:bg-emerald-900/40"
             aria-label="Cancelar edição"
           >
             <X className="h-4 w-4" />
@@ -725,7 +725,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           insertEmoji(e);
                           setEmojiOpen(false);
                         }}
-                        className="flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-slate-100"
+                        className="flex h-8 w-8 items-center justify-center rounded text-lg hover:bg-slate-100 dark:hover:bg-slate-800"
                       >
                         {e}
                       </button>
@@ -750,7 +750,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
               Gravando… {mmss(recorder.seconds)}
               <button
                 onClick={recorder.cancel}
-                className="ml-auto rounded-full p-1 text-rose-500 hover:bg-rose-100"
+                className="ml-auto rounded-full p-1 text-rose-500 hover:bg-rose-100 dark:hover:bg-rose-900/40"
                 aria-label="Cancelar gravação"
               >
                 <X className="h-4 w-4" />
@@ -762,7 +762,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                 <button
                   onClick={() => fileInputRef.current?.click()}
                   disabled={sending}
-                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 disabled:opacity-40"
+                  className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-slate-500 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40"
                   aria-label="Anexar arquivo"
                 >
                   <Paperclip className="h-5 w-5" />
@@ -771,7 +771,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
               <button
                 onClick={() => setEmojiOpen((v) => !v)}
                 disabled={sending}
-                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition hover:bg-slate-100 disabled:opacity-40 ${emojiOpen ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-40 ${emojiOpen ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-500 dark:text-slate-400'}`}
                 aria-label="Inserir emoji"
               >
                 <Smile className="h-5 w-5" />

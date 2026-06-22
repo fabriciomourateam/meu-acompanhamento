@@ -170,11 +170,11 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         'rounded-xl border shadow-sm overflow-hidden transition-colors',
-        allDone ? 'border-emerald-300 bg-emerald-50/60' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
+        allDone ? 'border-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/60' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
       )}
     >
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className={cn('w-full text-left p-3 flex items-center gap-3 transition-colors', allDone ? 'hover:bg-emerald-100/40' : 'hover:bg-slate-50')}>
+        <CollapsibleTrigger className={cn('w-full text-left p-3 flex items-center gap-3 transition-colors', allDone ? 'hover:bg-emerald-100/40 dark:hover:bg-emerald-900/40' : 'hover:bg-slate-50 dark:hover:bg-slate-800')}>
           <div className="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0 flex items-center justify-center">
             {thumb ? (
               <img src={thumb} alt={exercise.exercise_name} className="w-full h-full object-cover" loading="lazy" />
@@ -266,7 +266,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               ) : (
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 transition hover:bg-slate-100"
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800"
                 >
                   <PlayCircle className="h-4 w-4 text-red-500" /> Ver execução (vídeo)
                 </button>
@@ -285,7 +285,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
 
             {/* Séries de aquecimento (aparecem antes das séries de trabalho) */}
             {warmupCount > 0 && (
-              <div className="space-y-1.5 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/60 p-2">
+              <div className="space-y-1.5 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/60 dark:bg-amber-950/60 p-2">
                 <div className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400 leading-snug">
                   <div>
                     🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
@@ -330,7 +330,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               {/* Instrução de uso — aparece só no 1º exercício do dia, como onboarding.
                   Nos demais é redundante; os campos vazios + ✓ já são auto-explicativos. */}
               {isFirst && (
-                <p className="mx-1 rounded-lg border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 px-2.5 py-1.5 text-xs text-blue-700 dark:text-blue-300">
+                <p className="mx-1 rounded-lg border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/60 px-2.5 py-1.5 text-xs text-blue-700 dark:text-blue-300">
                   💡 Preencha a carga e as repetições de cada série, depois toque no <strong>✓</strong> pra registrar.
                 </p>
               )}
@@ -373,8 +373,8 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   className={cn(
                     'mx-1 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
                     unilateralOn
-                      ? 'border-violet-200 dark:border-violet-900/50 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 hover:bg-violet-100'
-                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50',
+                      ? 'border-violet-200 dark:border-violet-900/50 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800',
                   )}
                   title="Registrar carga e reps de cada lado separadamente"
                 >
@@ -488,7 +488,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 {substitutedName && onRevertSubstitution ? (
                   <button
                     onClick={onRevertSubstitution}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50"
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-slate-800"
                     title={`Voltar para ${exercise.exercise_name}`}
                   >
                     <Undo2 className="h-3.5 w-3.5" /> Voltar ao original
@@ -590,7 +590,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 </li>
               ))}
             </ul>
-            <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+            <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/60 dark:bg-blue-950/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               💡 O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.
             </div>
           </div>
