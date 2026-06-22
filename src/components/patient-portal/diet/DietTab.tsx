@@ -701,12 +701,12 @@ export function DietTab({
                               <div
                                 style={{
                                   backgroundColor: isConsumed
-                                    ? (isDark ? '#064e3b' : '#d1fae5')
-                                    : (showAsOption ? (isDark ? '#0f172a' : '#f8fafc') : (isDark ? '#1e293b' : 'white')),
+                                    ? (isDark ? '#0f3d2e' : '#d1fae5')
+                                    : (showAsOption ? (isDark ? '#161f25' : '#f8fafc') : (isDark ? '#202c33' : 'white')),
                                   borderColor: isConsumed
-                                    ? (isDark ? '#065f46' : '#6ee7b7')
-                                    : (isDark ? '#334155' : '#e2e8f0'),
-                                  color: isDark ? '#e2e8f0' : '#0f172a'
+                                    ? (isDark ? '#1f6f53' : '#6ee7b7')
+                                    : (isDark ? '#2a3942' : '#e2e8f0'),
+                                  color: isDark ? '#e9edef' : '#0f172a'
                                 }}
                                 // Opção: menos indent, borda esquerda fina emerald
                                 // (em vez de slate-300 grossa) — indica filiação com
@@ -830,7 +830,7 @@ export function DietTab({
                                           return (
                                             <div
                                               key={food.id || foodIndex}
-                                              style={{ backgroundColor: isDark ? '#0f172a' : 'white' }}
+                                              style={{ backgroundColor: isDark ? '#19232b' : 'white' }}
                                               className={`p-2 sm:p-3 rounded-lg border transition-all duration-300 gap-2 ${foodConsumed
                                                 ? 'border-emerald-100 dark:border-emerald-900/40'
                                                 : 'border-slate-100 dark:border-slate-800 hover:border-emerald-200 shadow-sm'

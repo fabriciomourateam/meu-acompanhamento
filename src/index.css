@@ -551,3 +551,34 @@ canvas {
     background: -webkit-print-color-adjust !important;
   }
 }
+
+/* ============================================================
+   PALETA DO TEMA ESCURO — estilo "WhatsApp" (preto-teal + verde)
+   ------------------------------------------------------------
+   A conversão do portal usou tons `slate` nas variantes `dark:`.
+   Aqui re-mapeamos esses utilitários para uma paleta escura coesa,
+   num único lugar. Para mudar o "tom" do dark inteiro, ajuste só
+   estes hexes. Usamos `html.dark` p/ ganhar especificidade do utilitário.
+   ============================================================ */
+.dark {
+  --d-bg: #0b141a;          /* fundo da página (mais profundo) */
+  --d-surface: #111b21;     /* cards */
+  --d-elevated: #202c33;    /* superfícies elevadas / nested / hover */
+  --d-border: #2a3942;      /* bordas */
+  --d-border-subtle: #1f2a30;
+  --d-text: #e9edef;        /* texto primário */
+  --d-text-2: #cdd6db;      /* secundário forte */
+  --d-text-muted: #8696a0;  /* secundário */
+  --d-text-faint: #6a7a82;  /* mais apagado */
+}
+html.dark .dark\:bg-slate-950 { background-color: var(--d-bg); }
+html.dark .dark\:bg-slate-900 { background-color: var(--d-surface); }
+html.dark .dark\:bg-slate-800 { background-color: var(--d-elevated); }
+html.dark .dark\:\!bg-slate-900 { background-color: var(--d-surface) !important; }
+html.dark .dark\:border-slate-700 { border-color: var(--d-border); }
+html.dark .dark\:border-slate-800 { border-color: var(--d-border-subtle); }
+html.dark .dark\:text-slate-100 { color: var(--d-text); }
+html.dark .dark\:text-slate-200 { color: var(--d-text-2); }
+html.dark .dark\:text-slate-300 { color: var(--d-text-2); }
+html.dark .dark\:text-slate-400 { color: var(--d-text-muted); }
+html.dark .dark\:text-slate-500 { color: var(--d-text-faint); }
