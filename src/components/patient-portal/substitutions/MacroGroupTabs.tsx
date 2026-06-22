@@ -72,7 +72,7 @@ function Tab({
       {count > 0 && (
         <span
           className={`rounded-full px-1.5 text-[10px] font-semibold tabular-nums ${
-            active ? "bg-white/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
+            active ? "bg-white/20 dark:bg-slate-950/20 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400"
           }`}
         >
           {count}

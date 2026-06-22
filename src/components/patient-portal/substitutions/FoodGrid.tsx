@@ -25,7 +25,7 @@ export function FoodGrid({
 }: FoodGridProps) {
   if (foods.length === 0) {
     return (
-      <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 px-6 py-10 text-center">
+      <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-950/60 px-6 py-10 text-center">
         <span className="mb-3 text-4xl" aria-hidden>
           {searchTerm ? "🔍" : "🥗"}
         </span>

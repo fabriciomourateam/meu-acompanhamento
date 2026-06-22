@@ -135,14 +135,14 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
             </Button>
           </div>
           {/* Barra grossa que enche até o fim do descanso; marcador no mínimo */}
-          <div className="relative mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-white/25">
+          <div className="relative mt-2.5 h-2.5 w-full overflow-hidden rounded-full bg-white/25 dark:bg-slate-950/25">
             <div
               className="h-full rounded-full bg-white dark:bg-slate-900 transition-[width] duration-200 ease-linear"
               style={{ width: `${elapsedPct}%` }}
             />
             {hasRange && (
               <div
-                className="absolute top-1/2 h-3.5 w-0.5 -translate-y-1/2 bg-white/90"
+                className="absolute top-1/2 h-3.5 w-0.5 -translate-y-1/2 bg-white/90 dark:bg-slate-950/90"
                 style={{ left: `${minMarkPct}%` }}
                 title={`Mínimo: ${minSeconds}s`}
               />

@@ -461,7 +461,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                       <div key={t.technique_id} className={cn('border-t px-2.5 py-2 text-xs', techniqueColors(t.color).banner)}>
                         <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                           <span>{t.emoji ?? '⚡'} {t.name}</span>
-                          <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                          <span className="rounded-full bg-white/60 dark:bg-slate-950/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
                             aplicar nesta série
                           </span>
                         </div>
@@ -561,7 +561,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
           <div className="bg-gradient-to-br from-blue-500 to-indigo-600 px-5 py-4 text-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2.5 text-white text-base font-bold">
-                <span className="inline-flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm w-9 h-9 text-lg">🎯</span>
+                <span className="inline-flex items-center justify-center rounded-full bg-white/20 dark:bg-slate-950/20 backdrop-blur-sm w-9 h-9 text-lg">🎯</span>
                 <span>
                   RPE — Esforço Percebido
                   <span className="block text-xs font-normal text-blue-100 mt-0.5">Escala de 0 a 10</span>

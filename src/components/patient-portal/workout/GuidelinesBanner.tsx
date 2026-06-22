@@ -71,19 +71,19 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId 
       {expanded && (
         <div className="space-y-2 border-t border-amber-200 dark:border-amber-900/50 p-3 text-sm">
           {hasPlanNotes && (
-            <div className="rounded border border-amber-200/60 bg-white/70 p-2">
+            <div className="rounded border border-amber-200/60 bg-white/70 dark:bg-slate-950/70 p-2">
               <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Observações gerais</div>
               <div className="text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: planNotes! }} />
             </div>
           )}
           {hasNotes && (
-            <div className="rounded border border-amber-200/60 bg-white/70 p-2">
+            <div className="rounded border border-amber-200/60 bg-white/70 dark:bg-slate-950/70 p-2">
               <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Periodização</div>
               <div className="text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: generalNotes! }} />
             </div>
           )}
           {sessions.map((s) => (
-            <div key={s.id} className="rounded border border-amber-200/60 bg-white/70 p-2">
+            <div key={s.id} className="rounded border border-amber-200/60 bg-white/70 dark:bg-slate-950/70 p-2">
               <div className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{s.name}</div>
               {s.notes && <div className="text-xs text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: s.notes }} />}
             </div>

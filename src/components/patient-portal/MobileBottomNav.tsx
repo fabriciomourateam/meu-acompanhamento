@@ -32,7 +32,7 @@ export function MobileBottomNav({ value, onChange, hidden = [], badges = {} }: M
   const nav = (
     <nav className="fixed bottom-0 left-0 right-0 z-[9999] sm:hidden">
       {/* Glass bar */}
-      <div className="bg-white/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_24px_rgba(15,23,42,0.08)] px-1 pt-2.5 pb-[max(0.85rem,env(safe-area-inset-bottom))]">
+      <div className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-xl border-t border-slate-200 dark:border-slate-700 shadow-[0_-4px_24px_rgba(15,23,42,0.08)] px-1 pt-2.5 pb-[max(0.85rem,env(safe-area-inset-bottom))]">
         <div className="flex items-stretch justify-around gap-0">
           {items.map(({ value: v, label, Icon }) => {
             const isActive = value === v;

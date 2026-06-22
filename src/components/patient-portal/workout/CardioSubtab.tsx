@@ -254,7 +254,7 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
   const intensidade = cardio.intensidade?.trim() || null;
 
   return (
-    <div className="rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-gradient-to-br from-cyan-50 dark:from-cyan-950/40 to-sky-50/40 p-3">
+    <div className="rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-gradient-to-br from-cyan-50 dark:from-cyan-950/40 to-sky-50/40 dark:to-sky-950/40 p-3">
       <div className="flex items-center justify-between gap-2">
         <h3 className="flex items-center gap-1.5 text-sm font-semibold text-cyan-900 dark:text-cyan-200">
           🫀 Cardio prescrito
@@ -311,7 +311,7 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
           {cardio.opcoes.map((opt, i) => {
             const { label, html } = normalizeCardioOption(opt, i);
             return (
-              <div key={i} className="rounded-lg border border-cyan-200 dark:border-cyan-900/50 bg-white/70 p-2.5">
+              <div key={i} className="rounded-lg border border-cyan-200 dark:border-cyan-900/50 bg-white/70 dark:bg-slate-950/70 p-2.5">
                 <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-900 dark:text-cyan-200">
                   <RotateCcw className="h-3 w-3" /> {label}
                 </div>

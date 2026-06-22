@@ -212,7 +212,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
         </div>
         {isDeload && (
-          <div className="mt-2 rounded-md bg-white/70 px-2.5 py-1.5 text-xs font-medium text-sky-900 dark:text-sky-200">
+          <div className="mt-2 rounded-md bg-white/70 dark:bg-slate-950/70 px-2.5 py-1.5 text-xs font-medium text-sky-900 dark:text-sky-200">
             🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
           </div>
         )}

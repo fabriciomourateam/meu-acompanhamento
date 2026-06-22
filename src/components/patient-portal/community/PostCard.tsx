@@ -112,7 +112,7 @@ export function PostCard({
     <div className={cn(
       'rounded-2xl border p-4 shadow-sm',
       isConquista
-        ? 'border-amber-300 bg-gradient-to-br from-amber-50/70 to-white ring-1 ring-amber-200'
+        ? 'border-amber-300 bg-gradient-to-br from-amber-50/70 dark:from-amber-950/40 to-white dark:to-slate-900 ring-1 ring-amber-200'
         : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
     )}>
       {/* Cabeçalho */}

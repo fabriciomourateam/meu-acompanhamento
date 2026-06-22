@@ -548,7 +548,7 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
     <div className="space-y-4">
       {/* Barra de progresso compacta que acompanha a rolagem */}
       {sessionLogId && (
-        <div className="sticky top-0 z-30 flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 px-3 py-2 shadow-sm backdrop-blur">
+        <div className="sticky top-0 z-30 flex items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-950/95 px-3 py-2 shadow-sm backdrop-blur">
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between text-[11px] font-medium text-slate-500 dark:text-slate-400">
               <span>{doneSetsCount}/{totalPlannedSets} séries</span>

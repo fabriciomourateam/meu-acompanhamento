@@ -180,7 +180,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
   return (
     <div className="space-y-4">
       {/* Hero — instruções rápidas */}
-      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50 dark:from-emerald-950/40 to-white p-3 sm:p-4 shadow-sm">
+      <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50 dark:from-emerald-950/40 to-white dark:to-slate-900 p-3 sm:p-4 shadow-sm">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400">
             <Sparkles className="h-5 w-5" />
@@ -196,7 +196,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
       </div>
 
       {/* Comparador direto: A → B */}
-      <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-gradient-to-br from-amber-50 dark:from-amber-950/40 via-white to-yellow-50/60 p-3 sm:p-4 shadow-sm">
+      <div className="rounded-2xl border border-amber-200 dark:border-amber-900/50 bg-gradient-to-br from-amber-50 dark:from-amber-950/40 via-white dark:via-slate-900 to-yellow-50/60 dark:to-yellow-950/40 p-3 sm:p-4 shadow-sm">
         <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-amber-700 dark:text-amber-300">
           Comparar dois alimentos
         </p>
@@ -256,7 +256,7 @@ export function PatientSubstitutionsTab({ patientId }: PatientSubstitutionsTabPr
       </div>
 
       {/* Tabs por macrogrupo */}
-      <div className="sticky top-0 z-10 -mx-1 bg-white/80 px-1 py-2 backdrop-blur-sm">
+      <div className="sticky top-0 z-10 -mx-1 bg-white/80 dark:bg-slate-950/80 px-1 py-2 backdrop-blur-sm">
         <MacroGroupTabs
           active={activeTab}
           onChange={setActiveTab}

@@ -102,7 +102,7 @@ export function CommunityFeed({
     <div className="space-y-4">
       {/* Aviso / tema da semana (rotação automática ou aviso fixo) */}
       {showBanner && (
-        <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-r from-emerald-50 dark:from-emerald-950/40 to-white p-3.5 shadow-sm">
+        <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-r from-emerald-50 dark:from-emerald-950/40 to-white dark:to-slate-900 p-3.5 shadow-sm">
           <span className="text-xl leading-none">{bannerEmoji}</span>
           <p className="flex-1 whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-200">{bannerText}</p>
         </div>

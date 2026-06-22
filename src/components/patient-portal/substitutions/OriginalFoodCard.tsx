@@ -16,7 +16,7 @@ export function OriginalFoodCard({ food, referenceGrams }: OriginalFoodCardProps
   const measure = formatHouseholdMeasure(referenceGrams, food.common_units);
 
   return (
-    <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50 dark:from-emerald-950/40 to-white p-4 shadow-sm">
+    <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50 dark:from-emerald-950/40 to-white dark:to-slate-900 p-4 shadow-sm">
       <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
         <span aria-hidden>{emoji}</span>
         <span>Você selecionou • {meta.label}</span>

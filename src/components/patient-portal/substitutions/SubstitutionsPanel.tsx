@@ -60,7 +60,7 @@ export function SubstitutionsPanel({ food, open, onOpenChange }: SubstitutionsPa
           <p className="px-4 py-4 text-sm text-slate-500 dark:text-slate-400 sm:px-6">Selecione um alimento.</p>
         ) : (
           <>
-            <div className="sticky top-0 z-20 space-y-3 border-b border-slate-200 dark:border-slate-700 bg-white/95 px-4 py-4 backdrop-blur sm:px-6">
+            <div className="sticky top-0 z-20 space-y-3 border-b border-slate-200 dark:border-slate-700 bg-white/95 dark:bg-slate-950/95 px-4 py-4 backdrop-blur sm:px-6">
               <OriginalFoodCard food={food} referenceGrams={referenceGrams} />
               <ReferenceQuantityPicker
                 key={pickerResetKey}

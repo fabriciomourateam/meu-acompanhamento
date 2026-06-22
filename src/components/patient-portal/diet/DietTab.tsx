@@ -376,16 +376,16 @@ export function DietTab({
 
     return (
       <Collapsible {...collapsibleProps} className="space-y-3 group/category bg-white dark:bg-slate-900 rounded-2xl p-3 sm:p-4 shadow-sm hover:shadow-md transition-shadow duration-300 border border-slate-100 dark:border-slate-800">
-        <CollapsibleTrigger className="w-full flex items-center justify-between p-1 sm:p-2 rounded-2xl hover:bg-slate-50 transition-colors">
+        <CollapsibleTrigger className="w-full flex items-center justify-between p-1 sm:p-2 rounded-2xl hover:bg-slate-50 dark:hover:bg-slate-800/60 transition-colors">
           <div className="flex items-center gap-4">
-            <div className={`p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-slate-100 to-transparent`}>
+            <div className={`p-2.5 sm:p-3 rounded-2xl bg-gradient-to-br from-slate-100 dark:from-slate-800 to-transparent`}>
               <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${colorClass}`} />
             </div>
-            <h3 className="text-lg sm:text-lg font-bold text-slate-800 dark:text-slate-200 tracking-wide mt-0.5">
+            <h3 className="text-lg sm:text-lg font-bold text-slate-800 dark:text-slate-100 tracking-wide mt-0.5">
               {title}
             </h3>
           </div>
-          <div className="p-2.5 rounded-full bg-slate-50 dark:bg-slate-900 group-data-[state=open]/category:bg-slate-100 transition-colors">
+          <div className="p-2.5 rounded-full bg-slate-50 dark:bg-slate-800 group-data-[state=open]/category:bg-slate-100 dark:group-data-[state=open]/category:bg-slate-700 transition-colors">
             <ChevronRight className="w-5 h-5 text-slate-500 dark:text-slate-400 transform transition-transform group-data-[state=open]/category:rotate-90" />
           </div>
         </CollapsibleTrigger>
@@ -397,12 +397,12 @@ export function DietTab({
                 <div
                   className={`bg-white dark:bg-slate-900 rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
                 >
-                  {/* Subtle edge highlight */}
-                  <div className={`absolute inset-0 bg-gradient-to-br from-white/60 to-transparent opacity-50 pointer-events-none z-0`} />
+                  {/* Subtle edge highlight — bem sutil no escuro pra não "lavar" o card */}
+                  <div className={`absolute inset-0 bg-gradient-to-br from-white dark:from-slate-900/60 dark:from-white/[0.03] to-transparent opacity-50 pointer-events-none z-0`} />
 
-                  <CollapsibleTrigger className="w-full flex items-center justify-between py-2.5 px-4 hover:bg-slate-50/80 transition-colors text-left min-h-[48px] relative z-10">
-                    <span className="font-semibold text-sm sm:text-base text-slate-700 dark:text-slate-200 pr-4">{formatTextToPlain(guideline.title)}</span>
-                    <div className={`p-1.5 rounded-full ${bgLightClass} group-data-[state=open]/item:bg-slate-100 transition-colors`}>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between py-2.5 px-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors text-left min-h-[48px] relative z-10">
+                    <span className="font-semibold text-sm sm:text-base text-slate-700 dark:text-slate-100 pr-4">{formatTextToPlain(guideline.title)}</span>
+                    <div className={`p-1.5 rounded-full ${bgLightClass} group-data-[state=open]/item:bg-slate-100 dark:group-data-[state=open]/item:bg-slate-700 transition-colors`}>
                       <ChevronRight className={`w-4 h-4 sm:w-5 sm:h-5 ${colorClass} group-data-[state=open]/item:text-slate-500 transform transition-transform group-data-[state=open]/item:rotate-90`} />
                     </div>
                   </CollapsibleTrigger>
@@ -410,7 +410,7 @@ export function DietTab({
                     <div className="px-4 pb-4 pt-0">
                       <div className="h-px w-full bg-slate-100 dark:bg-slate-800 mb-3" />
                       <div
-                        className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed whitespace-pre-wrap prose prose-sm max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600"
+                        className="text-sm text-slate-600 dark:text-slate-200 leading-relaxed whitespace-pre-wrap prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-headings:mb-2 prose-headings:mt-3 prose-a:text-blue-600 dark:prose-strong:text-white dark:prose-headings:text-white"
                         dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(guideline.content) }}
                       />
                       {/* Botao de baixar PDF com papel timbrado do nutri.
@@ -426,7 +426,7 @@ export function DietTab({
                             variant="outline"
                             disabled={downloadingGuidelineId === guideline.id}
                             onClick={() => void handleDownloadGuidelinePdf(guideline.id)}
-                            className="gap-1.5 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50"
+                            className="gap-1.5 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-700"
                           >
                             {downloadingGuidelineId === guideline.id ? (
                               <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -511,7 +511,7 @@ export function DietTab({
                           </linearGradient>
                         </defs>
                         {/* Mobile */}
-                        <circle cx="72" cy="72" r="62" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" className="sm:hidden" />
+                        <circle cx="72" cy="72" r="62" stroke={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)'} strokeWidth="10" fill="none" className="sm:hidden" />
                         <circle
                           cx="72" cy="72" r="62"
                           stroke="url(#emerald-gradient)"
@@ -522,7 +522,7 @@ export function DietTab({
                           className="transition-all duration-500 sm:hidden"
                         />
                         {/* Desktop */}
-                        <circle cx="80" cy="80" r="70" stroke="rgba(0,0,0,0.06)" strokeWidth="10" fill="none" className="hidden sm:block" />
+                        <circle cx="80" cy="80" r="70" stroke={isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.06)'} strokeWidth="10" fill="none" className="hidden sm:block" />
                         <circle
                           cx="80" cy="80" r="70"
                           stroke="url(#emerald-gradient)"

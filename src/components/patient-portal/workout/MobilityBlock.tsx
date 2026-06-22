@@ -14,7 +14,7 @@ interface MobilityBlockProps {
 export function MobilityBlock({ sessions, onOpen }: MobilityBlockProps) {
   if (sessions.length === 0) return null;
   return (
-    <div className="rounded-2xl border border-violet-200 dark:border-violet-900/50 bg-gradient-to-br from-violet-50 dark:from-violet-950/40 via-white to-white p-3 shadow-sm">
+    <div className="rounded-2xl border border-violet-200 dark:border-violet-900/50 bg-gradient-to-br from-violet-50 dark:from-violet-950/40 via-white dark:via-slate-900 to-white dark:to-slate-900 p-3 shadow-sm">
       <div className="mb-2 flex items-center gap-2">
         <Sparkles className="h-4 w-4 text-violet-600 dark:text-violet-400" />
         <h3 className="text-sm font-bold uppercase tracking-wide text-violet-700 dark:text-violet-300">
