@@ -6,18 +6,16 @@ const STORAGE_KEY = "ma-theme";
 
 /**
  * Aplica o tema no <html>:
- * - light (padrão): classe `theme-light` (variáveis claras do index.css), sem `dark`.
- * - dark: classe `dark` (ativa os `dark:` do Tailwind) e variáveis escuras do `:root`.
+ * - light (padrão): NENHUMA classe nova — fica idêntico ao app de produção de hoje.
+ * - dark: classe `dark` (ativa os `dark:` do Tailwind) + variáveis escuras do `:root`.
  * Mantemos `color-scheme` coerente pra o navegador não auto-inverter.
  */
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
   if (theme === "dark") {
     root.classList.add("dark");
-    root.classList.remove("theme-light");
     root.style.colorScheme = "dark";
   } else {
-    root.classList.add("theme-light");
     root.classList.remove("dark");
     root.style.colorScheme = "only light";
   }
