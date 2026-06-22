@@ -582,3 +582,21 @@ html.dark .dark\:text-slate-200 { color: var(--d-text-2); }
 html.dark .dark\:text-slate-300 { color: var(--d-text-2); }
 html.dark .dark\:text-slate-400 { color: var(--d-text-muted); }
 html.dark .dark\:text-slate-500 { color: var(--d-text-faint); }
+
+/* ------------------------------------------------------------
+   Realce do verde da marca (emerald) no ESCURO
+   Verde sólido um tiquinho mais vivo nas ações + glow sutil só
+   nos BOTÕES sólidos (CTAs), pra dar "pop" premium sem mudar a cor
+   nem virar poluição visual. Ajuste a intensidade aqui.
+   ------------------------------------------------------------ */
+html.dark .bg-emerald-500 { background-color: #10c074; }
+html.dark .bg-emerald-600 { background-color: #0eb06a; }
+html.dark .hover\:bg-emerald-600:hover { background-color: #0c9c5d; }
+html.dark .hover\:bg-emerald-700:hover { background-color: #0a8a52; }
+/* glow apenas em botões/links sólidos de ação */
+html.dark button.bg-emerald-500,
+html.dark button.bg-emerald-600,
+html.dark a.bg-emerald-500,
+html.dark a.bg-emerald-600 {
+  box-shadow: 0 6px 18px -6px rgba(16, 200, 120, 0.5);
+}
