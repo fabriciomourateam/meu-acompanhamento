@@ -137,7 +137,7 @@ export function CommunityFeed({
         </div>
 
         {/* Desktop: chips de categoria */}
-        <div className="hidden flex-1 gap-1.5 overflow-x-auto pb-1 sm:flex scrollbar-emerald">
+        <div className="hidden flex-1 gap-1.5 overflow-x-auto pt-1.5 pb-1 sm:flex scrollbar-emerald">
           <button
             onClick={() => setCategory('all')}
             className={cn(
