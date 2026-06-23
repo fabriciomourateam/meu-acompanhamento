@@ -100,7 +100,7 @@ export function ShareableProgressCard({ trainerProfile, patientName, stats, port
 
 function StatPill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="flex items-center justify-between rounded-lg bg-white/15 dark:bg-slate-950/15 px-4 py-2 backdrop-blur">
+    <div className="flex items-center justify-between rounded-lg bg-white/15 px-4 py-2 backdrop-blur">
       <span className="text-sm font-medium opacity-80">{label}</span>
       <span className="text-lg font-bold">{value}</span>
     </div>

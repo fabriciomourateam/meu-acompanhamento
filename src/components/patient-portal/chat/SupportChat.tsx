@@ -447,7 +447,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
     <div className="flex h-full flex-col overflow-hidden border-0 bg-white dark:bg-slate-950 sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
       {/* Cabeçalho (respeita a status bar do celular via safe-area no topo) */}
       <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 bg-emerald-500 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/20 dark:bg-slate-950/20">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/20">
           {photoOk ? (
             <img
               src="/fabricio.jpg"
@@ -470,7 +470,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
             type="button"
             onClick={onBack}
             aria-label="Voltar"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 dark:bg-slate-950/20 text-white transition hover:bg-white/30 dark:hover:bg-slate-800/30 active:scale-95 sm:hidden"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white/20 text-white transition hover:bg-white/30 dark:hover:bg-slate-800/30 active:scale-95 sm:hidden"
           >
             <ArrowLeft className="h-5 w-5" />
           </button>
@@ -598,7 +598,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                         const q = messages.find((x) => x.id === m.reply_to_message_id);
                         const p = q ? quotedPreview(q) : { who: '', text: 'mensagem' };
                         return (
-                          <div className={`mb-1.5 rounded-lg border-l-2 px-2 py-1 text-[11px] ${m.is_mine ? 'border-white/60 bg-white/15 dark:bg-slate-950/15' : 'border-emerald-400 bg-slate-100 dark:bg-slate-800'}`}>
+                          <div className={`mb-1.5 rounded-lg border-l-2 px-2 py-1 text-[11px] ${m.is_mine ? 'border-white/60 bg-white/15' : 'border-emerald-400 bg-slate-100 dark:bg-slate-800'}`}>
                             <div className={`font-semibold ${m.is_mine ? 'text-white' : 'text-emerald-700 dark:text-emerald-300'}`}>{p.who}</div>
                             <div className={`line-clamp-2 ${m.is_mine ? 'text-emerald-50' : 'text-slate-500 dark:text-slate-400'}`}>{p.text}</div>
                           </div>
@@ -631,7 +631,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                           key={i}
                           type="button"
                           onClick={() => handleReact(m, r.emoji)}
-                          className={`rounded-full px-1.5 py-0.5 text-xs leading-none ring-1 ${m.is_mine ? 'bg-white/20 dark:bg-slate-950/20 ring-white/30' : 'bg-slate-100 dark:bg-slate-800 ring-slate-200'}`}
+                          className={`rounded-full px-1.5 py-0.5 text-xs leading-none ring-1 ${m.is_mine ? 'bg-white/20 ring-white/30' : 'bg-slate-100 dark:bg-slate-800 ring-slate-200'}`}
                         >
                           {r.emoji}
                         </button>
@@ -835,7 +835,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
         >
           <img src={lightbox} alt="" className="max-h-full max-w-full rounded-lg" />
           <button
-            className="absolute right-4 top-4 rounded-full bg-white/20 dark:bg-slate-950/20 p-2 text-white"
+            className="absolute right-4 top-4 rounded-full bg-white/20 p-2 text-white"
             aria-label="Fechar"
           >
             <X className="h-5 w-5" />

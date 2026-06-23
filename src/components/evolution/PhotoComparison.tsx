@@ -639,7 +639,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <SelectItem
                                 key={`before-${index}`}
                                 value={index.toString()}
-                                className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-700"
+                                className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-950/40 data-[state=checked]:text-blue-700 dark:data-[state=checked]:text-blue-300"
                               >
                                 {getPhotoLabel(photo, index)}
                               </SelectItem>
@@ -665,7 +665,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <SelectItem
                                 key={`after-${index}`}
                                 value={index.toString()}
-                                className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-700"
+                                className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-950/40 data-[state=checked]:text-blue-700 dark:data-[state=checked]:text-blue-300"
                               >
                                 {getPhotoLabel(photo, index)}
                               </SelectItem>

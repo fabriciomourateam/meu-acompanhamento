@@ -143,7 +143,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
           
           {/* Barra de Progresso */}
           <div className="mt-4">
-            <div className="w-full bg-white/20 dark:bg-slate-950/20 rounded-full h-2 overflow-hidden">
+            <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${(completedCount / challenges.length) * 100}%` }}

@@ -36,42 +36,42 @@ const TONE_STYLES: Record<MetricCardProps["tone"], {
   accentBar: string;
 }> = {
   fuchsia: {
-    card: "from-fuchsia-50/80 dark:from-fuchsia-950/40 via-white dark:via-slate-900 to-pink-50/30 dark:to-pink-950/40 border-fuchsia-100/80 hover:border-fuchsia-200 hover:shadow-fuchsia-200/50",
+    card: "from-fuchsia-50/80 dark:from-fuchsia-950/40 via-white to-pink-50/30 dark:to-pink-950/40 border-fuchsia-100/80 hover:border-fuchsia-200 hover:shadow-fuchsia-200/50",
     iconBox: "bg-gradient-to-br from-fuchsia-500 to-pink-500 shadow-lg shadow-fuchsia-500/30",
     value: "text-fuchsia-700 dark:text-fuchsia-300",
     subtitle: "text-fuchsia-700/70",
     accentBar: "from-fuchsia-400 to-pink-400",
   },
   blue: {
-    card: "from-blue-50/80 dark:from-blue-950/40 via-white dark:via-slate-900 to-sky-50/30 dark:to-sky-950/40 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50",
+    card: "from-blue-50/80 dark:from-blue-950/40 via-white to-sky-50/30 dark:to-sky-950/40 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50",
     iconBox: "bg-gradient-to-br from-blue-500 to-sky-500 shadow-lg shadow-blue-500/30",
     value: "text-blue-700 dark:text-blue-300",
     subtitle: "text-blue-700/70",
     accentBar: "from-blue-400 to-sky-400",
   },
   rose: {
-    card: "from-rose-50/80 dark:from-rose-950/40 via-white dark:via-slate-900 to-red-50/30 dark:to-red-950/40 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50",
+    card: "from-rose-50/80 dark:from-rose-950/40 via-white to-red-50/30 dark:to-red-950/40 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50",
     iconBox: "bg-gradient-to-br from-rose-500 to-red-500 shadow-lg shadow-rose-500/30",
     value: "text-rose-700 dark:text-rose-300",
     subtitle: "text-rose-700/70",
     accentBar: "from-rose-400 to-red-400",
   },
   emerald: {
-    card: "from-emerald-50/80 dark:from-emerald-950/40 via-white dark:via-slate-900 to-teal-50/30 dark:to-teal-950/40 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50",
+    card: "from-emerald-50/80 dark:from-emerald-950/40 via-white to-teal-50/30 dark:to-teal-950/40 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50",
     iconBox: "bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30",
     value: "text-emerald-700 dark:text-emerald-300",
     subtitle: "text-emerald-700/70",
     accentBar: "from-emerald-400 to-teal-400",
   },
   purple: {
-    card: "from-purple-50/80 dark:from-purple-950/40 via-white dark:via-slate-900 to-violet-50/30 dark:to-violet-950/40 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50",
+    card: "from-purple-50/80 dark:from-purple-950/40 via-white to-violet-50/30 dark:to-violet-950/40 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50",
     iconBox: "bg-gradient-to-br from-purple-500 to-violet-500 shadow-lg shadow-purple-500/30",
     value: "text-purple-700 dark:text-purple-300",
     subtitle: "text-purple-700/70",
     accentBar: "from-purple-400 to-violet-400",
   },
   amber: {
-    card: "from-amber-50/80 dark:from-amber-950/40 via-white dark:via-slate-900 to-orange-50/30 dark:to-orange-950/40 border-amber-100/80 hover:border-amber-200 hover:shadow-amber-200/50",
+    card: "from-amber-50/80 dark:from-amber-950/40 via-white to-orange-50/30 dark:to-orange-950/40 border-amber-100/80 hover:border-amber-200 hover:shadow-amber-200/50",
     iconBox: "bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30",
     value: "text-amber-700 dark:text-amber-300",
     subtitle: "text-amber-700/70",

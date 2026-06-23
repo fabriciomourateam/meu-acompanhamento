@@ -561,7 +561,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
           <div className="bg-gradient-to-br from-blue-500 to-indigo-600 px-5 py-4 text-white">
             <DialogHeader>
               <DialogTitle className="flex items-center gap-2.5 text-white text-base font-bold">
-                <span className="inline-flex items-center justify-center rounded-full bg-white/20 dark:bg-slate-950/20 backdrop-blur-sm w-9 h-9 text-lg">🎯</span>
+                <span className="inline-flex items-center justify-center rounded-full bg-white/20 backdrop-blur-sm w-9 h-9 text-lg">🎯</span>
                 <span>
                   RPE — Esforço Percebido
                   <span className="block text-xs font-normal text-blue-100 mt-0.5">Escala de 0 a 10</span>

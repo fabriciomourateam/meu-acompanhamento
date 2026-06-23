@@ -39,7 +39,7 @@ export function WeeklyChallengeCard({ token }: Props) {
       animate={{ opacity: 1, y: 0 }}
       className={`rounded-2xl p-4 sm:p-5 text-white shadow-lg bg-gradient-to-br ${data.color} relative overflow-hidden`}
     >
-      <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 dark:bg-slate-950/10 rounded-full blur-2xl pointer-events-none" />
+      <div className="absolute -top-8 -right-8 w-32 h-32 bg-white/10 rounded-full blur-2xl pointer-events-none" />
       <div className="relative">
         <div className="flex items-center gap-2 mb-1">
           <Target className="h-3.5 w-3.5 text-white/80" />
@@ -47,7 +47,7 @@ export function WeeklyChallengeCard({ token }: Props) {
             Desafio da Semana
           </span>
           {data.completed && (
-            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-white/20 dark:bg-slate-950/20 px-2 py-0.5 text-[10px] font-bold">
+            <span className="ml-auto inline-flex items-center gap-1 rounded-full bg-white/20 px-2 py-0.5 text-[10px] font-bold">
               <Check className="h-3 w-3" /> Concluído
             </span>
           )}
@@ -74,7 +74,7 @@ export function WeeklyChallengeCard({ token }: Props) {
             </span>
             <span className="font-bold">{Math.round(pct)}%</span>
           </div>
-          <div className="w-full bg-white/20 dark:bg-slate-950/20 rounded-full h-2 overflow-hidden">
+          <div className="w-full bg-white/20 rounded-full h-2 overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${pct}%` }}

@@ -402,7 +402,7 @@ export function DietTab({
                   className={`bg-white dark:bg-slate-800/60 rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
                 >
                   {/* Subtle edge highlight — bem sutil no escuro pra não "lavar" o card */}
-                  <div className={`absolute inset-0 bg-gradient-to-br from-white dark:from-slate-900/60 dark:from-white/[0.03] to-transparent opacity-50 pointer-events-none z-0`} />
+                  <div className={`absolute inset-0 bg-gradient-to-br from-white/60 dark:from-white/[0.03] to-transparent opacity-50 pointer-events-none z-0`} />
 
                   <CollapsibleTrigger className="w-full flex items-center justify-between py-2.5 px-4 hover:bg-slate-50/80 dark:hover:bg-slate-800/60 transition-colors text-left min-h-[48px] relative z-10">
                     <span className="font-semibold text-sm sm:text-base text-slate-700 dark:text-slate-100 pr-4">{formatTextToPlain(guideline.title)}</span>

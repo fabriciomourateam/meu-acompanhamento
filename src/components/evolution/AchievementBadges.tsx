@@ -38,7 +38,7 @@ export function AchievementBadges({ achievements }: AchievementBadgesProps) {
       <CardHeader className="bg-gradient-to-r from-yellow-500/[0.08] via-orange-500/[0.06] to-pink-500/[0.08] border-b border-white/10 backdrop-blur-xl relative overflow-hidden">
         {/* Efeito de brilho animado */}
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white dark:via-slate-900/[0.07] to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent"
           animate={{
             x: ['-100%', '100%'],
           }}
@@ -110,11 +110,11 @@ export function AchievementBadges({ achievements }: AchievementBadgesProps) {
               transition={{ delay: groupIndex * 0.1 }}
             >
               <div className="flex items-center gap-2 pb-2 border-b border-white/10">
-                <div className="p-1.5 bg-gradient-to-br from-white/10 dark:from-slate-900 to-white/5 dark:to-slate-900 rounded-md border border-white/10 backdrop-blur-sm">
+                <div className="p-1.5 bg-gradient-to-br from-white/10 to-white/5 rounded-md border border-white/10 backdrop-blur-sm">
                   <IconComponent className={`w-4 h-4 ${typeInfo.color}`} />
                 </div>
                 <h3 className="font-semibold text-white text-sm tracking-tight">{typeInfo.label}</h3>
-                <Badge variant="secondary" className="bg-white/10 dark:bg-slate-950/10 text-slate-200 border-white/20 backdrop-blur-sm text-xs px-2 py-0.5">
+                <Badge variant="secondary" className="bg-white/10 text-slate-200 border-white/20 backdrop-blur-sm text-xs px-2 py-0.5">
                   {typeAchievements.length}
                 </Badge>
               </div>

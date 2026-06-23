@@ -185,7 +185,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
       {/* Nível + Pontos — cor real do nível do banco */}
       <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
         <div className={`bg-gradient-to-br ${levelColor} p-4 sm:p-6 relative overflow-hidden`}>
-          <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 dark:bg-slate-950/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
           <div className="relative">
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -211,7 +211,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
                 <span>{nextLevelName ? `Para ${nextLevelName}` : 'Nível máximo'}</span>
                 <span className="font-bold text-white">{Math.round(progress)}%</span>
               </div>
-              <div className="w-full bg-white/20 dark:bg-slate-950/20 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
