@@ -479,7 +479,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
 
       {/* Convite pra ativar notificações (some quando já ativo ou dispensado) */}
       {nudge && (
-        <div className="flex items-center gap-2 border-b border-amber-100 dark:border-amber-900/40 bg-amber-50 dark:bg-amber-950/40 px-3 py-2">
+        <div className="flex items-center gap-2 border-b border-amber-100 dark:border-amber-500/20 bg-amber-50 dark:bg-amber-500/10 px-3 py-2">
           <BellRing className="h-4 w-4 shrink-0 text-amber-600 dark:text-amber-400" />
           <p className="min-w-0 flex-1 text-xs text-amber-800 dark:text-amber-300">
             Ative as notificações pra saber na hora que o Fabricio responder.

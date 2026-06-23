@@ -266,7 +266,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               ) : (
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 transition hover:bg-slate-100 dark:hover:bg-slate-800"
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                   <PlayCircle className="h-4 w-4 text-red-500" /> Ver execução (vídeo)
                 </button>

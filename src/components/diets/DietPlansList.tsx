@@ -1394,19 +1394,19 @@ export function DietPlansList({ patientId }: DietPlansListProps) {
               {/* Abas: Plano Alimentar, Metas, Progresso, Conquistas e Minha Evolução */}
               <Tabs defaultValue="diet" className="mt-6">
                 <TabsList className="flex w-full flex-wrap bg-gray-100 gap-1 p-1">
-                  <TabsTrigger value="diet" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] flex-1 min-w-[120px]">
+                  <TabsTrigger value="diet" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-[#00C98A] flex-1 min-w-[120px]">
                     Plano Alimentar
                   </TabsTrigger>
-                  <TabsTrigger value="challenges" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] flex-1 min-w-[80px]">
+                  <TabsTrigger value="challenges" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-[#00C98A] flex-1 min-w-[80px]">
                     Metas
                   </TabsTrigger>
-                  <TabsTrigger value="progress" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] flex-1 min-w-[100px]">
+                  <TabsTrigger value="progress" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-[#00C98A] flex-1 min-w-[100px]">
                     Progresso
                   </TabsTrigger>
-                  <TabsTrigger value="gamification" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] flex-1 min-w-[100px]">
+                  <TabsTrigger value="gamification" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-[#00C98A] flex-1 min-w-[100px]">
                     Conquistas
                   </TabsTrigger>
-                  <TabsTrigger value="evolution" className="data-[state=active]:bg-white data-[state=active]:text-[#00C98A] flex-1 min-w-[140px]">
+                  <TabsTrigger value="evolution" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-[#00C98A] flex-1 min-w-[140px]">
                     Minha Evolução
                   </TabsTrigger>
                 </TabsList>

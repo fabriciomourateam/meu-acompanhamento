@@ -447,7 +447,7 @@ export function LeaderboardWidget({ patientId, trainerUserId, periods }: Leaderb
                 <TabsTrigger
                   key={period}
                   value={period}
-                  className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 text-sm rounded-md transition-all"
+                  className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 text-sm rounded-md transition-all"
                 >
                   {PERIOD_LABELS[period]}
                 </TabsTrigger>

@@ -399,7 +399,7 @@ export function DietTab({
             {items.map((guideline: any, index: number) => (
               <Collapsible key={guideline.id || index} className="group/item">
                 <div
-                  className={`bg-white dark:bg-slate-900 rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
+                  className={`bg-white dark:bg-slate-800/60 rounded-2xl border ${borderClass} shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300 overflow-hidden relative`}
                 >
                   {/* Subtle edge highlight — bem sutil no escuro pra não "lavar" o card */}
                   <div className={`absolute inset-0 bg-gradient-to-br from-white dark:from-slate-900/60 dark:from-white/[0.03] to-transparent opacity-50 pointer-events-none z-0`} />

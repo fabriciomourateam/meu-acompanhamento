@@ -104,7 +104,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
         onChange={(e) => setContent(e.target.value)}
         maxLength={5000}
         placeholder="Compartilhe uma conquista, dúvida ou motivação com a comunidade..."
-        className="min-h-[80px] resize-none bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:ring-emerald-500"
+        className="min-h-[80px] resize-none bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus-visible:ring-emerald-500"
       />
 
       {imagePreview && (

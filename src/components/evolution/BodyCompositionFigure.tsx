@@ -59,7 +59,7 @@ const LABEL: Record<string, string> = {
 // Silhueta-fantasma (corpo cinza por trás das regiões coloridas)
 function Silhouette() {
   return (
-    <g fill="#e9edf3" stroke="#cbd5e1" strokeWidth={1.1}>
+    <g className="bio-silhouette" fill="#e9edf3" stroke="#cbd5e1" strokeWidth={1.1}>
       <ellipse cx="60" cy="20" rx="13" ry="15" />
       <rect x="54" y="33" width="12" height="10" rx="4" />
       <rect x="33" y="42" width="54" height="74" rx="18" />

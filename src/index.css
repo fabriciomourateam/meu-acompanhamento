@@ -578,7 +578,7 @@ html.dark .dark\:\!bg-slate-900 { background-color: var(--d-surface) !important;
 /* Realce sutil no topo do card (profundidade premium) sem sombra/gradiente que
    conflite — borda interna clara de 1px só no topo. */
 html.dark .dark\:bg-slate-900,
-html.dark .dark\:\!bg-slate-900 { box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.04); }
+html.dark .dark\:\!bg-slate-900 { box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.025); }
 html.dark .dark\:border-slate-700 { border-color: var(--d-border); }
 html.dark .dark\:border-slate-800 { border-color: var(--d-border-subtle); }
 html.dark .dark\:text-slate-100 { color: var(--d-text); }
@@ -624,3 +624,19 @@ html.dark .recharts-default-tooltip {
   color: #e9edef !important;
 }
 html.dark .recharts-tooltip-item { color: #cdd6db !important; }
+
+/* Boneco da bioimpedância (SVG) — corpo claro fixo no escuro vira superfície escura. */
+html.dark .bio-silhouette { fill: #243039; stroke: #3a4a55; }
+
+/* Calendário (react-day-picker) no escuro — datas/cabeçalho mais claros. */
+html.dark .rdp {
+  --rdp-accent-color: #10b981;
+  color: #cdd6db;
+}
+html.dark .rdp-head_cell,
+html.dark .rdp-caption_label,
+html.dark .rdp-nav_button { color: #8696a0; }
+html.dark .rdp-day { color: #e9edef; }
+html.dark .rdp-day_disabled,
+html.dark .rdp-day_outside { color: #4a5a63; }
+html.dark .rdp-button:hover:not([disabled]):not(.rdp-day_selected) { background-color: #1f2b33; }

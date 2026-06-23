@@ -148,7 +148,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                 initial={{ width: 0 }}
                 animate={{ width: `${(completedCount / challenges.length) * 100}%` }}
                 transition={{ duration: 0.5 }}
-                className="h-full bg-white dark:bg-slate-900 rounded-full"
+                className="h-full bg-white rounded-full"
               />
             </div>
           </div>
