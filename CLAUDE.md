@@ -14,9 +14,11 @@ O dono se chama **Fabricio**, sem acento agudo no "i". Nunca escreva "Fabrício"
 ## Tema claro/escuro — SEMPRE tematizar os dois (regra obrigatória)
 
 O portal do aluno tem **tema claro (padrão) e escuro**, alternável no menu (⋮).
-Arquitetura: **claro = base** (classes Tailwind normais, ex.: `bg-white`,
-`text-slate-900`); **escuro = variantes `dark:`** por cima. A classe `.dark` vai no
-`<html>` (light = sem classe). A paleta escura é **centralizada** em `src/index.css`
+Arquitetura: o `:root` do `index.css` é **escuro** (o "claro" nasceu como um dark
+pintado de branco à mão). Por isso o tema é controlado por classe no `<html>`:
+**claro = `.theme-light`** (variáveis claras de verdade) e **escuro = `.dark`**
+(variantes `dark:` do Tailwind + variáveis escuras do `:root`). Padrão = claro.
+A paleta escura é **centralizada** em `src/index.css`
 (bloco no fim: vars `--d-bg/surface/elevated/border/...` + overrides `html.dark`,
 recharts, react-day-picker, `.chat-doodle`, `.portal-name-card`).
 
