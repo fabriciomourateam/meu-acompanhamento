@@ -601,7 +601,7 @@ export function DietTab({
                         </SelectTrigger>
                         <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
                           {diet.releasedPlans.map((plan: any) => (
-                            <SelectItem key={plan.id} value={plan.id} className="py-3 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 cursor-pointer">
+                            <SelectItem key={plan.id} value={plan.id} className="py-3 cursor-pointer hover:bg-emerald-50 dark:hover:bg-emerald-500/10 focus:bg-emerald-100 focus:text-emerald-900 dark:focus:bg-emerald-500/20 dark:focus:text-emerald-50 data-[state=checked]:bg-emerald-50 dark:data-[state=checked]:bg-emerald-500/10">
                               <div className="flex items-center gap-2">
                                 <Utensils className="w-4 h-4 text-emerald-500 flex-shrink-0" />
                                 <span className="truncate">{plan.name}</span>
