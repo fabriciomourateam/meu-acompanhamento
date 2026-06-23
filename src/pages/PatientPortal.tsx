@@ -1117,7 +1117,7 @@ export default function PatientPortal() {
             }
           >
           <div
-            className="rounded-[14px] bg-white portal-name-card dark:ring-1 dark:ring-white/5 px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
+            className="rounded-[14px] bg-white portal-name-card dark:ring-1 dark:ring-emerald-400/15 px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
               {patientId && (
