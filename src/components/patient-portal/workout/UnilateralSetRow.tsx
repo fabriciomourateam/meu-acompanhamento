@@ -79,7 +79,7 @@ function WeightInput({ value, placeholder, onChange, ariaLabel }: {
         onChange(n === '' || n === '.' ? null : Number(n));
       }}
       onBlur={() => setText(null)}
-      className="h-10 text-center font-semibold tabular-nums bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
+      className="h-10 text-center font-semibold tabular-nums bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
       aria-label={ariaLabel}
     />
   );
@@ -100,7 +100,7 @@ function RepsInput({ value, placeholder, onChange, ariaLabel }: {
         const n = e.target.value.replace(/[^0-9]/g, '');
         onChange(n === '' ? null : Number(n));
       }}
-      className="h-10 text-center font-semibold tabular-nums bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
+      className="h-10 text-center font-semibold tabular-nums bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400"
       aria-label={ariaLabel}
     />
   );

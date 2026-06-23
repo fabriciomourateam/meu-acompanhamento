@@ -299,7 +299,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   )}
                 </div>
                 {/* Cabeçalho de colunas (mesmo das séries de trabalho) */}
-                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70">
+                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70 dark:text-amber-300/80">
                   <span className="text-center">Série</span>
                   <span className="text-center">Peso (kg)</span>
                   <span className="text-center">Reps</span>
@@ -386,7 +386,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               )}
 
               {!sidesMode && (
-                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">
+                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">
                   <span className="text-center">Série</span>
                   <span className="text-center">Peso (kg)</span>
                   <span className="text-center">Reps</span>

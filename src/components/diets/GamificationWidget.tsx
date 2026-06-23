@@ -68,7 +68,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
 
   if (loading) {
     return (
-      <Card className="bg-white border border-slate-200 rounded-2xl">
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl">
         <CardHeader><Skeleton className="h-6 w-48" /></CardHeader>
         <CardContent><Skeleton className="h-32 w-full" /></CardContent>
       </Card>
@@ -106,7 +106,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
   // comecar a sequencia).
   const streakCard = (
     <Card className={`rounded-2xl border-0 overflow-hidden shadow-lg ${
-      streakActive ? '' : 'bg-slate-50 border border-slate-200 shadow-sm'
+      streakActive ? '' : 'bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm'
     }`}>
       {streakActive ? (
         <div className="bg-gradient-to-br from-orange-500 via-orange-400 to-red-500 p-4 sm:p-6 relative overflow-hidden">
@@ -158,8 +158,8 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
             ✨
           </motion.span>
           <div className="flex-1 min-w-0">
-            <p className="text-base font-bold text-slate-700">Sua sequência começa hoje 🔥</p>
-            <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p className="text-base font-bold text-slate-700 dark:text-slate-200">Sua sequência começa hoje 🔥</p>
+            <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400 mt-0.5">
               Marque a primeira meta e veja o fogo acender.
             </p>
           </div>
@@ -185,7 +185,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
       {/* Nível + Pontos — cor real do nível do banco */}
       <Card className="rounded-2xl border-0 shadow-lg overflow-hidden">
         <div className={`bg-gradient-to-br ${levelColor} p-4 sm:p-6 relative overflow-hidden`}>
-          <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 rounded-full blur-2xl pointer-events-none" />
+          <div className="absolute -top-8 -right-8 w-36 h-36 bg-white/10 dark:bg-slate-950/10 rounded-full blur-2xl pointer-events-none" />
           <div className="relative">
             <div className="flex items-start justify-between mb-4">
               <div>
@@ -211,12 +211,12 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
                 <span>{nextLevelName ? `Para ${nextLevelName}` : 'Nível máximo'}</span>
                 <span className="font-bold text-white">{Math.round(progress)}%</span>
               </div>
-              <div className="w-full bg-white/20 rounded-full h-2.5 overflow-hidden">
+              <div className="w-full bg-white/20 dark:bg-slate-950/20 rounded-full h-2.5 overflow-hidden">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${progress}%` }}
                   transition={{ duration: 1.2, ease: 'easeOut' }}
-                  className="h-full bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]"
+                  className="h-full bg-white dark:bg-slate-900 rounded-full shadow-[0_0_8px_rgba(255,255,255,0.6)]"
                 />
               </div>
               <p className="text-xs text-white/60 mt-1.5">
@@ -238,13 +238,13 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
       {token && <WeeklyChallengeCard token={token} />}
 
       {/* Conquistas */}
-      <Card className="bg-white border-2 border-slate-200 rounded-2xl shadow-sm">
+      <Card className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-sm">
         <CardHeader className="p-4 sm:p-6 pb-3">
           <div className="flex items-center justify-between gap-2 mb-3">
-            <CardTitle className="text-base sm:text-lg text-slate-800 flex items-center gap-2 font-bold">
+            <CardTitle className="text-base sm:text-lg text-slate-800 dark:text-slate-200 flex items-center gap-2 font-bold">
               <Trophy className="w-5 h-5 text-amber-500 flex-shrink-0" />
               Conquistas
-              <Badge className="bg-slate-100 text-slate-600 border-slate-300 text-xs ml-1">
+              <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 border-slate-300 dark:border-slate-700 text-xs ml-1">
                 {achievements.length}/{visibleTemplates.length}
               </Badge>
             </CardTitle>
@@ -256,7 +256,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
               className={`text-xs rounded-full px-2.5 py-1 font-medium transition-colors ${
                 selectedCategory === 'all'
                   ? 'bg-emerald-500 text-white'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
               }`}
             >
               Todas
@@ -270,7 +270,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
                   className={`text-xs rounded-full px-2.5 py-1 font-medium transition-colors ${
                     selectedCategory === c
                       ? 'bg-emerald-500 text-white'
-                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                      : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200'
                   }`}
                 >
                   {meta?.emoji} {meta?.label || c}
@@ -283,7 +283,7 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
           {filteredTemplates.length === 0 ? (
             <div className="text-center py-6">
               <Trophy className="w-10 h-10 mx-auto mb-3 text-slate-300" />
-              <p className="text-sm text-slate-400">Nenhuma conquista nessa categoria</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500">Nenhuma conquista nessa categoria</p>
             </div>
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -302,8 +302,8 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
                     animate={{ opacity: 1, scale: 1 }}
                     className={`rounded-xl p-3 border-2 transition-all ${
                       isUnlocked
-                        ? 'bg-emerald-50 border-emerald-300 shadow-sm'
-                        : 'bg-slate-50 border-slate-200 opacity-60'
+                        ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 shadow-sm'
+                        : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 opacity-60'
                     }`}
                   >
                     <div className="flex flex-col items-center text-center gap-2">
@@ -311,11 +311,11 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
                         className={`w-12 h-12 rounded-full flex items-center justify-center shadow-sm ${
                           isUnlocked
                             ? `bg-gradient-to-br ${gradient}`
-                            : 'bg-slate-200'
+                            : 'bg-slate-200 dark:bg-slate-800'
                         }`}
                       >
                         {isSecret ? (
-                          <Lock className="w-5 h-5 text-slate-400" />
+                          <Lock className="w-5 h-5 text-slate-400 dark:text-slate-500" />
                         ) : (
                           <span className="text-2xl leading-none">
                             {template.emoji || '🏆'}
@@ -325,27 +325,27 @@ export function GamificationWidget({ patientId, token, onGoToMetas }: Gamificati
                       <div>
                         <p
                           className={`font-semibold text-xs leading-tight ${
-                            isUnlocked ? 'text-slate-800' : 'text-slate-500'
+                            isUnlocked ? 'text-slate-800 dark:text-slate-200' : 'text-slate-500 dark:text-slate-400'
                           }`}
                         >
                           {isSecret ? '???' : template.achievement_name}
                         </p>
                         {!isSecret && template.achievement_description && (
-                          <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
                             {template.achievement_description}
                           </p>
                         )}
                         <Badge
                           className={`mt-1.5 text-xs font-semibold ${
                             isUnlocked
-                              ? 'bg-emerald-100 text-emerald-700 border-emerald-300'
-                              : 'bg-slate-100 text-slate-500 border-slate-200'
+                              ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-300'
+                              : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700'
                           }`}
                         >
                           +{template.points_earned} pts
                         </Badge>
                         {isUnlocked && unlockedAt && (
-                          <p className="text-xs text-emerald-600 mt-1 font-medium">
+                          <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1 font-medium">
                             ✓ {new Date(unlockedAt).toLocaleDateString('pt-BR', {
                               day: '2-digit', month: '2-digit',
                             })}

@@ -59,11 +59,11 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId 
     >
       <button
         onClick={handleClick}
-        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40 dark:hover:bg-amber-900/40"
+        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40 dark:bg-amber-950/20 dark:hover:bg-amber-900/40"
       >
         <span className="flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
           📌 Orientações importantes
-          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${seen ? 'bg-amber-200 text-amber-800 dark:text-amber-300' : 'bg-amber-500 text-white'}`}>
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${seen ? 'bg-amber-200 dark:bg-amber-400/25 text-amber-800 dark:text-amber-200' : 'bg-amber-500 text-white'}`}>
             {totalCount}
           </span>
           {!seen && (

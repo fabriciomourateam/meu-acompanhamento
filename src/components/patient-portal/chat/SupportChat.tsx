@@ -444,7 +444,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
   const canSend = (!!body.trim() || !!pendingFile) && !sending && !recorder.recording;
 
   return (
-    <div className="flex h-full flex-col overflow-hidden border-0 bg-white dark:bg-slate-900 sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
+    <div className="flex h-full flex-col overflow-hidden border-0 bg-white dark:bg-slate-950 sm:h-[72vh] sm:rounded-2xl sm:border sm:border-slate-200 sm:shadow-sm">
       {/* Cabeçalho (respeita a status bar do celular via safe-area no topo) */}
       <div className="flex items-center gap-3 border-b border-slate-100 dark:border-slate-800 bg-emerald-500 px-4 py-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-white/20 dark:bg-slate-950/20">
@@ -584,7 +584,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
                   className={`order-2 max-w-[82%] rounded-2xl px-3 py-2 text-sm ${
                     m.is_mine
                       ? 'rounded-br-sm bg-emerald-500 text-white'
-                      : 'rounded-bl-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200'
+                      : 'rounded-bl-sm border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200'
                   }`}
                 >
                   {m.deleted ? (

@@ -96,9 +96,9 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
   };
 
   const baseInput =
-    'h-11 text-center font-semibold tabular-nums bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal ' +
+    'h-11 text-center font-semibold tabular-nums bg-white dark:bg-slate-950 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 placeholder:font-normal ' +
     'focus-visible:!ring-1 focus-visible:!ring-blue-400 focus-visible:!ring-offset-0 focus-visible:!border-blue-400';
-  const stepBtn = 'hidden sm:inline-flex h-11 w-9 p-0 shrink-0 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900';
+  const stepBtn = 'hidden sm:inline-flex h-11 w-9 p-0 shrink-0 border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900';
 
   return (
     <div
