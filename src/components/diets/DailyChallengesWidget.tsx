@@ -158,7 +158,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
       {/* Lista de Desafios */}
       <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg text-[#222222] flex items-center gap-2">
+          <CardTitle className="text-base sm:text-lg text-[#222222] dark:text-slate-100 flex items-center gap-2">
             <Target className="w-5 h-5 text-[#00C98A] flex-shrink-0" />
             Metas Diárias
           </CardTitle>
@@ -176,7 +176,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                   animate={{ opacity: 1, y: 0 }}
                   className={`bg-white dark:bg-slate-900 rounded-xl p-3 sm:p-4 border transition-all duration-200 ${
                     isCompleted
-                      ? 'border-[#00C98A] bg-[#00C98A]/5'
+                      ? 'border-[#00C98A] dark:border-emerald-800/60 bg-[#00C98A]/5 dark:!bg-emerald-950/40'
                       : 'border-gray-100 dark:border-slate-800 hover:shadow-md'
                   }`}
                 >
@@ -198,12 +198,12 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                     {/* Coluna de conteúdo (título + descrição + badge de pontos) */}
                     <div className="flex-1 min-w-0">
                       <h4 className={`font-semibold text-sm sm:text-base transition-colors ${
-                        isCompleted ? 'text-[#00A875] line-through' : 'text-[#222222]'
+                        isCompleted ? 'text-[#00A875] line-through' : 'text-[#222222] dark:text-slate-100'
                       }`}>
                         {challenge.emoji && <span className="mr-2">{challenge.emoji}</span>}
                         {challenge.challenge_name}
                       </h4>
-                      <p className="text-xs sm:text-sm text-[#777777] mt-1">
+                      <p className="text-xs sm:text-sm text-[#777777] dark:text-slate-400 mt-1">
                         {challenge.challenge_description}
                       </p>
                       <Badge className={`mt-2 text-xs ${

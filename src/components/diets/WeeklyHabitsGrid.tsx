@@ -135,7 +135,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
   return (
     <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
       <CardHeader>
-        <CardTitle className="text-[#222222] flex items-center gap-2">
+        <CardTitle className="text-[#222222] dark:text-slate-100 flex items-center gap-2">
           <span className="text-lg">Sua semana</span>
         </CardTitle>
       </CardHeader>
@@ -159,7 +159,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Icon className={`w-5 h-5 flex-shrink-0 ${iconColorClass}`} />
-                  <span className="text-sm font-semibold text-[#222222]">{habit.label}</span>
+                  <span className="text-sm font-semibold text-[#222222] dark:text-slate-100">{habit.label}</span>
                 </div>
                 <div className="grid grid-cols-7 gap-2">
                   {daysOfWeek.map((day, dayIndex) => {
@@ -168,7 +168,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
 
                     return (
                       <div key={dayIndex} className="flex flex-col items-center gap-1">
-                        <div className={`text-xs font-medium ${today ? 'text-[#00C98A] font-bold' : 'text-[#777777]'}`}>
+                        <div className={`text-xs font-medium ${today ? 'text-[#00C98A] font-bold' : 'text-[#777777] dark:text-slate-400'}`}>
                           {day}
                         </div>
                         <div
@@ -196,13 +196,13 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
         <div className="hidden md:block space-y-4">
           {/* Header com dias da semana */}
           <div className="grid grid-cols-8 gap-2 items-center">
-            <div className="text-sm font-semibold text-[#222222]">Meta</div>
+            <div className="text-sm font-semibold text-[#222222] dark:text-slate-100">Meta</div>
             {daysOfWeek.map((day, index) => (
               <div
                 key={index}
                 className={`text-center text-sm font-medium cursor-pointer transition-colors ${isToday(index)
                   ? 'text-[#00C98A] font-bold'
-                  : 'text-[#777777]'
+                  : 'text-[#777777] dark:text-slate-400'
                   }`}
                 onClick={() => setSelectedDay(index)}
               >
@@ -227,7 +227,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
                 transition={{ delay: habitIndex * 0.1 }}
                 className="grid grid-cols-8 gap-2 items-center"
               >
-                <div className="flex items-center gap-2 text-sm text-[#222222] font-medium">
+                <div className="flex items-center gap-2 text-sm text-[#222222] dark:text-slate-100 font-medium">
                   <Icon className={`w-4 h-4 flex-shrink-0 ${iconColorClass}`} />
                   <span>{habit.label}</span>
                 </div>

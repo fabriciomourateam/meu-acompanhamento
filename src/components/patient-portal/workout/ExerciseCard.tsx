@@ -534,7 +534,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                       maxLength={2000}
                       autoFocus
                       placeholder="Ex.: banco no furo 4, peguei 12kg em cada lado, ombro incomodou um pouco…"
-                      className="mt-1.5 w-full resize-y rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 text-xs text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
+                      className="mt-1.5 w-full resize-y rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
                     />
                     <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">Salvo automaticamente — aparece no próximo treino deste exercício.</p>
                   </>
