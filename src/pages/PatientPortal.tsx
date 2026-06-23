@@ -198,11 +198,11 @@ export default function PatientPortal() {
     loadPortalData();
   }, [token]);
 
-  // Tutorial de boas-vindas no PRIMEIRO acesso (uma vez por aparelho). Só dispara
-  // quando o portal é válido (patientId definido), pra não aparecer na tela de
-  // acesso negado. Depois fica reabrível pelo menu (⋮) → Tutorial.
+  // Tutorial de boas-vindas no PRIMEIRO acesso (uma vez por aparelho).
+  // Por enquanto SÓ para o owner (admin) — `isOwnerPatient`. Pra liberar a todos
+  // os alunos no futuro, é só remover a checagem de owner aqui e no item do menu.
   useEffect(() => {
-    if (!patientId) return;
+    if (!patient || !isOwnerPatient(patient)) return;
     try {
       if (!localStorage.getItem('ma_tutorial_seen')) {
         setTutorialWelcome(true);
@@ -210,7 +210,7 @@ export default function PatientPortal() {
         localStorage.setItem('ma_tutorial_seen', '1');
       }
     } catch { /* localStorage indisponível — ok */ }
-  }, [patientId]);
+  }, [patient]);
 
 
   // Salvar token no localStorage para PWA (permite abrir direto no portal)
@@ -1252,13 +1252,15 @@ export default function PatientPortal() {
                   {/* Instalar app: item rotulado (some sozinho quando já instalado).
                       Substitui o antigo ícone ⬇️ solto no cabeçalho. */}
                   <InstallPWAButton asMenuItem useInstallPage={isOwnerPatient(patient)} />
-                  <DropdownMenuItem
-                    onClick={() => { setTutorialWelcome(false); setTutorialOpen(true); }}
-                    className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
-                  >
-                    <GraduationCap className="w-4 h-4 mr-2 text-emerald-500" />
-                    Tutorial
-                  </DropdownMenuItem>
+                  {isOwnerPatient(patient) && (
+                    <DropdownMenuItem
+                      onClick={() => { setTutorialWelcome(false); setTutorialOpen(true); }}
+                      className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
+                    >
+                      <GraduationCap className="w-4 h-4 mr-2 text-emerald-500" />
+                      Tutorial
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={loadPortalData}
                     className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
