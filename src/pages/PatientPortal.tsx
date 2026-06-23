@@ -55,6 +55,7 @@ import {
   FileImage,
   Crown,
   ExternalLink,
+  GraduationCap,
   LogOut
 } from 'lucide-react';
 import {
@@ -68,6 +69,7 @@ import {
 import { WeightInput } from '@/components/evolution/WeightInput';
 import { StreakHeader } from '@/components/patient-portal/StreakHeader';
 import { ThemeToggleMenuItem } from '@/components/patient-portal/ThemeToggleMenuItem';
+import { TutorialModal } from '@/components/patient-portal/TutorialModal';
 import { PatientNotifications } from '@/components/patient-portal/PatientNotifications';
 import { EnableNotificationsBanner } from '@/components/patient-portal/EnableNotificationsBanner';
 import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
@@ -149,6 +151,10 @@ export default function PatientPortal() {
   }, [token]);
   const portalRef = useRef<HTMLDivElement>(null);
   const [weightInputOpen, setWeightInputOpen] = useState(false);
+  // Tutorial de uso do app (vídeo). Abre sozinho no 1º acesso e fica reabrível
+  // pelo item "Tutorial" no menu (⋮).
+  const [tutorialOpen, setTutorialOpen] = useState(false);
+  const [tutorialWelcome, setTutorialWelcome] = useState(false);
   // Quando trainer esta impersonando, abre o modal pra trocar de aluno
   // direto do banner sem precisar voltar pro /admin.
   const [switchPatientOpen, setSwitchPatientOpen] = useState(false);
@@ -191,6 +197,20 @@ export default function PatientPortal() {
   useEffect(() => {
     loadPortalData();
   }, [token]);
+
+  // Tutorial de boas-vindas no PRIMEIRO acesso (uma vez por aparelho).
+  // Por enquanto SÓ para o owner (admin) — `isOwnerPatient`. Pra liberar a todos
+  // os alunos no futuro, é só remover a checagem de owner aqui e no item do menu.
+  useEffect(() => {
+    if (!patient || !isOwnerPatient(patient)) return;
+    try {
+      if (!localStorage.getItem('ma_tutorial_seen')) {
+        setTutorialWelcome(true);
+        setTutorialOpen(true);
+        localStorage.setItem('ma_tutorial_seen', '1');
+      }
+    } catch { /* localStorage indisponível — ok */ }
+  }, [patient]);
 
 
   // Salvar token no localStorage para PWA (permite abrir direto no portal)
@@ -1232,6 +1252,15 @@ export default function PatientPortal() {
                   {/* Instalar app: item rotulado (some sozinho quando já instalado).
                       Substitui o antigo ícone ⬇️ solto no cabeçalho. */}
                   <InstallPWAButton asMenuItem useInstallPage={isOwnerPatient(patient)} />
+                  {isOwnerPatient(patient) && (
+                    <DropdownMenuItem
+                      onClick={() => { setTutorialWelcome(false); setTutorialOpen(true); }}
+                      className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
+                    >
+                      <GraduationCap className="w-4 h-4 mr-2 text-emerald-500" />
+                      Tutorial
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem
                     onClick={loadPortalData}
                     className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
@@ -1298,6 +1327,9 @@ export default function PatientPortal() {
           }}
         />
       )}
+
+      {/* Tutorial de uso do app (boas-vindas no 1º acesso + reabrível pelo menu). */}
+      <TutorialModal open={tutorialOpen} onOpenChange={setTutorialOpen} welcome={tutorialWelcome} />
 
       {/* Modal de Exportação da Evolução */}
       {showEvolutionExport && patient && (

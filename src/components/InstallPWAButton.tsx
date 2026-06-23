@@ -118,7 +118,7 @@ export function InstallPWAButton({
         <DropdownMenuItem
           // Abre o dialog após o menu fechar pra evitar conflito de foco entre os dois.
           onSelect={() => setTimeout(() => (useInstallPage ? navigate('/instalar') : setShowInstructions(true)), 0)}
-          className={cn('text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5', className)}
+          className={cn('text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-700 cursor-pointer py-2.5', className)}
         >
           <Download className="w-4 h-4 mr-2 text-emerald-500" />
           Instalar app
