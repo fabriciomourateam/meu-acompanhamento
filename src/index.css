@@ -635,8 +635,11 @@ html.dark .rdp {
 }
 html.dark .rdp-head_cell,
 html.dark .rdp-caption_label,
-html.dark .rdp-nav_button { color: #8696a0; }
-html.dark .rdp-day { color: #e9edef; }
+html.dark .rdp-nav_button { color: #aebac1 !important; }
+html.dark .rdp-day,
+html.dark .rdp-day_button,
+html.dark .rdp-button_reset,
+html.dark .rdp-button { color: #f1f5f9 !important; }
 html.dark .rdp-day_disabled,
-html.dark .rdp-day_outside { color: #4a5a63; }
+html.dark .rdp-day_outside { color: #566571 !important; }
 html.dark .rdp-button:hover:not([disabled]):not(.rdp-day_selected) { background-color: #1f2b33; }

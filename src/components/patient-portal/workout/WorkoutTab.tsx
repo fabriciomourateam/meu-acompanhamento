@@ -52,7 +52,7 @@ function PlanHeader({
   const freq = ci > 0 ? raw.slice(ci + 1).trim() : '';
   const isSelector = !!(onPrev || onNext);
   return (
-    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 dark:bg-gradient-to-r dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 px-2 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm">
+    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 dark:border-emerald-700/60 bg-white dark:bg-slate-900 dark:!bg-emerald-950/40 px-2 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm">
       {isSelector ? (
         <button
           type="button"
