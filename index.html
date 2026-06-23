@@ -22,9 +22,10 @@
         var t = localStorage.getItem('ma-theme');
         var r = document.documentElement;
         var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        // Claro é o PADRÃO: aplica theme-light (variáveis claras) já que o :root é escuro.
+        // Claro é o PADRÃO e fica SEM classe (o "claro" deste app é um dark pintado
+        // de branco à mão; NÃO aplicar theme-light pra não trocar a base de variáveis).
         if (dark) { r.classList.add('dark'); r.style.colorScheme = 'dark'; }
-        else { r.classList.add('theme-light'); r.style.colorScheme = 'only light'; }
+        else { r.style.colorScheme = 'only light'; }
       } catch (e) {}
     })();
   </script>
