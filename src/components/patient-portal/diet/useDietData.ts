@@ -136,10 +136,21 @@ export function useDietData(patientId: string) {
         const today = await dietConsumptionService.getTodayConsumption(patientId);
         if (cancelled) return;
         const serverMealIds: string[] = Array.isArray(today?.consumed_meals) ? today!.consumed_meals : [];
-        if (serverMealIds.length === 0) return;
-        const validIds = new Set(planDetails.diet_meals.map((m: any) => m.id));
-        const restoredMeals = serverMealIds.filter((id) => validIds.has(id));
-        if (restoredMeals.length === 0) return;
+        const serverFoodIds: string[] = Array.isArray(today?.consumed_foods) ? today!.consumed_foods : [];
+        if (serverMealIds.length === 0 && serverFoodIds.length === 0) return;
+
+        const validMealIds = new Set(planDetails.diet_meals.map((m: any) => m.id));
+        const validFoodIds = new Set<string>();
+        planDetails.diet_meals.forEach((m: any) => (m.diet_foods || []).forEach((f: any) => { if (f?.id) validFoodIds.add(f.id); }));
+        const restoredMeals = serverMealIds.filter((id) => validMealIds.has(id));
+        // Alimentos consumidos: os salvos no servidor (granular) + os derivados das
+        // refeições completas (compat com registros antigos sem consumed_foods).
+        const restoredFoods = serverFoodIds.filter((id) => validFoodIds.has(id));
+        restoredMeals.forEach((id) => {
+          const meal = planDetails.diet_meals.find((m: any) => m.id === id);
+          (meal?.diet_foods || []).forEach((f: any) => { if (f?.id) restoredFoods.push(f.id); });
+        });
+        if (restoredMeals.length === 0 && restoredFoods.length === 0) return;
 
         const todayKey = getSaoPauloISODate();
         setConsumedMeals((prev) => {
@@ -150,10 +161,7 @@ export function useDietData(patientId: string) {
         });
         setConsumedFoods((prev) => {
           const next = new Set(prev);
-          restoredMeals.forEach((id) => {
-            const meal = planDetails.diet_meals.find((m: any) => m.id === id);
-            (meal?.diet_foods || []).forEach((f: any) => { if (f?.id) next.add(f.id); });
-          });
+          restoredFoods.forEach((id) => next.add(id));
           try { localStorage.setItem(`consumedFoods_${patientId}_${todayKey}`, JSON.stringify([...next])); } catch { /* ignora */ }
           return next;
         });
@@ -374,7 +382,7 @@ export function useDietData(patientId: string) {
 
     if (planDetails) {
       try {
-        await dietConsumptionService.saveDailyConsumption(patientId, planDetails.id, Array.from(newConsumedMeals), planDetails);
+        await dietConsumptionService.saveDailyConsumption(patientId, planDetails.id, Array.from(newConsumedMeals), planDetails, Array.from(newConsumedFoods));
         await dietConsumptionService.checkAndUnlockAchievements(patientId);
       } catch (error) {
         console.error('Erro ao salvar consumo:', error);

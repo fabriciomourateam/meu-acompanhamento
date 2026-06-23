@@ -17,6 +17,7 @@ export interface DailyConsumption {
   target_fats?: number;
   completion_percentage: number;
   consumed_meals: string[];
+  consumed_foods?: string[];
 }
 
 export interface PatientPoints {
@@ -50,7 +51,8 @@ export const dietConsumptionService = {
     patientId: string,
     planId: string,
     consumedMealIds: string[],
-    planDetails: any
+    planDetails: any,
+    consumedFoodIds: string[] = []
   ): Promise<DailyConsumption> {
     const today = getSaoPauloISODate();
 
@@ -106,6 +108,7 @@ export const dietConsumptionService = {
       target_fats: targetFats,
       completion_percentage: completionPercentage,
       consumed_meals: consumedMealIds,
+      consumed_foods: consumedFoodIds,
     };
 
     if (existing) {
