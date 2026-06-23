@@ -551,8 +551,8 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
       <Dialog open={showRpeHelp} onOpenChange={setShowRpeHelp}>
         <DialogContent
           className="bg-white dark:bg-slate-900 max-w-md p-0 overflow-hidden border-0 rounded-2xl shadow-2xl gap-0
-                     [&>button]:rounded-full [&>button]:p-1.5 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm
-                     [&>button]:text-slate-600 [&>button]:hover:bg-white [&>button]:hover:text-slate-900
+                     [&>button]:rounded-full [&>button]:p-1.5 [&>button]:bg-white/80 dark:[&>button]:bg-slate-800/80 [&>button]:backdrop-blur-sm
+                     [&>button]:text-slate-600 dark:[&>button]:text-slate-300 [&>button]:hover:bg-white dark:[&>button]:hover:bg-slate-700 [&>button]:hover:text-slate-900 dark:[&>button]:hover:text-slate-100
                      [&>button]:focus:ring-2 [&>button]:focus:ring-blue-400 [&>button]:focus:ring-offset-0
                      [&>button]:transition-colors [&>button]:shadow-sm
                      [&>button>svg]:h-4 [&>button>svg]:w-4"

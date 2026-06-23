@@ -642,7 +642,7 @@ export function DietTab({
                         <div
                           key={i}
                           className={`flex-1 rounded-full bg-slate-100 dark:bg-slate-800 transition-all duration-500 border border-transparent ${i < consumedMainCount
-                            ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] border-emerald-200/50'
+                            ? 'bg-gradient-to-r from-emerald-400 to-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)] border-emerald-200/50 dark:border-emerald-900/50'
                             : 'bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'
                             }`}
                         />
@@ -923,7 +923,7 @@ export function DietTab({
                                         })}
                                       </div>
                                     ) : (
-                                      <p className="text-sm text-[#777777] text-center py-4">Nenhum alimento adicionado</p>
+                                      <p className="text-sm text-[#777777] dark:text-slate-400 text-center py-4">Nenhum alimento adicionado</p>
                                     )}
                                     {meal.instructions && meal.instructions.replace(/<[^>]*>/g, '').replace(/&nbsp;/gi, '').trim() && (
                                       <div className="mt-3 p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-lg">
@@ -971,8 +971,8 @@ export function DietTab({
                 <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-amber-200 dark:border-amber-900/50">
                   <CardContent className="p-6 sm:p-8 text-center">
                     <AlertTriangle className="w-12 h-12 sm:w-16 sm:h-16 text-amber-500 mx-auto mb-3 sm:mb-4" />
-                    <h3 className="text-lg sm:text-xl font-bold text-[#222222] mb-2">Refeições não disponíveis</h3>
-                    <p className="text-sm sm:text-base text-[#777777] mb-4">
+                    <h3 className="text-lg sm:text-xl font-bold text-[#222222] dark:text-slate-100 mb-2">Refeições não disponíveis</h3>
+                    <p className="text-sm sm:text-base text-[#777777] dark:text-slate-400 mb-4">
                       Não foi possível carregar as refeições deste plano alimentar.
                     </p>
                     <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/40 p-3 rounded-lg">

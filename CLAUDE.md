@@ -11,6 +11,35 @@ arquivos em sincronia com os equivalentes do repo `controle-de-pacientes`.
 
 O dono se chama **Fabricio**, sem acento agudo no "i". Nunca escreva "Fabrício". Vale pra TUDO: respostas em chat, mensagens de commit, descrições de PR, comentários no código, nomes em seed/test data, copy de UI, etc. Se você encontrar "Fabrício" (com acento) já existente no código/banco, NÃO altere automaticamente — sinaliza pro dono e pergunta se quer normalizar. Mas em qualquer texto NOVO que você produzir, é sempre "Fabricio".
 
+## Tema claro/escuro — SEMPRE tematizar os dois (regra obrigatória)
+
+O portal do aluno tem **tema claro (padrão) e escuro**, alternável no menu (⋮).
+Arquitetura: **claro = base** (classes Tailwind normais, ex.: `bg-white`,
+`text-slate-900`); **escuro = variantes `dark:`** por cima. A classe `.dark` vai no
+`<html>` (light = sem classe). A paleta escura é **centralizada** em `src/index.css`
+(bloco no fim: vars `--d-bg/surface/elevated/border/...` + overrides `html.dark`,
+recharts, react-day-picker, `.chat-doodle`, `.portal-name-card`).
+
+**Ao adicionar/editar QUALQUER UI, já entregue os DOIS temas — o dono não precisa
+pedir "nos dois formatos".** Checklist:
+
+- Toda cor de fundo/texto/borda clara precisa de par `dark:` (ex.: `bg-white
+  dark:bg-slate-900`, `text-slate-900 dark:text-slate-100`).
+- **Armadilhas que escapam de varredura automática** (sempre conferir à mão):
+  - **Estilo inline** (`style={{ backgroundColor }}`) vence `dark:` → ler o tema via
+    `useTheme()`/`resolvedTheme` e escolher a cor.
+  - **Cores hex fixas** (`text-[#222222]`, `bg-[#fff]`) — sem `dark:` somem no escuro.
+  - **Opacidade** (`bg-white/80`, `bg-emerald-50/60`, `border-cor-100/80`) — o `/NN`
+    bloqueia conversões por regex; precisa de `dark:` manual.
+  - **Gradientes** terminando em branco (`to-white`, `via-white`) desbotam no escuro.
+  - **Branco SOBRE card colorido** (overlays `bg-white/15`, números/brilhos) deve
+    ficar claro nos DOIS temas — NÃO darkenizar.
+  - **Conteúdo rich text do back-office** (cores embutidas) é tratado por
+    `adaptHtmlColorsForDark()` em `src/lib/utils.ts` no render.
+- Componentes **só do back-office** (modais/forms em `src/components/diets/*Modal`,
+  `DietPlanForm`, `DietPlansList`, `TemplateLibraryModal`, telas de **export/PDF**)
+  **não** entram no tema do portal — deixar claros.
+
 ## Arquitetura do produto
 
 Este projeto (`meu-acompanhamento`) é um **braço do MyShape**. A divisão de papéis é:
