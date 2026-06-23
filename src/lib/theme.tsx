@@ -19,12 +19,11 @@ function resolve(mode: ThemeMode): ResolvedTheme {
 
 /**
  * Aplica o tema no <html>:
- * - light (PADRÃO): NENHUMA classe nova — idêntico à produção. ATENÇÃO: o "claro"
- *   deste app é um tema ESCURO "pintado de branco" (o `:root` do index.css é escuro;
- *   os componentes são pintados à mão com classes claras explícitas). NÃO aplicar
- *   `.theme-light` aqui: isso trocaria a camada de variáveis por baixo da pintura e
- *   poderia mexer/quebrar elementos que dependem do `:root`. O claro deve ficar
- *   byte-a-byte como a produção que já foi validada.
+ * - light (PADRÃO): classe `theme-light` → variáveis CLARAS do index.css. O "claro"
+ *   deste app nasceu como um tema ESCURO "pintado de branco" (o `:root` é escuro);
+ *   aplicar `.theme-light` promove o claro a um branco DE VERDADE (variáveis claras
+ *   por baixo da pintura). PREVIEW: validar visualmente se nenhum componente
+ *   baseado em variável ficou "lavado" (texto claro sobre fundo claro).
  * - dark: classe `dark` (ativa os `dark:` do Tailwind) + variáveis escuras do `:root`.
  * `color-scheme` é declarado explicitamente pra o navegador/SO NÃO forçar auto-dark.
  */
@@ -35,9 +34,8 @@ function applyResolved(resolved: ResolvedTheme) {
     root.classList.remove("theme-light");
     root.style.colorScheme = "dark";
   } else {
-    // Claro = sem classe (NÃO aplicar theme-light — ver nota acima).
+    root.classList.add("theme-light");
     root.classList.remove("dark");
-    root.classList.remove("theme-light");
     root.style.colorScheme = "only light";
   }
 }
