@@ -98,7 +98,7 @@ export function PostComposer({ patientId, onPosted, category: categoryProp, onCa
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-950 p-4 shadow-sm">
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 shadow-sm">
       <Textarea
         value={content}
         onChange={(e) => setContent(e.target.value)}
