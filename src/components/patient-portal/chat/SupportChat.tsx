@@ -501,7 +501,7 @@ export function SupportChat({ patientId, active = true, onBack, useInstallPage }
       <InstallPWAButton triggerless open={showInstall} onOpenChange={setShowInstall} />
 
       {/* Thread */}
-      <div className="scrollbar-emerald flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-slate-50 dark:bg-slate-900 px-3 py-4">
+      <div className="scrollbar-emerald chat-doodle flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto bg-slate-50 dark:bg-slate-900 px-3 py-4">
         {loading ? (
           <div className="flex flex-1 items-center justify-center text-slate-400 dark:text-slate-500">
             <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando...
