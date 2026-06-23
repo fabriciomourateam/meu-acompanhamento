@@ -52,7 +52,7 @@ function PlanHeader({
   const freq = ci > 0 ? raw.slice(ci + 1).trim() : '';
   const isSelector = !!(onPrev || onNext);
   return (
-    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 px-2 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm">
+    <div className="flex items-center gap-1 rounded-xl border border-emerald-200 dark:border-emerald-900/50 bg-white dark:bg-slate-900 dark:bg-gradient-to-r dark:from-emerald-950/40 dark:via-slate-900 dark:to-slate-900 px-2 py-1.5 text-sm text-slate-700 dark:text-slate-200 shadow-sm">
       {isSelector ? (
         <button
           type="button"
@@ -64,7 +64,7 @@ function PlanHeader({
         </button>
       ) : null}
       <div className="flex-1 min-w-0 text-center">
-        <span className="font-bold text-slate-800 dark:text-slate-200">{title}</span>{freq ? `: ${freq}` : ''}
+        <span className="font-bold text-slate-800 dark:text-slate-100">{title}</span>{freq ? `: ${freq}` : ''}
         {positionLabel && (
           <span className="ml-2 text-[11px] font-medium text-slate-400 dark:text-slate-500">{positionLabel}</span>
         )}
@@ -344,7 +344,7 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
                 <button
                   key={s.id}
                   onClick={() => setOpenSessionId(s.id)}
-                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 text-left shadow-sm transition hover:border-blue-300 hover:shadow"
+                  className="flex w-full items-center gap-3 rounded-xl border border-slate-200 dark:border-slate-700 border-l-4 border-l-blue-500 bg-white dark:bg-slate-800 p-3 text-left shadow-sm transition hover:border-blue-300 dark:hover:border-blue-600 hover:-translate-y-0.5 hover:shadow-md"
                 >
                   <span className="inline-flex shrink-0 items-center rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 px-2.5 py-1 text-xs font-bold text-white">
                     {sessionBadge(plan.session_naming_style, i, s.day_of_week)}
