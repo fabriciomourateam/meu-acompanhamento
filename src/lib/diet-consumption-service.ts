@@ -133,6 +133,26 @@ export const dietConsumptionService = {
   },
 
   /**
+   * Buscar o consumo de HOJE (BRT) do paciente. Usado pra restaurar as
+   * marcações de refeição ao abrir o app — antes elas vinham só do localStorage,
+   * que o iOS/PWA descarta e não acompanha troca de aparelho ("zerava de novo").
+   */
+  async getTodayConsumption(patientId: string): Promise<DailyConsumption | null> {
+    const today = getSaoPauloISODate();
+    const { data, error } = await supabase
+      .from('diet_daily_consumption')
+      .select('*')
+      .eq('patient_id', patientId)
+      .eq('consumption_date', today)
+      .maybeSingle();
+    if (error) {
+      console.error('❌ Erro ao buscar consumo de hoje:', error);
+      return null;
+    }
+    return data || null;
+  },
+
+  /**
    * Buscar consumo de um período
    */
   async getConsumptionHistory(

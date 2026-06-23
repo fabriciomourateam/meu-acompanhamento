@@ -121,6 +121,49 @@ export function useDietData(patientId: string) {
     }
   }, [patientId]);
 
+  // Restaurar as marcações de consumido do SERVIDOR ao carregar a dieta.
+  // O consumo do dia é salvo em diet_daily_consumption.consumed_meals (por
+  // paciente/dia), mas o estado só era lido do localStorage — que o iOS/PWA
+  // descarta e não acompanha troca de aparelho, fazendo as marcações "zerarem
+  // de novo". Aqui a gente une o que veio do servidor com o que já tinha local
+  // (nunca remove marcação). Como o servidor guarda só ids de REFEIÇÃO, os
+  // alimentos consumidos são derivados das refeições marcadas.
+  useEffect(() => {
+    if (!patientId || !planDetails?.diet_meals?.length) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const today = await dietConsumptionService.getTodayConsumption(patientId);
+        if (cancelled) return;
+        const serverMealIds: string[] = Array.isArray(today?.consumed_meals) ? today!.consumed_meals : [];
+        if (serverMealIds.length === 0) return;
+        const validIds = new Set(planDetails.diet_meals.map((m: any) => m.id));
+        const restoredMeals = serverMealIds.filter((id) => validIds.has(id));
+        if (restoredMeals.length === 0) return;
+
+        const todayKey = getSaoPauloISODate();
+        setConsumedMeals((prev) => {
+          const next = new Set(prev);
+          restoredMeals.forEach((id) => next.add(id));
+          try { localStorage.setItem(`consumedMeals_${patientId}_${todayKey}`, JSON.stringify([...next])); } catch { /* ignora */ }
+          return next;
+        });
+        setConsumedFoods((prev) => {
+          const next = new Set(prev);
+          restoredMeals.forEach((id) => {
+            const meal = planDetails.diet_meals.find((m: any) => m.id === id);
+            (meal?.diet_foods || []).forEach((f: any) => { if (f?.id) next.add(f.id); });
+          });
+          try { localStorage.setItem(`consumedFoods_${patientId}_${todayKey}`, JSON.stringify([...next])); } catch { /* ignora */ }
+          return next;
+        });
+      } catch (e) {
+        console.error('Falha ao restaurar consumo do servidor:', e);
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [patientId, planDetails?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
   // Validar refeições consumidas quando o plano muda ou carrega
   useEffect(() => {
     if (planDetails?.diet_meals && consumedMeals.size > 0) {
