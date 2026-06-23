@@ -33,11 +33,24 @@ Tudo commitado e pushado.
 - 3 modos (incl. Automático) confirmados pelo dono.
 
 ## Próximo passo
-Dono revisa no preview e manda ajustes finos de paleta ("premium/moderno"). Último round
-corrigiu Orientações (gradiente/texto branco/hover), círculo de macros, gradientes
-desbotando pra branco, barra dos chips de grupo. **Aguardar próximo print** e refinar
-contraste/coesão tab a tab (Treino, Progresso, Evolução, Comunidade, Suporte ainda não
-revisados visualmente por ele).
+Refino fino de paleta com o dono via preview (ele manda print por print, eu corrijo
+e dou push na MESMA branch — ele pediu pra não abrir preview novo toda hora).
+Já cobertos: Dieta, Treino (SetRow/inputs/headers/GuidelinesBanner), Suporte (chat),
+Progresso (widgets), Evolução + diets/exames externos, gráficos (recharts via CSS).
+Pendências possíveis: fine-tune de cores de séries de gráficos, badges de nível
+(Prata sem graça), e validar Evolução no preview (charts).
+
+## Paleta central (index.css, bloco no fim)
+Vars `.dark` (--d-bg #080f13, --d-surface #151f27, --d-elevated #1f2b33,
+--d-border #2d3c46, textos). Re-mapeia utilitários slate dark: → essas vars.
+Tem realce emerald (botões) e overrides recharts. MUDAR O TOM DO DARK = editar
+esses hexes. Tudo `html.dark` p/ especificidade.
+
+## Decisões
+- Light = idêntico à produção (só adiciona dark:). Estilo teal-escuro + emerald
+  (aprovado). Card do topo: glow emerald-teal radial (NÃO verde sólido — dono
+  perguntou e a recomendação foi não).
+- Componentes de export/PDF NÃO convertidos (ficam claros pro PDF).
 
 ## Armadilhas
 - NÃO dá pra ver o app autenticado aqui (precisa token+Supabase). Validação visual depende
