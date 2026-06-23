@@ -643,7 +643,19 @@ html.dark .rdp-button { color: #f1f5f9 !important; }
 html.dark .rdp-day_disabled,
 html.dark .rdp-day_outside { color: #566571 !important; }
 
-/* Fundo da conversa do Suporte — vibe "WhatsApp": teal-escuro + doodles fitness sutis. */
+/* Fundo da conversa do Suporte — vibe "WhatsApp": doodles fitness sutis.
+   CLARO: traços escuros sobre o fundo claro do chat (bg-slate-50 do elemento). */
+.chat-doodle {
+  background-image: url('/chat-pattern-light.svg');
+  background-size: 280px 280px;
+  background-repeat: repeat;
+}
+/* Card do nome — CLARO: leve brilho emerald sobre o branco. */
+.portal-name-card {
+  background-image: radial-gradient(90% 130% at 100% -25%, rgba(16, 185, 129, 0.07), transparent 55%);
+}
+
+/* ESCURO: teal-escuro + doodles em traço branco. */
 html.dark .chat-doodle {
   background-color: #0c161b;
   background-image: url('/chat-pattern.svg');
@@ -651,7 +663,7 @@ html.dark .chat-doodle {
   background-repeat: repeat;
 }
 
-/* Card do nome do aluno — fundo premium: base escura + glow emerald no canto. */
+/* Card do nome — ESCURO: base escura + glow emerald no canto. */
 html.dark .portal-name-card {
   background-color: #0c181d;
   background-image:
