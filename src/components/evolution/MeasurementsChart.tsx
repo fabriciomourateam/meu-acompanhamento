@@ -70,21 +70,21 @@ export function MeasurementsChart({ checkins }: { checkins: any[] }) {
   const dQuadril = delta(first.quadril, last.quadril);
 
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm">
+    <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-slate-900">
+        <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
           <Ruler className="h-5 w-5 text-sky-500" /> Evolução das medidas (cm)
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="mb-2 flex flex-wrap gap-3 text-xs">
           {dCintura != null && (
-            <span className="rounded-full bg-sky-50 px-2.5 py-1 font-semibold text-sky-700">
+            <span className="rounded-full bg-sky-50 dark:bg-sky-950/40 px-2.5 py-1 font-semibold text-sky-700 dark:text-sky-300">
               Cintura: {dCintura > 0 ? '+' : ''}{dCintura} cm
             </span>
           )}
           {dQuadril != null && (
-            <span className="rounded-full bg-violet-50 px-2.5 py-1 font-semibold text-violet-700">
+            <span className="rounded-full bg-violet-50 dark:bg-violet-950/40 px-2.5 py-1 font-semibold text-violet-700 dark:text-violet-300">
               Quadril: {dQuadril > 0 ? '+' : ''}{dQuadril} cm
             </span>
           )}

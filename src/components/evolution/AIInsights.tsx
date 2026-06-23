@@ -38,7 +38,7 @@ export function AIInsights({ checkins }: AIInsightsProps) {
             <Sparkles className="w-5 h-5 text-purple-400" />
             Análise Inteligente
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-400 dark:text-slate-500">
             Insights personalizados serão gerados assim que houver check-ins suficientes
           </CardDescription>
         </CardHeader>
@@ -104,7 +104,7 @@ export function AIInsights({ checkins }: AIInsightsProps) {
             variant="ghost"
             size="sm"
             onClick={() => setIsMinimized(!isMinimized)}
-            className="text-slate-400 hover:text-white"
+            className="text-slate-400 dark:text-slate-500 hover:text-white"
           >
             {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
           </Button>
@@ -126,7 +126,7 @@ export function AIInsights({ checkins }: AIInsightsProps) {
               <p className="text-xs text-slate-300">Pontuação Média</p>
               <p className="text-xl font-bold text-white">
                 {analysis.overallScore.toFixed(1).replace('.', ',')}
-                <span className="text-base text-slate-400">/100</span>
+                <span className="text-base text-slate-400 dark:text-slate-500">/100</span>
               </p>
             </div>
           </div>
@@ -144,9 +144,9 @@ export function AIInsights({ checkins }: AIInsightsProps) {
                 Pontos Fortes ({analysis.strengths.length})
               </h3>
               {expandedSections.strengths ? (
-                <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronUp className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               )}
             </button>
             <AnimatePresence>
@@ -192,9 +192,9 @@ export function AIInsights({ checkins }: AIInsightsProps) {
                 Pontos de Atenção ({analysis.warnings.length})
               </h3>
               {expandedSections.warnings ? (
-                <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronUp className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               )}
             </button>
             <AnimatePresence>
@@ -253,9 +253,9 @@ export function AIInsights({ checkins }: AIInsightsProps) {
                 Sugestões de Melhoria ({analysis.suggestions.length})
               </h3>
               {expandedSections.suggestions ? (
-                <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronUp className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               )}
             </button>
             <AnimatePresence>
@@ -307,9 +307,9 @@ export function AIInsights({ checkins }: AIInsightsProps) {
                 Metas Sugeridas ({analysis.goals.length})
               </h3>
               {expandedSections.goals ? (
-                <ChevronUp className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronUp className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               ) : (
-                <ChevronDown className="w-4 h-4 text-slate-400 group-hover:text-slate-300" />
+                <ChevronDown className="w-4 h-4 text-slate-400 dark:text-slate-500 group-hover:text-slate-300" />
               )}
             </button>
             <AnimatePresence>

@@ -15,13 +15,13 @@ interface BodyFatChartProps {
 export function BodyFatChart({ data }: BodyFatChartProps) {
   if (data.length === 0) {
     return (
-      <Card className="bg-white border border-slate-200 shadow-sm">
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-slate-900 flex items-center gap-2">
+          <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-2">
             <Activity className="w-5 h-5 text-blue-500" />
             Evolução do % de Gordura Corporal
           </CardTitle>
-          <CardDescription className="text-slate-500">
+          <CardDescription className="text-slate-500 dark:text-slate-400">
             Nenhuma bioimpedância registrada ainda
           </CardDescription>
         </CardHeader>
@@ -44,25 +44,25 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
   const porcentagemMudanca = primeiro !== 0 ? ((diferenca / primeiro) * 100).toFixed(1) : '0.0';
 
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm">
+    <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
       <CardHeader>
-        <CardTitle className="text-slate-900 flex items-center gap-2">
+        <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <Activity className="w-5 h-5 text-blue-500" />
           Evolução do % de Gordura Corporal
         </CardTitle>
-        <CardDescription className="text-slate-500 flex items-center gap-2">
+        <CardDescription className="text-slate-500 dark:text-slate-400 flex items-center gap-2">
           {diferenca < -0.5 ? (
-            <span className="flex items-center gap-1 text-emerald-600 font-semibold">
+            <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-semibold">
               <TrendingDown className="w-4 h-4" />
               Redução de {Math.abs(diferenca).toFixed(1)}% ({porcentagemMudanca}%)
             </span>
           ) : diferenca > 0.5 ? (
-            <span className="flex items-center gap-1 text-amber-600 font-semibold">
+            <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-semibold">
               <TrendingUp className="w-4 h-4" />
               Aumento de {diferenca.toFixed(1)}% (+{porcentagemMudanca}%)
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-slate-500">
+            <span className="flex items-center gap-1 text-slate-500 dark:text-slate-400">
               <Minus className="w-4 h-4" />
               Sem mudança significativa
             </span>
@@ -112,16 +112,16 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
         </ResponsiveContainer>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="bg-slate-50 p-3 rounded-lg border border-slate-200">
-            <p className="text-xs text-slate-500 mb-1">Primeira Avaliação</p>
-            <p className="text-2xl font-bold text-slate-900">{primeiro.toFixed(1)}%</p>
-            <p className="text-xs text-slate-400 mt-1">
+          <div className="bg-slate-50 dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Primeira Avaliação</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100">{primeiro.toFixed(1)}%</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
               {new Date(data[data.length - 1].data_avaliacao).toLocaleDateString('pt-BR')}
             </p>
           </div>
-          <div className="bg-emerald-50 p-3 rounded-lg border border-emerald-200">
-            <p className="text-xs text-emerald-700 mb-1">Última Avaliação</p>
-            <p className="text-2xl font-bold text-emerald-600">{ultimo.toFixed(1)}%</p>
+          <div className="bg-emerald-50 dark:bg-emerald-950/40 p-3 rounded-lg border border-emerald-200 dark:border-emerald-900/50">
+            <p className="text-xs text-emerald-700 dark:text-emerald-300 mb-1">Última Avaliação</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">{ultimo.toFixed(1)}%</p>
             <p className="text-xs text-emerald-700/80 mt-1">
               {new Date(data[0].data_avaliacao).toLocaleDateString('pt-BR')}
             </p>
@@ -129,8 +129,8 @@ export function BodyFatChart({ data }: BodyFatChartProps) {
         </div>
 
         {data.length > 1 && (
-          <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <p className="text-xs text-blue-800">
+          <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/40 rounded-lg border border-blue-200 dark:border-blue-900/50">
+            <p className="text-xs text-blue-800 dark:text-blue-300">
               <strong>Meta ideal:</strong> Reduzir % de gordura mantendo ou aumentando massa magra para melhor composição corporal
             </p>
           </div>

@@ -62,7 +62,7 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
 
   if (loading) {
     return (
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <Skeleton className="h-6 w-48" />
         </CardHeader>
@@ -75,7 +75,7 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
 
   if (consumption.length === 0) {
     return (
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <CardTitle className="text-[#222222] flex items-center gap-2">
             <Calendar className="w-5 h-5 text-[#00C98A]" />
@@ -96,19 +96,19 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
     <div className="space-y-4">
       {/* Estatísticas */}
       <div className="grid grid-cols-3 gap-2 sm:gap-4">
-        <Card className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <Card className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
           <CardContent className="p-3 sm:p-4 text-center">
             <p className="text-xl sm:text-2xl font-bold text-[#222222]">{avgCompletion}%</p>
             <p className="text-xs text-[#777777] mt-1">Média Semanal</p>
           </CardContent>
         </Card>
-        <Card className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <Card className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
           <CardContent className="p-3 sm:p-4 text-center">
             <p className="text-xl sm:text-2xl font-bold text-[#222222]">{totalDays}</p>
             <p className="text-xs text-[#777777] mt-1">Dias Registrados</p>
           </CardContent>
         </Card>
-        <Card className="bg-white rounded-xl shadow-sm border border-gray-100">
+        <Card className="bg-white dark:bg-slate-900 rounded-xl shadow-sm border border-gray-100 dark:border-slate-800">
           <CardContent className="p-3 sm:p-4 text-center">
             <p className="text-xl sm:text-2xl font-bold text-[#00C98A]">{perfectDays}</p>
             <p className="text-xs text-[#777777] mt-1">Dias Perfeitos</p>
@@ -117,7 +117,7 @@ export function WeeklyProgressChart({ patientId }: WeeklyProgressChartProps) {
       </div>
 
       {/* Gráfico de Percentual de Conclusão */}
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader className="p-4 sm:p-6">
           <CardTitle className="text-base sm:text-lg text-[#222222] flex items-center gap-2">
             <Target className="w-5 h-5 text-[#00C98A] flex-shrink-0" />

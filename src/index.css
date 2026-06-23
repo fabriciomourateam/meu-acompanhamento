@@ -604,3 +604,23 @@ html.dark a.bg-emerald-500,
 html.dark a.bg-emerald-600 {
   box-shadow: 0 6px 18px -6px rgba(16, 200, 120, 0.5);
 }
+
+/* ------------------------------------------------------------
+   Gráficos (recharts) no ESCURO — central, vale p/ todos os charts.
+   Grade clara fixa (#e2e8f0) ficava brilhante demais; tooltip branco.
+   ------------------------------------------------------------ */
+html.dark .recharts-cartesian-grid line,
+html.dark .recharts-cartesian-grid-horizontal line,
+html.dark .recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.07) !important;
+}
+html.dark .recharts-cartesian-axis-line,
+html.dark .recharts-cartesian-axis-tick-line {
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+html.dark .recharts-default-tooltip {
+  background-color: #151f27 !important;
+  border-color: #2d3c46 !important;
+  color: #e9edef !important;
+}
+html.dark .recharts-tooltip-item { color: #cdd6db !important; }

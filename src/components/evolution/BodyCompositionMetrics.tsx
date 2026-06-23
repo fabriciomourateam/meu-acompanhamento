@@ -36,44 +36,44 @@ const TONE_STYLES: Record<MetricCardProps["tone"], {
   accentBar: string;
 }> = {
   fuchsia: {
-    card: "from-fuchsia-50/80 via-white to-pink-50/30 border-fuchsia-100/80 hover:border-fuchsia-200 hover:shadow-fuchsia-200/50",
+    card: "from-fuchsia-50/80 dark:from-fuchsia-950/40 via-white dark:via-slate-900 to-pink-50/30 dark:to-pink-950/40 border-fuchsia-100/80 hover:border-fuchsia-200 hover:shadow-fuchsia-200/50",
     iconBox: "bg-gradient-to-br from-fuchsia-500 to-pink-500 shadow-lg shadow-fuchsia-500/30",
-    value: "text-fuchsia-700",
+    value: "text-fuchsia-700 dark:text-fuchsia-300",
     subtitle: "text-fuchsia-700/70",
     accentBar: "from-fuchsia-400 to-pink-400",
   },
   blue: {
-    card: "from-blue-50/80 via-white to-sky-50/30 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50",
+    card: "from-blue-50/80 dark:from-blue-950/40 via-white dark:via-slate-900 to-sky-50/30 dark:to-sky-950/40 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50",
     iconBox: "bg-gradient-to-br from-blue-500 to-sky-500 shadow-lg shadow-blue-500/30",
-    value: "text-blue-700",
+    value: "text-blue-700 dark:text-blue-300",
     subtitle: "text-blue-700/70",
     accentBar: "from-blue-400 to-sky-400",
   },
   rose: {
-    card: "from-rose-50/80 via-white to-red-50/30 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50",
+    card: "from-rose-50/80 dark:from-rose-950/40 via-white dark:via-slate-900 to-red-50/30 dark:to-red-950/40 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50",
     iconBox: "bg-gradient-to-br from-rose-500 to-red-500 shadow-lg shadow-rose-500/30",
-    value: "text-rose-700",
+    value: "text-rose-700 dark:text-rose-300",
     subtitle: "text-rose-700/70",
     accentBar: "from-rose-400 to-red-400",
   },
   emerald: {
-    card: "from-emerald-50/80 via-white to-teal-50/30 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50",
+    card: "from-emerald-50/80 dark:from-emerald-950/40 via-white dark:via-slate-900 to-teal-50/30 dark:to-teal-950/40 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50",
     iconBox: "bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30",
-    value: "text-emerald-700",
+    value: "text-emerald-700 dark:text-emerald-300",
     subtitle: "text-emerald-700/70",
     accentBar: "from-emerald-400 to-teal-400",
   },
   purple: {
-    card: "from-purple-50/80 via-white to-violet-50/30 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50",
+    card: "from-purple-50/80 dark:from-purple-950/40 via-white dark:via-slate-900 to-violet-50/30 dark:to-violet-950/40 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50",
     iconBox: "bg-gradient-to-br from-purple-500 to-violet-500 shadow-lg shadow-purple-500/30",
-    value: "text-purple-700",
+    value: "text-purple-700 dark:text-purple-300",
     subtitle: "text-purple-700/70",
     accentBar: "from-purple-400 to-violet-400",
   },
   amber: {
-    card: "from-amber-50/80 via-white to-orange-50/30 border-amber-100/80 hover:border-amber-200 hover:shadow-amber-200/50",
+    card: "from-amber-50/80 dark:from-amber-950/40 via-white dark:via-slate-900 to-orange-50/30 dark:to-orange-950/40 border-amber-100/80 hover:border-amber-200 hover:shadow-amber-200/50",
     iconBox: "bg-gradient-to-br from-amber-500 to-orange-500 shadow-lg shadow-amber-500/30",
-    value: "text-amber-700",
+    value: "text-amber-700 dark:text-amber-300",
     subtitle: "text-amber-700/70",
     accentBar: "from-amber-400 to-orange-400",
   },
@@ -98,7 +98,7 @@ function MetricCard({ label, value, unit, subtitle, badge, tone }: MetricCardPro
 
       {/* Linha topo: label + badge de variação */}
       <div className="flex items-center justify-between gap-2 mb-3 min-h-[22px]">
-        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+        <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           {label}
         </p>
         {badge && <div className="shrink-0">{badge}</div>}
@@ -107,7 +107,7 @@ function MetricCard({ label, value, unit, subtitle, badge, tone }: MetricCardPro
       {/* Valor principal */}
       <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight leading-none bg-gradient-to-r ${VALUE_GRADIENT[tone]} bg-clip-text text-transparent`}>
         {value}
-        {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
+        {unit && <span className="text-base sm:text-lg font-normal text-slate-400 dark:text-slate-500 ml-1">{unit}</span>}
       </p>
 
       {/* Subtítulo */}
@@ -135,20 +135,20 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
 
   const recomposicaoPositiva = parseFloat(diferencas.gordura) < 0 && parseFloat(diferencas.massaMagra) > 0;
 
-  const goodBadge = "bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] px-2 py-0.5 font-semibold";
-  const badBadge = "bg-rose-100 text-rose-700 border border-rose-200 text-[10px] px-2 py-0.5 font-semibold";
-  const neutralBadge = "bg-slate-100 text-slate-700 border border-slate-200 text-[10px] px-2 py-0.5 font-semibold";
+  const goodBadge = "bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50 text-[10px] px-2 py-0.5 font-semibold";
+  const badBadge = "bg-rose-100 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-900/50 text-[10px] px-2 py-0.5 font-semibold";
+  const neutralBadge = "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-[10px] px-2 py-0.5 font-semibold";
 
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm overflow-hidden">
+    <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
       <CardHeader className="pb-4">
-        <CardTitle className="text-slate-900 flex items-center gap-2">
+        <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-2">
           <div className="p-1.5 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 text-white shadow-md shadow-blue-500/20">
             <Activity className="w-4 h-4" />
           </div>
           Composição Corporal Atual
         </CardTitle>
-        <CardDescription className="text-slate-500">
+        <CardDescription className="text-slate-500 dark:text-slate-400">
           Última avaliação: {new Date(ultima.data_avaliacao).toLocaleDateString('pt-BR', {
             day: '2-digit',
             month: 'long',
@@ -175,7 +175,7 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
           {/* Massa Gorda */}
           <MetricCard
             tone="rose"
-            icon={<div className="w-4 h-4 bg-white rounded-full" />}
+            icon={<div className="w-4 h-4 bg-white dark:bg-slate-900 rounded-full" />}
             label="Massa Gorda"
             value={ultima.massa_gorda}
             unit="kg"
@@ -230,22 +230,22 @@ export function BodyCompositionMetrics({ data }: BodyCompositionMetricsProps) {
         </div>
 
         {data.length > 1 && (
-          <div className="mt-5 p-4 bg-gradient-to-r from-blue-50 via-purple-50 to-white rounded-xl border border-blue-200 relative overflow-hidden">
+          <div className="mt-5 p-4 bg-gradient-to-r from-blue-50 dark:from-blue-950/40 via-purple-50 dark:via-purple-950/40 to-white dark:to-slate-900 rounded-xl border border-blue-200 dark:border-blue-900/50 relative overflow-hidden">
             <div className="absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b from-blue-500 to-purple-500"></div>
-            <p className="text-sm text-slate-700 flex items-start gap-3">
+            <p className="text-sm text-slate-700 dark:text-slate-200 flex items-start gap-3">
               <Activity className="w-5 h-5 text-blue-500 shrink-0 mt-0.5" />
               <span className="flex-1">
-                <strong className="text-slate-900 mr-2">Análise de Evolução:</strong>
+                <strong className="text-slate-900 dark:text-slate-100 mr-2">Análise de Evolução:</strong>
                 {recomposicaoPositiva ? (
-                  <span className="text-emerald-700">
+                  <span className="text-emerald-700 dark:text-emerald-300">
                     🎯 Recomposição corporal excelente! Perda de gordura com ganho de massa magra.
                   </span>
                 ) : parseFloat(diferencas.gordura) < 0 ? (
-                  <span className="text-emerald-700">
+                  <span className="text-emerald-700 dark:text-emerald-300">
                     ✅ Redução do % de gordura no período! Mantenha a constância na proteína e no treino de força pra seguir evoluindo.
                   </span>
                 ) : (
-                  <span className="text-slate-600">
+                  <span className="text-slate-600 dark:text-slate-400">
                     💪 Continue firme! Constância no treino e na alimentação é o que traz os resultados.
                   </span>
                 )}

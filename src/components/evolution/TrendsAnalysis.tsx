@@ -59,10 +59,10 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
 
   return (
     <Card className="glass-card border-white/10 overflow-hidden bg-gradient-to-br from-slate-900/50 via-slate-800/40 to-slate-900/50 backdrop-blur-3xl shadow-2xl ring-1 ring-white/5">
-      <CardHeader className="bg-gradient-to-r from-white/[0.08] via-white/[0.06] to-white/[0.08] border-b border-white/10 backdrop-blur-xl relative overflow-hidden">
+      <CardHeader className="bg-gradient-to-r from-white dark:from-slate-900/[0.08] via-white dark:via-slate-900/[0.06] to-white dark:to-slate-900/[0.08] border-b border-white/10 backdrop-blur-xl relative overflow-hidden">
         {/* Efeito de brilho animado no header */}
         <motion.div 
-          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/[0.07] to-transparent"
+          className="absolute inset-0 bg-gradient-to-r from-transparent via-white dark:via-slate-900/[0.07] to-transparent"
           animate={{
             x: ['-100%', '100%'],
           }}
@@ -100,7 +100,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
           </div>
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            className="p-2 hover:bg-white/10 dark:hover:bg-slate-800/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
             aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
           >
             {isMinimized ? (
@@ -137,7 +137,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
               <div 
                 className={`
                   relative p-3 rounded-lg border border-white/10
-                  bg-gradient-to-br from-white/[0.06] via-white/[0.03] to-white/[0.01]
+                  bg-gradient-to-br from-white dark:from-slate-900/[0.06] via-white dark:via-slate-900/[0.03] to-white dark:to-slate-900/[0.01]
                   hover:from-white/[0.08] hover:via-white/[0.05] hover:to-white/[0.02]
                   hover:border-white/15 hover:shadow-lg
                   transition-all duration-300 ease-out
@@ -185,7 +185,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                   </div>
 
                   {/* Separador */}
-                  <div className="h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mb-2"></div>
+                  <div className="h-px bg-gradient-to-r from-transparent via-white/10 dark:via-slate-900 to-transparent mb-2"></div>
 
                   {/* Descrição */}
                   <p className="text-xs text-slate-200 mb-2 leading-relaxed font-light">
@@ -233,7 +233,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                 <div className="text-xl font-bold text-white">
                   {trends.filter(t => t.type === 'positive').length}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">Positivos</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Positivos</div>
               </div>
             </div>
 
@@ -246,7 +246,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                 <div className="text-xl font-bold text-white">
                   {trends.filter(t => t.type === 'insight').length}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">Insights</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Insights</div>
               </div>
             </div>
 
@@ -259,7 +259,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                 <div className="text-xl font-bold text-white">
                   {trends.filter(t => t.type === 'negative').length}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">Atenção</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Atenção</div>
               </div>
             </div>
           </div>
@@ -267,7 +267,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
 
         {/* Mensagem final */}
         <motion.div 
-          className="text-center mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-white/[0.02] via-white/[0.04] to-white/[0.02] rounded-full border border-white/10 backdrop-blur-sm"
+          className="text-center mt-4 flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-white dark:from-slate-900/[0.02] via-white dark:via-slate-900/[0.04] to-white dark:to-slate-900/[0.02] rounded-full border border-white/10 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: trends.length * 0.05 + 0.3 }}

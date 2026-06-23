@@ -86,7 +86,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
     return (
       <Card className="bg-slate-800/50 border-slate-700/50">
         <CardContent className="p-8 text-center">
-          <p className="text-slate-400">Carregando pesos...</p>
+          <p className="text-slate-400 dark:text-slate-500">Carregando pesos...</p>
         </CardContent>
       </Card>
     );
@@ -103,9 +103,9 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
         </CardHeader>
         <CardContent>
           <div className="text-center py-8">
-            <AlertCircle className="w-12 h-12 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">Nenhum peso diário registrado ainda</p>
-            <p className="text-slate-500 text-sm mt-2">Use o botão "Registrar Peso" para começar</p>
+            <AlertCircle className="w-12 h-12 text-slate-600 dark:text-slate-400 mx-auto mb-4" />
+            <p className="text-slate-400 dark:text-slate-500">Nenhum peso diário registrado ainda</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">Use o botão "Registrar Peso" para começar</p>
           </div>
         </CardContent>
       </Card>
@@ -128,7 +128,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
               variant="ghost"
               size="sm"
               onClick={() => setIsMinimized(!isMinimized)}
-              className="text-slate-400 hover:text-white"
+              className="text-slate-400 dark:text-slate-500 hover:text-white"
             >
               {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             </Button>
@@ -173,7 +173,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
                                 {isFasting ? 'Jejum' : 'Dia'}
                               </Badge>
                             </div>
-                            <p className="text-slate-400 text-sm mt-1">
+                            <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
                               {parseLocalISODate(weight.data_pesagem).toLocaleDateString('pt-BR', {
                                 day: '2-digit',
                                 month: 'long',
@@ -184,7 +184,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
                         </div>
                         
                         {weight.observacoes && (
-                          <p className="text-slate-400 text-sm mt-2 pl-12">
+                          <p className="text-slate-400 dark:text-slate-500 text-sm mt-2 pl-12">
                             {weight.observacoes}
                           </p>
                         )}
@@ -212,7 +212,7 @@ export function DailyWeightsList({ telefone, onUpdate }: DailyWeightsListProps) 
         <AlertDialogContent className="bg-slate-800 border-slate-700 text-white">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Excluir registro de peso?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-400">
+            <AlertDialogDescription className="text-slate-400 dark:text-slate-500">
               Esta ação não pode ser desfeita. O peso de{' '}
               <strong>
                 {weightToDelete?.peso_jejum?.toFixed(1) || weightToDelete?.peso_dia?.toFixed(1)} kg

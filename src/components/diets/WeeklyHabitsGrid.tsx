@@ -100,7 +100,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
 
   if (loading) {
     return (
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <Skeleton className="h-6 w-48" />
         </CardHeader>
@@ -133,7 +133,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
   ];
 
   return (
-    <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+    <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
       <CardHeader>
         <CardTitle className="text-[#222222] flex items-center gap-2">
           <span className="text-lg">Sua semana</span>
@@ -145,9 +145,9 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
           {habits.map((habit, habitIndex) => {
             const Icon = habit.icon;
             const iconColorClass =
-              habit.color === 'blue' ? 'text-blue-600' :
-                habit.color === 'purple' ? 'text-purple-600' :
-                  'text-indigo-600';
+              habit.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                habit.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                  'text-indigo-600 dark:text-indigo-400';
 
             return (
               <motion.div
@@ -155,7 +155,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: habitIndex * 0.1 }}
-                className="border border-gray-100 rounded-lg p-3"
+                className="border border-gray-100 dark:border-slate-800 rounded-lg p-3"
               >
                 <div className="flex items-center gap-2 mb-3">
                   <Icon className={`w-5 h-5 flex-shrink-0 ${iconColorClass}`} />
@@ -176,7 +176,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
                             ? today
                               ? 'bg-[#00C98A] text-white'
                               : 'bg-gray-300 text-white'
-                            : 'bg-gray-100 border-2 border-gray-200'
+                            : 'bg-gray-100 dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700'
                             }`}
                         >
                           {completed && (
@@ -215,9 +215,9 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
           {habits.map((habit, habitIndex) => {
             const Icon = habit.icon;
             const iconColorClass =
-              habit.color === 'blue' ? 'text-blue-600' :
-                habit.color === 'purple' ? 'text-purple-600' :
-                  'text-indigo-600';
+              habit.color === 'blue' ? 'text-blue-600 dark:text-blue-400' :
+                habit.color === 'purple' ? 'text-purple-600 dark:text-purple-400' :
+                  'text-indigo-600 dark:text-indigo-400';
 
             return (
               <motion.div
@@ -245,7 +245,7 @@ export function WeeklyHabitsGrid({ patientId }: WeeklyHabitsGridProps) {
                           ? today
                             ? 'bg-[#00C98A] text-white'
                             : 'bg-gray-300 text-white'
-                          : 'bg-gray-100 border-2 border-gray-200'
+                          : 'bg-gray-100 dark:bg-slate-800 border-2 border-gray-200 dark:border-slate-700'
                           }`}
                       >
                         {completed && (

@@ -93,7 +93,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                 className="h-3 w-3 rounded-sm"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-sm text-slate-700">{entry.value}</span>
+              <span className="text-sm text-slate-700 dark:text-slate-200">{entry.value}</span>
             </div>
           );
         })}
@@ -295,16 +295,16 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
     <div className="space-y-6">
       {/* Gráfico de Peso - Mostrar se houver qualquer dado de peso */}
       {allWeightData.length > 0 && (
-        <Card className="bg-white border border-slate-200 shadow-sm">
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900">
+            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
               <TrendingUp className="w-5 h-5 text-blue-500" />
               Evolução do Peso
             </CardTitle>
-            <CardDescription className="text-slate-500">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Acompanhamento do peso ao longo do tempo
             </CardDescription>
-            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500">
+            <div className="flex items-center gap-4 mt-2 text-xs text-slate-500 dark:text-slate-400">
               <div className="flex items-center gap-1">
                 <div className="w-3 h-3 rounded-full bg-green-500 border-2 border-white shadow"></div>
                 <span>Peso Inicial</span>
@@ -356,9 +356,9 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                         else tipoLabel = data.tipo || 'Peso';
 
                         return (
-                          <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-md">
-                            <p className="text-slate-500 text-sm mb-1">Data: {data.data}</p>
-                            <p className="text-slate-900 font-semibold">{tipoLabel}: {data.peso} kg</p>
+                          <div className="bg-white dark:bg-slate-900 p-3 rounded-lg border border-slate-200 dark:border-slate-700 shadow-md">
+                            <p className="text-slate-500 dark:text-slate-400 text-sm mb-1">Data: {data.data}</p>
+                            <p className="text-slate-900 dark:text-slate-100 font-semibold">{tipoLabel}: {data.peso} kg</p>
                           </div>
                         );
                       }
@@ -463,19 +463,19 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
 
       {/* Gráfico de Pontuações e Quantidades */}
       {scoresData.length > 0 && (
-        <Card className="bg-white border border-slate-200 shadow-sm">
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-slate-900">
+            <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
               <Target className="w-5 h-5 text-blue-500" />
               Evolução das Pontuações
             </CardTitle>
-            <CardDescription className="text-slate-500">
+            <CardDescription className="text-slate-500 dark:text-slate-400">
               Performance em diferentes categorias
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="pontuacoes" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100">
+              <TabsList className="grid w-full grid-cols-2 mb-4 bg-slate-100 dark:bg-slate-800">
                 <TabsTrigger value="pontuacoes" className="data-[state=active]:bg-blue-600 data-[state=active]:text-white">
                   Pontuações
                 </TabsTrigger>
@@ -704,15 +704,15 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
 
       {/* Gráfico Radar de Performance Atual */}
       {!isPatientView && radarData.length > 0 && (
-        <Card className="bg-white border border-slate-200 shadow-sm">
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-slate-900 flex items-center gap-2">
+                <CardTitle className="text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   <Activity className="w-5 h-5 text-blue-500" />
                   Performance Atual
                 </CardTitle>
-                <CardDescription className="text-slate-500">
+                <CardDescription className="text-slate-500 dark:text-slate-400">
                   Análise multidimensional do check-in
                   {selectedCheckin && (
                     <span className="ml-2">
@@ -732,13 +732,13 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                     size="sm"
                     onClick={handlePreviousCheckin}
                     disabled={selectedCheckinIndex >= checkinsForRadar.length - 1}
-                    className="border-slate-300 hover:bg-slate-100 text-slate-700"
+                    className="border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
                     title="Check-in anterior"
                   >
                     <ChevronLeft className="w-4 h-4 mr-1" />
                     Anterior
                   </Button>
-                  <span className="text-sm text-slate-500 px-2">
+                  <span className="text-sm text-slate-500 dark:text-slate-400 px-2">
                     {selectedCheckinIndex + 1} / {checkinsForRadar.length}
                   </span>
                   <Button
@@ -746,7 +746,7 @@ export function EvolutionCharts({ checkins, patient, refreshTrigger, isPatientVi
                     size="sm"
                     onClick={handleNextCheckin}
                     disabled={selectedCheckinIndex === 0}
-                    className="border-slate-300 hover:bg-slate-100 text-slate-700"
+                    className="border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-200"
                     title="Próximo check-in"
                   >
                     Próximo

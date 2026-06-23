@@ -142,7 +142,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
         transition={{ type: 'spring', stiffness: 260, damping: 22 }}
         className={`w-full flex items-center gap-3 rounded-2xl bg-gradient-to-r ${style.gradient} px-4 py-3 shadow-lg text-left`}
       >
-        <span className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 backdrop-blur-sm border border-white/20">
+        <span className="shrink-0 flex items-center justify-center w-9 h-9 rounded-xl bg-white/15 dark:bg-slate-950/15 backdrop-blur-sm border border-white/20">
           {style.icon}
         </span>
         <span className="flex-1 min-w-0">
@@ -155,7 +155,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
               : daysUntil <= 0 ? 'É hoje!' : `faltam ${daysUntil} ${daysUntil === 1 ? 'dia' : 'dias'}`}
           </span>
         </span>
-        <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1.5 text-xs font-semibold text-white">
+        <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-white/20 dark:bg-slate-950/20 px-3 py-1.5 text-xs font-semibold text-white">
           Preencher <ArrowRight className="w-3.5 h-3.5" />
         </span>
       </motion.button>
@@ -177,7 +177,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
           initial={{ x: '-120%' }}
           animate={{ x: '120%' }}
           transition={{ duration: 2.4, repeat: Infinity, repeatDelay: 2.6, ease: 'easeInOut' }}
-          className="pointer-events-none absolute inset-y-0 -inset-x-1/4 w-1/3 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+          className="pointer-events-none absolute inset-y-0 -inset-x-1/4 w-1/3 bg-gradient-to-r from-transparent via-white/20 dark:via-slate-900 to-transparent skew-x-12"
         />
       )}
 
@@ -192,7 +192,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
       <div className="relative flex items-center justify-between gap-3">
         {/* Esquerda: chip de ícone + status + caption */}
         <div className="flex items-center gap-3 min-w-0">
-          <span className="shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-inner">
+          <span className="shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-white/10 dark:bg-slate-950/10 backdrop-blur-sm border border-white/20 shadow-inner">
             {style.icon}
           </span>
           <div className="min-w-0">
@@ -205,7 +205,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
         {/* Direita: número */}
         <div className="text-right shrink-0 leading-none">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/60 mb-0.5">{numberLabel}</p>
-          <p className="text-4xl font-black tabular-nums bg-gradient-to-b from-white to-white/70 bg-clip-text text-transparent">
+          <p className="text-4xl font-black tabular-nums bg-gradient-to-b from-white dark:from-slate-900 to-white/70 dark:to-slate-900 bg-clip-text text-transparent">
             {bigValue}
           </p>
           {unit && <p className="text-[11px] text-white/70 mt-0.5">{unit}</p>}
@@ -225,7 +225,7 @@ export function CheckinBadge({ inicio, plano, checkins, onFill, variant = 'full'
           whileTap={{ scale: 0.97 }}
           animate={{ scale: [1, 1.02, 1] }}
           transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
-          className="relative mt-3 w-full flex items-center justify-center gap-2 rounded-xl bg-white/95 hover:bg-white text-slate-900 font-bold text-sm py-2.5 shadow-md transition-colors"
+          className="relative mt-3 w-full flex items-center justify-center gap-2 rounded-xl bg-white/95 dark:bg-slate-950/95 hover:bg-white dark:hover:bg-slate-800 text-slate-900 dark:text-slate-100 font-bold text-sm py-2.5 shadow-md transition-colors"
         >
           <Camera className="w-4 h-4" />
           Preencher meu check-in
