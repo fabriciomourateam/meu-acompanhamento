@@ -19,7 +19,9 @@ function resolve(mode: ThemeMode): ResolvedTheme {
 
 /**
  * Aplica o tema no <html>:
- * - light: NENHUMA classe nova — idêntico ao app de produção de hoje.
+ * - light (PADRÃO): classe `theme-light` → variáveis CLARAS do index.css. Garante que
+ *   o claro seja claro de verdade (inclusive componentes shadcn que usam variáveis),
+ *   já que o `:root` herdado é escuro.
  * - dark: classe `dark` (ativa os `dark:` do Tailwind) + variáveis escuras do `:root`.
  * `color-scheme` é declarado explicitamente pra o navegador/SO NÃO forçar
  * auto-dark/inversão por conta própria (Chrome Android Auto Dark, etc.).
@@ -28,8 +30,10 @@ function applyResolved(resolved: ResolvedTheme) {
   const root = document.documentElement;
   if (resolved === "dark") {
     root.classList.add("dark");
+    root.classList.remove("theme-light");
     root.style.colorScheme = "dark";
   } else {
+    root.classList.add("theme-light");
     root.classList.remove("dark");
     root.style.colorScheme = "only light";
   }
