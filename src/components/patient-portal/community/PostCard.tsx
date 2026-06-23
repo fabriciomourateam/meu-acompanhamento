@@ -112,42 +112,42 @@ export function PostCard({
     <div className={cn(
       'rounded-2xl border p-4 shadow-sm',
       isConquista
-        ? 'border-amber-300 bg-gradient-to-br from-amber-50/70 to-white ring-1 ring-amber-200'
-        : 'border-slate-200 bg-white',
+        ? 'border-amber-300 bg-gradient-to-br from-amber-50/70 dark:from-amber-950/40 to-white dark:to-slate-900 ring-1 ring-amber-200'
+        : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
     )}>
       {/* Cabeçalho */}
       <div className="flex items-start gap-3">
         <CommunityAvatar name={post.author_name} photo={post.author_photo} />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="truncate text-sm font-semibold text-slate-800">{post.author_name}</p>
+            <p className="truncate text-sm font-semibold text-slate-800 dark:text-slate-200">{post.author_name}</p>
             {category && (
               <span className={cn(
                 'shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium',
-                isConquista ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200' : 'bg-slate-100 text-slate-500',
+                isConquista ? 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 ring-1 ring-amber-200' : 'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400',
               )}>
                 {category.emoji} {category.label}
               </span>
             )}
           </div>
-          <p className="text-[11px] text-slate-400">{timeAgo(post.created_at)}</p>
+          <p className="text-[11px] text-slate-400 dark:text-slate-500">{timeAgo(post.created_at)}</p>
         </div>
         <DropdownMenu>
-          <DropdownMenuTrigger className="rounded-full p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600">
+          <DropdownMenuTrigger className="rounded-full p-1 text-slate-400 dark:text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-600">
             <MoreVertical className="h-4 w-4" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700">
+          <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200">
             {post.is_own ? (
               <DropdownMenuItem
                 onClick={() => setConfirmDelete(true)}
-                className="text-rose-600 focus:bg-rose-50 focus:text-rose-700"
+                className="text-rose-600 dark:text-rose-400 focus:bg-rose-50 focus:text-rose-700"
               >
                 <Trash2 className="mr-2 h-4 w-4" /> Excluir
               </DropdownMenuItem>
             ) : (
               <DropdownMenuItem
                 onClick={() => setReporting(true)}
-                className="text-rose-600 focus:bg-rose-50 focus:text-rose-700"
+                className="text-rose-600 dark:text-rose-400 focus:bg-rose-50 focus:text-rose-700"
               >
                 <Flag className="mr-2 h-4 w-4" /> Denunciar
               </DropdownMenuItem>
@@ -157,40 +157,40 @@ export function PostCard({
       </div>
 
       {/* Conteúdo */}
-      <p className="mt-3 whitespace-pre-wrap break-words text-sm text-slate-700">{post.content}</p>
+      <p className="mt-3 whitespace-pre-wrap break-words text-sm text-slate-700 dark:text-slate-200">{post.content}</p>
       {post.image_url && (
         <img
           src={post.image_url}
           alt="Imagem da publicação"
-          className="mt-3 max-h-[500px] w-full rounded-xl object-contain bg-slate-50"
+          className="mt-3 max-h-[500px] w-full rounded-xl object-contain bg-slate-50 dark:bg-slate-900"
           loading="lazy"
         />
       )}
 
       {/* Resumo de reações */}
       {totalReactions > 0 && (
-        <div className="mt-3 flex items-center gap-1 text-xs text-slate-500">
+        <div className="mt-3 flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400">
           <span>{activeEmojis.join(' ')}</span>
           <span>{totalReactions}</span>
         </div>
       )}
 
       {/* Ações */}
-      <div className="relative mt-2 flex items-center gap-1 border-t border-slate-100 pt-2">
+      <div className="relative mt-2 flex items-center gap-1 border-t border-slate-100 dark:border-slate-800 pt-2">
         <button
           onClick={() => setShowReactions((v) => !v)}
           className={cn(
             'flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium transition-colors',
             post.my_reactions.length > 0
-              ? 'text-emerald-600 hover:bg-emerald-50'
-              : 'text-slate-500 hover:bg-slate-100',
+              ? 'text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40'
+              : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800',
           )}
         >
           <SmilePlus className="h-4 w-4" /> Reagir
         </button>
         <button
           onClick={() => setShowComments((v) => !v)}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100"
+          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
         >
           <MessageCircle className="h-4 w-4" />
           {post.comment_count > 0 ? post.comment_count : ''} Comentar
@@ -198,14 +198,14 @@ export function PostCard({
         <button
           onClick={handleShare}
           disabled={sharing}
-          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 transition-colors hover:bg-slate-100"
+          className="ml-auto flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-sm font-medium text-slate-500 dark:text-slate-400 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
           title="Compartilhar como imagem"
         >
           {sharing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Share2 className="h-4 w-4" />}
         </button>
 
         {showReactions && (
-          <div className="absolute -top-12 left-0 z-20 flex gap-1 rounded-full border border-slate-200 bg-white p-1.5 shadow-lg">
+          <div className="absolute -top-12 left-0 z-20 flex gap-1 rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-1.5 shadow-lg">
             {REACTIONS.map((r) => (
               <button
                 key={r.type}
@@ -213,7 +213,7 @@ export function PostCard({
                 title={r.label}
                 className={cn(
                   'rounded-full p-1 text-xl transition-transform hover:scale-125',
-                  post.my_reactions.includes(r.type) && 'bg-emerald-100',
+                  post.my_reactions.includes(r.type) && 'bg-emerald-100 dark:bg-emerald-950/50',
                 )}
               >
                 {r.emoji}
@@ -242,15 +242,15 @@ export function PostCard({
       />
 
       <AlertDialog open={confirmDelete} onOpenChange={setConfirmDelete}>
-        <AlertDialogContent className="bg-white border-slate-200">
+        <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-800">Excluir publicação?</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-500">
+            <AlertDialogTitle className="text-slate-800 dark:text-slate-200">Excluir publicação?</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-500 dark:text-slate-400">
               Esta ação não pode ser desfeita. A publicação e seus comentários serão removidos.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white border-slate-200 text-slate-700 hover:bg-slate-100">
+            <AlertDialogCancel className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-rose-500 text-white hover:bg-rose-600">

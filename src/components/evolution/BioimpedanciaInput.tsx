@@ -298,7 +298,7 @@ export function BioimpedanciaInput({
               <p className="text-sm text-slate-300 mb-2">
                 📋 <strong>Paciente:</strong> {nome}
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-slate-500">
                 💡 Use o botão "Abrir InShape GPT" para obter a análise e cole a resposta abaixo
               </p>
               {loadingLastBio && (
@@ -406,7 +406,7 @@ export function BioimpedanciaInput({
                 rows={6}
                 className="bg-slate-800 border-slate-600 text-slate-200 font-mono text-sm"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Cole aqui o texto completo retornado pelo GPT InShape
               </p>
             </div>
@@ -422,20 +422,20 @@ export function BioimpedanciaInput({
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                   <div className="bg-slate-800/50 p-2 rounded">
-                    <p className="text-xs text-slate-400">IMC</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">IMC</p>
                     <p className="text-lg font-bold text-white">{calculosPreview.imc}</p>
-                    <p className="text-xs text-slate-500">{calculosPreview.classificacaoIMC}</p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">{calculosPreview.classificacaoIMC}</p>
                   </div>
                   <div className="bg-slate-800/50 p-2 rounded">
-                    <p className="text-xs text-slate-400">Massa Gorda</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">Massa Gorda</p>
                     <p className="text-lg font-bold text-red-400">{calculosPreview.massaGorda} kg</p>
                   </div>
                   <div className="bg-slate-800/50 p-2 rounded">
-                    <p className="text-xs text-slate-400">Massa Magra</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">Massa Magra</p>
                     <p className="text-lg font-bold text-emerald-400">{calculosPreview.massaMagra} kg</p>
                   </div>
                   <div className="bg-slate-800/50 p-2 rounded">
-                    <p className="text-xs text-slate-400">TMB</p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">TMB</p>
                     <p className="text-lg font-bold text-blue-400">{calculosPreview.tmb} kcal</p>
                   </div>
                 </div>

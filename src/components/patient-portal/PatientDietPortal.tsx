@@ -247,24 +247,24 @@ export function PatientDietPortal({
         className="w-full"
       >
         {/* Desktop: abas em linha */}
-        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
+        <TabsList className="sticky top-0 z-50 hidden sm:flex items-center w-full bg-slate-200/95 dark:bg-slate-800/95 backdrop-blur-md p-1 shadow-md rounded-t-lg min-h-[48px]">
           {showDiet && (
-            <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            <TabsTrigger value="diet" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Dieta
             </TabsTrigger>
           )}
           {showWorkout && (
-            <TabsTrigger value="workout" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            <TabsTrigger value="workout" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Treino
             </TabsTrigger>
           )}
           {showProgress && (
-            <TabsTrigger value="progress" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            <TabsTrigger value="progress" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Progresso
             </TabsTrigger>
           )}
           {showCommunity && (
-            <TabsTrigger value="community" className="relative flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center gap-1.5">
+            <TabsTrigger value="community" className="relative flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center gap-1.5">
               Comunidade
               {communityUnread > 0 && (
                 <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
@@ -274,12 +274,12 @@ export function PatientDietPortal({
             </TabsTrigger>
           )}
           {showResults && (
-            <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
+            <TabsTrigger value="results" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center">
               Evolução
             </TabsTrigger>
           )}
           {showSupport && (
-            <TabsTrigger value="support" className="relative flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center gap-1.5">
+            <TabsTrigger value="support" className="relative flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-md transition-all h-full flex items-center justify-center gap-1.5">
               Suporte
               {supportUnread > 0 && (
                 <span className="flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-500 px-1 text-[10px] font-bold leading-none text-white">
@@ -327,19 +327,19 @@ export function PatientDietPortal({
           <TabsContent value="progress" className="mt-6">
             <Tabs value={progressSubtab} onValueChange={setProgressSubtab} className="w-full">
               {progressSubtabs.length > 1 && (
-                <TabsList className="flex w-full gap-1 bg-slate-100 p-1 rounded-xl mb-5">
+                <TabsList className="flex w-full gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-xl mb-5">
                   {showChallenges && (
-                    <TabsTrigger value="metas" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-lg transition-all">
+                    <TabsTrigger value="metas" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-lg transition-all">
                       Metas
                     </TabsTrigger>
                   )}
                   {showRanking && (
-                    <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-lg transition-all">
+                    <TabsTrigger value="ranking" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-lg transition-all">
                       Ranking
                     </TabsTrigger>
                   )}
                   {showConquistas && (
-                    <TabsTrigger value="conquistas" className="flex-1 data-[state=active]:bg-white data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 hover:text-slate-800 text-sm py-2 rounded-lg transition-all">
+                    <TabsTrigger value="conquistas" className="flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-700 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 text-sm py-2 rounded-lg transition-all">
                       Conquistas
                     </TabsTrigger>
                   )}
@@ -398,7 +398,7 @@ export function PatientDietPortal({
             onFill={() => setCheckinOpen(true)}
           />
           <section>
-            <h3 className="text-xl font-bold text-slate-900 mb-4 flex items-center gap-2">
+            <h3 className="text-xl font-bold text-slate-900 dark:text-slate-100 mb-4 flex items-center gap-2">
               <span className="text-2xl">⚖️</span> Evolução Corporal
             </h3>
             <PatientEvolutionTab
@@ -429,7 +429,7 @@ export function PatientDietPortal({
                 themeSchedule={portalConfig?.community?.theme_schedule || []}
               />
             ) : (
-              <p className="py-12 text-center text-sm text-slate-400">
+              <p className="py-12 text-center text-sm text-slate-400 dark:text-slate-500">
                 Comunidade indisponível no momento.
               </p>
             )}
@@ -442,7 +442,7 @@ export function PatientDietPortal({
                 barra inferior (que fica por cima, z-[9999]). Cobre o card de saudação
                 e a frase do rodapé só enquanto o Suporte está aberto. Desktop: inline. */}
             <div
-              className="fixed inset-x-0 top-0 z-40 bg-slate-50 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
+              className="fixed inset-x-0 top-0 z-40 bg-slate-50 dark:bg-slate-900 sm:static sm:inset-auto sm:bottom-auto sm:z-auto sm:bg-transparent"
               style={{ bottom: 'env(safe-area-inset-bottom)' }}
             >
               <SupportChat

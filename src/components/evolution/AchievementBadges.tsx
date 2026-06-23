@@ -76,7 +76,7 @@ export function AchievementBadges({ achievements }: AchievementBadgesProps) {
           </div>
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            className="p-2 hover:bg-white/10 dark:hover:bg-slate-800/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
             aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
           >
             {isMinimized ? (
@@ -182,7 +182,7 @@ export function AchievementBadges({ achievements }: AchievementBadgesProps) {
                             
                             {achievement.dateAchieved && (
                               <div className="mt-2 pt-2 border-t border-white/10">
-                                <p className="text-xs text-slate-400">
+                                <p className="text-xs text-slate-400 dark:text-slate-500">
                                   {new Date(achievement.dateAchieved).toLocaleDateString('pt-BR', {
                                     day: '2-digit',
                                     month: 'short',

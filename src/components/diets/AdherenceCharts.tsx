@@ -110,7 +110,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
 
   if (loading) {
     return (
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <Skeleton className="h-6 w-48" />
         </CardHeader>
@@ -123,7 +123,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
 
   if (consumption.length === 0) {
     return (
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <CardTitle className="text-[#222222] flex items-center gap-2">
             <Target className="w-5 h-5 text-[#00C98A]" />
@@ -143,7 +143,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
   return (
     <div className="space-y-4">
       {/* Card Principal - Gráfico de Tendência */}
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
             <CardTitle className="text-base sm:text-lg text-[#222222] flex items-center gap-2">
@@ -155,7 +155,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
                 onClick={() => setPeriod('week')}
                 className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${period === 'week'
                     ? 'bg-[#00C98A] text-white'
-                    : 'bg-gray-100 text-[#777777] hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-slate-800 text-[#777777] hover:bg-gray-200'
                   }`}
               >
                 Semana
@@ -164,7 +164,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
                 onClick={() => setPeriod('month')}
                 className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${period === 'month'
                     ? 'bg-[#00C98A] text-white'
-                    : 'bg-gray-100 text-[#777777] hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-slate-800 text-[#777777] hover:bg-gray-200'
                   }`}
               >
                 Mês
@@ -173,7 +173,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
                 onClick={() => setPeriod('3months')}
                 className={`flex-1 sm:flex-none px-3 py-1.5 sm:py-1 rounded-lg text-xs sm:text-sm font-medium transition-colors min-h-[44px] sm:min-h-0 ${period === '3months'
                     ? 'bg-[#00C98A] text-white'
-                    : 'bg-gray-100 text-[#777777] hover:bg-gray-200'
+                    : 'bg-gray-100 dark:bg-slate-800 text-[#777777] hover:bg-gray-200'
                   }`}
               >
                 3 Meses
@@ -189,16 +189,16 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
               <div className="text-xs text-[#777777] mt-1">Média de Adesão</div>
             </div>
             <div className={`text-center p-3 sm:p-4 rounded-xl border ${trend?.isIncreasing
-                ? 'bg-green-50 border-green-200'
+                ? 'bg-green-50 dark:bg-green-950/40 border-green-200 dark:border-green-900/50'
                 : trend?.isDecreasing
-                  ? 'bg-red-50 border-red-200'
-                  : 'bg-gray-50 border-gray-200'
+                  ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-900/50'
+                  : 'bg-gray-50 dark:bg-slate-900 border-gray-200 dark:border-slate-700'
               }`}>
               <div className={`text-xl sm:text-2xl font-bold flex items-center justify-center gap-1 ${trend?.isIncreasing
-                  ? 'text-green-600'
+                  ? 'text-green-600 dark:text-green-400'
                   : trend?.isDecreasing
-                    ? 'text-red-600'
-                    : 'text-gray-600'
+                    ? 'text-red-600 dark:text-red-400'
+                    : 'text-gray-600 dark:text-slate-400'
                 }`}>
                 {trend && (
                   <>
@@ -214,8 +214,8 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
               </div>
               <div className="text-xs text-[#777777] mt-1">Tendência</div>
             </div>
-            <div className="text-center p-3 sm:p-4 bg-blue-50 rounded-xl border border-blue-200">
-              <div className="text-xl sm:text-2xl font-bold text-blue-600">
+            <div className="text-center p-3 sm:p-4 bg-blue-50 dark:bg-blue-950/40 rounded-xl border border-blue-200 dark:border-blue-900/50">
+              <div className="text-xl sm:text-2xl font-bold text-blue-600 dark:text-blue-400">
                 {consumption.filter(d => d.completion_percentage >= lowAdherenceThreshold).length}
               </div>
               <div className="text-xs text-[#777777] mt-1">Dias com Boa Adesão</div>
@@ -274,16 +274,16 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
       {/* Alertas de Baixa Adesão */}
       {(lowAdherenceDays.length > 0 || consecutiveLow >= 3) && (
         <Alert className={`border-2 ${consecutiveLow >= 3
-            ? 'border-red-500 bg-red-50'
-            : 'border-yellow-500 bg-yellow-50'
+            ? 'border-red-500 bg-red-50 dark:bg-red-950/40'
+            : 'border-yellow-500 bg-yellow-50 dark:bg-yellow-950/40'
           }`}>
-          <AlertTriangle className={`h-5 w-5 ${consecutiveLow >= 3 ? 'text-red-600' : 'text-yellow-600'
+          <AlertTriangle className={`h-5 w-5 ${consecutiveLow >= 3 ? 'text-red-600 dark:text-red-400' : 'text-yellow-600 dark:text-yellow-400'
             }`} />
-          <AlertTitle className={`font-bold ${consecutiveLow >= 3 ? 'text-red-900' : 'text-yellow-900'
+          <AlertTitle className={`font-bold ${consecutiveLow >= 3 ? 'text-red-900 dark:text-red-200' : 'text-yellow-900 dark:text-yellow-200'
             }`}>
             {consecutiveLow >= 3 ? '⚠️ Alerta Crítico de Adesão' : '⚠️ Baixa Adesão Detectada'}
           </AlertTitle>
-          <AlertDescription className={`mt-2 ${consecutiveLow >= 3 ? 'text-red-800' : 'text-yellow-800'
+          <AlertDescription className={`mt-2 ${consecutiveLow >= 3 ? 'text-red-800 dark:text-red-300' : 'text-yellow-800 dark:text-yellow-300'
             }`}>
             {consecutiveLow >= 3 ? (
               <>
@@ -306,7 +306,7 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
 
       {/* Lista de Dias com Baixa Adesão */}
       {lowAdherenceDays.length > 0 && lowAdherenceDays.length <= 10 && (
-        <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+        <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
           <CardHeader>
             <CardTitle className="text-[#222222] text-lg">Dias com Baixa Adesão</CardTitle>
           </CardHeader>
@@ -317,13 +317,13 @@ export function AdherenceCharts({ patientId, lowAdherenceThreshold = 70 }: Adher
                 return (
                   <div
                     key={day.id}
-                    className="flex items-center justify-between p-3 bg-red-50 border border-red-200 rounded-lg"
+                    className="flex items-center justify-between p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 rounded-lg"
                   >
                     <div>
-                      <div className="font-medium text-red-900">
+                      <div className="font-medium text-red-900 dark:text-red-200">
                         {date.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' })}
                       </div>
-                      <div className="text-sm text-red-700">
+                      <div className="text-sm text-red-700 dark:text-red-300">
                         {Math.round(day.total_calories_consumed)} / {Math.round(day.target_calories || 0)} kcal
                       </div>
                     </div>

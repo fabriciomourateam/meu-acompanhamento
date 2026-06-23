@@ -25,12 +25,12 @@ export function AnalyticsSubtab({ token, planId, patientName }: AnalyticsSubtabP
   return (
     <div className="space-y-3">
       <Tabs value={tab} onValueChange={(v) => setTab(v as typeof tab)}>
-        <TabsList className="grid w-full grid-cols-5 bg-slate-100 p-1 rounded-lg h-auto">
-          <TabsTrigger value="calendar" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
-          <TabsTrigger value="volume" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
-          <TabsTrigger value="groups" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
-          <TabsTrigger value="rpe" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
-          <TabsTrigger value="adherence" className="data-[state=active]:bg-white data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 py-2 rounded-md transition-all">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg h-auto">
+          <TabsTrigger value="calendar" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">📅 <span className="hidden sm:inline ml-1">Calendário</span></TabsTrigger>
+          <TabsTrigger value="volume" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">📊 <span className="hidden sm:inline ml-1">Volume</span></TabsTrigger>
+          <TabsTrigger value="groups" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">🦾 <span className="hidden sm:inline ml-1">Grupos</span></TabsTrigger>
+          <TabsTrigger value="rpe" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">💪 <span className="hidden sm:inline ml-1">RPE</span></TabsTrigger>
+          <TabsTrigger value="adherence" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">✓ <span className="hidden sm:inline ml-1">Adesão</span></TabsTrigger>
         </TabsList>
         <TabsContent value="calendar" className="mt-3"><CalendarView token={token} /></TabsContent>
         <TabsContent value="volume" className="mt-3"><VolumeChart token={token} /></TabsContent>
@@ -77,17 +77,17 @@ function ShareProgressSection({ token, planId, patientName }: { token: string; p
 
   return (
     <>
-      <Button onClick={() => void handleOpen()} variant="outline" className="w-full border-slate-300 bg-white text-slate-700 hover:bg-slate-100">
+      <Button onClick={() => void handleOpen()} variant="outline" className="w-full border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">
         <Share2 className="mr-1.5 h-4 w-4" /> Compartilhar progresso
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md bg-white border-slate-200 text-slate-900">
+        <DialogContent className="max-w-md bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
           <DialogHeader>
             <DialogTitle>Compartilhar progresso</DialogTitle>
           </DialogHeader>
           {loading || !stats || !trainer ? (
-            <p className="py-8 text-center text-sm text-slate-400">Preparando…</p>
+            <p className="py-8 text-center text-sm text-slate-400 dark:text-slate-500">Preparando…</p>
           ) : (
             <ShareableProgressCard
               trainerProfile={trainer}
@@ -132,7 +132,7 @@ function CalendarView({ token }: { token: string }) {
   const selLabel = selected.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
 
   return (
-    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 bg-white p-3 sm:flex-row">
+    <div className="flex flex-col gap-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3 sm:flex-row">
       <div className="sm:border-r sm:border-slate-100 sm:pr-3">
         <DayPicker
           mode="single"
@@ -149,42 +149,42 @@ function CalendarView({ token }: { token: string }) {
           }}
           modifiers={{ treinou: workoutDays, cardio: cardioDays }}
           modifiersClassNames={{
-            treinou: 'bg-emerald-100 text-emerald-800 font-bold rounded-md',
+            treinou: 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 font-bold rounded-md',
             // cardio = pontinho azul embaixo do dia (em vez de um anel grosso)
             cardio: 'relative after:absolute after:bottom-1 after:left-1/2 after:h-1.5 after:w-1.5 after:-translate-x-1/2 after:rounded-full after:bg-blue-500',
           }}
           style={{ '--rdp-accent-color': '#059669', '--rdp-accent-background-color': '#d1fae5' } as CSSProperties}
           styles={{ day: { color: '#334155' }, head_cell: { color: '#64748b' } }}
         />
-        <div className="mt-2 flex gap-3 text-xs text-slate-600">
-          <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-emerald-100" /> Treinou</span>
+        <div className="mt-2 flex gap-3 text-xs text-slate-600 dark:text-slate-400">
+          <span className="flex items-center gap-1"><span className="h-3 w-3 rounded bg-emerald-100 dark:bg-emerald-950/50" /> Treinou</span>
           <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> Cardio</span>
         </div>
       </div>
 
       {/* Painel do dia selecionado — tira o calendário da sensação de "isolado" */}
       <div className="min-w-0 flex-1">
-        <p className="text-sm font-semibold capitalize text-slate-800">{selLabel}</p>
+        <p className="text-sm font-semibold capitalize text-slate-800 dark:text-slate-200">{selLabel}</p>
         <div className="mt-2 space-y-1.5">
           {dayWorkouts.length === 0 && dayCardios.length === 0 ? (
-            <p className="py-4 text-center text-xs italic text-slate-400">Nada registrado neste dia.</p>
+            <p className="py-4 text-center text-xs italic text-slate-400 dark:text-slate-500">Nada registrado neste dia.</p>
           ) : (
             <>
               {dayWorkouts.map((w, i) => (
-                <div key={`w${i}`} className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs">
+                <div key={`w${i}`} className="flex items-center gap-2 rounded-lg border border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1.5 text-xs">
                   <span>✅</span>
-                  <span className="font-medium text-emerald-800">Treino realizado</span>
-                  <span className="ml-auto tabular-nums text-emerald-600">
+                  <span className="font-medium text-emerald-800 dark:text-emerald-300">Treino realizado</span>
+                  <span className="ml-auto tabular-nums text-emerald-600 dark:text-emerald-400">
                     {new Date(w.started_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               ))}
               {dayCardios.map((c) => (
-                <div key={c.id} className="flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-2.5 py-1.5 text-xs">
+                <div key={c.id} className="flex items-center gap-2 rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/40 px-2.5 py-1.5 text-xs">
                   <span>🫀</span>
-                  <span className="font-medium text-blue-800">{c.modality || 'Cardio'}</span>
+                  <span className="font-medium text-blue-800 dark:text-blue-300">{c.modality || 'Cardio'}</span>
                   {c.intensity && <span className="text-blue-500">· {c.intensity}</span>}
-                  <span className="ml-auto tabular-nums text-blue-600">{c.duration_min} min</span>
+                  <span className="ml-auto tabular-nums text-blue-600 dark:text-blue-400">{c.duration_min} min</span>
                 </div>
               ))}
             </>
@@ -269,13 +269,13 @@ function VolumeByGroupChart({ token }: { token: string }) {
   const height = Math.max(160, data.length * 34 + 20);
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <h4 className="mb-1 text-sm font-semibold text-slate-700">Volume por grupamento (plano atual)</h4>
-      <p className="mb-2 text-[11px] text-slate-400">séries × reps médias × ativação</p>
+    <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
+      <h4 className="mb-1 text-sm font-semibold text-slate-700 dark:text-slate-200">Volume por grupamento (plano atual)</h4>
+      <p className="mb-2 text-[11px] text-slate-400 dark:text-slate-500">séries × reps médias × ativação</p>
       {loading ? (
-        <p className="py-6 text-center text-sm text-slate-400">Carregando…</p>
+        <p className="py-6 text-center text-sm text-slate-400 dark:text-slate-500">Carregando…</p>
       ) : data.length === 0 ? (
-        <p className="py-6 text-center text-sm italic text-slate-500">Sem dados de volume ainda</p>
+        <p className="py-6 text-center text-sm italic text-slate-500 dark:text-slate-400">Sem dados de volume ainda</p>
       ) : (
         <>
           <ResponsiveContainer width="100%" height={height}>
@@ -291,7 +291,7 @@ function VolumeByGroupChart({ token }: { token: string }) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-600">
+          <div className="mt-2 flex flex-wrap gap-3 text-xs text-slate-600 dark:text-slate-400">
             <span className="flex items-center gap-1"><span className="h-3 w-3 rounded" style={{ background: CATEGORY_COLORS.superior }} /> Superior</span>
             <span className="flex items-center gap-1"><span className="h-3 w-3 rounded" style={{ background: CATEGORY_COLORS.inferior }} /> Inferior</span>
             <span className="flex items-center gap-1"><span className="h-3 w-3 rounded" style={{ background: CATEGORY_COLORS.core }} /> Core</span>
@@ -371,12 +371,12 @@ function ChartShell({ title, loading, empty, emptyText = 'Sem dados ainda', chil
   title: string; loading: boolean; empty: boolean; emptyText?: string; children: React.ReactElement;
 }) {
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-3">
-      <h4 className="mb-2 text-sm font-semibold text-slate-700">{title}</h4>
+    <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-3">
+      <h4 className="mb-2 text-sm font-semibold text-slate-700 dark:text-slate-200">{title}</h4>
       {loading ? (
-        <p className="py-6 text-center text-sm text-slate-400">Carregando…</p>
+        <p className="py-6 text-center text-sm text-slate-400 dark:text-slate-500">Carregando…</p>
       ) : empty ? (
-        <p className="py-6 text-center text-sm italic text-slate-500">{emptyText}</p>
+        <p className="py-6 text-center text-sm italic text-slate-500 dark:text-slate-400">{emptyText}</p>
       ) : (
         <ResponsiveContainer width="100%" height={200}>{children}</ResponsiveContainer>
       )}

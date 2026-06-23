@@ -100,7 +100,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
           </div>
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            className="p-2 hover:bg-white/10 dark:hover:bg-slate-800/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
             aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
           >
             {isMinimized ? (
@@ -233,7 +233,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                 <div className="text-xl font-bold text-white">
                   {trends.filter(t => t.type === 'positive').length}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">Positivos</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Positivos</div>
               </div>
             </div>
 
@@ -246,7 +246,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                 <div className="text-xl font-bold text-white">
                   {trends.filter(t => t.type === 'insight').length}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">Insights</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Insights</div>
               </div>
             </div>
 
@@ -259,7 +259,7 @@ export function TrendsAnalysis({ trends }: TrendsAnalysisProps) {
                 <div className="text-xl font-bold text-white">
                   {trends.filter(t => t.type === 'negative').length}
                 </div>
-                <div className="text-xs text-slate-400 mt-0.5">Atenção</div>
+                <div className="text-xs text-slate-400 dark:text-slate-500 mt-0.5">Atenção</div>
               </div>
             </div>
           </div>

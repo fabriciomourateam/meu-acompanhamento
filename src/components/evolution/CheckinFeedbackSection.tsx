@@ -125,7 +125,7 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
     return (
       <Card className="mt-8 bg-slate-800/50 border-slate-700/50">
         <CardContent className="flex items-center justify-center py-8">
-          <Loader2 className="h-6 w-6 animate-spin mr-2 text-slate-400" />
+          <Loader2 className="h-6 w-6 animate-spin mr-2 text-slate-400 dark:text-slate-500" />
           <span className="text-slate-300">Carregando dados do check-in...</span>
         </CardContent>
       </Card>
@@ -136,11 +136,11 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
     return (
       <Card className="mt-8 bg-slate-800/50 border-slate-700/50">
         <CardContent className="text-center py-8">
-          <MessageSquare className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+          <MessageSquare className="h-12 w-12 text-slate-400 dark:text-slate-500 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-slate-200 mb-2">
             Nenhum check-in encontrado
           </h3>
-          <p className="text-slate-400">
+          <p className="text-slate-400 dark:text-slate-500">
             Este paciente ainda não possui check-ins registrados.
           </p>
         </CardContent>
@@ -188,7 +188,7 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
           <CardContent className="space-y-2">
             {latestCheckin.peso && (
               <div className="flex justify-between">
-                <span className="text-slate-400">⚖️ Peso:</span>
+                <span className="text-slate-400 dark:text-slate-500">⚖️ Peso:</span>
                 <span className="font-medium text-slate-200">
                   {latestCheckin.peso.toString().replace(/kg$/, '')}kg
                 </span>
@@ -202,19 +202,19 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
                   <>
                     {measurements.cintura && (
                       <div className="flex justify-between">
-                        <span className="text-slate-400">📏 Cintura:</span>
+                        <span className="text-slate-400 dark:text-slate-500">📏 Cintura:</span>
                         <span className="font-medium text-slate-200">{measurements.cintura}cm</span>
                       </div>
                     )}
                     {measurements.quadril && (
                       <div className="flex justify-between">
-                        <span className="text-slate-400">📐 Quadril:</span>
+                        <span className="text-slate-400 dark:text-slate-500">📐 Quadril:</span>
                         <span className="font-medium text-slate-200">{measurements.quadril}cm</span>
                       </div>
                     )}
                     {!measurements.cintura && !measurements.quadril && (
                       <div className="flex justify-between">
-                        <span className="text-slate-400">📏 Medida:</span>
+                        <span className="text-slate-400 dark:text-slate-500">📏 Medida:</span>
                         <span className="font-medium text-slate-200">{latestCheckin.medida}</span>
                       </div>
                     )}
@@ -224,37 +224,37 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
             )}
             {latestCheckin.treino && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🏃 Treinos:</span>
+                <span className="text-slate-400 dark:text-slate-500">🏃 Treinos:</span>
                 <span className="font-medium text-slate-200">{latestCheckin.treino}</span>
               </div>
             )}
             {latestCheckin.cardio && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🏃‍♂️ Cardio:</span>
+                <span className="text-slate-400 dark:text-slate-500">🏃‍♂️ Cardio:</span>
                 <span className="font-medium text-slate-200">{latestCheckin.cardio}</span>
               </div>
             )}
             {latestCheckin.agua && (
               <div className="flex justify-between">
-                <span className="text-slate-400">💧 Água:</span>
+                <span className="text-slate-400 dark:text-slate-500">💧 Água:</span>
                 <span className="font-medium text-slate-200">{latestCheckin.agua}</span>
               </div>
             )}
             {latestCheckin.sono && (
               <div className="flex justify-between">
-                <span className="text-slate-400">😴 Sono:</span>
+                <span className="text-slate-400 dark:text-slate-500">😴 Sono:</span>
                 <span className="font-medium text-slate-200">{latestCheckin.sono}</span>
               </div>
             )}
             {latestCheckin.ref_livre && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🍽️ Refeições Livres:</span>
+                <span className="text-slate-400 dark:text-slate-500">🍽️ Refeições Livres:</span>
                 <span className="font-medium text-slate-200">{latestCheckin.ref_livre}</span>
               </div>
             )}
             {latestCheckin.beliscos && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🍪 Beliscos:</span>
+                <span className="text-slate-400 dark:text-slate-500">🍪 Beliscos:</span>
                 <span className="font-medium text-slate-200">{latestCheckin.beliscos}</span>
               </div>
             )}
@@ -269,79 +269,79 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
           <CardContent className="space-y-2">
             {evolutionData?.peso_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">⚖️ Peso:</span>
-                <span className={`font-medium ${evolutionData.peso_diferenca < 0 ? 'text-green-400' : evolutionData.peso_diferenca > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">⚖️ Peso:</span>
+                <span className={`font-medium ${evolutionData.peso_diferenca < 0 ? 'text-green-400' : evolutionData.peso_diferenca > 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.peso_diferenca > 0 ? '+' : ''}{evolutionData.peso_diferenca}kg
                 </span>
               </div>
             )}
             {evolutionData?.cintura_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">📏 Cintura:</span>
-                <span className={`font-medium ${evolutionData.cintura_diferenca < 0 ? 'text-green-400' : evolutionData.cintura_diferenca > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">📏 Cintura:</span>
+                <span className={`font-medium ${evolutionData.cintura_diferenca < 0 ? 'text-green-400' : evolutionData.cintura_diferenca > 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.cintura_diferenca > 0 ? '+' : ''}{evolutionData.cintura_diferenca}cm
                 </span>
               </div>
             )}
             {evolutionData?.quadril_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">📐 Quadril:</span>
-                <span className={`font-medium ${evolutionData.quadril_diferenca < 0 ? 'text-green-400' : evolutionData.quadril_diferenca > 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">📐 Quadril:</span>
+                <span className={`font-medium ${evolutionData.quadril_diferenca < 0 ? 'text-green-400' : evolutionData.quadril_diferenca > 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.quadril_diferenca > 0 ? '+' : ''}{evolutionData.quadril_diferenca}cm
                 </span>
               </div>
             )}
             {evolutionData?.treino_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🏃 Treinos:</span>
-                <span className={`font-medium ${evolutionData.treino_diferenca > 0 ? 'text-green-400' : evolutionData.treino_diferenca < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">🏃 Treinos:</span>
+                <span className={`font-medium ${evolutionData.treino_diferenca > 0 ? 'text-green-400' : evolutionData.treino_diferenca < 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.treino_diferenca > 0 ? '+' : ''}{evolutionData.treino_diferenca}
                 </span>
               </div>
             )}
             {evolutionData?.cardio_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🏃‍♂️ Cardio:</span>
-                <span className={`font-medium ${evolutionData.cardio_diferenca > 0 ? 'text-green-400' : evolutionData.cardio_diferenca < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">🏃‍♂️ Cardio:</span>
+                <span className={`font-medium ${evolutionData.cardio_diferenca > 0 ? 'text-green-400' : evolutionData.cardio_diferenca < 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.cardio_diferenca > 0 ? '+' : ''}{evolutionData.cardio_diferenca}
                 </span>
               </div>
             )}
             {evolutionData?.agua_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">💧 Água:</span>
-                <span className={`font-medium ${evolutionData.agua_diferenca > 0 ? 'text-green-400' : evolutionData.agua_diferenca < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">💧 Água:</span>
+                <span className={`font-medium ${evolutionData.agua_diferenca > 0 ? 'text-green-400' : evolutionData.agua_diferenca < 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.agua_diferenca > 0 ? '+' : ''}{evolutionData.agua_diferenca}L
                 </span>
               </div>
             )}
             {evolutionData?.sono_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">😴 Sono:</span>
-                <span className={`font-medium ${evolutionData.sono_diferenca > 0 ? 'text-green-400' : evolutionData.sono_diferenca < 0 ? 'text-red-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">😴 Sono:</span>
+                <span className={`font-medium ${evolutionData.sono_diferenca > 0 ? 'text-green-400' : evolutionData.sono_diferenca < 0 ? 'text-red-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.sono_diferenca > 0 ? '+' : ''}{evolutionData.sono_diferenca}h
                 </span>
               </div>
             )}
             {evolutionData?.ref_livre_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🍽️ Refeições Livres:</span>
-                <span className={`font-medium ${evolutionData.ref_livre_diferenca > 0 ? 'text-red-400' : evolutionData.ref_livre_diferenca < 0 ? 'text-green-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">🍽️ Refeições Livres:</span>
+                <span className={`font-medium ${evolutionData.ref_livre_diferenca > 0 ? 'text-red-400' : evolutionData.ref_livre_diferenca < 0 ? 'text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.ref_livre_diferenca > 0 ? '+' : ''}{evolutionData.ref_livre_diferenca}
                 </span>
               </div>
             )}
             {evolutionData?.beliscos_diferenca !== undefined && (
               <div className="flex justify-between">
-                <span className="text-slate-400">🍪 Beliscos:</span>
-                <span className={`font-medium ${evolutionData.beliscos_diferenca > 0 ? 'text-red-400' : evolutionData.beliscos_diferenca < 0 ? 'text-green-400' : 'text-slate-400'}`}>
+                <span className="text-slate-400 dark:text-slate-500">🍪 Beliscos:</span>
+                <span className={`font-medium ${evolutionData.beliscos_diferenca > 0 ? 'text-red-400' : evolutionData.beliscos_diferenca < 0 ? 'text-green-400' : 'text-slate-400 dark:text-slate-500'}`}>
                   {evolutionData.beliscos_diferenca > 0 ? '+' : ''}{evolutionData.beliscos_diferenca}
                 </span>
               </div>
             )}
             {evolutionData?.aderencia && (
               <div className="flex justify-between">
-                <span className="text-slate-400">Aproveitamento:</span>
+                <span className="text-slate-400 dark:text-slate-500">Aproveitamento:</span>
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-blue-400">{evolutionData.aderencia}%</span>
                   {evolutionData.aderencia_diferenca !== undefined && evolutionData.aderencia_diferenca !== 0 && (
@@ -355,7 +355,7 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
               </div>
             )}
             {!evolutionData?.tem_checkin_anterior && (
-              <div className="text-sm text-slate-500 italic">
+              <div className="text-sm text-slate-500 dark:text-slate-400 italic">
                 Primeiro check-in - sem comparação anterior
               </div>
             )}
@@ -374,13 +374,13 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
             <CardContent className="space-y-3">
               {latestCheckin.objetivo && (
                 <div>
-                  <span className="text-slate-400 text-sm">Objetivo:</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-sm">Objetivo:</span>
                   <p className="text-slate-200 mt-1">{latestCheckin.objetivo}</p>
                 </div>
               )}
               {latestCheckin.dificuldades && (
                 <div>
-                  <span className="text-slate-400 text-sm">Dificuldades:</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-sm">Dificuldades:</span>
                   <p className="text-slate-200 mt-1">{latestCheckin.dificuldades}</p>
                 </div>
               )}
@@ -395,13 +395,13 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
             <CardContent className="space-y-3">
               {latestCheckin.melhora_visual && (
                 <div>
-                  <span className="text-slate-400 text-sm">Melhora Visual:</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-sm">Melhora Visual:</span>
                   <p className="text-slate-200 mt-1">{latestCheckin.melhora_visual}</p>
                 </div>
               )}
               {latestCheckin.quais_pontos && (
                 <div>
-                  <span className="text-slate-400 text-sm">Quais Pontos:</span>
+                  <span className="text-slate-400 dark:text-slate-500 text-sm">Quais Pontos:</span>
                   <p className="text-slate-200 mt-1">{latestCheckin.quais_pontos}</p>
                 </div>
               )}
@@ -425,13 +425,13 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
               <CardContent className="space-y-3">
                 {latestCheckin.oq_comeu_ref_livre && (
                   <div>
-                    <span className="text-slate-400 text-sm">O que comeu na refeição livre:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">O que comeu na refeição livre:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.oq_comeu_ref_livre}</p>
                   </div>
                 )}
                 {latestCheckin.oq_beliscou && (
                   <div>
-                    <span className="text-slate-400 text-sm">O que beliscou:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">O que beliscou:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.oq_beliscou}</p>
                   </div>
                 )}
@@ -450,38 +450,38 @@ export const CheckinFeedbackSection: React.FC<CheckinFeedbackSectionProps> = ({
               <CardContent className="space-y-3">
                 {latestCheckin.comeu_menos_planejado && (
                   <div>
-                    <span className="text-slate-400 text-sm">Comeu menos que o planejado:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">Comeu menos que o planejado:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.comeu_menos_planejado}</p>
                   </div>
                 )}
                 {latestCheckin.fome_horario && (
                   <div>
-                    <span className="text-slate-400 text-sm">Fome em algum horário:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">Fome em algum horário:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.fome_horario}</p>
                   </div>
                 )}
                 {latestCheckin.alimento_incluir && (
                   <div>
-                    <span className="text-slate-400 text-sm">Alimento para incluir:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">Alimento para incluir:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.alimento_incluir}</p>
                   </div>
                 )}
                 {/* Campos alternativos caso os nomes sejam diferentes */}
                 {latestCheckin.comeu_menos && (
                   <div>
-                    <span className="text-slate-400 text-sm">Comeu menos que o planejado:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">Comeu menos que o planejado:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.comeu_menos}</p>
                   </div>
                 )}
                 {latestCheckin.fome && (
                   <div>
-                    <span className="text-slate-400 text-sm">Fome em algum horário:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">Fome em algum horário:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.fome}</p>
                   </div>
                 )}
                 {latestCheckin.alimento_para_incluir && (
                   <div>
-                    <span className="text-slate-400 text-sm">Alimento para incluir:</span>
+                    <span className="text-slate-400 dark:text-slate-500 text-sm">Alimento para incluir:</span>
                     <p className="text-slate-200 mt-1">{latestCheckin.alimento_para_incluir}</p>
                   </div>
                 )}

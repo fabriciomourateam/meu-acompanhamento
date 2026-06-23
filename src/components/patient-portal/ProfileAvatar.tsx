@@ -87,12 +87,12 @@ export function ProfileAvatar({ patientId, name, photoUrl, onChange }: ProfileAv
       type="button"
       onClick={handlePick}
       title="Toque para alterar sua foto"
-      className="group relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-full border-2 border-emerald-200 bg-emerald-50 overflow-hidden shadow-sm transition-all hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-400"
+      className="group relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-full border-2 border-emerald-200 dark:border-emerald-900/50 bg-emerald-50 dark:bg-emerald-950/40 overflow-hidden shadow-sm transition-all hover:border-emerald-400 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-400"
     >
       {url ? (
         <img src={url} alt={name || 'Foto de perfil'} className="h-full w-full object-cover" />
       ) : (
-        <span className="flex h-full w-full items-center justify-center text-sm font-bold text-emerald-600">
+        <span className="flex h-full w-full items-center justify-center text-sm font-bold text-emerald-600 dark:text-emerald-400">
           {initials(name)}
         </span>
       )}

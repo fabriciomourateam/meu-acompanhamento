@@ -23,9 +23,9 @@ export function CommunityAvatar({
   className?: string;
 }) {
   return (
-    <Avatar className={cn('h-9 w-9 border border-slate-200', className)}>
+    <Avatar className={cn('h-9 w-9 border border-slate-200 dark:border-slate-700', className)}>
       {photo ? <AvatarImage src={photo} alt={name} /> : null}
-      <AvatarFallback className="bg-emerald-100 text-emerald-700 text-xs font-semibold">
+      <AvatarFallback className="bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 text-xs font-semibold">
         {initials(name)}
       </AvatarFallback>
     </Avatar>

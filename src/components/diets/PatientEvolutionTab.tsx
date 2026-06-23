@@ -36,59 +36,59 @@ type StatTone = 'blue' | 'cyan' | 'purple' | 'indigo' | 'sky' | 'emerald' | 'ros
 
 const STAT_TONES: Record<StatTone, { card: string; iconBox: string; value: string; subtitle: string; accentBar: string }> = {
   blue: {
-    card: 'from-blue-50/80 via-white to-sky-50/30 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50',
+    card: 'from-blue-50/80 dark:from-blue-950/40 via-white dark:via-slate-900 to-sky-50/30 dark:to-sky-950/40 border-blue-100/80 hover:border-blue-200 hover:shadow-blue-200/50',
     iconBox: 'bg-gradient-to-br from-blue-500 to-sky-500 shadow-lg shadow-blue-500/30',
-    value: 'text-blue-700',
+    value: 'text-blue-700 dark:text-blue-300',
     subtitle: 'text-blue-700/70',
     accentBar: 'from-blue-400 to-sky-400',
   },
   cyan: {
-    card: 'from-cyan-50/80 via-white to-teal-50/30 border-cyan-100/80 hover:border-cyan-200 hover:shadow-cyan-200/50',
+    card: 'from-cyan-50/80 dark:from-cyan-950/40 via-white dark:via-slate-900 to-teal-50/30 dark:to-teal-950/40 border-cyan-100/80 hover:border-cyan-200 hover:shadow-cyan-200/50',
     iconBox: 'bg-gradient-to-br from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/30',
-    value: 'text-cyan-700',
+    value: 'text-cyan-700 dark:text-cyan-300',
     subtitle: 'text-cyan-700/70',
     accentBar: 'from-cyan-400 to-teal-400',
   },
   purple: {
-    card: 'from-purple-50/80 via-white to-violet-50/30 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50',
+    card: 'from-purple-50/80 dark:from-purple-950/40 via-white dark:via-slate-900 to-violet-50/30 dark:to-violet-950/40 border-purple-100/80 hover:border-purple-200 hover:shadow-purple-200/50',
     iconBox: 'bg-gradient-to-br from-purple-500 to-violet-500 shadow-lg shadow-purple-500/30',
-    value: 'text-purple-700',
+    value: 'text-purple-700 dark:text-purple-300',
     subtitle: 'text-purple-700/70',
     accentBar: 'from-purple-400 to-violet-400',
   },
   indigo: {
-    card: 'from-indigo-50/80 via-white to-blue-50/30 border-indigo-100/80 hover:border-indigo-200 hover:shadow-indigo-200/50',
+    card: 'from-indigo-50/80 dark:from-indigo-950/40 via-white dark:via-slate-900 to-blue-50/30 dark:to-blue-950/40 border-indigo-100/80 hover:border-indigo-200 hover:shadow-indigo-200/50',
     iconBox: 'bg-gradient-to-br from-indigo-500 to-blue-500 shadow-lg shadow-indigo-500/30',
-    value: 'text-indigo-700',
+    value: 'text-indigo-700 dark:text-indigo-300',
     subtitle: 'text-indigo-700/70',
     accentBar: 'from-indigo-400 to-blue-400',
   },
   sky: {
-    card: 'from-sky-50/80 via-white to-blue-50/30 border-sky-100/80 hover:border-sky-200 hover:shadow-sky-200/50',
+    card: 'from-sky-50/80 dark:from-sky-950/40 via-white dark:via-slate-900 to-blue-50/30 dark:to-blue-950/40 border-sky-100/80 hover:border-sky-200 hover:shadow-sky-200/50',
     iconBox: 'bg-gradient-to-br from-sky-500 to-blue-500 shadow-lg shadow-sky-500/30',
-    value: 'text-sky-700',
+    value: 'text-sky-700 dark:text-sky-300',
     subtitle: 'text-sky-700/70',
     accentBar: 'from-sky-400 to-blue-400',
   },
   emerald: {
-    card: 'from-emerald-50/80 via-white to-teal-50/30 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50',
+    card: 'from-emerald-50/80 dark:from-emerald-950/40 via-white dark:via-slate-900 to-teal-50/30 dark:to-teal-950/40 border-emerald-100/80 hover:border-emerald-200 hover:shadow-emerald-200/50',
     iconBox: 'bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/30',
-    value: 'text-emerald-700',
+    value: 'text-emerald-700 dark:text-emerald-300',
     subtitle: 'text-emerald-700/70',
     accentBar: 'from-emerald-400 to-teal-400',
   },
   rose: {
-    card: 'from-rose-50/80 via-white to-red-50/30 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50',
+    card: 'from-rose-50/80 dark:from-rose-950/40 via-white dark:via-slate-900 to-red-50/30 dark:to-red-950/40 border-rose-100/80 hover:border-rose-200 hover:shadow-rose-200/50',
     iconBox: 'bg-gradient-to-br from-rose-500 to-red-500 shadow-lg shadow-rose-500/30',
-    value: 'text-rose-700',
+    value: 'text-rose-700 dark:text-rose-300',
     subtitle: 'text-rose-700/70',
     accentBar: 'from-rose-400 to-red-400',
   },
   slate: {
-    card: 'from-slate-50/80 via-white to-slate-50/30 border-slate-200/80 hover:border-slate-300 hover:shadow-slate-200/50',
+    card: 'from-slate-50/80 dark:from-slate-900 via-white dark:via-slate-900 to-slate-50/30 dark:to-slate-900 border-slate-200/80 hover:border-slate-300 hover:shadow-slate-200/50',
     iconBox: 'bg-gradient-to-br from-slate-500 to-slate-600 shadow-lg shadow-slate-500/30',
-    value: 'text-slate-700',
-    subtitle: 'text-slate-500',
+    value: 'text-slate-700 dark:text-slate-200',
+    subtitle: 'text-slate-500 dark:text-slate-400',
     accentBar: 'from-slate-300 to-slate-400',
   },
 };
@@ -122,12 +122,12 @@ function PremiumStatCard({ tone, icon, label, value, unit, subtitle }: PremiumSt
       <div className={`flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full text-white ${t.iconBox} group-hover:scale-110 transition-transform duration-300 mb-3 sm:mb-4`}>
         {icon}
       </div>
-      <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1">
+      <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1">
         {label}
       </p>
       <p className={`text-2xl sm:text-3xl font-extrabold tracking-tight leading-none bg-gradient-to-r ${VALUE_GRADIENT[tone]} bg-clip-text text-transparent`}>
         {value}
-        {unit && <span className="text-base sm:text-lg font-normal text-slate-400 ml-1">{unit}</span>}
+        {unit && <span className="text-base sm:text-lg font-normal text-slate-400 dark:text-slate-500 ml-1">{unit}</span>}
       </p>
       {subtitle && (
         <p className={`text-[11px] mt-1.5 leading-snug line-clamp-2 ${t.subtitle}`}>{subtitle}</p>
@@ -269,9 +269,9 @@ export function PatientEvolutionTab({
 
   if (!patient) {
     return (
-      <Card className="bg-white border border-slate-200 shadow-sm">
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
         <CardContent className="p-6 text-center">
-          <p className="text-slate-500">Não foi possível carregar os dados do paciente</p>
+          <p className="text-slate-500 dark:text-slate-400">Não foi possível carregar os dados do paciente</p>
         </CardContent>
       </Card>
     );
@@ -463,13 +463,13 @@ export function PatientEvolutionTab({
 
       {/* Mensagem quando não há dados - mostrar se não houver check-ins */}
       {checkins.length === 0 && (
-        <Card className="bg-white border border-slate-200 shadow-sm">
+        <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
           <CardContent className="p-6 text-center">
             <Activity className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
-            <p className="text-slate-900 text-base font-semibold mb-1">
+            <p className="text-slate-900 dark:text-slate-100 text-base font-semibold mb-1">
               Tudo pronto pra começar! ✨
             </p>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               Faça seu primeiro check-in e acompanhe sua evolução por aqui.
             </p>
           </CardContent>

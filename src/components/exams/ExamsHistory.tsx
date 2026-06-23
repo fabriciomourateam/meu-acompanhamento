@@ -132,13 +132,13 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
       case 'completed':
         return <Badge className="bg-[#00C98A]/10 text-[#00A875] border-[#00C98A]/20"><CheckCircle className="w-3 h-3 mr-1" /> Completo</Badge>;
       case 'scheduled':
-        return <Badge className="bg-blue-100 text-blue-700 border-blue-200"><Calendar className="w-3 h-3 mr-1" /> Agendado</Badge>;
+        return <Badge className="bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-900/50"><Calendar className="w-3 h-3 mr-1" /> Agendado</Badge>;
       case 'requested':
-        return <Badge className="bg-yellow-100 text-yellow-700 border-yellow-200"><Clock className="w-3 h-3 mr-1" /> Solicitado</Badge>;
+        return <Badge className="bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-900/50"><Clock className="w-3 h-3 mr-1" /> Solicitado</Badge>;
       case 'cancelled':
-        return <Badge className="bg-red-100 text-red-700 border-red-200"><XCircle className="w-3 h-3 mr-1" /> Cancelado</Badge>;
+        return <Badge className="bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-900/50"><XCircle className="w-3 h-3 mr-1" /> Cancelado</Badge>;
       default:
-        return <Badge className="bg-gray-100 text-gray-700 border-gray-200">{status}</Badge>;
+        return <Badge className="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-slate-300 border-gray-200 dark:border-slate-700">{status}</Badge>;
     }
   };
 
@@ -220,9 +220,9 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
 
   if (loading) {
     return (
-      <Card className={isDark ? "bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50" : "bg-white rounded-2xl shadow-lg border border-gray-100"}>
+      <Card className={isDark ? "bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50" : "bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800"}>
         <CardContent className="p-8 text-center">
-          <p className={isDark ? "text-slate-400" : "text-[#777777]"}>Carregando exames...</p>
+          <p className={isDark ? "text-slate-400 dark:text-slate-500" : "text-[#777777]"}>Carregando exames...</p>
         </CardContent>
       </Card>
     );
@@ -235,7 +235,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
 
   return (
     <>
-      <Card className={isDark ? "bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50" : "bg-white rounded-2xl shadow-lg border border-gray-100"}>
+      <Card className={isDark ? "bg-gradient-to-br from-blue-900/20 to-purple-900/20 border-slate-700/50" : "bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800"}>
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <CardTitle className={`flex items-center gap-2 ${isDark ? "text-white" : "text-[#222222]"}`}>
@@ -246,7 +246,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
               variant="ghost"
               size="sm"
               onClick={() => setIsMinimized(!isMinimized)}
-              className={isDark ? "text-slate-400 hover:text-white" : "text-[#777777] hover:text-[#222222]"}
+              className={isDark ? "text-slate-400 dark:text-slate-500 hover:text-white" : "text-[#777777] hover:text-[#222222]"}
             >
               {isMinimized ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
             </Button>
@@ -256,9 +256,9 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
           <CardContent>
             {exams.length === 0 ? (
               <div className="text-center py-8">
-                <FlaskConical className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-slate-600" : "text-gray-300"}`} />
-                <p className={isDark ? "text-slate-400" : "text-[#777777]"}>Nenhum exame solicitado ainda</p>
-                <p className={`text-sm mt-1 ${isDark ? "text-slate-500" : "text-[#777777]"}`}>Os exames solicitados aparecerão aqui</p>
+                <FlaskConical className={`w-12 h-12 mx-auto mb-3 ${isDark ? "text-slate-600 dark:text-slate-400" : "text-gray-300"}`} />
+                <p className={isDark ? "text-slate-400 dark:text-slate-500" : "text-[#777777]"}>Nenhum exame solicitado ainda</p>
+                <p className={`text-sm mt-1 ${isDark ? "text-slate-500 dark:text-slate-400" : "text-[#777777]"}`}>Os exames solicitados aparecerão aqui</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -270,7 +270,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
                     <div className="flex items-start justify-between mb-3">
                       <div className="flex-1">
                         <h3 className={`font-semibold text-lg mb-1 ${isDark ? "text-white" : "text-[#222222]"}`}>{exam.exam_name}</h3>
-                        <p className={`text-sm ${isDark ? "text-slate-400" : "text-[#777777]"}`}>
+                        <p className={`text-sm ${isDark ? "text-slate-400 dark:text-slate-500" : "text-[#777777]"}`}>
                           Solicitado em {new Date(exam.requested_at).toLocaleDateString('pt-BR')}
                         </p>
                       </div>
@@ -354,7 +354,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
               <Upload className="w-5 h-5 text-blue-400" />
               Adicionar Resultado do Exame
             </DialogTitle>
-            <DialogDescription className="text-slate-400">
+            <DialogDescription className="text-slate-400 dark:text-slate-500">
               {selectedExam?.exam_name}
             </DialogDescription>
           </DialogHeader>
@@ -369,7 +369,7 @@ export function ExamsHistory({ patientId, telefone, onUpdate, refreshTrigger, al
                 onChange={handleFileChange}
                 className="bg-slate-700/50 border-slate-600 text-white"
               />
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-slate-500 dark:text-slate-400">
                 Formatos aceitos: PDF, PNG, JPG. Máximo 30MB.
               </p>
               {resultFile && (

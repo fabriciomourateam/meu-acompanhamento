@@ -551,3 +551,123 @@ canvas {
     background: -webkit-print-color-adjust !important;
   }
 }
+
+/* ============================================================
+   PALETA DO TEMA ESCURO — estilo "WhatsApp" (preto-teal + verde)
+   ------------------------------------------------------------
+   A conversão do portal usou tons `slate` nas variantes `dark:`.
+   Aqui re-mapeamos esses utilitários para uma paleta escura coesa,
+   num único lugar. Para mudar o "tom" do dark inteiro, ajuste só
+   estes hexes. Usamos `html.dark` p/ ganhar especificidade do utilitário.
+   ============================================================ */
+.dark {
+  --d-bg: #080f13;          /* fundo da página (mais profundo p/ os cards "saltarem") */
+  --d-surface: #151f27;     /* cards — um tom acima do fundo, com leve presença */
+  --d-elevated: #1f2b33;    /* superfícies elevadas / nested / hover */
+  --d-border: #2d3c46;      /* bordas mais definidas (dão contorno premium ao card) */
+  --d-border-subtle: #1d282f;
+  --d-text: #e9edef;        /* texto primário */
+  --d-text-2: #cdd6db;      /* secundário forte */
+  --d-text-muted: #8696a0;  /* secundário */
+  --d-text-faint: #6a7a82;  /* mais apagado */
+}
+html.dark .dark\:bg-slate-950 { background-color: var(--d-bg); }
+html.dark .dark\:bg-slate-900 { background-color: var(--d-surface); }
+html.dark .dark\:bg-slate-800 { background-color: var(--d-elevated); }
+html.dark .dark\:\!bg-slate-900 { background-color: var(--d-surface) !important; }
+/* Realce sutil no topo do card (profundidade premium) sem sombra/gradiente que
+   conflite — borda interna clara de 1px só no topo. */
+html.dark .dark\:bg-slate-900,
+html.dark .dark\:\!bg-slate-900 { box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.025); }
+html.dark .dark\:border-slate-700 { border-color: var(--d-border); }
+html.dark .dark\:border-slate-800 { border-color: var(--d-border-subtle); }
+html.dark .dark\:text-slate-100 { color: var(--d-text); }
+html.dark .dark\:text-slate-200 { color: var(--d-text-2); }
+html.dark .dark\:text-slate-300 { color: var(--d-text-2); }
+html.dark .dark\:text-slate-400 { color: var(--d-text-muted); }
+html.dark .dark\:text-slate-500 { color: var(--d-text-faint); }
+
+/* ------------------------------------------------------------
+   Realce do verde da marca (emerald) no ESCURO
+   Verde sólido um tiquinho mais vivo nas ações + glow sutil só
+   nos BOTÕES sólidos (CTAs), pra dar "pop" premium sem mudar a cor
+   nem virar poluição visual. Ajuste a intensidade aqui.
+   ------------------------------------------------------------ */
+html.dark .bg-emerald-500 { background-color: #10c074; }
+html.dark .bg-emerald-600 { background-color: #0eb06a; }
+html.dark .hover\:bg-emerald-600:hover { background-color: #0c9c5d; }
+html.dark .hover\:bg-emerald-700:hover { background-color: #0a8a52; }
+/* glow apenas em botões/links sólidos de ação */
+html.dark button.bg-emerald-500,
+html.dark button.bg-emerald-600,
+html.dark a.bg-emerald-500,
+html.dark a.bg-emerald-600 {
+  box-shadow: 0 6px 18px -6px rgba(16, 200, 120, 0.5);
+}
+
+/* ------------------------------------------------------------
+   Gráficos (recharts) no ESCURO — central, vale p/ todos os charts.
+   Grade clara fixa (#e2e8f0) ficava brilhante demais; tooltip branco.
+   ------------------------------------------------------------ */
+html.dark .recharts-cartesian-grid line,
+html.dark .recharts-cartesian-grid-horizontal line,
+html.dark .recharts-cartesian-grid-vertical line {
+  stroke: rgba(255, 255, 255, 0.07) !important;
+}
+html.dark .recharts-cartesian-axis-line,
+html.dark .recharts-cartesian-axis-tick-line {
+  stroke: rgba(255, 255, 255, 0.12) !important;
+}
+html.dark .recharts-default-tooltip {
+  background-color: #151f27 !important;
+  border-color: #2d3c46 !important;
+  color: #e9edef !important;
+}
+html.dark .recharts-tooltip-item { color: #cdd6db !important; }
+
+/* Boneco da bioimpedância (SVG) — corpo claro fixo no escuro vira superfície escura. */
+html.dark .bio-silhouette { fill: #243039; stroke: #3a4a55; }
+
+/* Calendário (react-day-picker) no escuro — datas/cabeçalho mais claros. */
+html.dark .rdp {
+  --rdp-accent-color: #10b981;
+  color: #cdd6db;
+}
+html.dark .rdp-head_cell,
+html.dark .rdp-caption_label,
+html.dark .rdp-nav_button { color: #aebac1 !important; }
+html.dark .rdp-day,
+html.dark .rdp-day_button,
+html.dark .rdp-button_reset,
+html.dark .rdp-button { color: #f1f5f9 !important; }
+html.dark .rdp-day_disabled,
+html.dark .rdp-day_outside { color: #566571 !important; }
+
+/* Fundo da conversa do Suporte — vibe "WhatsApp": doodles fitness sutis.
+   CLARO: traços escuros sobre o fundo claro do chat (bg-slate-50 do elemento). */
+.chat-doodle {
+  background-image: url('/chat-pattern-light.svg');
+  background-size: 280px 280px;
+  background-repeat: repeat;
+}
+/* Card do nome — CLARO: leve brilho emerald sobre o branco. */
+.portal-name-card {
+  background-image: radial-gradient(90% 130% at 100% -25%, rgba(16, 185, 129, 0.07), transparent 55%);
+}
+
+/* ESCURO: teal-escuro + doodles em traço branco. */
+html.dark .chat-doodle {
+  background-color: #0c161b;
+  background-image: url('/chat-pattern.svg');
+  background-size: 280px 280px;
+  background-repeat: repeat;
+}
+
+/* Card do nome — ESCURO: base escura + glow emerald no canto. */
+html.dark .portal-name-card {
+  background-color: #0c181d;
+  background-image:
+    radial-gradient(90% 130% at 100% -25%, rgba(16, 185, 129, 0.16), transparent 55%),
+    linear-gradient(135deg, rgba(18, 74, 62, 0.55) 0%, transparent 58%);
+}
+html.dark .rdp-button:hover:not([disabled]):not(.rdp-day_selected) { background-color: #1f2b33; }

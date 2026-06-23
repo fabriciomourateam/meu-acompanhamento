@@ -16,21 +16,21 @@ export function OriginalFoodCard({ food, referenceGrams }: OriginalFoodCardProps
   const measure = formatHouseholdMeasure(referenceGrams, food.common_units);
 
   return (
-    <div className="rounded-2xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-white p-4 shadow-sm">
-      <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-emerald-700">
+    <div className="rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-br from-emerald-50 dark:from-emerald-950/40 to-white dark:to-slate-900 p-4 shadow-sm">
+      <div className="mb-2 flex items-center gap-2 text-xs uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
         <span aria-hidden>{emoji}</span>
         <span>Você selecionou • {meta.label}</span>
       </div>
 
-      <h2 className="mb-1 text-xl font-bold text-slate-900">{food.name}</h2>
-      <p className="mb-3 text-sm text-slate-600">
+      <h2 className="mb-1 text-xl font-bold text-slate-900 dark:text-slate-100">{food.name}</h2>
+      <p className="mb-3 text-sm text-slate-600 dark:text-slate-400">
         Referência:{" "}
-        <span className="font-semibold text-slate-900">{referenceGrams}g</span>
+        <span className="font-semibold text-slate-900 dark:text-slate-100">{referenceGrams}g</span>
         {measure && (
           <>
             {" "}
             • aproximadamente{" "}
-            <span className="font-semibold text-slate-900">{measure}</span>
+            <span className="font-semibold text-slate-900 dark:text-slate-100">{measure}</span>
           </>
         )}
       </p>

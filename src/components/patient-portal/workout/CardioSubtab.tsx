@@ -123,8 +123,8 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
       {prescribed ? (
         <PrescribedCardioCard cardio={prescribed} weekStats={weekStats} />
       ) : !loading && (
-        <div className="flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm text-slate-600">
-          <HeartPulse className="mt-0.5 h-4 w-4 shrink-0 text-slate-400" />
+        <div className="flex items-start gap-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-3 py-2.5 text-sm text-slate-600 dark:text-slate-400">
+          <HeartPulse className="mt-0.5 h-4 w-4 shrink-0 text-slate-400 dark:text-slate-500" />
           <span>Este plano não tem cardio prescrito. Você pode registrar suas atividades livremente abaixo.</span>
         </div>
       )}
@@ -140,13 +140,13 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
 
       {prescribedSessions.length > 0 && (
         <div>
-          <h3 className="mb-2 text-sm font-semibold text-slate-800">Prescritos pelo trainer</h3>
+          <h3 className="mb-2 text-sm font-semibold text-slate-800 dark:text-slate-200">Prescritos pelo trainer</h3>
           <div className="space-y-2">
             {prescribedSessions.map((s) => (
-              <div key={s.id} className="rounded-lg border border-cyan-200 bg-cyan-50/40 p-3">
-                <div className="font-medium text-cyan-900">{s.name}</div>
+              <div key={s.id} className="rounded-lg border border-cyan-200 dark:border-cyan-900/50 bg-cyan-50/40 dark:bg-cyan-950/40 p-3">
+                <div className="font-medium text-cyan-900 dark:text-cyan-200">{s.name}</div>
                 {s.notes && (
-                  <div className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 prose-p:my-1" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(s.notes) }} />
+                  <div className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 dark:text-cyan-300 prose-p:my-1" dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(s.notes) }} />
                 )}
               </div>
             ))}
@@ -160,16 +160,16 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
 
       <div>
         <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-slate-800">Histórico</h3>
+          <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Histórico</h3>
           <div className="flex items-center gap-1">
-            <button onClick={() => shiftMonth(-1)} className="rounded p-1 text-slate-500 hover:bg-slate-100" aria-label="Mês anterior">
+            <button onClick={() => shiftMonth(-1)} className="rounded p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800" aria-label="Mês anterior">
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="min-w-[7.5rem] text-center text-xs font-medium capitalize text-slate-600">{monthLabel}</span>
+            <span className="min-w-[7.5rem] text-center text-xs font-medium capitalize text-slate-600 dark:text-slate-400">{monthLabel}</span>
             <button
               onClick={() => shiftMonth(1)}
               disabled={isCurrentMonth}
-              className="rounded p-1 text-slate-500 hover:bg-slate-100 disabled:opacity-30"
+              className="rounded p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30"
               aria-label="Próximo mês"
             >
               <ChevronRight className="h-4 w-4" />
@@ -177,26 +177,26 @@ export function CardioSubtab({ token, prescribedSessions, patientId, planId }: C
           </div>
         </div>
         {loading ? (
-          <p className="py-4 text-center text-sm text-slate-400">Carregando…</p>
+          <p className="py-4 text-center text-sm text-slate-400 dark:text-slate-500">Carregando…</p>
         ) : logs.length === 0 ? (
-          <p className="py-4 text-center text-sm italic text-slate-500">
+          <p className="py-4 text-center text-sm italic text-slate-500 dark:text-slate-400">
             Nenhum cardio registrado neste mês.
           </p>
         ) : (
           <div className="space-y-1.5">
             {logs.map((l) => (
-              <div key={l.id} className="flex items-center justify-between rounded-lg border border-slate-200 bg-white p-2.5">
+              <div key={l.id} className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2.5">
                 <div className="text-sm">
-                  <div className="font-medium text-slate-800">
+                  <div className="font-medium text-slate-800 dark:text-slate-200">
                     <strong>{l.duration_min}min</strong>
-                    {l.modality && <span className="ml-1 text-slate-600">· {l.modality}</span>}
-                    {l.intensity && <span className="ml-1 text-xs uppercase tracking-wider text-slate-500">({l.intensity})</span>}
+                    {l.modality && <span className="ml-1 text-slate-600 dark:text-slate-400">· {l.modality}</span>}
+                    {l.intensity && <span className="ml-1 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400">({l.intensity})</span>}
                   </div>
-                  <div className="text-xs text-slate-500">
+                  <div className="text-xs text-slate-500 dark:text-slate-400">
                     {new Date(l.performed_at + 'T00:00:00').toLocaleDateString('pt-BR')}
                   </div>
                 </div>
-                <button onClick={() => void handleDelete(l.id)} className="text-slate-400 hover:text-rose-600" aria-label="Excluir cardio">
+                <button onClick={() => void handleDelete(l.id)} className="text-slate-400 dark:text-slate-500 hover:text-rose-600" aria-label="Excluir cardio">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </div>
@@ -254,9 +254,9 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
   const intensidade = cardio.intensidade?.trim() || null;
 
   return (
-    <div className="rounded-xl border border-cyan-200 bg-gradient-to-br from-cyan-50 to-sky-50/40 p-3">
+    <div className="rounded-xl border border-cyan-200 dark:border-cyan-900/50 bg-gradient-to-br from-cyan-50 dark:from-cyan-950/40 to-sky-50/40 dark:to-sky-950/40 p-3">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-cyan-900">
+        <h3 className="flex items-center gap-1.5 text-sm font-semibold text-cyan-900 dark:text-cyan-200">
           🫀 Cardio prescrito
         </h3>
         {isToday && tempoHoje != null && (
@@ -266,9 +266,9 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
         )}
       </div>
       {(modalidade || intensidade) && (
-        <div className="mt-0.5 space-y-0.5 text-xs text-cyan-700">
+        <div className="mt-0.5 space-y-0.5 text-xs text-cyan-700 dark:text-cyan-300">
           {modalidade && <p>{modalidade}</p>}
-          {intensidade && <p className="text-cyan-600">{intensidade}</p>}
+          {intensidade && <p className="text-cyan-600 dark:text-cyan-400">{intensidade}</p>}
         </div>
       )}
 
@@ -292,7 +292,7 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
                 key={dow}
                 className={
                   'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ' +
-                  (today ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-cyan-200 bg-white text-cyan-800')
+                  (today ? 'border-cyan-500 bg-cyan-600 text-white' : 'border-cyan-200 dark:border-cyan-900/50 bg-white dark:bg-slate-900 text-cyan-800 dark:text-cyan-300')
                 }
               >
                 {lbl}{tempoStr ? ` ${tempoStr}${cardio.unidade}` : ''}
@@ -304,20 +304,20 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
 
       {Array.isArray(cardio.opcoes) && cardio.opcoes.length > 0 && (
         <div className="mt-3 space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-700">
+          <p className="text-[11px] font-semibold uppercase tracking-wide text-cyan-700 dark:text-cyan-300">
             Opções de cardio ({cardio.opcoes.length})
           </p>
-          <p className="text-[11px] text-cyan-600">Faça <strong>uma</strong> destas opções.</p>
+          <p className="text-[11px] text-cyan-600 dark:text-cyan-400">Faça <strong>uma</strong> destas opções.</p>
           {cardio.opcoes.map((opt, i) => {
             const { label, html } = normalizeCardioOption(opt, i);
             return (
-              <div key={i} className="rounded-lg border border-cyan-200 bg-white/70 p-2.5">
-                <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-900">
+              <div key={i} className="rounded-lg border border-cyan-200 dark:border-cyan-900/50 bg-white/70 dark:bg-slate-950/70 p-2.5">
+                <div className="flex items-center gap-1.5 text-xs font-bold text-cyan-900 dark:text-cyan-200">
                   <RotateCcw className="h-3 w-3" /> {label}
                 </div>
                 {html && (
                   <div
-                    className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 prose-p:my-1 prose-strong:text-cyan-900"
+                    className="prose prose-sm mt-1 max-w-none text-xs text-cyan-800 dark:text-cyan-300 prose-p:my-1 prose-strong:text-cyan-900"
                     dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(html) }}
                   />
                 )}
@@ -329,7 +329,7 @@ function PrescribedCardioCard({ cardio, weekStats }: { cardio: PrescribedCardio;
 
       {cardio.observacoes && (
         <div
-          className="prose prose-sm mt-2 max-w-none text-xs text-cyan-800 prose-p:my-1 prose-b:text-cyan-900 prose-strong:text-cyan-900"
+          className="prose prose-sm mt-2 max-w-none text-xs text-cyan-800 dark:text-cyan-300 prose-p:my-1 prose-b:text-cyan-900 prose-strong:text-cyan-900"
           dangerouslySetInnerHTML={{ __html: sanitizeRichHtml(cardio.observacoes) }}
         />
       )}
@@ -368,24 +368,24 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
   return (
     <div className="mt-2">
       <div className="mb-1 flex items-center justify-between text-sm">
-        <span className="inline-flex items-center gap-1.5 font-semibold text-cyan-800">
-          <HeartPulse className="h-4 w-4 text-cyan-600" />
+        <span className="inline-flex items-center gap-1.5 font-semibold text-cyan-800 dark:text-cyan-300">
+          <HeartPulse className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
           {freqLabel}
           {tempoCadaLabel && (
-            <span className="font-normal text-cyan-600">· {tempoCadaLabel}{cardio.unidade} cada</span>
+            <span className="font-normal text-cyan-600 dark:text-cyan-400">· {tempoCadaLabel}{cardio.unidade} cada</span>
           )}
         </span>
-        {complete && <span className="text-xs font-bold text-emerald-600">✓ Completo</span>}
+        {complete && <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400">✓ Completo</span>}
       </div>
-      <div className="h-2 w-full overflow-hidden rounded-full bg-cyan-100">
+      <div className="h-2 w-full overflow-hidden rounded-full bg-cyan-100 dark:bg-cyan-950/50">
         <div
           className={'h-full rounded-full transition-all ' + (complete ? 'bg-emerald-500' : 'bg-cyan-600')}
           style={{ width: `${pct}%` }}
         />
       </div>
-      <p className="mt-1 text-xs text-cyan-700">
-        <strong className="text-cyan-900">{done}/{goalLabel}</strong> treinos esta semana
-        <span className="text-cyan-600"> · {weekStats.min}{minGoalLabel ? `/${minGoalLabel}` : ''} min</span>
+      <p className="mt-1 text-xs text-cyan-700 dark:text-cyan-300">
+        <strong className="text-cyan-900 dark:text-cyan-200">{done}/{goalLabel}</strong> treinos esta semana
+        <span className="text-cyan-600 dark:text-cyan-400"> · {weekStats.min}{minGoalLabel ? `/${minGoalLabel}` : ''} min</span>
       </p>
     </div>
   );
@@ -393,9 +393,9 @@ function FrequencyProgress({ cardio, weekStats }: { cardio: PrescribedCardio; we
 
 function TotalCard({ label, min }: { label: string; min: number }) {
   return (
-    <div className="rounded-lg border border-blue-200 bg-blue-50 p-2 text-center">
-      <div className="text-[10px] uppercase tracking-wider text-blue-600">{label}</div>
-      <div className="text-lg font-bold text-blue-800">
+    <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50 dark:bg-blue-950/40 p-2 text-center">
+      <div className="text-[10px] uppercase tracking-wider text-blue-600 dark:text-blue-400">{label}</div>
+      <div className="text-lg font-bold text-blue-800 dark:text-blue-300">
         {min}<span className="text-xs font-normal opacity-70">min</span>
       </div>
     </div>
@@ -447,22 +447,22 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
 
   return (
     <Dialog open onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="bg-white border-slate-200 text-slate-900">
+      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <HeartPulse className="h-5 w-5 text-cyan-600" /> Registrar cardio
+            <HeartPulse className="h-5 w-5 text-cyan-600 dark:text-cyan-400" /> Registrar cardio
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-3 py-2">
           {/* Cronômetro — mede o tempo do cardio e preenche a duração */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 p-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-slate-700">
-                <Timer className="h-4 w-4 text-cyan-600" />
+              <div className="flex items-center gap-2 text-slate-700 dark:text-slate-200">
+                <Timer className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                 <span className="text-2xl font-bold tabular-nums">{swLabel}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Button type="button" size="sm" variant="outline" onClick={() => setSwRunning((r) => !r)} className="border-slate-300 bg-white">
+                <Button type="button" size="sm" variant="outline" onClick={() => setSwRunning((r) => !r)} className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
                   {swRunning ? <><Pause className="mr-1 h-4 w-4" /> Pausar</> : <><Play className="mr-1 h-4 w-4" /> Iniciar</>}
                 </Button>
                 <Button type="button" size="sm" variant="ghost" onClick={() => { setSwRunning(false); setSwSec(0); }} aria-label="Zerar cronômetro">
@@ -471,24 +471,24 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
               </div>
             </div>
             {swSec > 0 && (
-              <p className="mt-2 text-xs text-slate-500">
-                Duração registrada: <strong className="text-slate-700">{swMinutes} min</strong> (ajustável abaixo)
+              <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                Duração registrada: <strong className="text-slate-700 dark:text-slate-200">{swMinutes} min</strong> (ajustável abaixo)
               </p>
             )}
           </div>
 
           <div>
             <Label>Duração (min) *</Label>
-            <Input type="number" min={1} value={duration} onChange={(e) => setDuration(e.target.value)} className="mt-1 bg-white border-slate-300" />
+            <Input type="number" min={1} value={duration} onChange={(e) => setDuration(e.target.value)} className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
           </div>
           <div>
             <Label>Modalidade</Label>
-            <Input value={modality} onChange={(e) => setModality(e.target.value)} placeholder="Esteira, bike, corrida..." className="mt-1 bg-white border-slate-300" />
+            <Input value={modality} onChange={(e) => setModality(e.target.value)} placeholder="Esteira, bike, corrida..." className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
           </div>
           <div>
             <Label>Intensidade</Label>
             <Select value={intensity} onValueChange={(v) => setIntensity(v as typeof intensity)}>
-              <SelectTrigger className="mt-1 bg-white border-slate-300"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="leve">😌 Leve</SelectItem>
                 <SelectItem value="moderado">🚶 Moderado</SelectItem>
@@ -499,15 +499,15 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
           </div>
           <div>
             <Label>Data</Label>
-            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 bg-white border-slate-300" />
+            <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
           </div>
           <div>
             <Label>Observações</Label>
-            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" className="mt-1 bg-white border-slate-300" />
+            <Input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opcional" className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose} className="border-slate-300 bg-white text-slate-700 hover:bg-slate-100">Cancelar</Button>
+          <Button variant="outline" onClick={onClose} className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800">Cancelar</Button>
           <Button onClick={() => void handleSave()} disabled={saving || !duration} className="bg-cyan-600 text-white hover:bg-cyan-700">
             {saving ? 'Salvando…' : 'Salvar'}
           </Button>

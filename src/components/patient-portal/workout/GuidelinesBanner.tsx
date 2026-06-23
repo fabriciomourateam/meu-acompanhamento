@@ -2,6 +2,8 @@
 // observações gerais do plano + general_notes da periodização + notas de sessão.
 import { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import { useTheme } from '@/lib/theme';
+import { adaptHtmlColorsForDark } from '@/lib/utils';
 
 interface Props {
   sessions: Array<{ id: string; name: string; notes: string | null }>;
@@ -15,6 +17,10 @@ interface Props {
 const hasText = (html: string | null | undefined) => !!(html && html.replace(/<[^>]+>/g, '').trim());
 
 export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId }: Props) {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+  // No escuro, clareia cores escuras do conteúdo (rich text do back-office).
+  const adapt = (h: string) => (isDark ? adaptHtmlColorsForDark(h) : h);
   const hasNotes = hasText(generalNotes);
   const hasPlanNotes = hasText(planNotes);
   const hasContent = sessions.length > 0 || hasNotes || hasPlanNotes;
@@ -47,45 +53,45 @@ export function GuidelinesBanner({ sessions, generalNotes, planNotes, patientId 
 
   return (
     <div
-      className={`rounded-lg border bg-amber-50/60 overflow-hidden transition-all ${
-        seen ? 'border-amber-200' : 'border-amber-300 ring-2 ring-amber-300/40 animate-pulse-soft'
+      className={`rounded-lg border bg-amber-50/60 dark:bg-slate-900 overflow-hidden transition-all ${
+        seen ? 'border-amber-200 dark:border-amber-900/50' : 'border-amber-300 ring-2 ring-amber-300/40 animate-pulse-soft'
       }`}
     >
       <button
         onClick={handleClick}
-        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40"
+        className="flex w-full items-center justify-between gap-2 p-3 text-left transition hover:bg-amber-100/40 dark:bg-amber-950/20 dark:hover:bg-amber-900/40"
       >
-        <span className="flex items-center gap-2 text-sm font-semibold text-amber-900">
+        <span className="flex items-center gap-2 text-sm font-semibold text-amber-900 dark:text-amber-200">
           📌 Orientações importantes
-          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${seen ? 'bg-amber-200 text-amber-800' : 'bg-amber-500 text-white'}`}>
+          <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${seen ? 'bg-amber-200 dark:bg-amber-400/25 text-amber-800 dark:text-amber-200' : 'bg-amber-500 text-white'}`}>
             {totalCount}
           </span>
           {!seen && (
-            <span className="text-[10px] font-medium text-amber-700 normal-case">
+            <span className="text-[10px] font-medium text-amber-700 dark:text-amber-300 normal-case">
               ← toque pra ler
             </span>
           )}
         </span>
-        {expanded ? <ChevronDown className="h-4 w-4 text-amber-700" /> : <ChevronRight className="h-4 w-4 text-amber-700" />}
+        {expanded ? <ChevronDown className="h-4 w-4 text-amber-700 dark:text-amber-300" /> : <ChevronRight className="h-4 w-4 text-amber-700 dark:text-amber-300" />}
       </button>
       {expanded && (
-        <div className="space-y-2 border-t border-amber-200 p-3 text-sm">
+        <div className="space-y-2 border-t border-amber-200 dark:border-amber-900/50 p-3 text-sm">
           {hasPlanNotes && (
-            <div className="rounded border border-amber-200/60 bg-white/70 p-2">
-              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Observações gerais</div>
-              <div className="text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: planNotes! }} />
+            <div className="rounded border border-amber-200/60 bg-white/70 dark:bg-slate-950/70 p-2">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Observações gerais</div>
+              <div className="text-slate-950 dark:text-slate-100 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: adapt(planNotes!) }} />
             </div>
           )}
           {hasNotes && (
-            <div className="rounded border border-amber-200/60 bg-white/70 p-2">
-              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700">Periodização</div>
-              <div className="text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: generalNotes! }} />
+            <div className="rounded border border-amber-200/60 bg-white/70 dark:bg-slate-950/70 p-2">
+              <div className="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-700 dark:text-amber-300">Periodização</div>
+              <div className="text-slate-950 dark:text-slate-100 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: adapt(generalNotes!) }} />
             </div>
           )}
           {sessions.map((s) => (
-            <div key={s.id} className="rounded border border-amber-200/60 bg-white/70 p-2">
-              <div className="mb-1 text-sm font-semibold text-slate-900">{s.name}</div>
-              {s.notes && <div className="text-xs text-slate-950 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: s.notes }} />}
+            <div key={s.id} className="rounded border border-amber-200/60 bg-white/70 dark:bg-slate-950/70 p-2">
+              <div className="mb-1 text-sm font-semibold text-slate-900 dark:text-slate-100">{s.name}</div>
+              {s.notes && <div className="text-xs text-slate-950 dark:text-slate-100 [&_*]:!bg-transparent" dangerouslySetInnerHTML={{ __html: adapt(s.notes) }} />}
             </div>
           ))}
         </div>

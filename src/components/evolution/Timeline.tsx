@@ -52,7 +52,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
   };
 
   const getScoreColor = (score: string | null) => {
-    if (!score) return "bg-slate-500/20 text-slate-400 border-slate-500/30";
+    if (!score) return "bg-slate-500/20 text-slate-400 dark:text-slate-500 border-slate-500/30";
     const numScore = parseFloat(score);
     if (numScore >= 8) return "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
     if (numScore >= 6) return "bg-amber-500/20 text-amber-400 border-amber-500/30";
@@ -74,14 +74,14 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
             <Calendar className="w-5 h-5 text-blue-400" />
             Timeline de Evolução
           </CardTitle>
-          <CardDescription className="text-slate-400">
+          <CardDescription className="text-slate-400 dark:text-slate-500">
             Histórico detalhado dos check-ins
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Calendar className="w-16 h-16 text-slate-600 mb-4" />
-            <p className="text-slate-400 text-lg">Nenhum check-in registrado</p>
+            <Calendar className="w-16 h-16 text-slate-600 dark:text-slate-400 mb-4" />
+            <p className="text-slate-400 dark:text-slate-500 text-lg">Nenhum check-in registrado</p>
           </div>
         </CardContent>
       </Card>
@@ -97,13 +97,13 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
               <Calendar className="w-5 h-5 text-blue-400" />
               Timeline de Evolução
             </CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardDescription className="text-slate-400 dark:text-slate-500">
               Histórico detalhado dos {checkins.length} check-ins realizados
             </CardDescription>
           </div>
           <button
             onClick={() => setIsMinimized(!isMinimized)}
-            className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
+            className="p-2 hover:bg-white/10 dark:hover:bg-slate-800/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
             aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
           >
             {isMinimized ? (
@@ -157,7 +157,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                           {isFirst && <Badge className="bg-blue-600/90 text-white">Inicial</Badge>}
                           {isLast && <Badge className="bg-emerald-600/90 text-white">Mais Recente</Badge>}
                         </h4>
-                        <p className="text-slate-400 text-sm mt-1">
+                        <p className="text-slate-400 dark:text-slate-500 text-sm mt-1">
                           Check-in #{checkins.length - index}
                         </p>
                       </div>
@@ -189,7 +189,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                         <div className="text-2xl font-bold text-white">
                           {checkin.total_pontuacao || 'N/A'}
                         </div>
-                        <p className="text-xs text-slate-400 whitespace-nowrap">pontos totais</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500 whitespace-nowrap">pontos totais</p>
                         {checkin.percentual_aproveitamento && (
                           <Badge className="mt-1 bg-purple-600/20 text-purple-300 border-purple-500/30 whitespace-nowrap">
                             {checkin.percentual_aproveitamento}% aproveitamento
@@ -203,12 +203,12 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-4">
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
-                        <Weight className="w-3 h-3 text-slate-400" />
-                        <p className="text-xs text-slate-400">Peso</p>
+                        <Weight className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Peso</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <p className="text-lg font-bold text-white">{checkin.peso || 'N/A'}</p>
-                        {checkin.peso && <span className="text-xs text-slate-400">kg</span>}
+                        {checkin.peso && <span className="text-xs text-slate-400 dark:text-slate-500">kg</span>}
                         {weightTrend !== null && (
                           <div className={`flex items-center gap-1 text-xs ${
                             weightTrend < 0 ? 'text-emerald-400' : 'text-orange-400'
@@ -232,11 +232,11 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                               <div className="bg-slate-800/50 p-3 rounded-lg">
                                 <div className="flex items-center gap-1 mb-1">
                                   <Target className="w-3 h-3 text-cyan-400" />
-                                  <p className="text-xs text-slate-400">Cintura</p>
+                                  <p className="text-xs text-slate-400 dark:text-slate-500">Cintura</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <p className="text-lg font-bold text-white">{measurements.cintura}</p>
-                                  <span className="text-xs text-slate-400">cm</span>
+                                  <span className="text-xs text-slate-400 dark:text-slate-500">cm</span>
                                 </div>
                               </div>
                             )}
@@ -246,11 +246,11 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                               <div className="bg-slate-800/50 p-3 rounded-lg">
                                 <div className="flex items-center gap-1 mb-1">
                                   <Target className="w-3 h-3 text-teal-400" />
-                                  <p className="text-xs text-slate-400">Quadril</p>
+                                  <p className="text-xs text-slate-400 dark:text-slate-500">Quadril</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <p className="text-lg font-bold text-white">{measurements.quadril}</p>
-                                  <span className="text-xs text-slate-400">cm</span>
+                                  <span className="text-xs text-slate-400 dark:text-slate-500">cm</span>
                                 </div>
                               </div>
                             )}
@@ -260,7 +260,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                               <div className="bg-slate-800/50 p-3 rounded-lg">
                                 <div className="flex items-center gap-1 mb-1">
                                   <Target className="w-3 h-3 text-orange-400" />
-                                  <p className="text-xs text-slate-400">Medida</p>
+                                  <p className="text-xs text-slate-400 dark:text-slate-500">Medida</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                   <p className="text-lg font-bold text-white">{checkin.medida}</p>
@@ -276,7 +276,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <Activity className="w-3 h-3 text-orange-400" />
-                        <p className="text-xs text-slate-400">Treino</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Treino</p>
                       </div>
                       <Badge className={getScoreColor(checkin.pontos_treinos)}>
                         {checkin.pontos_treinos || 'N/A'}
@@ -286,7 +286,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <Heart className="w-3 h-3 text-red-400" />
-                        <p className="text-xs text-slate-400">Cardio</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Cardio</p>
                       </div>
                       <Badge className={getScoreColor(checkin.pontos_cardios)}>
                         {checkin.pontos_cardios || 'N/A'}
@@ -299,7 +299,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <Moon className="w-3 h-3 text-purple-400" />
-                        <p className="text-xs text-slate-400">Sono</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Sono</p>
                       </div>
                       <Badge className={getScoreColor(checkin.pontos_sono)}>
                         {checkin.pontos_sono || 'N/A'}
@@ -309,7 +309,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <Droplets className="w-3 h-3 text-blue-400" />
-                        <p className="text-xs text-slate-400">Hidratação</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Hidratação</p>
                       </div>
                       <Badge variant="outline" className={getScoreColor(checkin.pontos_agua)}>
                         {checkin.pontos_agua || 'N/A'}
@@ -319,7 +319,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <Target className="w-3 h-3 text-amber-400" />
-                        <p className="text-xs text-slate-400">Stress</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Stress</p>
                       </div>
                       <Badge variant="outline" className={getScoreColor(checkin.pontos_stress)}>
                         {checkin.pontos_stress || 'N/A'}
@@ -329,7 +329,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <Flame className="w-3 h-3 text-pink-400" />
-                        <p className="text-xs text-slate-400">Libido</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Libido</p>
                       </div>
                       <Badge variant="outline" className={getScoreColor(checkin.pontos_libido)}>
                         {checkin.pontos_libido || 'N/A'}
@@ -339,7 +339,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="bg-slate-800/50 p-3 rounded-lg">
                       <div className="flex items-center gap-1 mb-1">
                         <BedDouble className="w-3 h-3 text-indigo-400" />
-                        <p className="text-xs text-slate-400">Qualidade Sono</p>
+                        <p className="text-xs text-slate-400 dark:text-slate-500">Qualidade Sono</p>
                       </div>
                       <Badge variant="outline" className={getScoreColor(checkin.pontos_qualidade_sono)}>
                         {checkin.pontos_qualidade_sono || 'N/A'}
@@ -352,7 +352,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                     <div className="space-y-2 pt-3 border-t border-slate-600/50">
                       {checkin.objetivo && (
                         <div className="bg-slate-800/30 p-2 rounded">
-                          <p className="text-xs text-slate-400 mb-1 font-semibold flex items-center gap-1">
+                          <p className="text-xs text-slate-400 dark:text-slate-500 mb-1 font-semibold flex items-center gap-1">
                             <Target className="w-3 h-3" /> Objetivo:
                           </p>
                           <p className="text-sm text-slate-300">{checkin.objetivo}</p>
@@ -383,7 +383,7 @@ export function Timeline({ checkins, onCheckinUpdated, showEditButton = true }: 
                   {/* Fotos/Vídeos do Check-in - Apenas quando expandido */}
                   {isExpanded && (checkin.foto_1 || checkin.foto_2 || checkin.foto_3 || checkin.foto_4) && (
                     <div className="pt-3 mt-3 border-t border-slate-600/50">
-                      <p className="text-xs text-slate-400 mb-2 font-semibold">Mídia do Check-in:</p>
+                      <p className="text-xs text-slate-400 dark:text-slate-500 mb-2 font-semibold">Mídia do Check-in:</p>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                         {checkin.foto_1 && (() => {
                           const isVideo = getMediaType(checkin.foto_1) === 'video';

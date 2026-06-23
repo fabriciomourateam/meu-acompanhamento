@@ -170,16 +170,16 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         'rounded-xl border shadow-sm overflow-hidden transition-colors',
-        allDone ? 'border-emerald-300 bg-emerald-50/60' : 'border-slate-200 bg-white',
+        allDone ? 'border-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/60' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900',
       )}
     >
       <Collapsible open={open} onOpenChange={setOpen}>
-        <CollapsibleTrigger className={cn('w-full text-left p-3 flex items-center gap-3 transition-colors', allDone ? 'hover:bg-emerald-100/40' : 'hover:bg-slate-50')}>
-          <div className="w-14 h-14 rounded-lg bg-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
+        <CollapsibleTrigger className={cn('w-full text-left p-3 flex items-center gap-3 transition-colors', allDone ? 'hover:bg-emerald-100/40 dark:hover:bg-emerald-900/40' : 'hover:bg-slate-50 dark:hover:bg-slate-800')}>
+          <div className="w-14 h-14 rounded-lg bg-slate-100 dark:bg-slate-800 overflow-hidden shrink-0 flex items-center justify-center">
             {thumb ? (
               <img src={thumb} alt={exercise.exercise_name} className="w-full h-full object-cover" loading="lazy" />
             ) : (
-              <Dumbbell className="w-6 h-6 text-slate-400" />
+              <Dumbbell className="w-6 h-6 text-slate-400 dark:text-slate-500" />
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -189,27 +189,27 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 // Label de bi-set tem letra junto (2A/2B...) — usa min-w pra
                 // acomodar sem espremer, e cor sky pra combinar com cluster.
                 displayLabel
-                  ? 'min-w-5 h-5 px-1.5 bg-sky-100 text-sky-700'
-                  : 'h-5 w-5 bg-blue-100 text-blue-700',
+                  ? 'min-w-5 h-5 px-1.5 bg-sky-100 dark:bg-sky-950/50 text-sky-700 dark:text-sky-300'
+                  : 'h-5 w-5 bg-blue-100 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300',
               )}>
                 {displayLabel ?? (exercise.exercise_order ?? 0) + 1}
               </span>
-              <h3 className="font-semibold text-slate-800 truncate">{substitutedName || exercise.exercise_name}</h3>
+              <h3 className="font-semibold text-slate-800 dark:text-slate-200 truncate">{substitutedName || exercise.exercise_name}</h3>
               {substitutedName && (
-                <span className="shrink-0 rounded-full bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700">
+                <span className="shrink-0 rounded-full bg-amber-100 dark:bg-amber-950/50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
                   trocado
                 </span>
               )}
             </div>
-            <div className="mt-1 flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500">
+            <div className="mt-1 flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-slate-500 dark:text-slate-400">
               {/* 'X×Y reps' embaixo do nome — fonte ligeiramente maior (text-sm)
                   porque e a informacao principal de prescricao (qtas series e reps). */}
-              <span className="font-semibold text-slate-700 text-[13px]">
+              <span className="font-semibold text-slate-700 dark:text-slate-200 text-[13px]">
                 {exercise.sets}×{exercise.reps || '-'}
                 {exercise.load_kg ? ` @ ${exercise.load_kg}kg` : ''}
               </span>
               {rpeSummary ? (
-                <span className="flex items-center gap-1 text-slate-600">
+                <span className="flex items-center gap-1 text-slate-600 dark:text-slate-400">
                   <Gauge className="w-3 h-3" /> RPE {rpeSummary}
                 </span>
               ) : null}
@@ -219,7 +219,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 </span>
               ) : null}
               {exercise.muscle_group ? (
-                <span className="capitalize text-slate-400">{exercise.muscle_group.replace(/^exercise_group_/, '')}</span>
+                <span className="capitalize text-slate-400 dark:text-slate-500">{exercise.muscle_group.replace(/^exercise_group_/, '')}</span>
               ) : null}
             </div>
             {/* Pilar 2 — badges de técnicas avançadas */}
@@ -242,31 +242,31 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
             <span
               className={cn(
                 'flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold',
-                allDone ? 'bg-emerald-600 text-white' : 'bg-emerald-50 text-emerald-700',
+                allDone ? 'bg-emerald-600 text-white' : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300',
               )}
             >
               {allDone && <Check className="h-3 w-3" />}
               {doneCount}/{totalSets}
             </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-4 h-4 text-slate-400 dark:text-slate-500 transition-transform ${open ? 'rotate-180' : ''}`} />
           </div>
         </CollapsibleTrigger>
 
         <CollapsibleContent>
-          <div className="border-t border-slate-100 p-3 space-y-3">
+          <div className="border-t border-slate-100 dark:border-slate-800 p-3 space-y-3">
             {/* Vídeo recolhível: por padrão fica fechado pra não empurrar os campos */}
             {effectiveVideoUrl ? (
               showVideo ? (
                 <div className="space-y-1">
                   <SmartVideoPlayer url={effectiveVideoUrl} />
-                  <button onClick={() => setShowVideo(false)} className="text-[11px] font-medium text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setShowVideo(false)} className="text-[11px] font-medium text-slate-400 dark:text-slate-500 hover:text-slate-600">
                     Ocultar vídeo
                   </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setShowVideo(true)}
-                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-100"
+                  className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 py-2 text-xs font-semibold text-slate-600 dark:text-slate-300 transition hover:bg-slate-100 dark:hover:bg-slate-700"
                 >
                   <PlayCircle className="h-4 w-4 text-red-500" /> Ver execução (vídeo)
                 </button>
@@ -274,19 +274,19 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
             ) : null}
 
             {(exercise.instructions || exercise.tips) && (
-              <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2 flex gap-2">
-                <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400" />
+              <div className="text-xs text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-900 rounded-lg p-2 flex gap-2">
+                <Info className="w-3.5 h-3.5 shrink-0 mt-0.5 text-slate-400 dark:text-slate-500" />
                 <div className="space-y-1">
                   {exercise.instructions ? <p>{exercise.instructions}</p> : null}
-                  {exercise.tips ? <p className="text-slate-500 italic">{exercise.tips}</p> : null}
+                  {exercise.tips ? <p className="text-slate-500 dark:text-slate-400 italic">{exercise.tips}</p> : null}
                 </div>
               </div>
             )}
 
             {/* Séries de aquecimento (aparecem antes das séries de trabalho) */}
             {warmupCount > 0 && (
-              <div className="space-y-1.5 rounded-lg border border-amber-200 bg-amber-50/60 p-2">
-                <div className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600 leading-snug">
+              <div className="space-y-1.5 rounded-lg border border-amber-200 dark:border-amber-900/50 bg-amber-50/60 dark:bg-amber-950/60 p-2">
+                <div className="px-1 text-[11px] font-bold uppercase tracking-wide text-amber-600 dark:text-amber-400 leading-snug">
                   <div>
                     🔥 Aquecimento — {warmupCount} {warmupCount === 1 ? 'série' : 'séries'}
                     {warmupReps ? ` × ${warmupReps} reps` : ''}
@@ -299,7 +299,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   )}
                 </div>
                 {/* Cabeçalho de colunas (mesmo das séries de trabalho) */}
-                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70">
+                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70 dark:text-amber-300/80">
                   <span className="text-center">Série</span>
                   <span className="text-center">Peso (kg)</span>
                   <span className="text-center">Reps</span>
@@ -330,35 +330,35 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               {/* Instrução de uso — aparece só no 1º exercício do dia, como onboarding.
                   Nos demais é redundante; os campos vazios + ✓ já são auto-explicativos. */}
               {isFirst && (
-                <p className="mx-1 rounded-lg border border-blue-100 bg-blue-50/60 px-2.5 py-1.5 text-xs text-blue-700">
+                <p className="mx-1 rounded-lg border border-blue-100 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/60 px-2.5 py-1.5 text-xs text-blue-700 dark:text-blue-300">
                   💡 Preencha a carga e as repetições de cada série, depois toque no <strong>✓</strong> pra registrar.
                 </p>
               )}
               {/* Sugestão: última carga registrada + meta de carga da fase atual */}
               {(lastPerSetSummary != null || lastLoad?.weight_kg != null || exercise.load_kg != null) && (
-                <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 px-2.5 py-1.5 text-xs">
+                <div className="mx-1 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg bg-slate-50 dark:bg-slate-900 px-2.5 py-1.5 text-xs">
                   {lastPerSetSummary != null ? (
                     // Última vez POR SÉRIE (ex.: 160kg×10 · 180kg×8 · 200kg×6),
                     // pra refletir pirâmide/queda de carga em vez de só 1 peso.
-                    <span className="text-slate-600">
-                      <span className="text-slate-400">📊 Última vez:</span>{' '}
-                      <strong className="tabular-nums text-slate-800">{lastPerSetSummary}</strong>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      <span className="text-slate-400 dark:text-slate-500">📊 Última vez:</span>{' '}
+                      <strong className="tabular-nums text-slate-800 dark:text-slate-200">{lastPerSetSummary}</strong>
                     </span>
                   ) : lastLoad?.weight_kg != null ? (
                     // 'Ultima vez' como referencia rapida — so peso × reps.
                     // O RPE foi removido pra nao induzir 'preciso bater igual'
                     // em alunos iniciantes (o RPE prescrito da serie atual ja
                     // sinaliza a intensidade alvo).
-                    <span className="text-slate-600">
-                      <span className="text-slate-400">📊 Última vez:</span>{' '}
-                      <strong className="tabular-nums text-slate-800">{lastLoad.weight_kg}kg</strong>
-                      {lastLoad.reps != null ? <span className="text-slate-400"> × {lastLoad.reps}</span> : null}
+                    <span className="text-slate-600 dark:text-slate-400">
+                      <span className="text-slate-400 dark:text-slate-500">📊 Última vez:</span>{' '}
+                      <strong className="tabular-nums text-slate-800 dark:text-slate-200">{lastLoad.weight_kg}kg</strong>
+                      {lastLoad.reps != null ? <span className="text-slate-400 dark:text-slate-500"> × {lastLoad.reps}</span> : null}
                     </span>
                   ) : null}
                   {exercise.load_kg != null ? (
-                    <span className="text-slate-600">
-                      <span className="text-slate-400">🎯 Meta da fase:</span>{' '}
-                      <strong className="tabular-nums text-slate-800">{exercise.load_kg}kg</strong>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      <span className="text-slate-400 dark:text-slate-500">🎯 Meta da fase:</span>{' '}
+                      <strong className="tabular-nums text-slate-800 dark:text-slate-200">{exercise.load_kg}kg</strong>
                     </span>
                   ) : null}
                 </div>
@@ -373,27 +373,27 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                   className={cn(
                     'mx-1 flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors',
                     unilateralOn
-                      ? 'border-violet-200 bg-violet-50 text-violet-700 hover:bg-violet-100'
-                      : 'border-slate-200 bg-white text-slate-500 hover:bg-slate-50',
+                      ? 'border-violet-200 dark:border-violet-900/50 bg-violet-50 dark:bg-violet-950/40 text-violet-700 dark:text-violet-300 hover:bg-violet-100 dark:hover:bg-violet-900/40'
+                      : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800',
                   )}
                   title="Registrar carga e reps de cada lado separadamente"
                 >
                   <span className={cn('flex h-3.5 w-6 items-center rounded-full px-0.5 transition-colors', unilateralOn ? 'bg-violet-500 justify-end' : 'bg-slate-300 justify-start')}>
-                    <span className="h-2.5 w-2.5 rounded-full bg-white" />
+                    <span className="h-2.5 w-2.5 rounded-full bg-white dark:bg-slate-900" />
                   </span>
                   Unilateral — registrar lado E/D separado
                 </button>
               )}
 
               {!sidesMode && (
-                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">
+                <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">
                   <span className="text-center">Série</span>
                   <span className="text-center">Peso (kg)</span>
                   <span className="text-center">Reps</span>
                   <button
                     type="button"
                     onClick={() => setShowRpeHelp(true)}
-                    className="flex items-center justify-center gap-0.5 text-slate-400 hover:text-blue-600"
+                    className="flex items-center justify-center gap-0.5 text-slate-400 dark:text-slate-500 hover:text-blue-600"
                     aria-label="O que é RPE?"
                   >
                     RPE <Info className="h-3 w-3" />
@@ -454,14 +454,14 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 return (
                   <div
                     key={i}
-                    className={cn('overflow-hidden rounded-lg border', row.done ? 'border-emerald-200' : 'border-slate-200')}
+                    className={cn('overflow-hidden rounded-lg border', row.done ? 'border-emerald-200 dark:border-emerald-900/50' : 'border-slate-200 dark:border-slate-700')}
                   >
                     {setRow}
                     {setTechs.map((t) => (
                       <div key={t.technique_id} className={cn('border-t px-2.5 py-2 text-xs', techniqueColors(t.color).banner)}>
                         <div className="flex flex-wrap items-center gap-1.5 font-semibold">
                           <span>{t.emoji ?? '⚡'} {t.name}</span>
-                          <span className="rounded-full bg-white/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
+                          <span className="rounded-full bg-white/60 dark:bg-slate-950/60 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide">
                             aplicar nesta série
                           </span>
                         </div>
@@ -480,7 +480,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 <button
                   type="button"
                   onClick={() => setShowHistory((v) => !v)}
-                  className="flex items-center gap-1.5 text-xs font-medium text-blue-600 hover:text-blue-700"
+                  className="flex items-center gap-1.5 text-xs font-medium text-blue-600 dark:text-blue-400 hover:text-blue-700"
                 >
                   <TrendingUp className="h-3.5 w-3.5" />
                   {showHistory ? 'Ocultar progressão' : 'Ver progressão de carga'}
@@ -488,7 +488,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 {substitutedName && onRevertSubstitution ? (
                   <button
                     onClick={onRevertSubstitution}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 py-1.5 text-xs font-semibold text-slate-700 dark:text-slate-200 transition hover:bg-slate-50 dark:hover:bg-slate-800"
                     title={`Voltar para ${exercise.exercise_name}`}
                   >
                     <Undo2 className="h-3.5 w-3.5" /> Voltar ao original
@@ -499,14 +499,14 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                      (acoes pares: leitura vs acao). */
                   <button
                     onClick={onRequestSubstitute}
-                    className="flex items-center gap-1.5 text-xs font-medium text-amber-600 transition hover:text-amber-700"
+                    className="flex items-center gap-1.5 text-xs font-medium text-amber-600 dark:text-amber-400 transition hover:text-amber-700"
                   >
                     <Shuffle className="h-3.5 w-3.5" /> Substituir
                   </button>
                 ) : null}
               </div>
               {showHistory && (
-                <div className="mt-2 rounded-lg border border-slate-200 bg-white p-2">
+                <div className="mt-2 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2">
                   <LoadHistoryChart token={token} plannedExerciseId={exercise.id} />
                 </div>
               )}
@@ -518,7 +518,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 <button
                   type="button"
                   onClick={() => setShowNote((v) => !v)}
-                  className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-slate-700"
+                  className="flex w-full items-center gap-1.5 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-700"
                 >
                   <NotebookPen className="h-3.5 w-3.5" /> Minhas anotações
                   {!showNote && noteDraft.trim() && <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" title="Você tem uma anotação" />}
@@ -534,9 +534,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                       maxLength={2000}
                       autoFocus
                       placeholder="Ex.: banco no furo 4, peguei 12kg em cada lado, ombro incomodou um pouco…"
-                      className="mt-1.5 w-full resize-y rounded-lg border border-slate-200 bg-white p-2 text-xs text-slate-700 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
+                      className="mt-1.5 w-full resize-y rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 p-2 text-xs text-slate-700 dark:text-slate-200 placeholder:text-slate-400 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-blue-400"
                     />
-                    <p className="mt-0.5 text-[10px] text-slate-400">Salvo automaticamente — aparece no próximo treino deste exercício.</p>
+                    <p className="mt-0.5 text-[10px] text-slate-400 dark:text-slate-500">Salvo automaticamente — aparece no próximo treino deste exercício.</p>
                   </>
                 )}
               </div>
@@ -550,9 +550,9 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
           o seletor [&>button] customiza só o botão de fechar deste modal. */}
       <Dialog open={showRpeHelp} onOpenChange={setShowRpeHelp}>
         <DialogContent
-          className="bg-white max-w-md p-0 overflow-hidden border-0 rounded-2xl shadow-2xl gap-0
-                     [&>button]:rounded-full [&>button]:p-1.5 [&>button]:bg-white/80 [&>button]:backdrop-blur-sm
-                     [&>button]:text-slate-600 [&>button]:hover:bg-white [&>button]:hover:text-slate-900
+          className="bg-white dark:bg-slate-900 max-w-md p-0 overflow-hidden border-0 rounded-2xl shadow-2xl gap-0
+                     [&>button]:rounded-full [&>button]:p-1.5 [&>button]:bg-white/80 dark:[&>button]:bg-slate-800/80 [&>button]:backdrop-blur-sm
+                     [&>button]:text-slate-600 dark:[&>button]:text-slate-300 [&>button]:hover:bg-white dark:[&>button]:hover:bg-slate-700 [&>button]:hover:text-slate-900 dark:[&>button]:hover:text-slate-100
                      [&>button]:focus:ring-2 [&>button]:focus:ring-blue-400 [&>button]:focus:ring-offset-0
                      [&>button]:transition-colors [&>button]:shadow-sm
                      [&>button>svg]:h-4 [&>button>svg]:w-4"
@@ -572,7 +572,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
 
           {/* Conteúdo */}
           <div className="px-5 py-4 space-y-3">
-            <p className="text-sm text-slate-600">
+            <p className="text-sm text-slate-600 dark:text-slate-400">
               Mede o quão difícil foi a série:
             </p>
             <ul className="space-y-1.5">
@@ -582,15 +582,15 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 { n: 8, color: 'bg-amber-500', desc: 'daria pra fazer +2 repetições' },
                 { n: 7, color: 'bg-emerald-500', desc: 'daria pra fazer +3 repetições' },
               ].map((row) => (
-                <li key={row.n} className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2">
+                <li key={row.n} className="flex items-center gap-3 rounded-lg bg-slate-50 dark:bg-slate-900 px-3 py-2">
                   <span className={`shrink-0 inline-flex items-center justify-center rounded-full ${row.color} text-white font-bold w-8 h-8 text-sm shadow-sm`}>
                     {row.n}
                   </span>
-                  <span className="text-sm text-slate-700">{row.desc}</span>
+                  <span className="text-sm text-slate-700 dark:text-slate-200">{row.desc}</span>
                 </li>
               ))}
             </ul>
-            <div className="rounded-lg border border-blue-200 bg-blue-50/60 px-3 py-2 text-xs text-slate-600 leading-relaxed">
+            <div className="rounded-lg border border-blue-200 dark:border-blue-900/50 bg-blue-50/60 dark:bg-blue-950/60 px-3 py-2 text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
               💡 O RPE de cada série é prescrito pelo treinador — use como referência do esforço-alvo enquanto executa.
             </div>
           </div>
@@ -620,9 +620,9 @@ function LoadHistoryChart({ token, plannedExerciseId }: { token: string; planned
     };
   }, [token, plannedExerciseId]);
 
-  if (loading) return <p className="py-4 text-center text-xs text-slate-400">Carregando…</p>;
+  if (loading) return <p className="py-4 text-center text-xs text-slate-400 dark:text-slate-500">Carregando…</p>;
   if (data.length < 2) {
-    return <p className="py-4 text-center text-xs italic text-slate-400">Registre este exercício por mais sessões pra ver a evolução. 📈</p>;
+    return <p className="py-4 text-center text-xs italic text-slate-400 dark:text-slate-500">Registre este exercício por mais sessões pra ver a evolução. 📈</p>;
   }
 
   const first = data[0].kg;
@@ -632,8 +632,8 @@ function LoadHistoryChart({ token, plannedExerciseId }: { token: string; planned
   return (
     <>
       <div className="mb-1 flex items-center justify-between px-1 text-[11px]">
-        <span className="font-semibold text-slate-700">Top set por sessão</span>
-        <span className={cn('font-bold', delta > 0 ? 'text-emerald-600' : delta < 0 ? 'text-rose-600' : 'text-slate-400')}>
+        <span className="font-semibold text-slate-700 dark:text-slate-200">Top set por sessão</span>
+        <span className={cn('font-bold', delta > 0 ? 'text-emerald-600 dark:text-emerald-400' : delta < 0 ? 'text-rose-600 dark:text-rose-400' : 'text-slate-400 dark:text-slate-500')}>
           {delta > 0 ? `+${delta}` : delta} kg
         </span>
       </div>

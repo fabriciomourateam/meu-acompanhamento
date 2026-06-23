@@ -25,23 +25,23 @@ export function FoodGrid({
 }: FoodGridProps) {
   if (foods.length === 0) {
     return (
-      <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-white/60 px-6 py-10 text-center">
+      <div className="flex min-h-[200px] flex-col items-center justify-center rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white/60 dark:bg-slate-950/60 px-6 py-10 text-center">
         <span className="mb-3 text-4xl" aria-hidden>
           {searchTerm ? "🔍" : "🥗"}
         </span>
-        <p className="mb-4 max-w-sm text-sm text-slate-500">
+        <p className="mb-4 max-w-sm text-sm text-slate-500 dark:text-slate-400">
           {emptyMessage ?? "Nenhum alimento encontrado nesta categoria."}
         </p>
         {searchTerm && onSuggestionClick && (
           <div className="flex flex-col items-center gap-2">
-            <span className="text-xs uppercase tracking-wide text-slate-400">Tente buscar por</span>
+            <span className="text-xs uppercase tracking-wide text-slate-400 dark:text-slate-500">Tente buscar por</span>
             <div className="flex flex-wrap justify-center gap-2">
               {SEARCH_SUGGESTIONS.map((s) => (
                 <button
                   key={s}
                   type="button"
                   onClick={() => onSuggestionClick(s)}
-                  className="rounded-full border border-slate-200 bg-white px-3 py-1 text-xs text-slate-600 transition hover:border-emerald-400 hover:text-emerald-600"
+                  className="rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-1 text-xs text-slate-600 dark:text-slate-400 transition hover:border-emerald-400 hover:text-emerald-600"
                 >
                   {s}
                 </button>

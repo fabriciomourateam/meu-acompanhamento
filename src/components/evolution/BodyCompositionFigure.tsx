@@ -59,7 +59,7 @@ const LABEL: Record<string, string> = {
 // Silhueta-fantasma (corpo cinza por trás das regiões coloridas)
 function Silhouette() {
   return (
-    <g fill="#e9edf3" stroke="#cbd5e1" strokeWidth={1.1}>
+    <g className="bio-silhouette" fill="#e9edf3" stroke="#cbd5e1" strokeWidth={1.1}>
       <ellipse cx="60" cy="20" rx="13" ry="15" />
       <rect x="54" y="33" width="12" height="10" rx="4" />
       <rect x="33" y="42" width="54" height="74" rx="18" />
@@ -112,31 +112,31 @@ export function BodyCompositionFigure({ data }: { data: any[] }) {
   if (latest?.classificacao) parts.push(String(latest.classificacao));
 
   return (
-    <Card className="bg-white border border-slate-200 shadow-sm">
+    <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-slate-900">
+        <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
           🔥 Mapa de Distribuição de Gordura Corporal
         </CardTitle>
-        {parts.length > 0 && <CardDescription className="text-slate-500">{parts.join(' • ')}</CardDescription>}
+        {parts.length > 0 && <CardDescription className="text-slate-500 dark:text-slate-400">{parts.join(' • ')}</CardDescription>}
       </CardHeader>
       <CardContent>
         <div className="flex items-end justify-center gap-4 sm:gap-8">
           <div className="text-center">
             <Figure regions={FRONT} s={s} />
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Frente</p>
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Frente</p>
           </div>
           <div className="text-center">
             <Figure regions={BACK} s={s} />
-            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">Costas</p>
+            <p className="mt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Costas</p>
           </div>
         </div>
 
         {/* Escala de gordura regional */}
-        <div className="mt-4 rounded-lg border border-slate-100 bg-slate-50 p-2.5">
-          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Escala de gordura regional</p>
+        <div className="mt-4 rounded-lg border border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 p-2.5">
+          <p className="mb-1.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">Escala de gordura regional</p>
           <div className="flex flex-wrap gap-x-3 gap-y-1">
             {SCALE.map((b) => (
-              <span key={b.range} className="inline-flex items-center gap-1 text-[11px] text-slate-600">
+              <span key={b.range} className="inline-flex items-center gap-1 text-[11px] text-slate-600 dark:text-slate-400">
                 <span className="h-3 w-3 rounded-sm" style={{ backgroundColor: b.color }} />
                 {b.range} — {b.label}
               </span>

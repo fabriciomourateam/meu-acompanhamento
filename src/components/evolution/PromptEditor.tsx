@@ -148,13 +148,13 @@ Se tiver alguma dúvida pode me mandar aqui`
         {loading ? (
           <div className="text-center py-4">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto"></div>
-            <p className="text-slate-400 mt-2">Carregando templates...</p>
+            <p className="text-slate-400 dark:text-slate-500 mt-2">Carregando templates...</p>
           </div>
         ) : templates.length === 0 ? (
           <div className="text-center py-8">
-            <Sparkles className="h-12 w-12 text-slate-400 mx-auto mb-4" />
+            <Sparkles className="h-12 w-12 text-slate-400 dark:text-slate-500 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-slate-200 mb-2">Nenhum template encontrado</h3>
-            <p className="text-slate-400 mb-4">
+            <p className="text-slate-400 dark:text-slate-500 mb-4">
               Crie seu primeiro template de prompt para gerar feedbacks personalizados.
             </p>
             <Button
@@ -186,8 +186,8 @@ Se tiver alguma dúvida pode me mandar aqui`
                         </Badge>
                       )}
                     </div>
-                    <p className="text-sm text-slate-400 mb-2">{template.description}</p>
-                    <div className="flex items-center gap-4 text-xs text-slate-500">
+                    <p className="text-sm text-slate-400 dark:text-slate-500 mb-2">{template.description}</p>
+                    <div className="flex items-center gap-4 text-xs text-slate-500 dark:text-slate-400">
                       <span>Modelo: {template.ai_model}</span>
                       <span>Tokens: {template.max_tokens}</span>
                       <span>Temperatura: {template.temperature}</span>
@@ -252,7 +252,7 @@ Se tiver alguma dúvida pode me mandar aqui`
               <DialogTitle className="text-slate-200">
                 {editingTemplate?.id ? 'Editar Template' : 'Novo Template'}
               </DialogTitle>
-              <DialogDescription className="text-slate-400">
+              <DialogDescription className="text-slate-400 dark:text-slate-500">
                 Configure seu template de prompt personalizado para gerar feedbacks únicos.
               </DialogDescription>
             </DialogHeader>
@@ -347,7 +347,7 @@ Se tiver alguma dúvida pode me mandar aqui`
                     rows={15}
                     className="bg-slate-700/50 border-slate-600 text-slate-200 font-mono text-sm"
                   />
-                  <p className="text-xs text-slate-500 mt-1">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                     Variáveis disponíveis: {'{patientName}'}, {'{checkinData}'}, {'{evolutionData}'}, {'{observedImprovements}'}, {'{dietAdjustments}'}
                   </p>
                 </div>

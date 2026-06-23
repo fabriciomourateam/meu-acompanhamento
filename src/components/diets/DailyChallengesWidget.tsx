@@ -103,7 +103,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
 
   if (loading) {
     return (
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader>
           <Skeleton className="h-6 w-48" />
         </CardHeader>
@@ -156,9 +156,9 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
       </Card>
 
       {/* Lista de Desafios */}
-      <Card className="bg-white rounded-2xl shadow-lg border border-gray-100">
+      <Card className="bg-white dark:bg-slate-900 rounded-2xl shadow-lg border border-gray-100 dark:border-slate-800">
         <CardHeader className="p-4 sm:p-6">
-          <CardTitle className="text-base sm:text-lg text-[#222222] flex items-center gap-2">
+          <CardTitle className="text-base sm:text-lg text-[#222222] dark:text-slate-100 flex items-center gap-2">
             <Target className="w-5 h-5 text-[#00C98A] flex-shrink-0" />
             Metas Diárias
           </CardTitle>
@@ -174,22 +174,22 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                   key={challenge.challenge_key}
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className={`bg-white rounded-xl p-3 sm:p-4 border transition-all duration-200 ${
+                  className={`bg-white dark:bg-slate-900 rounded-xl p-3 sm:p-4 border transition-all duration-200 ${
                     isCompleted
-                      ? 'border-[#00C98A] bg-[#00C98A]/5'
-                      : 'border-gray-100 hover:shadow-md'
+                      ? 'border-[#00C98A] dark:border-emerald-800/60 bg-[#00C98A]/5 dark:!bg-emerald-950/40'
+                      : 'border-gray-100 dark:border-slate-800 hover:shadow-md'
                   }`}
                 >
                   <div className="flex items-center gap-2 sm:gap-3">
                     <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center flex-shrink-0 transition-all ${
                       isCompleted
                         ? 'bg-gradient-to-br from-[#00C98A] to-[#00A875]'
-                        : 'bg-gray-100'
+                        : 'bg-gray-100 dark:bg-slate-800'
                     }`}>
                       {isCompleted ? (
                         <Check className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                       ) : Icon ? (
-                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isCompleted ? 'text-white' : 'text-gray-500'}`} />
+                        <Icon className={`w-5 h-5 sm:w-6 sm:h-6 ${isCompleted ? 'text-white' : 'text-gray-500 dark:text-slate-400'}`} />
                       ) : (
                         <span className="text-xl sm:text-2xl">{challenge.emoji || '🎯'}</span>
                       )}
@@ -198,18 +198,18 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                     {/* Coluna de conteúdo (título + descrição + badge de pontos) */}
                     <div className="flex-1 min-w-0">
                       <h4 className={`font-semibold text-sm sm:text-base transition-colors ${
-                        isCompleted ? 'text-[#00A875] line-through' : 'text-[#222222]'
+                        isCompleted ? 'text-[#00A875] line-through' : 'text-[#222222] dark:text-slate-100'
                       }`}>
                         {challenge.emoji && <span className="mr-2">{challenge.emoji}</span>}
                         {challenge.challenge_name}
                       </h4>
-                      <p className="text-xs sm:text-sm text-[#777777] mt-1">
+                      <p className="text-xs sm:text-sm text-[#777777] dark:text-slate-400 mt-1">
                         {challenge.challenge_description}
                       </p>
                       <Badge className={`mt-2 text-xs ${
                         isCompleted
                           ? 'bg-[#00C98A]/20 text-[#00A875] border-[#00C98A]/30'
-                          : 'bg-gray-100 text-gray-600 border-gray-200'
+                          : 'bg-gray-100 dark:bg-slate-800 text-gray-600 dark:text-slate-400 border-gray-200 dark:border-slate-700'
                       }`}>
                         +{challenge.points_earned} pts
                       </Badge>
@@ -226,7 +226,7 @@ export function DailyChallengesWidget({ patientId, trainerUserId }: DailyChallen
                         className={`w-10 h-10 sm:w-10 sm:h-10 p-0 rounded-full transition-all duration-200 min-h-[44px] min-w-[44px] ${
                           isCompleted
                             ? 'bg-gradient-to-br from-[#00C98A] to-[#00A875] hover:from-[#00A875] hover:to-[#00C98A] text-white shadow-sm'
-                            : 'bg-white hover:bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-none'
+                            : 'bg-white dark:bg-slate-900 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 shadow-none'
                         }`}
                       >
                         {isCompleted ? (

@@ -102,9 +102,9 @@ export function CommunityFeed({
     <div className="space-y-4">
       {/* Aviso / tema da semana (rotação automática ou aviso fixo) */}
       {showBanner && (
-        <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-white p-3.5 shadow-sm">
+        <div className="flex items-start gap-2.5 rounded-2xl border border-emerald-200 dark:border-emerald-900/50 bg-gradient-to-r from-emerald-50 dark:from-emerald-950/40 to-white dark:to-slate-900 p-3.5 shadow-sm">
           <span className="text-xl leading-none">{bannerEmoji}</span>
-          <p className="flex-1 whitespace-pre-line text-sm leading-relaxed text-slate-700">{bannerText}</p>
+          <p className="flex-1 whitespace-pre-line text-sm leading-relaxed text-slate-700 dark:text-slate-200">{bannerText}</p>
         </div>
       )}
 
@@ -124,7 +124,7 @@ export function CommunityFeed({
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value as CategoryFilter)}
-            className="w-full appearance-none rounded-full border border-slate-200 bg-white py-1.5 pl-3 pr-8 text-xs font-medium text-slate-700 focus:border-emerald-400 focus:outline-none"
+            className="w-full appearance-none rounded-full border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-1.5 pl-3 pr-8 text-xs font-medium text-slate-700 dark:text-slate-200 focus:border-emerald-400 focus:outline-none"
           >
             <option value="all">📋 Tudo{totalUnread > 0 ? ` (${totalUnread})` : ''}</option>
             {POST_CATEGORIES.map((c) => (
@@ -133,7 +133,7 @@ export function CommunityFeed({
               </option>
             ))}
           </select>
-          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400" />
+          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
         </div>
 
         {/* Desktop: chips de categoria */}
@@ -142,7 +142,7 @@ export function CommunityFeed({
             onClick={() => setCategory('all')}
             className={cn(
               'relative shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-              category === 'all' ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+              category === 'all' ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200',
             )}
           >
             Tudo
@@ -154,7 +154,7 @@ export function CommunityFeed({
               onClick={() => setCategory(c.value)}
               className={cn(
                 'relative shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
-                category === c.value ? 'bg-emerald-500 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200',
+                category === c.value ? 'bg-emerald-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200',
               )}
             >
               {c.emoji} {c.label}
@@ -162,13 +162,13 @@ export function CommunityFeed({
             </button>
           ))}
         </div>
-        <div className="flex shrink-0 items-center gap-1 rounded-full bg-slate-100 p-0.5">
+        <div className="flex shrink-0 items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 p-0.5">
           <button
             onClick={() => setSort('recent')}
             title="Mais recentes"
             className={cn(
               'flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
-              sort === 'recent' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500',
+              sort === 'recent' ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400',
             )}
           >
             <Clock className="h-3.5 w-3.5" /> Recentes
@@ -178,7 +178,7 @@ export function CommunityFeed({
             title="Mais populares"
             className={cn(
               'flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-medium transition-colors',
-              sort === 'popular' ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-500',
+              sort === 'popular' ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-sm' : 'text-slate-500 dark:text-slate-400',
             )}
           >
             <Flame className="h-3.5 w-3.5" /> Populares
@@ -188,7 +188,7 @@ export function CommunityFeed({
           onClick={() => load(false)}
           disabled={refreshing}
           title="Atualizar"
-          className="shrink-0 rounded-full p-2 text-slate-500 hover:bg-slate-100 hover:text-slate-700"
+          className="shrink-0 rounded-full p-2 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700"
         >
           <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin')} />
         </button>
@@ -201,11 +201,11 @@ export function CommunityFeed({
         </div>
       ) : posts.length === 0 ? (
         category === 'all' ? (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-12 text-center">
             <Users className="h-8 w-8 text-slate-300" />
             <div>
-              <p className="text-sm font-medium text-slate-600">Nenhuma publicação ainda</p>
-              <p className="text-xs text-slate-400">Seja o primeiro a compartilhar algo com a comunidade!</p>
+              <p className="text-sm font-medium text-slate-600 dark:text-slate-400">Nenhuma publicação ainda</p>
+              <p className="text-xs text-slate-400 dark:text-slate-500">Seja o primeiro a compartilhar algo com a comunidade!</p>
             </div>
             <button
               onClick={scrollToComposer}
@@ -215,9 +215,9 @@ export function CommunityFeed({
             </button>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 bg-white py-12 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 py-12 text-center">
             <Users className="h-8 w-8 text-slate-300" />
-            <p className="text-sm font-medium text-slate-600">
+            <p className="text-sm font-medium text-slate-600 dark:text-slate-400">
               Nenhum post em {CATEGORIES.find((c) => c.value === category)?.emoji}{' '}
               {CATEGORIES.find((c) => c.value === category)?.label} ainda
             </p>
@@ -230,7 +230,7 @@ export function CommunityFeed({
               </button>
               <button
                 onClick={() => setCategory('all')}
-                className="rounded-full border border-slate-200 px-4 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:bg-slate-50"
+                className="rounded-full border border-slate-200 dark:border-slate-700 px-4 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-400 transition-colors hover:bg-slate-50 dark:hover:bg-slate-800"
               >
                 Ver tudo
               </button>
@@ -262,7 +262,7 @@ function UnreadDot({ count, active }: { count: number; active: boolean }) {
     <span
       className={cn(
         'absolute -right-1 -top-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold leading-none shadow-sm',
-        active ? 'bg-white text-emerald-600' : 'bg-emerald-500 text-white',
+        active ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400' : 'bg-emerald-500 text-white',
       )}
     >
       {count > 9 ? '9+' : count}

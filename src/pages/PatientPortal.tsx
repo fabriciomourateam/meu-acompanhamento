@@ -67,6 +67,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { WeightInput } from '@/components/evolution/WeightInput';
 import { StreakHeader } from '@/components/patient-portal/StreakHeader';
+import { ThemeToggleMenuItem } from '@/components/patient-portal/ThemeToggleMenuItem';
 import { PatientNotifications } from '@/components/patient-portal/PatientNotifications';
 import { EnableNotificationsBanner } from '@/components/patient-portal/EnableNotificationsBanner';
 import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
@@ -928,7 +929,7 @@ export default function PatientPortal() {
         {impAdmin && (
           <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 dark:bg-slate-950/20 text-[10px] font-bold flex-shrink-0">👁</span>
               <span className="truncate">
                 Visualizando como <strong>{impName || 'aluno'}</strong>
               </span>
@@ -937,7 +938,7 @@ export default function PatientPortal() {
               <button
                 type="button"
                 onClick={() => setSwitchPatientOpen(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 dark:bg-slate-950/20 hover:bg-white/30 dark:hover:bg-slate-800/30 transition text-white text-xs font-medium"
                 title="Trocar de aluno sem voltar pro admin"
               >
                 🔄 <span className="hidden sm:inline">Trocar aluno</span>
@@ -945,7 +946,7 @@ export default function PatientPortal() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 dark:bg-slate-950/20 hover:bg-white/30 dark:hover:bg-slate-800/30 transition text-white text-xs font-medium"
               >
                 ← <span className="hidden sm:inline">Voltar pro admin</span>
               </button>
@@ -972,7 +973,7 @@ export default function PatientPortal() {
                   <> (status: <span className="font-medium text-amber-300">{inactivePlano}</span>)</>
                 )}.
               </p>
-              <p className="text-xs text-slate-400">
+              <p className="text-xs text-slate-400 dark:text-slate-500">
                 Para reativar, entre em contato com seu treinador.
               </p>
             </CardContent>
@@ -992,7 +993,7 @@ export default function PatientPortal() {
         {impAdmin && (
           <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
             <div className="flex items-center gap-2 min-w-0 flex-1">
-              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+              <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 dark:bg-slate-950/20 text-[10px] font-bold flex-shrink-0">👁</span>
               <span className="truncate">
                 Visualizando como <strong>{impName || 'aluno'}</strong>
               </span>
@@ -1001,7 +1002,7 @@ export default function PatientPortal() {
               <button
                 type="button"
                 onClick={() => setSwitchPatientOpen(true)}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 dark:bg-slate-950/20 hover:bg-white/30 dark:hover:bg-slate-800/30 transition text-white text-xs font-medium"
                 title="Trocar de aluno sem voltar pro admin"
               >
                 🔄 <span className="hidden sm:inline">Trocar aluno</span>
@@ -1009,7 +1010,7 @@ export default function PatientPortal() {
               <button
                 type="button"
                 onClick={handleLogout}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 dark:bg-slate-950/20 hover:bg-white/30 dark:hover:bg-slate-800/30 transition text-white text-xs font-medium"
               >
                 ← <span className="hidden sm:inline">Voltar pro admin</span>
               </button>
@@ -1030,7 +1031,7 @@ export default function PatientPortal() {
                 <Lock className="w-8 h-8 text-red-400" />
               </div>
               <h1 className="text-2xl font-bold text-white">Acesso Negado</h1>
-              <p className="text-slate-400">
+              <p className="text-slate-400 dark:text-slate-500">
                 Este link de acesso é inválido ou expirou. Entre em contato com seu treinador para obter um novo link.
               </p>
             </CardContent>
@@ -1052,14 +1053,14 @@ export default function PatientPortal() {
     <div ref={portalRef} className="min-h-screen relative overflow-hidden">
       {isTrainerPreview && (
         <div className="sticky top-0 z-[60] bg-indigo-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center gap-2 shadow-md">
-          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+          <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 dark:bg-slate-950/20 text-[10px] font-bold flex-shrink-0">👁</span>
           <span className="truncate">Pré-visualização do treinador — você vê o app exatamente como o aluno vê.</span>
         </div>
       )}
       {impersonatingAdminUid && (
         <div className="sticky top-0 z-[60] bg-emerald-600 text-white text-xs sm:text-sm px-3 py-1.5 flex items-center justify-between gap-2 shadow-md">
           <div className="flex items-center gap-2 min-w-0 flex-1">
-            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 text-[10px] font-bold flex-shrink-0">👁</span>
+            <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20 dark:bg-slate-950/20 text-[10px] font-bold flex-shrink-0">👁</span>
             <span className="truncate">
               Visualizando como <strong>{impersonatingName || 'aluno'}</strong>
             </span>
@@ -1068,7 +1069,7 @@ export default function PatientPortal() {
             <button
               type="button"
               onClick={() => setSwitchPatientOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 dark:bg-slate-950/20 hover:bg-white/30 dark:hover:bg-slate-800/30 transition text-white text-xs font-medium"
               title="Trocar de aluno sem voltar pro admin"
             >
               🔄 <span className="hidden sm:inline">Trocar aluno</span>
@@ -1076,7 +1077,7 @@ export default function PatientPortal() {
             <button
               type="button"
               onClick={handleLogout}
-              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 hover:bg-white/30 transition text-white text-xs font-medium"
+              className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-white/20 dark:bg-slate-950/20 hover:bg-white/30 dark:hover:bg-slate-800/30 transition text-white text-xs font-medium"
             >
               ← <span className="hidden sm:inline">Voltar pro admin</span>
             </button>
@@ -1091,7 +1092,7 @@ export default function PatientPortal() {
         />
       )}
       {/* Fundo "clean com respiro verde": base clara + brilho emerald descendo do topo */}
-      <div className="absolute inset-0 bg-slate-50">
+      <div className="absolute inset-0 bg-slate-50 dark:bg-slate-950">
         {/* respiro verde vindo do topo (conversa com o header) */}
         <div className="absolute inset-0 bg-[radial-gradient(120%_55%_at_50%_-8%,rgba(16,185,129,0.16),transparent_60%)]" />
         {/* leve profundidade teal no rodapé */}
@@ -1104,7 +1105,7 @@ export default function PatientPortal() {
           {/* Header do Portal — wrapper externo com gradient na cor do nivel
               (Bronze/Prata/Ouro/Platina/Diamante). Como border CSS nao aceita
               gradient, usamos rounded + bg-gradient + padding interno (1.5px)
-              que aparece como 'borda'. O motion.div interno mantem bg-white. */}
+              que aparece como 'borda'. O motion.div interno mantem bg-white dark:bg-slate-900. */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -1112,11 +1113,11 @@ export default function PatientPortal() {
             className={
               levelData?.current_color
                 ? `rounded-2xl p-[1.5px] bg-gradient-to-br ${levelData.current_color} shadow-sm`
-                : 'rounded-2xl border border-slate-200 shadow-sm'
+                : 'rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm'
             }
           >
           <div
-            className="rounded-[14px] bg-white px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
+            className="rounded-[14px] bg-white portal-name-card dark:ring-1 dark:ring-emerald-400/15 px-3 sm:px-5 py-3 flex flex-row justify-between items-center gap-2 sm:gap-3"
           >
             <div className="flex-1 min-w-0 flex items-center gap-2 sm:gap-3">
               {patientId && (
@@ -1137,7 +1138,7 @@ export default function PatientPortal() {
                   />
                   {levelData?.current_emoji && (
                     <span
-                      className="pointer-events-none absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white text-[13px] leading-none shadow-md ring-1 ring-slate-200 z-10"
+                      className="pointer-events-none absolute -bottom-0.5 -right-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-white dark:bg-slate-900 text-[13px] leading-none shadow-md ring-1 ring-slate-200 z-10"
                       aria-label={`Nível ${levelData.current_name || ''}`}
                     >
                       {levelData.current_emoji}
@@ -1155,7 +1156,7 @@ export default function PatientPortal() {
                   />
                 ) : (
                   <div>
-                    <h1 className="text-lg sm:text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <h1 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                       📊 Meu Acompanhamento
                     </h1>
                   </div>
@@ -1173,12 +1174,12 @@ export default function PatientPortal() {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100 text-emerald-700 h-8 w-8 sm:h-9 sm:w-9 min-w-0 p-0"
+                    className="border-emerald-200 dark:border-emerald-900/50 bg-emerald-50/60 dark:bg-emerald-500/10 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 h-8 w-8 sm:h-9 sm:w-9 min-w-0 p-0"
                   >
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white border-slate-200 text-slate-700 w-64 shadow-lg">
+                <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 w-64 shadow-lg">
                   {/* Área de Membros: mini-card dourado em destaque no topo do menu
                       (só para alunos do dono). Leva ao portal externo de conteúdos. */}
                   {isOwnerPatient(patient) && (
@@ -1196,14 +1197,14 @@ export default function PatientPortal() {
                           <ExternalLink className="w-4 h-4 shrink-0 opacity-90" />
                         </div>
                       </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                      <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800 my-1" />
                     </>
                   )}
-                  <DropdownMenuLabel className="text-slate-500 text-xs uppercase tracking-wide px-2 py-1.5">Exportar</DropdownMenuLabel>
+                  <DropdownMenuLabel className="text-slate-500 dark:text-slate-400 text-xs uppercase tracking-wide px-2 py-1.5">Exportar</DropdownMenuLabel>
                   <DropdownMenuItem
                     onClick={handleExportDietPremiumPDF}
                     disabled={exporting}
-                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
+                    className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
                   >
                     <FileText className="w-4 h-4 mr-2 text-emerald-500" />
                     {exporting ? 'Gerando...' : 'Exportar Dieta'}
@@ -1211,7 +1212,7 @@ export default function PatientPortal() {
                   <DropdownMenuItem
                     onClick={handleExportWorkout}
                     disabled={exporting}
-                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
+                    className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
                   >
                     <Dumbbell className="w-4 h-4 mr-2 text-orange-500" />
                     {exporting ? 'Gerando...' : 'Exportar Treino'}
@@ -1220,27 +1221,30 @@ export default function PatientPortal() {
                     <DropdownMenuItem
                       onClick={() => handleExportEvolution('pdf')}
                       disabled={exporting}
-                      className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
+                      className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
                     >
                       <TrendingUp className="w-4 h-4 mr-2 text-purple-500" />
                       Exportar Evolução
                     </DropdownMenuItem>
                   )}
 
-                  <DropdownMenuSeparator className="bg-slate-200 my-1" />
+                  <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800 my-1" />
                   {/* Instalar app: item rotulado (some sozinho quando já instalado).
                       Substitui o antigo ícone ⬇️ solto no cabeçalho. */}
                   <InstallPWAButton asMenuItem useInstallPage={isOwnerPatient(patient)} />
                   <DropdownMenuItem
                     onClick={loadPortalData}
-                    className="text-slate-700 hover:bg-slate-100 cursor-pointer py-2.5"
+                    className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer py-2.5"
                   >
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Atualizar dados
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator className="bg-slate-200 dark:bg-slate-800 my-1" />
+                  {/* Alternar tema claro/escuro (padrão é claro). */}
+                  <ThemeToggleMenuItem />
                   <DropdownMenuItem
                     onClick={handleLogout}
-                    className="text-red-600 hover:bg-red-50 cursor-pointer py-2.5"
+                    className="text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 cursor-pointer py-2.5"
                   >
                     <LogOut className="w-4 h-4 mr-2" />
                     Sair do portal
@@ -1275,7 +1279,7 @@ export default function PatientPortal() {
           )}
 
           {/* Footer */}
-          <div className="text-center text-xs text-slate-400 -mt-3 pt-0 px-4 pb-20 sm:pb-2">
+          <div className="text-center text-xs text-slate-400 dark:text-slate-500 -mt-3 pt-0 px-4 pb-20 sm:pb-2">
             {getDailyMotivationalPhrase()}
           </div>
         </div>

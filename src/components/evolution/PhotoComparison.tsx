@@ -492,21 +492,21 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
       patientWithData?.foto_inicial_costas;
 
     return (
-      <Card className="bg-white border border-slate-200 shadow-sm">
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2 text-slate-900">
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
                 <Camera className="w-5 h-5 text-blue-500" />
                 Evolução Fotográfica
               </CardTitle>
-              <CardDescription className="text-slate-500">
+              <CardDescription className="text-slate-500 dark:text-slate-400">
                 Comparação visual da evolução
               </CardDescription>
             </div>
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-2 hover:bg-white/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="p-2 hover:bg-white/10 dark:hover:bg-slate-800/10 rounded-lg transition-colors duration-200 flex items-center justify-center"
               aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
             >
               {isMinimized ? (
@@ -527,9 +527,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
             >
               <CardContent>
                 <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <Camera className="w-16 h-16 text-slate-600 mb-4" />
-                  <p className="text-slate-500 text-lg">Nenhuma foto disponível</p>
-                  <p className="text-slate-500 text-sm mt-2">
+                  <Camera className="w-16 h-16 text-slate-600 dark:text-slate-400 mb-4" />
+                  <p className="text-slate-500 dark:text-slate-400 text-lg">Nenhuma foto disponível</p>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm mt-2">
                     As fotos dos check-ins aparecerão aqui para comparação
                   </p>
 
@@ -574,29 +574,29 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
   return (
     <>
-      <Card className="bg-white border border-slate-200 shadow-sm">
+      <Card className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-sm">
         <CardHeader>
           <div className="flex items-center justify-between gap-4">
             <div>
-              <CardTitle className="flex items-center gap-2 text-slate-900">
+              <CardTitle className="flex items-center gap-2 text-slate-900 dark:text-slate-100">
                 <Camera className="w-5 h-5 text-blue-500" />
                 Evolução Fotográfica
               </CardTitle>
               {!isPatientView && (
-                <CardDescription className="text-slate-500">
+                <CardDescription className="text-slate-500 dark:text-slate-400">
                   Comparação visual da evolução - {allPhotos.length} {allPhotos.length === 1 ? 'foto' : 'fotos'} disponíveis
                 </CardDescription>
               )}
             </div>
             <button
               onClick={() => setIsMinimized(!isMinimized)}
-              className="p-2 hover:bg-slate-100 rounded-lg transition-colors duration-200 flex items-center justify-center"
+              className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors duration-200 flex items-center justify-center"
               aria-label={isMinimized ? 'Expandir' : 'Minimizar'}
             >
               {isMinimized ? (
-                <ChevronDown className="w-5 h-5 text-slate-500" />
+                <ChevronDown className="w-5 h-5 text-slate-500 dark:text-slate-400" />
               ) : (
-                <ChevronUp className="w-5 h-5 text-slate-500" />
+                <ChevronUp className="w-5 h-5 text-slate-500 dark:text-slate-400" />
               )}
             </button>
           </div>
@@ -614,16 +614,16 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                 {allPhotos.length >= 2 && firstPhoto && lastPhoto && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                      <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
                         <ChevronRight className="w-5 h-5 text-emerald-400" />
                         Comparação: Antes e Depois
                       </h3>
                     </div>
 
                     {/* Seletores de Fotos */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-slate-50 p-4 sm:p-5 rounded-xl border border-slate-200 shadow-inner">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 bg-slate-50 dark:bg-slate-900 p-4 sm:p-5 rounded-xl border border-slate-200 dark:border-slate-700 shadow-inner">
                       <div className="space-y-2.5">
-                        <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-slate-500"></span>
                           Momento Inicial ("Antes")
                         </label>
@@ -631,15 +631,15 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                           value={selectedBeforeIndex.toString()}
                           onValueChange={(value) => setSelectedBeforeIndex(parseInt(value))}
                         >
-                          <SelectTrigger className="w-full h-11 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 transition-colors rounded-lg shadow-sm">
+                          <SelectTrigger className="w-full h-11 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-lg shadow-sm">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-white border-slate-200 rounded-xl shadow-xl">
+                          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
                             {allPhotos.map((photo, index) => (
                               <SelectItem
                                 key={`before-${index}`}
                                 value={index.toString()}
-                                className="text-slate-700 hover:bg-slate-100 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-700"
+                                className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-950/40 data-[state=checked]:text-blue-700 dark:data-[state=checked]:text-blue-300"
                               >
                                 {getPhotoLabel(photo, index)}
                               </SelectItem>
@@ -649,7 +649,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                       </div>
 
                       <div className="space-y-2.5">
-                        <label className="text-sm font-medium text-slate-600 flex items-center gap-2">
+                        <label className="text-sm font-medium text-slate-600 dark:text-slate-400 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></span>
                           Momento Final ("Depois")
                         </label>
@@ -657,15 +657,15 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                           value={(selectedAfterIndex ?? allPhotos.length - 1).toString()}
                           onValueChange={(value) => setSelectedAfterIndex(parseInt(value))}
                         >
-                          <SelectTrigger className="w-full h-11 bg-white border-slate-300 text-slate-900 hover:bg-slate-50 transition-colors rounded-lg shadow-sm">
+                          <SelectTrigger className="w-full h-11 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors rounded-lg shadow-sm">
                             <SelectValue />
                           </SelectTrigger>
-                          <SelectContent className="bg-white border-slate-200 rounded-xl shadow-xl">
+                          <SelectContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 rounded-xl shadow-xl">
                             {allPhotos.map((photo, index) => (
                               <SelectItem
                                 key={`after-${index}`}
                                 value={index.toString()}
-                                className="text-slate-700 hover:bg-slate-100 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 data-[state=checked]:text-blue-700"
+                                className="text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 focus:bg-slate-100 py-2.5 cursor-pointer data-[state=checked]:bg-blue-50 dark:data-[state=checked]:bg-blue-950/40 data-[state=checked]:text-blue-700 dark:data-[state=checked]:text-blue-300"
                               >
                                 {getPhotoLabel(photo, index)}
                               </SelectItem>
@@ -694,9 +694,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               onError={() => handleImageError(getPhotoId(firstPhoto), getPhotoUrl(firstPhoto), firstPhoto.url)}
                             />
                           ) : imageErrors.has(getPhotoId(firstPhoto)) ? (
-                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-100 rounded-lg border-2 border-slate-200">
-                              <ExternalLink className="h-12 w-12 text-slate-400 mb-3" />
-                              <p className="text-slate-600 mb-4">Foto não disponível</p>
+                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+                              <ExternalLink className="h-12 w-12 text-slate-400 dark:text-slate-500 mb-3" />
+                              <p className="text-slate-600 dark:text-slate-400 mb-4">Foto não disponível</p>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -724,7 +724,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 dark:bg-slate-950/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDownloadPhoto(firstPhoto.url, `Foto-Antes-${firstPhoto.date}-${firstPhoto.weight}kg`);
@@ -736,7 +736,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 dark:bg-slate-950/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50"
                                 onClick={() => handleZoomPhoto(firstPhoto)}
                               >
                                 <ZoomIn className="w-4 h-4" />
@@ -744,13 +744,13 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </>
                           )}
                         </div>
-                        <div className="bg-slate-100 border border-slate-200 p-3 rounded-lg">
+                        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2 text-slate-600">
+                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                               <Calendar className="w-4 h-4" />
                               {firstPhoto.date}
                             </div>
-                            <div className="text-slate-900 font-semibold">
+                            <div className="text-slate-900 dark:text-slate-100 font-semibold">
                               {firstPhoto.weight} kg
                             </div>
                           </div>
@@ -775,9 +775,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               onError={() => handleImageError(getPhotoId(lastPhoto), getPhotoUrl(lastPhoto), lastPhoto.url)}
                             />
                           ) : imageErrors.has(getPhotoId(lastPhoto)) ? (
-                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-100 rounded-lg border-2 border-slate-200">
-                              <ExternalLink className="h-12 w-12 text-slate-400 mb-3" />
-                              <p className="text-slate-600 mb-4">Foto não disponível</p>
+                            <div className="w-full h-80 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg border-2 border-slate-200 dark:border-slate-700">
+                              <ExternalLink className="h-12 w-12 text-slate-400 dark:text-slate-500 mb-3" />
+                              <p className="text-slate-600 dark:text-slate-400 mb-4">Foto não disponível</p>
                               <Button
                                 variant="outline"
                                 size="sm"
@@ -805,7 +805,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                className="absolute top-1/2 -translate-y-1/2 right-12 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 dark:bg-slate-950/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDownloadPhoto(lastPhoto.url, `Foto-Depois-${lastPhoto.date}-${lastPhoto.weight}kg`);
@@ -817,7 +817,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                               <Button
                                 size="icon"
                                 variant="secondary"
-                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 hover:bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                className="absolute top-1/2 -translate-y-1/2 right-2 opacity-0 group-hover:opacity-100 transition-opacity h-8 w-8 p-0 bg-white/90 dark:bg-slate-950/90 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-900/50"
                                 onClick={() => handleZoomPhoto(lastPhoto)}
                               >
                                 <ZoomIn className="w-4 h-4" />
@@ -825,13 +825,13 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </>
                           )}
                         </div>
-                        <div className="bg-slate-100 border border-slate-200 p-3 rounded-lg">
+                        <div className="bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 rounded-lg">
                           <div className="flex items-center justify-between text-sm">
-                            <div className="flex items-center gap-2 text-slate-600">
+                            <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                               <Calendar className="w-4 h-4" />
                               {lastPhoto.date}
                             </div>
-                            <div className="text-slate-900 font-semibold">
+                            <div className="text-slate-900 dark:text-slate-100 font-semibold">
                               {lastPhoto.weight} kg
                             </div>
                           </div>
@@ -867,9 +867,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                                 onError={() => handleImageError(getPhotoId(photo), getPhotoUrl(photo), photo.url)}
                               />
                             ) : imageErrors.has(getPhotoId(photo)) ? (
-                              <div className="w-full h-48 flex flex-col items-center justify-center bg-slate-100 rounded-lg border border-slate-200">
-                                <ExternalLink className="h-8 w-8 text-slate-400 mb-2" />
-                                <p className="text-xs text-slate-600 mb-2 px-2 text-center">Foto não disponível</p>
+                              <div className="w-full h-48 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <ExternalLink className="h-8 w-8 text-slate-400 dark:text-slate-500 mb-2" />
+                                <p className="text-xs text-slate-600 dark:text-slate-400 mb-2 px-2 text-center">Foto não disponível</p>
                                 <Button
                                   variant="outline"
                                   size="sm"
@@ -920,8 +920,8 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                             </Button>
                           </div>
                           <div className="text-xs text-center">
-                            <p className="text-slate-500">{photo.date}</p>
-                            <p className="text-slate-900 font-semibold">{photo.weight} kg</p>
+                            <p className="text-slate-500 dark:text-slate-400">{photo.date}</p>
+                            <p className="text-slate-900 dark:text-slate-100 font-semibold">{photo.weight} kg</p>
                           </div>
                         </div>
                       ))}
@@ -936,33 +936,33 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
       {/* Dialog de Confirmação de Exclusão */}
       <AlertDialog open={!!photoToDelete} onOpenChange={(open) => !open && setPhotoToDelete(null)}>
-        <AlertDialogContent className="bg-white border-slate-200">
+        <AlertDialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-900">Confirmar Exclusão</AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-600">
+            <AlertDialogTitle className="text-slate-900 dark:text-slate-100">Confirmar Exclusão</AlertDialogTitle>
+            <AlertDialogDescription className="text-slate-600 dark:text-slate-400">
               Tem certeza que deseja deletar esta foto?
             </AlertDialogDescription>
           </AlertDialogHeader>
           {photoToDelete && (
             <div className="px-6 pb-2">
-              <div className="p-3 bg-slate-50 rounded-lg border border-slate-200 space-y-1">
-                <div className="text-sm text-slate-600">
-                  <strong className="text-slate-900">Data:</strong> {photoToDelete.date}
+              <div className="p-3 bg-slate-50 dark:bg-slate-900 rounded-lg border border-slate-200 dark:border-slate-700 space-y-1">
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  <strong className="text-slate-900 dark:text-slate-100">Data:</strong> {photoToDelete.date}
                 </div>
-                <div className="text-sm text-slate-600">
-                  <strong className="text-slate-900">Peso:</strong> {photoToDelete.weight} kg
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  <strong className="text-slate-900 dark:text-slate-100">Peso:</strong> {photoToDelete.weight} kg
                 </div>
-                <div className="text-sm text-slate-600">
-                  <strong className="text-slate-900">Tipo:</strong> {photoToDelete.isInitial ? 'Foto Inicial' : 'Foto de Check-in'}
+                <div className="text-sm text-slate-600 dark:text-slate-400">
+                  <strong className="text-slate-900 dark:text-slate-100">Tipo:</strong> {photoToDelete.isInitial ? 'Foto Inicial' : 'Foto de Check-in'}
                 </div>
               </div>
-              <div className="mt-3 text-red-600 font-semibold text-sm">
+              <div className="mt-3 text-red-600 dark:text-red-400 font-semibold text-sm">
                 ⚠️ Esta ação não pode ser desfeita!
               </div>
             </div>
           )}
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white text-slate-700 border-slate-300 hover:bg-slate-100">
+            <AlertDialogCancel className="bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
@@ -978,18 +978,18 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
 
       {/* Modal de Zoom */}
       <Dialog open={isZoomOpen} onOpenChange={setIsZoomOpen}>
-        <DialogContent className="max-w-4xl bg-white border-slate-200">
+        <DialogContent className="max-w-4xl bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700">
           <DialogHeader>
-            <DialogTitle className="text-slate-900 flex items-center justify-between">
+            <DialogTitle className="text-slate-900 dark:text-slate-100 flex items-center justify-between">
               <span>Foto - {selectedPhoto?.date}</span>
               <div className="flex items-center gap-2">
-                <Badge variant="outline" className="border-slate-300 text-slate-700">
+                <Badge variant="outline" className="border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200">
                   {selectedPhoto?.weight} kg
                 </Badge>
                 <Button
                   size="sm"
                   variant="outline"
-                  className="!bg-white border-emerald-300 text-emerald-700 hover:!bg-emerald-50 hover:text-emerald-800"
+                  className="!bg-white dark:!bg-slate-900 border-emerald-300 text-emerald-700 dark:text-emerald-300 hover:!bg-emerald-50 hover:text-emerald-800"
                   onClick={() => {
                     if (selectedPhoto) {
                       const link = document.createElement('a');
@@ -1024,7 +1024,7 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                 <img
                   src={convertGoogleDriveUrl(selectedPhoto.url, false) || selectedPhoto.url}
                   alt="Foto ampliada"
-                  className="w-full h-auto max-h-[70vh] object-contain rounded-lg bg-slate-100"
+                  className="w-full h-auto max-h-[70vh] object-contain rounded-lg bg-slate-100 dark:bg-slate-800"
                   onError={(e) => {
                     console.error('Erro ao carregar imagem do Google Drive');
                     handleImageError(getPhotoId(selectedPhoto), getPhotoUrl(selectedPhoto), selectedPhoto.url);
@@ -1032,9 +1032,9 @@ export function PhotoComparison({ checkins, patient, onPhotoDeleted, isPatientVi
                   crossOrigin="anonymous"
                 />
               ) : imageErrors.has(getPhotoId(selectedPhoto)) ? (
-                <div className="w-full h-[70vh] flex flex-col items-center justify-center bg-slate-100 rounded-lg">
-                  <ExternalLink className="h-16 w-16 text-slate-400 mb-4" />
-                  <p className="text-slate-600 text-lg mb-6">Foto não disponível</p>
+                <div className="w-full h-[70vh] flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-lg">
+                  <ExternalLink className="h-16 w-16 text-slate-400 dark:text-slate-500 mb-4" />
+                  <p className="text-slate-600 dark:text-slate-400 text-lg mb-6">Foto não disponível</p>
                   <Button
                     onClick={() => window.open(selectedPhoto.url, '_blank')}
                   >

@@ -99,7 +99,7 @@ export function WeightInput({
             <Scale className="w-5 h-5 text-green-400" />
             Registrar Peso
           </DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-slate-400 dark:text-slate-500">
             Registre seu peso para acompanhar sua evolução
           </DialogDescription>
         </DialogHeader>
@@ -124,7 +124,7 @@ export function WeightInput({
                 </Label>
               </div>
             </RadioGroup>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {tipo === 'jejum' 
                 ? 'Peso em jejum é mais confiável para análise de evolução' 
                 : 'Peso do dia quando não estiver em jejum'}
