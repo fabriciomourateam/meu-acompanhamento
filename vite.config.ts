@@ -18,6 +18,11 @@ export default defineConfig({
     port: 4173,
     host: true,
   },
+  // Em produção, remove console.log/info/debug (ruído) — mantém console.error e
+  // console.warn pra debug em prod. Não afeta o dev (que não minifica).
+  esbuild: {
+    pure: ['console.log', 'console.info', 'console.debug'],
+  },
   build: {
     outDir: 'dist',
     assetsDir: 'assets',
