@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Database } from '@/integrations/supabase/types';
-import { parseLocalISODate } from '@/lib/utils';
+import { parseLocalISODate, parseLocalDate } from '@/lib/utils';
 
 type Checkin = Database['public']['Tables']['checkin']['Row'];
 type Patient = Database['public']['Tables']['patients']['Row'];
@@ -37,7 +37,7 @@ export const ExportableEvolutionView = forwardRef<HTMLDivElement, ExportableEvol
     const calcularIdade = (dataNascimento: string | null) => {
       if (!dataNascimento) return null;
       const hoje = new Date();
-      const nascimento = new Date(dataNascimento);
+      const nascimento = parseLocalDate(dataNascimento) ?? new Date(dataNascimento);
       let idade = hoje.getFullYear() - nascimento.getFullYear();
       const mesAtual = hoje.getMonth();
       const mesNascimento = nascimento.getMonth();

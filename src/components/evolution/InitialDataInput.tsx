@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { parseLocalDate } from '@/lib/utils';
 import { Camera, Upload, X, Save, Edit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -89,7 +90,7 @@ export function InitialDataInput({ telefone, nome, onSuccess, editMode = false, 
         // Carregar medidas
         if (patient.data_nascimento) {
           const hoje = new Date();
-          const nascimento = new Date(patient.data_nascimento);
+          const nascimento = parseLocalDate(patient.data_nascimento) ?? new Date(patient.data_nascimento);
           let idadeCalculada = hoje.getFullYear() - nascimento.getFullYear();
           const mesAtual = hoje.getMonth();
           const mesNascimento = nascimento.getMonth();

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo, memo } from "react";
 import { useForm, useFieldArray, useWatch } from "react-hook-form";
-import { formatTextToPlain } from "@/lib/utils";
+import { formatTextToPlain, parseLocalDate } from "@/lib/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
@@ -325,7 +325,7 @@ export function DietPlanForm({
         let idade: number | undefined;
         if (data.data_nascimento) {
           const hoje = new Date();
-          const nascimento = new Date(data.data_nascimento);
+          const nascimento = parseLocalDate(data.data_nascimento) ?? new Date(data.data_nascimento);
           idade = hoje.getFullYear() - nascimento.getFullYear();
           const mesAtual = hoje.getMonth();
           const mesNascimento = nascimento.getMonth();

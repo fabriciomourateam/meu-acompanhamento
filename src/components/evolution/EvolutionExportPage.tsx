@@ -1,4 +1,5 @@
 import { useRef, useState, useEffect } from 'react';
+import { parseLocalDate } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { X, FileImage, FileText } from 'lucide-react';
@@ -82,7 +83,7 @@ export function EvolutionExportPage({
   const calcularIdade = (dataNascimento: string | null | undefined): number | null => {
     if (!dataNascimento) return null;
     const hoje = new Date();
-    const nascimento = new Date(dataNascimento);
+    const nascimento = parseLocalDate(dataNascimento) ?? new Date(dataNascimento);
     let idade = hoje.getFullYear() - nascimento.getFullYear();
     const mesAtual = hoje.getMonth();
     const mesNascimento = nascimento.getMonth();

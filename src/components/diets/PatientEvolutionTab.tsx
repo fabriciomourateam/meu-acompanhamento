@@ -17,7 +17,7 @@ import { MeasurementsChart } from '@/components/evolution/MeasurementsChart';
 import { AIInsights } from '@/components/evolution/AIInsights';
 import { DailyWeightsList } from '@/components/evolution/DailyWeightsList';
 import { detectAchievements } from '@/lib/achievement-system';
-import { parseLocalISODate } from '@/lib/utils';
+import { parseLocalISODate, parseLocalDate } from '@/lib/utils';
 import {
   Activity,
   Calendar,
@@ -172,7 +172,7 @@ export function PatientEvolutionTab({
   const calcularIdade = (dataNascimento: string | null) => {
     if (!dataNascimento) return null;
     const hoje = new Date();
-    const nascimento = new Date(dataNascimento);
+    const nascimento = parseLocalDate(dataNascimento) ?? new Date(dataNascimento);
     let idade = hoje.getFullYear() - nascimento.getFullYear();
     const mesAtual = hoje.getMonth();
     const mesNascimento = nascimento.getMonth();
