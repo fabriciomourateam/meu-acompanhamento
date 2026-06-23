@@ -6,6 +6,21 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+/**
+ * Converte uma data "só-dia" (YYYY-MM-DD) num objeto Date ancorado ao MEIO-DIA
+ * local, evitando o bug de fuso: `new Date("1995-01-03")` é interpretado como
+ * meia-noite UTC e, em BRT (UTC-3), "volta" um dia (02/01 21:00), fazendo a data
+ * exibida regredir 1 dia. Aceita também timestamps completos (mantém o instante)
+ * e Date (retorna como está).
+ */
+export function parseLocalDate(value: string | Date | null | undefined): Date | undefined {
+  if (value == null) return undefined;
+  if (value instanceof Date) return value;
+  // Apenas data (YYYY-MM-DD), sem hora: ancora ao meio-dia local.
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return new Date(value + "T12:00:00");
+  return new Date(value);
+}
+
 // Regex com grupo de captura para uso em split (mantém a URL como parte separada)
 const URL_SPLIT_REGEX = /(https?:\/\/[^\s<>"']+)/g;
 

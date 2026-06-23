@@ -9,6 +9,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { checkinService } from '@/lib/checkin-service';
+import { parseLocalDate } from '@/lib/utils';
 import { levelsService, type CurrentLevel } from '@/lib/levels-service';
 import { supabase } from '@/integrations/supabase/client';
 import { validateToken } from '@/lib/patient-portal-service';
@@ -184,7 +185,7 @@ export default function PatientPortal() {
   const calcularIdade = (dataNascimento: string | null) => {
     if (!dataNascimento) return null;
     const hoje = new Date();
-    const nascimento = new Date(dataNascimento);
+    const nascimento = parseLocalDate(dataNascimento) ?? new Date(dataNascimento);
     let idade = hoje.getFullYear() - nascimento.getFullYear();
     const mesAtual = hoje.getMonth();
     const mesNascimento = nascimento.getMonth();
