@@ -286,13 +286,6 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
     <div className="space-y-3">
       <GuidelinesBanner sessions={guidelinesSessions} generalNotes={generalNotes} planNotes={plan.notes} patientId={patientId} />
 
-      <PhaseAdvanceBanner
-        token={token}
-        planId={plan.id}
-        planCreatedAt={plan.created_at}
-        onPhaseChanged={() => void load()}
-      />
-
       <Tabs value={subtab} onValueChange={(v) => setSubtab(v as typeof subtab)}>
         <TabsList className="grid w-full grid-cols-3 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg h-auto">
           <TabsTrigger value="workouts" className="data-[state=active]:bg-white dark:data-[state=active]:bg-emerald-500/15 dark:data-[state=active]:text-emerald-300 data-[state=active]:text-emerald-600 data-[state=active]:font-semibold data-[state=active]:shadow-sm text-slate-600 dark:text-slate-400 py-2 rounded-md transition-all">
@@ -312,6 +305,16 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
         </TabsList>
 
         <TabsContent value="workouts" className="mt-3 space-y-2.5">
+          {/* Periodizacao/fase atual: e prescricao de musculacao (series x reps x RPE),
+              entao vive dentro da aba Treinos — nao faz sentido em Cardios/Analise.
+              Treinos e a sub-aba padrao, entao o aluno ve o card de cara ao entrar. */}
+          <PhaseAdvanceBanner
+            token={token}
+            planId={plan.id}
+            planCreatedAt={plan.created_at}
+            onPhaseChanged={() => void load()}
+          />
+
           {/* Cabecalho do plano: quando ha mais de um plano (MUSCULACAO / Vacuum
               etc), vira navegacao com setas ◂ ▸ — substitui os chips de cima
               que estavam duplicando o nome do plano. */}
