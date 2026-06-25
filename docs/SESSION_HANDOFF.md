@@ -17,16 +17,23 @@ e WKWebView não suporta Web Push → caminho é **Capacitor + FCM**. Plano em 4
 build via Codemagic + TestFlight). ~4–5 dias de dev + contas do dono + iPhone p/ testar.
 
 ## Estado atual
-- **Nada de código iOS começou.** Só análise + a spec, commitada na `main`.
-- Decidido: **Capacitor** (não PWABuilder), porque push no iPhone é requisito.
+- **Nada de código iOS começou.** Só análise + a spec.
+- **Brainstorm inicial FEITO (2026-06-25) — 5 decisões fechadas** (detalhe em
+  `docs/ios-app-store-capacitor.md` → "Decisões FECHADAS"):
+  1. **FCM** (não APNs direto); cliente usa `@capacitor-firebase/messaging`.
+  2. **Só iOS** no nativo; Android continua TWA + Web Push (intocado).
+  3. **Dedup por device** (natural): tabela `native_push_tokens`, `UNIQUE(token)`, sem dedup extra.
+  4. **Deep-link**: campo `url` canônico reusado (web SW + tap nativo lê `data.url`).
+  5. **Service account JSON** → secret da edge function (não `app_config`).
+- Decidido (antes): **Capacitor** (não PWABuilder), porque push no iPhone é requisito.
 - Push hoje = Web Push/VAPID (`src/lib/push-service.ts` → `push_subscriptions` →
   edge function `send-push` → `sw.js`). Funciona em web/PWA/Android TWA; NÃO no WKWebView.
 - Limitação: Claude escreve tudo, mas **não testa push iOS** (sem Mac/iPhone) → dono valida via TestFlight.
 
 ## Próximo passo concreto
-Passo 1 da spec: configurar **Capacitor + projeto iOS + ícones/splash** no repo
-(additivo, não toca no fluxo atual). Antes, vale um **brainstorm curto** pra fechar as
-"Decisões em aberto" da spec (FCM vs APNs, unificar Android ou não, dedup, deep-link).
+Brainstorm fechado → partir pro **Passo 1** da spec: configurar **Capacitor + projeto
+iOS + ícones/splash** no repo (additivo, não toca no fluxo atual). Branch de trabalho:
+`claude/pensive-newton-3zucgh`.
 
 ## Regra de ouro
 Tudo additivo, em branch, dono testa antes de mergear. NÃO mexer em
