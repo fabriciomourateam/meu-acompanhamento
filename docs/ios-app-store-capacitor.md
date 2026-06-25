@@ -84,6 +84,19 @@ dono, via **TestFlight**. Iterar conforme os testes reais.
 - Firebase: projeto, app iOS, `GoogleService-Info.plist`, service account JSON.
 - Conta Codemagic (grátis) ligada ao repo.
 
-## Próximo passo concreto (passo 1)
-Configurar **Capacitor + projeto iOS + ícones/splash** no repo (additivo, não toca no
-fluxo atual). Depois: token nativo → estender `send-push` p/ FCM → Codemagic → TestFlight.
+## Estado da implementação (2026-06-25) — TODO o código feito
+Todas as 4 frentes foram codadas e commitadas (branches `claude/pensive-newton-3zucgh`
+nos dois repos). Detalhe operacional e sequência de ativação do dono em
+`docs/SESSION_HANDOFF.md`. Resumo:
+
+| Frente | Status |
+|---|---|
+| Cliente (Capacitor + token FCM + deep-link) | ✅ código (typecheck ok) |
+| Servidor (`send-push-native` FCM v1 + roteamento gated) | ✅ código; migrations **aplicadas**; função **não deployada** |
+| iOS nativo (Firebase init, entitlement, Codemagic) | ✅ wiring; valida no Mac/Codemagic |
+| Config Apple/Firebase (contas) | ⏳ **dono** |
+
+**Decisão de não-quebrar:** em vez de tocar a `send-push`, criei a `send-push-native`
+paralela; o `notify_send_push` chama as duas, mas a nativa só dispara com
+`app_config.native_push_enabled='true'` (off por default). Web push e Android TWA
+ficam 100% inalterados até o dono ligar a flag.
