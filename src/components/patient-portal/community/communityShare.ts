@@ -68,9 +68,16 @@ export async function generatePostShareImage(
   try {
     const canvas = await html2canvas(container, {
       backgroundColor: null,
-      scale: 1,
+      scale: 2,
       useCORS: true,
       logging: false,
+      // Sem windowWidth/Height o html2canvas usa a JANELA ATUAL como referência de
+      // layout — no mobile (janela ~390px) o card de 1080px sai espremido/distorcido.
+      // Fixar a "janela" em 1080 faz a captura sair idêntica no desktop e no mobile.
+      windowWidth: 1080,
+      windowHeight: container.offsetHeight,
+      width: 1080,
+      height: container.offsetHeight,
     });
     const blob: Blob = await new Promise((resolve, reject) =>
       canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('toBlob falhou'))), 'image/png', 1),

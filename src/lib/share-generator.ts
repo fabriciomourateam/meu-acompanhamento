@@ -170,11 +170,18 @@ export async function generateShareImage(data: ShareData): Promise<string> {
   document.body.appendChild(container);
 
   try {
-    // Gerar imagem
+    // Gerar imagem.
+    // windowWidth/Height fixos em 1080: sem isso o html2canvas usa a janela atual
+    // como referência de layout e no mobile (janela estreita) a imagem de 1080×1080
+    // sai distorcida. Fixar garante o mesmo resultado no desktop e no mobile.
     const canvas = await html2canvas(container, {
       backgroundColor: null,
       scale: 2,
-      logging: false
+      logging: false,
+      windowWidth: 1080,
+      windowHeight: 1080,
+      width: 1080,
+      height: 1080,
     });
 
     const imageData = canvas.toDataURL('image/png', 1.0);
