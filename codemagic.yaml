@@ -1,0 +1,65 @@
+# Codemagic CI/CD — build do app iOS (Capacitor) e publicação no TestFlight.
+#
+# Pré-requisitos do dono (configurar no Codemagic, UMA vez):
+#   - Integração "App Store Connect API key" (Codemagic → Teams → Integrations).
+#     Anote o nome dela e ponha em APP_STORE_CONNECT_INTEGRATION abaixo.
+#   - Bundle ID com.fmteam.meuacompanhamento criado no App Store Connect.
+#   - GoogleService-Info.plist: subir como ENV var segura (base64) OU commitar no
+#     repo (não é segredo crítico). Aqui assumo via env GOOGLE_SERVICE_INFO_PLIST
+#     (base64). Se preferir commitar, remova o passo "Decode GoogleService-Info".
+#   - Capability Push Notifications habilitada no identifier (App Store Connect)
+#     + APNs Auth Key (.p8) subida no Firebase (pro FCM assinar o APNs).
+#
+# O app carrega o site ao vivo (capacitor.config.ts → server.url), então o build
+# web serve só de fallback; ainda assim rodamos `npm run build` pra ter um dist válido.
+
+workflows:
+  ios-testflight:
+    name: iOS · TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: CHANGE_ME_APP_STORE_CONNECT_INTEGRATION
+    environment:
+      ios_signing:
+        distribution_type: app_store
+        bundle_identifier: com.fmteam.meuacompanhamento
+      vars:
+        BUNDLE_ID: "com.fmteam.meuacompanhamento"
+        XCODE_WORKSPACE: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+        # GOOGLE_SERVICE_INFO_PLIST: <base64 do GoogleService-Info.plist> (env seguro)
+      node: 22
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install JS deps
+        script: npm ci
+      - name: Build web (dist)
+        script: npm run build
+      - name: Decode GoogleService-Info.plist
+        script: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/App/App/GoogleService-Info.plist
+          else
+            echo "⚠️  GOOGLE_SERVICE_INFO_PLIST não setado — Firebase vai falhar em runtime."
+          fi
+      - name: Capacitor sync iOS
+        script: npx cap sync ios
+      - name: Set build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + 1))
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Beta testers internos pegam automático; libere external groups manual.

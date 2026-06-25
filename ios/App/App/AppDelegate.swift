@@ -1,5 +1,6 @@
 import UIKit
 import Capacitor
+import FirebaseCore
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -7,7 +8,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Override point for customization after application launch.
+        // Inicializa o Firebase (necessário pro FCM via @capacitor-firebase/messaging).
+        // Requer o GoogleService-Info.plist adicionado ao target App (ver
+        // docs/ios-app-store-capacitor.md). O plugin cuida da ponte APNs <-> FCM.
+        FirebaseApp.configure()
         return true
     }
 
