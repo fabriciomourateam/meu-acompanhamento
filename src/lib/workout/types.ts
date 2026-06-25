@@ -75,6 +75,10 @@ export interface WorkoutPlanFull extends WorkoutPlan {
 export interface WorkoutHub {
   plan: WorkoutPlanFull | null;
   sessions: HubSession[];
+  // Preenchido só quando NÃO há plano liberado mas existe um treino agendado
+  // (status='agendado' com start_date futura). Permite a UI avisar o aluno
+  // "treino agendado para DD/MM" em vez do genérico "nenhum treino liberado".
+  scheduled?: { start_date: string; name: string | null } | null;
 }
 
 export interface WorkoutExerciseFull {
