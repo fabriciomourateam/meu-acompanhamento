@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { Dumbbell, HeartPulse, BarChart3, ChevronLeft, ChevronRight, AlertTriangle, CalendarClock } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { workoutService } from '@/lib/workout/workout-service';
 import { workoutExtrasService } from '@/lib/workout/workout-extras-service';
@@ -239,6 +239,29 @@ export function WorkoutTab({ token, active, patientName, patientId }: WorkoutTab
   }
 
   if (!hub?.plan) {
+    // Existe um treino AGENDADO (status='agendado') que ainda não liberou:
+    // avisa o aluno a data em vez do genérico "nenhum treino liberado".
+    if (hub?.scheduled) {
+      // start_date é 'YYYY-MM-DD' (data de parede, sem fuso) — monta Date local
+      // pra não escorregar de dia ao formatar em BRT.
+      const [sy, sm, sd] = hub.scheduled.start_date.split('-').map(Number);
+      const schedDate = new Date(sy, (sm ?? 1) - 1, sd ?? 1);
+      const dataFmt = schedDate.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long' });
+      return (
+        <Card className="border-emerald-200 dark:border-emerald-800/50 bg-emerald-50/60 dark:bg-emerald-950/20 shadow-sm">
+          <CardContent className="p-8 text-center space-y-3">
+            <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40">
+              <CalendarClock className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="font-semibold text-emerald-800 dark:text-emerald-200">Treino agendado 📅</h3>
+            <p className="text-sm text-emerald-700 dark:text-emerald-300/90">
+              Seu próximo treino{hub.scheduled.name ? <> <span className="font-medium">“{hub.scheduled.name}”</span></> : ''} já está pronto e libera automaticamente{' '}
+              <span className="font-semibold first-letter:uppercase">{dataFmt}</span>. Ele aparece aqui nesse dia. 💪
+            </p>
+          </CardContent>
+        </Card>
+      );
+    }
     return (
       <Card className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 shadow-sm">
         <CardContent className="p-8 text-center space-y-3">

@@ -19,6 +19,7 @@ export const workoutService = {
     return {
       plan: parsed.plan ?? null,
       sessions: Array.isArray(parsed.sessions) ? parsed.sessions : [],
+      scheduled: parsed.scheduled ?? null,
     };
   },
 
