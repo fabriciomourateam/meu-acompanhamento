@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { lazy, Suspense } from "react";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { ThemeProvider } from "@/lib/theme";
+import { NativePushBridge } from "@/components/NativePushBridge";
 import PortalLogin from "./pages/PortalLogin";
 import PatientPortal from "./pages/PatientPortal";
 
@@ -15,6 +16,7 @@ const App = () => (
     <ThemeProvider>
       <Toaster />
       <BrowserRouter>
+        <NativePushBridge />
         <Routes>
           <Route path="/" element={<PortalLogin />} />
           <Route path="/portal" element={<PortalLogin />} />

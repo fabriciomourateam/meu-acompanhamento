@@ -74,6 +74,7 @@ import { ThemeToggleMenuItem } from '@/components/patient-portal/ThemeToggleMenu
 import { TutorialModal } from '@/components/patient-portal/TutorialModal';
 import { PatientNotifications } from '@/components/patient-portal/PatientNotifications';
 import { EnableNotificationsBanner } from '@/components/patient-portal/EnableNotificationsBanner';
+import { nativePush } from '@/lib/native-push-service';
 import { ProfileAvatar } from '@/components/patient-portal/ProfileAvatar';
 import { motion } from 'framer-motion';
 import type { Database } from '@/integrations/supabase/types';
@@ -109,6 +110,19 @@ export default function PatientPortal() {
       .catch(() => { /* nivel e best-effort */ });
     return () => { cancelled = true; };
   }, [token]);
+  // Push NATIVO (app Capacitor): se a permissão já foi concedida, re-salva o token
+  // FCM silenciosamente ao abrir e escuta a rotação do token. No navegador é no-op
+  // (lá o Web Push é tratado pelo EnableNotificationsBanner + sw.js). O pedido de
+  // permissão em si fica no banner "Ativar" (gesto do aluno).
+  useEffect(() => {
+    if (!patientId || !nativePush.isNative()) return;
+    let handle: Awaited<ReturnType<typeof nativePush.onTokenRefresh>> = null;
+    void nativePush.permissionGranted().then((granted) => {
+      if (granted) void nativePush.refreshToken(patientId);
+    });
+    void nativePush.onTokenRefresh(patientId).then((h) => { handle = h; });
+    return () => { void handle?.remove(); };
+  }, [patientId]);
   const portalRef = useRef<HTMLDivElement>(null);
   const [weightInputOpen, setWeightInputOpen] = useState(false);
   // Tutorial de uso do app (vídeo). Abre sozinho no 1º acesso e fica reabrível
