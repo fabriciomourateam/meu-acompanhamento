@@ -29,6 +29,8 @@ workflows:
         XCODE_WORKSPACE: "ios/App/App.xcodeproj"
         XCODE_SCHEME: "App"
         # GOOGLE_SERVICE_INFO_PLIST: <base64 do GoogleService-Info.plist> (env seguro)
+      groups:
+        - firebase
       node: 22
       xcode: latest
       cocoapods: default
