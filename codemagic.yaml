@@ -1,17 +1,19 @@
 # Codemagic CI/CD — build do app iOS (Capacitor) e publicação no TestFlight.
 #
 # Pré-requisitos do dono (configurar no Codemagic, UMA vez):
-#   - Integração "App Store Connect API key" (Codemagic → Teams → Integrations).
-#     Anote o nome dela e ponha em APP_STORE_CONNECT_INTEGRATION abaixo.
-#   - Bundle ID com.fmteam.meuacompanhamento criado no App Store Connect.
-#   - GoogleService-Info.plist: subir como ENV var segura (base64) OU commitar no
-#     repo (não é segredo crítico). Aqui assumo via env GOOGLE_SERVICE_INFO_PLIST
-#     (base64). Se preferir commitar, remova o passo "Decode GoogleService-Info".
-#   - Capability Push Notifications habilitada no identifier (App Store Connect)
-#     + APNs Auth Key (.p8) subida no Firebase (pro FCM assinar o APNs).
+#   - Integração "App Store Connect API key" chamada "MyShape ASC"
+#     (Codemagic → Teams → Integrations). ⚠️ A API key precisa ter papel ADMIN
+#     pra conseguir CRIAR o certificado de distribuição na 1ª vez (App Manager
+#     não cria certificado via API).
+#   - Bundle ID com.fmteam.meuacompanhamento registrado no Developer Portal,
+#     com a capability Push Notifications.
+#   - App criado no App Store Connect (Apps → +) com esse bundle (necessário pro
+#     upload do TestFlight no fim).
+#   - GoogleService-Info.plist como ENV var segura GOOGLE_SERVICE_INFO_PLIST
+#     (base64), no grupo "firebase".
 #
-# O app carrega o site ao vivo (capacitor.config.ts → server.url), então o build
-# web serve só de fallback; ainda assim rodamos `npm run build` pra ter um dist válido.
+# O app carrega o site ao vivo (capacitor.config.ts → server.url); o build web
+# serve só de fallback, mas ainda rodamos `npm run build` pra ter um dist válido.
 
 workflows:
   ios-testflight:
@@ -21,16 +23,12 @@ workflows:
     integrations:
       app_store_connect: MyShape ASC
     environment:
-      ios_signing:
-        distribution_type: app_store
-        bundle_identifier: com.fmteam.meuacompanhamento
-      vars:
-        BUNDLE_ID: "com.fmteam.meuacompanhamento"
-        XCODE_WORKSPACE: "ios/App/App.xcodeproj"
-        XCODE_SCHEME: "App"
-        # GOOGLE_SERVICE_INFO_PLIST: <base64 do GoogleService-Info.plist> (env seguro)
       groups:
         - firebase
+      vars:
+        BUNDLE_ID: "com.fmteam.meuacompanhamento"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
       node: 22
       xcode: latest
       cocoapods: default
@@ -43,11 +41,20 @@ workflows:
         script: |
           if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
             echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/App/App/GoogleService-Info.plist
+            echo "GoogleService-Info.plist gravado."
           else
-            echo "⚠️  GOOGLE_SERVICE_INFO_PLIST não setado — Firebase vai falhar em runtime."
+            echo "⚠️  GOOGLE_SERVICE_INFO_PLIST não setado — Firebase falha em runtime."
           fi
       - name: Capacitor sync iOS
         script: npx cap sync ios
+      - name: Set up code signing (cria cert + profile se faltar)
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
       - name: Set build number
         script: |
           cd ios/App
@@ -55,7 +62,7 @@ workflows:
       - name: Build IPA
         script: |
           xcode-project build-ipa \
-            --project "$XCODE_WORKSPACE" \
+            --project "$XCODE_PROJECT" \
             --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
