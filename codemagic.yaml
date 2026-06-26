@@ -25,6 +25,7 @@ workflows:
     environment:
       groups:
         - firebase
+        - ios_signing
       vars:
         BUNDLE_ID: "com.fmteam.meuacompanhamento"
         XCODE_PROJECT: "ios/App/App.xcodeproj"
@@ -47,13 +48,16 @@ workflows:
           fi
       - name: Capacitor sync iOS
         script: npx cap sync ios
-      - name: Set up code signing (cria cert + profile se faltar)
+      - name: Set up code signing (manual — cert + profile com Push, criados no portal)
         script: |
           keychain initialize
-          app-store-connect fetch-signing-files "$BUNDLE_ID" \
-            --type IOS_APP_STORE \
-            --create
-          keychain add-certificates
+          # Certificado de distribuição (.p12 em base64) + senha, vindos do grupo ios_signing.
+          echo "$CM_CERTIFICATE" | base64 --decode > /tmp/cert.p12
+          keychain add-certificates --certificate /tmp/cert.p12 --certificate-password "$CM_CERTIFICATE_PASSWORD"
+          # Provisioning profile (com aps-environment=production) criado manualmente no portal.
+          PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_HOME"
+          echo "$CM_PROVISIONING_PROFILE" | base64 --decode > "$PROFILES_HOME/MyShape_App_Store.mobileprovision"
           xcode-project use-profiles
       - name: Set build number
         script: |
