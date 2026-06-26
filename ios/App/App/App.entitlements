@@ -2,10 +2,11 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<!-- Capability de Push Notifications (APNs). 'development' vale pra debug;
-	     no archive de distribuição (TestFlight/App Store) o Xcode/assinatura
-	     promove pra 'production' automaticamente. -->
+	<!-- Capability de Push Notifications (APNs). 'production' é o exigido pra
+	     archive de distribuição (TestFlight/App Store) com assinatura MANUAL
+	     (Codemagic) — o Xcode NÃO promove sozinho nesse modo. TestFlight e App
+	     Store usam o ambiente production do APNs de qualquer forma. -->
 	<key>aps-environment</key>
-	<string>development</string>
+	<string>production</string>
 </dict>
 </plist>
