@@ -2,7 +2,18 @@ import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/components/ui/button';
-import { Timer, X, Check } from 'lucide-react';
+import { Timer, X, Check, Volume2, VolumeX } from 'lucide-react';
+
+// Preferência de som do alarme de descanso. Persistida por dispositivo
+// (localStorage) — o aluno desliga uma vez e fica desligado naquele aparelho.
+// Mudo afeta SÓ o som; a vibração continua sempre (é o aviso tátil).
+const MUTE_KEY = 'workout:rest-timer-muted';
+function readMuted(): boolean {
+  try { return localStorage.getItem(MUTE_KEY) === '1'; } catch { return false; }
+}
+function writeMuted(v: boolean) {
+  try { localStorage.setItem(MUTE_KEY, v ? '1' : '0'); } catch { /* ignore */ }
+}
 
 /** Toca um beep curto via Web Audio API. Não exige hospedar arquivo. */
 function beep(freq = 880, durationMs = 180, volume = 0.25) {
@@ -62,6 +73,13 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
   const readyBuzzedRef = useRef(false);
   useEffect(() => { onDoneRef.current = onDone; });
 
+  // Som ligado/desligado (persistido). Lido via ref dentro dos effects de beep
+  // pra não disparar com closure defasada caso o aluno alterne durante o descanso.
+  const [muted, setMuted] = useState(readMuted);
+  const mutedRef = useRef(muted);
+  useEffect(() => { mutedRef.current = muted; });
+  const toggleMute = () => setMuted((m) => { const next = !m; writeMuted(next); return next; });
+
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 200);
     return () => clearInterval(id);
@@ -81,7 +99,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
     if (hasRange && ready && !readyBuzzedRef.current) {
       readyBuzzedRef.current = true;
       try { navigator.vibrate?.([140, 70, 140, 70, 140]); } catch { /* ignore */ }
-      beepSequence(3, 200, 880, 0.55);
+      if (!mutedRef.current) beepSequence(3, 200, 880, 0.55);
     }
   }, [hasRange, ready]);
 
@@ -89,7 +107,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
     if (leftMs <= 0 && !firedRef.current) {
       firedRef.current = true;
       try { navigator.vibrate?.([120, 60, 120]); } catch { /* ignore */ }
-      beepSequence(2, 220, 1040, 0.55);
+      if (!mutedRef.current) beepSequence(2, 220, 1040, 0.55);
       onDoneRef.current();
     }
   }, [leftMs]);
@@ -115,7 +133,7 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
         className="fixed bottom-24 sm:bottom-6 inset-x-3 mx-auto z-[10000] max-w-[340px]"
       >
         <div className={`rounded-2xl text-white shadow-2xl px-4 py-3 transition-colors ${bg}`}>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
             <Timer className="h-5 w-5 shrink-0" />
             <span className="text-xs font-semibold uppercase tracking-wide text-white/80">
               {ready ? 'Já pode voltar' : 'Descanso'}
@@ -124,6 +142,16 @@ export function RestTimer({ minSeconds, maxSeconds, onDone }: RestTimerProps) {
               <span className="text-[10px] text-white/70">({minSeconds}–{maxSeconds}s)</span>
             )}
             <span className="ml-auto text-2xl font-bold tabular-nums leading-none">{mm}:{ss}</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-white hover:bg-white/15 dark:hover:bg-slate-800/15 h-9 w-9 p-0 shrink-0"
+              onClick={toggleMute}
+              aria-label={muted ? 'Ativar som do alarme' : 'Silenciar som do alarme'}
+              title={muted ? 'Som desligado — toque pra ligar (a vibração continua)' : 'Som ligado — toque pra silenciar'}
+            >
+              {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+            </Button>
             <Button
               size="sm"
               variant="ghost"
