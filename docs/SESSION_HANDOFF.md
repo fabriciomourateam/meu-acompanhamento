@@ -74,3 +74,30 @@ Firebase, Codemagic), plugar credenciais e **buildar/testar via TestFlight**.
 ## Regra de ouro
 Tudo additivo, em branch, dono testa antes de mergear. `send-push` (web) e Android TWA
 não foram tocados. Push nativo fica OFF até a flag `native_push_enabled='true'`.
+
+## ATUALIZAÇÃO 2026-06-26 — App NO TESTFLIGHT ✅
+Todo o pipeline iOS FUNCIONOU. Estado real:
+- Build (Capacitor 8 + Firebase SPM nativo) compila; **firebase** JS SDK adicionado (peer do
+  @capacitor-firebase/messaging) pra destravar o vite build.
+- **Assinatura resolvida via signing MANUAL** (a API do Codemagic gerava profile SEM Push —
+  bug conhecido). Caminho que funcionou: certificado `Apple Distribution` criado por CSR
+  (gerado no sandbox, sem Mac) + **provisioning profile criado À MÃO no portal** (aí herda
+  aps-environment=production com Push). `.p12` (senha `myshape-ios-2026`) + profile em base64
+  estão nas envs do Codemagic grupo `ios_signing` (CM_CERTIFICATE / CM_CERTIFICATE_PASSWORD /
+  CM_PROVISIONING_PROFILE). `codemagic.yaml` usa esses (não mais fetch-signing-files).
+- `aps-environment=production` no App.entitlements; `ITSAppUsesNonExemptEncryption=false` no Info.plist.
+- App Store Connect: app "My Shape" criado (bundle com.fmteam.meuacompanhamento). **Compilação 8
+  está "Pronta para testar"** (grupo interno "My Shape Team"). Export compliance respondido (None).
+- Apple Team ID MAR4FQS322. Issuer ID ASC: 4133f59a-01c7-43bb-b8a3-37389dde4f42. Firebase project: my-shape-1ecfc.
+
+### BLOQUEIO ATUAL: sem iPhone físico
+Push só pode ser validado num iPhone real (token nasce no device). Dono não tem iPhone →
+precisa de um emprestado (aluno/amigo) OU testadores externos (alunos por e-mail).
+
+### PENDENTE no servidor (fazer quando houver device com token):
+1. **Deploy `send-push-native`** (controle-de-pacientes/supabase/functions/send-push-native) com
+   verify_jwt=false — ficou pendente de aprovação no Supabase. FCM secret `FCM_SERVICE_ACCOUNT` JÁ salvo.
+2. **Ligar flag**: `insert into app_config(key,value) values('native_push_enabled','true') on conflict (key) do update set value='true';`
+3. Disparar push de teste e validar (app aberto/fechado + deep-link no tap).
+
+### Ainda aberto: PRs #75 (meu-acompanhamento) e #372 (controle-de-pacientes) NÃO mergeados (mergear após validar push).
