@@ -9,9 +9,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Inicializa o Firebase (necessário pro FCM via @capacitor-firebase/messaging).
-        // Requer o GoogleService-Info.plist adicionado ao target App (ver
-        // docs/ios-app-store-capacitor.md). O plugin cuida da ponte APNs <-> FCM.
-        FirebaseApp.configure()
+        // Só configura se o GoogleService-Info.plist estiver no bundle — assim o app
+        // NUNCA crasha na inicialização caso o plist falte (push fica off até existir).
+        if Bundle.main.url(forResource: "GoogleService-Info", withExtension: "plist") != nil {
+            FirebaseApp.configure()
+        }
         return true
     }
 
