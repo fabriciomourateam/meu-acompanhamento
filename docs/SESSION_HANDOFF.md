@@ -118,3 +118,24 @@ precisa de um emprestado (aluno/amigo) OU testadores externos (alunos por e-mail
    colar o código de controle-de-pacientes/supabase/functions/send-push-native/index.ts, verify_jwt OFF).
 2. **Ligar flag**: `insert into app_config(key,value) values('native_push_enabled','true') on conflict (key) do update set value='true';`
 3. Testar pipeline real: responder um aluno no chat → push deve chegar sozinho.
+
+## 2026-06-27 — ✅✅✅ PROJETO CONCLUÍDO — PUSH AUTOMÁTICO VALIDADO
+Pipeline COMPLETO funcionando num iPhone real (TestFlight):
+- `send-push-native` DEPLOYADA (via Dashboard do dono, verify_jwt=false). MCP deploy ficou
+  bloqueado por aprovação que não aparece no cliente do dono — daí o deploy manual.
+- Flag `app_config.native_push_enabled = 'true'` LIGADA.
+- Teste end-to-end: `select notify_send_push(...)` → /send-push-native → FCM → APNs → push
+  chegou no iPhone. Caminho 1 (Firebase direto) e Caminho 2 (pipeline do app) ambos OK.
+- App "My Shape" no TestFlight (build 10), carrega meu-acompanhamento.vercel.app, registra token nativo.
+
+### Resta só polimento (NÃO bloqueia o funcionamento):
+- **Ícones reais**: hoje placeholder do Capacitor. Rodar `@capacitor/assets` (Mac/Codemagic) a
+  partir de fonte 1024×1024.
+- **Testadores externos / alunos**: convidar por e-mail (TestFlight → Testes externos; 1ª vez
+  passa por revisão beta ~1 dia) pra alunos com iPhone instalarem.
+- **Publicação pública na App Store**: precisa screenshots (1242×2688 etc.) + descrição + revisão
+  da Apple (~1-3 dias). Só quando quiser sair do TestFlight pro público.
+- **Android nativo**: continua TWA (intocado). Se um dia quiser unificar no Capacitor/FCM, é projeto à parte.
+
+### Credenciais/IDs (guardados): Team ID MAR4FQS322 · Issuer ID ASC 4133f59a-01c7-43bb-b8a3-37389dde4f42 ·
+### Firebase project my-shape-1ecfc · .p12 senha myshape-ios-2026 (envs do Codemagic grupo ios_signing).
