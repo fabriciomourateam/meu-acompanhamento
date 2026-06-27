@@ -51,5 +51,9 @@
 	<array>
 		<string>remote-notification</string>
 	</array>
+	<!-- App usa só HTTPS padrão do iOS (sem criptografia própria) → isento de
+	     conformidade de exportação. Evita a pergunta no TestFlight a cada build. -->
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
 </dict>
 </plist>
