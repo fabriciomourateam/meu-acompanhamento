@@ -58,12 +58,25 @@ Claude **escreve tudo** (Capacitor, registro de token, tabela, estender `send-pu
 **não testa push no iOS** (sem Mac/iPhone no ambiente). Validação do push chegando =
 dono, via **TestFlight**. Iterar conforme os testes reais.
 
-## Decisões em aberto (bom fechar no brainstorm inicial)
-1. **FCM vs APNs direto** — recomendado FCM (unifica, cobre iOS). Aceita Firebase como dep nova?
-2. **Unificar Android no FCM também** ou manter Web Push no Android e FCM só no iOS? (menor blast radius = só iOS no FCM).
-3. **Estratégia de dedup** web push × token nativo (por device/plataforma).
-4. **Deep-link** no toque da notificação (mapear `url`/`data` → rota do portal).
-5. Onde guardar o **service account JSON** do FCM (app_config? secret da edge function?).
+## Decisões FECHADAS (brainstorm inicial — 2026-06-25)
+1. **FCM (Firebase)**, não APNs direto. Servidor fala FCM HTTP v1; Firebase entra como
+   dep nova (`GoogleService-Info.plist` + service account JSON). No cliente Capacitor,
+   usar **`@capacitor-firebase/messaging`** (dá token FCM no iOS; o `@capacitor/push-notifications`
+   puro só daria token APNs cru).
+2. **Só iOS no nativo (FCM).** Android **continua TWA + Web Push** (já funciona, não tocar).
+   "Unificar Android no FCM" exigiria reembrulhar o Android em Capacitor → escopo grande,
+   fora do agora. Blast radius mínimo.
+3. **Dedup: por device, natural.** Cada aparelho tem **um único canal** (iPhone-app→token
+   nativo; Android-TWA/Safari/desktop→web push; WKWebView não tem Web Push, então o app iOS
+   nunca recebe web push). Tabela nova **`native_push_tokens (patient_id, token UNIQUE,
+   platform, device_id?)`**; no envio, manda pra todas as web subs **+** todos os tokens
+   nativos do paciente. Só `UNIQUE(token)` pra não duplicar registro — **sem dedup extra**.
+4. **Deep-link: campo `url` canônico.** Reusar o mesmo `url`/`data.url` que o web push já
+   manda hoje pro `notificationclick` do `sw.js`. No nativo, `pushNotificationActionPerformed`
+   lê `data.url` → navega o webview pra rota (`/portal/...`). Um payload só serve SW e tap nativo.
+5. **Service account JSON → secret da edge function** (Supabase Functions secret/env),
+   **não** `app_config`. Chave privada isolada, não consultável via SQL. (VAPID continua em
+   `app_config`; só o service account vai pro secret.)
 
 ## Credenciais/IDs que o dono precisa providenciar
 - Apple Developer account + Team ID; APNs Auth Key (.p8) + Key ID; Bundle ID
@@ -71,6 +84,19 @@ dono, via **TestFlight**. Iterar conforme os testes reais.
 - Firebase: projeto, app iOS, `GoogleService-Info.plist`, service account JSON.
 - Conta Codemagic (grátis) ligada ao repo.
 
-## Próximo passo concreto (passo 1)
-Configurar **Capacitor + projeto iOS + ícones/splash** no repo (additivo, não toca no
-fluxo atual). Depois: token nativo → estender `send-push` p/ FCM → Codemagic → TestFlight.
+## Estado da implementação (2026-06-25) — TODO o código feito
+Todas as 4 frentes foram codadas e commitadas (branches `claude/pensive-newton-3zucgh`
+nos dois repos). Detalhe operacional e sequência de ativação do dono em
+`docs/SESSION_HANDOFF.md`. Resumo:
+
+| Frente | Status |
+|---|---|
+| Cliente (Capacitor + token FCM + deep-link) | ✅ código (typecheck ok) |
+| Servidor (`send-push-native` FCM v1 + roteamento gated) | ✅ código; migrations **aplicadas**; função **não deployada** |
+| iOS nativo (Firebase init, entitlement, Codemagic) | ✅ wiring; valida no Mac/Codemagic |
+| Config Apple/Firebase (contas) | ⏳ **dono** |
+
+**Decisão de não-quebrar:** em vez de tocar a `send-push`, criei a `send-push-native`
+paralela; o `notify_send_push` chama as duas, mas a nativa só dispara com
+`app_config.native_push_enabled='true'` (off por default). Web push e Android TWA
+ficam 100% inalterados até o dono ligar a flag.

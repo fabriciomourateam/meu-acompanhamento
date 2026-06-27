@@ -1,0 +1,78 @@
+# Codemagic CI/CD — build do app iOS (Capacitor) e publicação no TestFlight.
+#
+# Pré-requisitos do dono (configurar no Codemagic, UMA vez):
+#   - Integração "App Store Connect API key" chamada "MyShape ASC"
+#     (Codemagic → Teams → Integrations). ⚠️ A API key precisa ter papel ADMIN
+#     pra conseguir CRIAR o certificado de distribuição na 1ª vez (App Manager
+#     não cria certificado via API).
+#   - Bundle ID com.fmteam.meuacompanhamento registrado no Developer Portal,
+#     com a capability Push Notifications.
+#   - App criado no App Store Connect (Apps → +) com esse bundle (necessário pro
+#     upload do TestFlight no fim).
+#   - GoogleService-Info.plist como ENV var segura GOOGLE_SERVICE_INFO_PLIST
+#     (base64), no grupo "firebase".
+#
+# O app carrega o site ao vivo (capacitor.config.ts → server.url); o build web
+# serve só de fallback, mas ainda rodamos `npm run build` pra ter um dist válido.
+
+workflows:
+  ios-testflight:
+    name: iOS · TestFlight
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    integrations:
+      app_store_connect: MyShape ASC
+    environment:
+      groups:
+        - firebase
+        - ios_signing
+      vars:
+        BUNDLE_ID: "com.fmteam.meuacompanhamento"
+        XCODE_PROJECT: "ios/App/App.xcodeproj"
+        XCODE_SCHEME: "App"
+      node: 22
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - name: Install JS deps
+        script: npm ci
+      - name: Build web (dist)
+        script: npm run build
+      - name: Decode GoogleService-Info.plist
+        script: |
+          if [ -n "$GOOGLE_SERVICE_INFO_PLIST" ]; then
+            echo "$GOOGLE_SERVICE_INFO_PLIST" | base64 --decode > ios/App/App/GoogleService-Info.plist
+            echo "GoogleService-Info.plist gravado."
+          else
+            echo "⚠️  GOOGLE_SERVICE_INFO_PLIST não setado — Firebase falha em runtime."
+          fi
+      - name: Capacitor sync iOS
+        script: npx cap sync ios
+      - name: Set up code signing (manual — cert + profile com Push, criados no portal)
+        script: |
+          keychain initialize
+          # Certificado de distribuição (.p12 em base64) + senha, vindos do grupo ios_signing.
+          echo "$CM_CERTIFICATE" | base64 --decode > /tmp/cert.p12
+          keychain add-certificates --certificate /tmp/cert.p12 --certificate-password "$CM_CERTIFICATE_PASSWORD"
+          # Provisioning profile (com aps-environment=production) criado manualmente no portal.
+          PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_HOME"
+          echo "$CM_PROVISIONING_PROFILE" | base64 --decode > "$PROFILES_HOME/MyShape_App_Store.mobileprovision"
+          xcode-project use-profiles
+      - name: Set build number
+        script: |
+          cd ios/App
+          agvtool new-version -all $(($BUILD_NUMBER + 1))
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --project "$XCODE_PROJECT" \
+            --scheme "$XCODE_SCHEME"
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        # Beta testers internos pegam automático; libere external groups manual.

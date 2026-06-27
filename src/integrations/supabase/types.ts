@@ -12487,6 +12487,19 @@ export type Database = {
         Args: { p_endpoint: string }
         Returns: undefined
       }
+      native_push_save_token: {
+        Args: {
+          p_patient_id: string
+          p_token: string
+          p_platform?: string
+          p_user_agent?: string
+        }
+        Returns: undefined
+      }
+      native_push_delete_token: {
+        Args: { p_token: string }
+        Returns: undefined
+      }
       push_save_subscription: {
         Args: {
           p_auth: string

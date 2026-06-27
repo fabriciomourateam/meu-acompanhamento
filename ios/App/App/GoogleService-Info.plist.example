@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  PLACEHOLDER — NÃO é o arquivo real.
+
+  Passos do dono (depois de criar o projeto Firebase + app iOS com o bundle
+  com.fmteam.meuacompanhamento):
+    1. No Firebase Console → Project Settings → seu app iOS → baixe o
+       GoogleService-Info.plist REAL.
+    2. Salve como  ios/App/App/GoogleService-Info.plist  (sem o .example).
+    3. No Xcode, arraste-o pra dentro do target "App" (marcar "Copy if needed"
+       e o target App) pra ele entrar no bundle.
+    4. O .gitignore já ignora o arquivo real (é específico do projeto, não
+       é segredo crítico, mas mantemos fora do versionamento por higiene).
+
+  Sem esse arquivo o FirebaseApp.configure() falha em runtime — então ele é
+  obrigatório pro build de verdade, mas só o dono consegue gerá-lo.
+-->
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>SUBSTITUIR</string>
+	<key>GCM_SENDER_ID</key>
+	<string>SUBSTITUIR</string>
+	<key>BUNDLE_ID</key>
+	<string>com.fmteam.meuacompanhamento</string>
+	<key>PROJECT_ID</key>
+	<string>SUBSTITUIR</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>SUBSTITUIR</string>
+	<key>IS_GCM_ENABLED</key>
+	<true/>
+</dict>
+</plist>

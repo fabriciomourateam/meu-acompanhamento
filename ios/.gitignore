@@ -1,0 +1,16 @@
+App/build
+App/Pods
+App/output
+App/App/public
+DerivedData
+xcuserdata
+
+# Cordova plugins for Capacitor
+capacitor-cordova-ios-plugins
+
+# Generated Config files
+App/App/capacitor.config.json
+App/App/config.xml
+
+# Firebase: o plist real é específico do projeto do dono; versionamos só o .example.
+App/App/GoogleService-Info.plist

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { BellRing, Download, Loader2, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { pushService } from '@/lib/push-service';
+import { nativePush } from '@/lib/native-push-service';
 import { InstallPWAButton } from '@/components/InstallPWAButton';
 
 interface Props {
@@ -46,12 +47,15 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [ready, setReady] = useState(false);
 
+  // Dentro do app NATIVO (Capacitor) não existe "instalar PWA": ele já é o app.
+  // O push vem do FCM nativo, não do Web Push.
+  const isNativeApp = nativePush.isNative();
   const isStandalone = pushService.isStandalone();
-  const iosNeedsInstall = pushService.isIOS() && !isStandalone;
+  const iosNeedsInstall = !isNativeApp && pushService.isIOS() && !isStandalone;
   // Android/desktop só contam como "instalável" quando o navegador oferece o
   // prompt nativo (beforeinstallprompt). Assim não enchemos o saco de quem usa
   // um navegador sem suporte a instalação (ex.: Firefox desktop).
-  const canPromptInstall = !isStandalone && !!deferredPrompt;
+  const canPromptInstall = !isNativeApp && !isStandalone && !!deferredPrompt;
   const needsInstall = iosNeedsInstall || canPromptInstall;
 
   // Captura o evento de instalação do Chrome/Edge (Android e desktop).
@@ -72,15 +76,18 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
 
   useEffect(() => {
     if (!patientId || !ready) return;
+    // No app nativo o push (FCM) é sempre suportado; no navegador depende do Web Push.
+    const pushSupported = isNativeApp || pushService.isSupported();
     // Nada a oferecer: nem dá pra instalar, nem dá pra ativar push.
-    if (!needsInstall && !pushService.isSupported()) return;
+    if (!needsInstall && !pushSupported) return;
     // Soneca de 7 dias: se dispensou há menos que isso, não mostra ainda.
     const dismissedAt = Number(localStorage.getItem(DISMISS_KEY) || 0);
     if (dismissedAt && Date.now() - dismissedAt < SNOOZE_DAYS * 24 * 60 * 60 * 1000) return;
     // Quem já recebe avisos neste aparelho não é incomodado — nem pra ativar,
     // nem pra instalar. Caso contrário, mostra (modo instalar tem prioridade).
-    pushService.isSubscribed().then((sub) => setVisible(!sub));
-  }, [patientId, needsInstall, ready]);
+    const alreadyOn = isNativeApp ? nativePush.isRegistered() : pushService.isSubscribed();
+    Promise.resolve(alreadyOn).then((on) => setVisible(!on));
+  }, [patientId, needsInstall, ready, isNativeApp]);
 
   const dismiss = () => {
     localStorage.setItem(DISMISS_KEY, String(Date.now()));
@@ -107,7 +114,9 @@ export function EnableNotificationsBanner({ patientId, isOwner }: Props) {
   const handleEnable = async () => {
     setBusy(true);
     try {
-      const res = await pushService.subscribe(patientId);
+      const res = isNativeApp
+        ? await nativePush.register(patientId)
+        : await pushService.subscribe(patientId);
       if (res.ok) {
         toast({ title: 'Lembretes ativados! 🔔', description: 'Você será avisado das novidades e do seu check-in.' });
         setVisible(false);
