@@ -80,10 +80,12 @@ export const dietService = {
           }
         }
 
-        // Garantir que diet_guidelines seja array
-        if (!plan.diet_guidelines) {
-          plan.diet_guidelines = [];
-        }
+        // Garantir array + esconder orientações/suplementos ARQUIVADOS pelo
+        // nutri no back-office (is_archived). O aluno não deve vê-los — eles
+        // saíram da dieta ativa e foram pro histórico consolidado do MyShape.
+        plan.diet_guidelines = Array.isArray(plan.diet_guidelines)
+          ? plan.diet_guidelines.filter((g: any) => !g.is_archived)
+          : [];
 
         return plan;
       })
@@ -202,10 +204,11 @@ export const dietService = {
       }
     }
 
-    // Garantir que diet_guidelines seja array
-    if (!data.diet_guidelines) {
-      data.diet_guidelines = [];
-    }
+    // Garantir array + esconder arquivados (idem getByPatientId): o aluno não
+    // vê orientações/suplementos que o nutri arquivou no back-office.
+    data.diet_guidelines = Array.isArray(data.diet_guidelines)
+      ? data.diet_guidelines.filter((g: any) => !g.is_archived)
+      : [];
 
     console.log('Resultado final:', data);
     console.log('==================');

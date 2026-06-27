@@ -2782,6 +2782,7 @@ export type Database = {
           guideline_type: string
           id: string
           is_active: boolean | null
+          is_archived: boolean
           is_template: boolean | null
           priority: number
           title: string
@@ -2794,6 +2795,7 @@ export type Database = {
           guideline_type: string
           id?: string
           is_active?: boolean | null
+          is_archived?: boolean
           is_template?: boolean | null
           priority?: number
           title: string
@@ -2806,6 +2808,7 @@ export type Database = {
           guideline_type?: string
           id?: string
           is_active?: boolean | null
+          is_archived?: boolean
           is_template?: boolean | null
           priority?: number
           title?: string
