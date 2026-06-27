@@ -16,8 +16,8 @@ const config: CapacitorConfig = {
   appName: 'My Shape',
   webDir: 'dist',
   server: {
-    // Portal do aluno em produção (mesmo host do VITE_CHECKIN_BASE_URL).
-    url: 'https://my-shape.app',
+    // Portal do aluno em produção (deploy Vercel deste repo `meu-acompanhamento`).
+    url: 'https://meu-acompanhamento.vercel.app',
     cleartext: false,
   },
   ios: {
