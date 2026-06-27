@@ -101,3 +101,20 @@ precisa de um emprestado (aluno/amigo) OU testadores externos (alunos por e-mail
 3. Disparar push de teste e validar (app aberto/fechado + deep-link no tap).
 
 ### Ainda aberto: PRs #75 (meu-acompanhamento) e #372 (controle-de-pacientes) NÃO mergeados (mergear após validar push).
+
+## ATUALIZAÇÃO 2026-06-27 — PUSH VALIDADO NO IPHONE ✅✅
+- PRs #75 (meu-acompanhamento) e #372 (controle-de-pacientes) **MERGEADOS na main** (preservando
+  trabalho dos outros agentes; conferido que o reconcile #381 já tinha capturado meu notify_send_push nativo).
+- App publicado na produção (Vercel) → o app nativo (que carrega o site ao vivo) passou a ter o
+  código de push nativo. Token FCM registra em `native_push_tokens` ao tocar "Ativar".
+- **Caminho 1 (envio direto Firebase Console → FCM → APNs → device) VALIDADO**: push chegou num
+  iPhone 15 (iOS 18.7) real via TestFlight. Apple/Firebase/APNs/device 100% ok.
+- Gotcha aprendido: token FCM MUDA a cada reinstalação — testar sempre com o token mais recente
+  de `native_push_tokens` (order by last_seen_at desc).
+
+### FALTA SÓ o Caminho 2 (push automático do app):
+1. **Deploy `send-push-native`** — bloqueado: MCP deploy_edge_function pede aprovação que NÃO
+   aparece no cliente do dono. Alternativa: deployar pela Dashboard do Supabase (Edge Functions →
+   colar o código de controle-de-pacientes/supabase/functions/send-push-native/index.ts, verify_jwt OFF).
+2. **Ligar flag**: `insert into app_config(key,value) values('native_push_enabled','true') on conflict (key) do update set value='true';`
+3. Testar pipeline real: responder um aluno no chat → push deve chegar sozinho.
