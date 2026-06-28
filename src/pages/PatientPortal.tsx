@@ -1173,7 +1173,15 @@ export default function PatientPortal() {
                     <MoreVertical className="w-4 h-4" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 w-64 shadow-lg">
+                <DropdownMenuContent
+                  align="end"
+                  // Reserva espaço pra barra de navegação inferior (fixed, ~88px)
+                  // e limita a altura ao espaço disponível com scroll interno —
+                  // senão o menu (longo p/ aluno do dono) estoura a tela e o
+                  // último item ("Sair do portal") fica cortado pela barra.
+                  collisionPadding={{ top: 8, bottom: 96 }}
+                  className="bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700 text-slate-700 dark:text-slate-200 w-64 shadow-lg max-h-[var(--radix-dropdown-menu-content-available-height)] overflow-y-auto overscroll-contain"
+                >
                   {/* Área de Membros: mini-card dourado em destaque no topo do menu
                       (só para alunos do dono). Leva ao portal externo de conteúdos. */}
                   {isOwnerPatient(patient) && (
