@@ -139,3 +139,15 @@ Pipeline COMPLETO funcionando num iPhone real (TestFlight):
 
 ### Credenciais/IDs (guardados): Team ID MAR4FQS322 · Issuer ID ASC 4133f59a-01c7-43bb-b8a3-37389dde4f42 ·
 ### Firebase project my-shape-1ecfc · .p12 senha myshape-ios-2026 (envs do Codemagic grupo ios_signing).
+
+## 2026-06-27 — 🚀 SUBMETIDO PRA APP STORE — "AGUARDANDO REVISAO APPLE"
+- App iPhone-only (TARGETED_DEVICE_FAMILY=1) — build 12. Ícone 1024 centralizado.
+- Ficha completa: descrição, subtítulo, keywords, categoria Saúde e fitness, classificação,
+  3 screenshots 1242x2688 (Dieta/Cardio/Metas, sem dado real), URL privacidade /privacidade,
+  questionário de privacidade publicado (contato/saúde/fitness/fotos/UGC/IDs — sem rastreio),
+  preço grátis, NÃO é dispositivo médico, login do revisor (5516997598058 / 21/04/1985 + nota EN).
+- Lançamento: automático após aprovação. Status atual: **Aguardando revisão** (~1-3 dias).
+- Riscos possíveis de rejeição: 4.2 (webview wrapper — mitigado por push nativo + app companion),
+  1.2 (UGC — Comunidade TEM denunciar; falta "bloquear usuário" se a Apple pedir → adicionar simples).
+- Pós-aprovação: app vai ao ar sozinho. Follow-ups opcionais: bloquear-usuário na Comunidade,
+  ícones via @capacitor/assets de fonte 1024 nativa (hoje upscale do 512), screenshots 6.9 se pedirem.
