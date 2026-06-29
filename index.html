@@ -15,16 +15,18 @@
        impede que navegadores com "modo escuro para sites" (ex.: Chrome Android,
        força-escuro) auto-invertam as cores e deixem o app escuro no aparelho do aluno. -->
   <meta name="color-scheme" content="only light" />
-  <!-- Aplica o tema escolhido (padrão claro) antes do React montar, evitando flash. -->
+  <!-- Aplica o tema (padrão = seguir o sistema) antes do React montar, evitando flash. -->
   <script>
     (function () {
       try {
         var t = localStorage.getItem('ma-theme');
         var r = document.documentElement;
-        var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        // Claro é o PADRÃO. PREVIEW: aplica theme-light (variáveis claras de verdade),
-        // promovendo o "dark pintado de branco" a um branco real. Validar visualmente.
-        if (dark) { r.classList.add('dark'); r.style.colorScheme = 'dark'; r.style.backgroundColor = '#0f172a'; }
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        // PADRÃO = "system": sem escolha salva (t vazio) OU t === 'system' → segue o
+        // aparelho. 'dark'/'light' são escolhas explícitas que sobrepõem o sistema.
+        var dark = t === 'dark' || ((t === 'system' || !t) && prefersDark);
+        // Cor de flash alinhada à paleta real: dark = --d-bg (#080f13), claro = branco.
+        if (dark) { r.classList.add('dark'); r.style.colorScheme = 'dark'; r.style.backgroundColor = '#080f13'; }
         else { r.classList.add('theme-light'); r.style.colorScheme = 'only light'; r.style.backgroundColor = '#ffffff'; }
       } catch (e) {}
     })();
@@ -90,14 +92,45 @@
   <div id="app"></div>
   <script type="module" src="/src/main.tsx"></script>
   <script>
-    // Registrar Service Worker para PWA
+    // Registrar Service Worker + auto-update SEGURO.
+    // Objetivo: a versão nova (ex.: paleta dark atualizada) chegar no aluno sem ele
+    // reinstalar. Regra de ouro: só RECARREGA quando o app volta ao foco (reabertura),
+    // NUNCA no meio de uma ação — pra não perder nada que ele esteja digitando
+    // (check-in, Suporte). Offline e push continuam funcionando (não mexemos no sw.js).
     if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
+      // Havia um SW controlando a página neste load? Se sim, um controllerchange =
+      // atualização → agenda reload. Se não (1ª instalação), não precisa recarregar.
+      var swHadController = !!navigator.serviceWorker.controller;
+      var swPendingReload = false;
+      var swRefreshing = false;
+
+      navigator.serviceWorker.addEventListener('controllerchange', function () {
+        if (swHadController) swPendingReload = true;
+      });
+
+      document.addEventListener('visibilitychange', function () {
+        if (document.visibilityState !== 'visible') return;
+        // Reabriu o app: aplica a atualização pendente (se houver)…
+        if (swPendingReload && !swRefreshing) {
+          swRefreshing = true;
+          window.location.reload();
+          return;
+        }
+        // …e aproveita pra checar se saiu uma versão nova enquanto esteve fora.
+        if (navigator.serviceWorker.controller) {
+          navigator.serviceWorker.getRegistration().then(function (reg) {
+            if (reg) reg.update().catch(function () {});
+          });
+        }
+      });
+
+      window.addEventListener('load', function () {
         navigator.serviceWorker.register('/sw.js')
-          .then((registration) => {
-            console.log('SW registered:', registration);
+          .then(function (registration) {
+            // Checa atualização logo na abertura.
+            registration.update().catch(function () {});
           })
-          .catch((error) => {
+          .catch(function (error) {
             console.log('SW registration failed:', error);
           });
       });
