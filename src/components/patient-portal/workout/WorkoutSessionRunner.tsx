@@ -431,7 +431,12 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
         }
         setOpenIds((prev) => {
           const next = new Set(prev);
-          next.delete(plannedExerciseId);
+          // NÃO colapsa exercício com TÉCNICA ao concluir: a técnica (rest-pause,
+          // drop set, cluster) é executada NA série — normalmente a última —
+          // então auto-fechar ao marcar a série esconderia a instrução bem na
+          // hora de fazê-la. Mantém aberto; só abre o próximo da ordem.
+          const hasTech = (exDef?.techniques?.length ?? 0) > 0;
+          if (!hasTech) next.delete(plannedExerciseId);
           if (nextId) next.add(nextId);
           return next;
         });
