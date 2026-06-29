@@ -19,20 +19,20 @@ type TutorialModalProps = {
 export function TutorialModal({ open, onOpenChange, welcome = false }: TutorialModalProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 p-0 overflow-hidden max-w-[360px] max-h-[92vh] overflow-y-auto rounded-2xl gap-0">
-        <div className="px-4 pt-4 pb-2">
-          <DialogTitle className="text-base font-bold text-slate-900 dark:text-slate-100">
+      <DialogContent className="bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-900 dark:text-slate-100 p-0 overflow-hidden max-w-[340px] w-[calc(100vw-2rem)] max-h-[88vh] overflow-y-auto rounded-2xl gap-0 [&>button]:text-slate-600 [&>button]:dark:text-slate-300 [&>button]:hover:text-slate-900 [&>button]:dark:hover:text-white">
+        <div className="px-4 pt-5 pb-2 pr-12">
+          <DialogTitle className="text-base font-bold text-slate-900 dark:text-slate-100 leading-snug">
             {welcome ? '👋 Boas-vindas! Como usar o app' : '🎬 Tutorial — como usar o app'}
           </DialogTitle>
-          <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
             {welcome
               ? 'Dá um play nesse tutorial rápido. Você pode rever quando quiser no menu (⋮) → Tutorial.'
               : 'Vídeo rápido com o passo a passo do aplicativo.'}
           </p>
         </div>
 
-        {/* Player vertical (formato celular) */}
-        <div className="relative w-full bg-black" style={{ aspectRatio: '9 / 16' }}>
+        {/* Player vertical (formato celular) — limitado a 52vh pra não tomar a tela toda */}
+        <div className="relative w-full bg-black" style={{ aspectRatio: '9 / 16', maxHeight: '52vh' }}>
           <iframe
             src={`https://player.vimeo.com/video/${VIMEO_ID}?title=0&byline=0&portrait=0&dnt=1`}
             className="absolute inset-0 h-full w-full"
@@ -42,11 +42,11 @@ export function TutorialModal({ open, onOpenChange, welcome = false }: TutorialM
           />
         </div>
 
-        <div className="p-3">
+        <div className="p-3 pt-2.5">
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-600 text-white font-semibold py-2.5 text-sm transition-colors"
+            className="w-full rounded-xl bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 text-white font-semibold py-3 text-sm transition-colors shadow-sm"
           >
             {welcome ? 'Entendi, vamos começar! 💪' : 'Fechar'}
           </button>
