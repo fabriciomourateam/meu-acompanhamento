@@ -14,7 +14,8 @@ const OPTIONS: { value: ThemeMode; label: string; Icon: typeof Sun }[] = [
 
 /**
  * Seção do menu (⋮) pra escolher o tema: Claro / Escuro / Automático.
- * Padrão do app é Claro; "Automático" segue o aparelho (prefers-color-scheme).
+ * Padrão do app é "Automático" (segue o aparelho via prefers-color-scheme); Claro/Escuro
+ * são escolhas explícitas que sobrepõem o sistema e ficam salvas.
  */
 export function ThemeToggleMenuItem() {
   const { mode, setMode } = useTheme();

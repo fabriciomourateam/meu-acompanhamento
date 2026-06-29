@@ -1,6 +1,10 @@
 // Service Worker para PWA - Compatível com Vercel
-const CACHE_NAME = 'meu-acompanhamento-v28';
-const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v28';
+// IMPORTANTE: ao deployar uma versão nova, suba estes números (v29 -> v30 ...).
+// O `activate` apaga caches com nome diferente, então o bump força a limpeza do
+// bundle antigo (CSS/JS) em todos os aparelhos. Combinado com o auto-update do
+// registro no index.html, a versão nova chega sem o aluno reinstalar.
+const CACHE_NAME = 'meu-acompanhamento-v29';
+const STATIC_CACHE_NAME = 'meu-acompanhamento-static-v29';
 
 // Recursos estáticos para cachear na instalação
 const urlsToCache = [

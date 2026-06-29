@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from "react";
 
-// Modo escolhido pelo aluno. "system" segue o aparelho; "light" é o fallback/padrão.
+// Modo escolhido pelo aluno. "system" segue o aparelho e é o PADRÃO; "light"/"dark"
+// são escolhas explícitas que o aluno faz no menu (e ficam salvas).
 export type ThemeMode = "light" | "dark" | "system";
 // Tema realmente aplicado na tela.
 export type ResolvedTheme = "light" | "dark";
@@ -41,11 +42,12 @@ function applyResolved(resolved: ResolvedTheme) {
 }
 
 function getInitialMode(): ThemeMode {
-  if (typeof window === "undefined") return "light";
+  if (typeof window === "undefined") return "system";
   const saved = window.localStorage.getItem(STORAGE_KEY);
   if (saved === "dark" || saved === "light" || saved === "system") return saved;
-  // Padrão é SEMPRE claro; só muda se o aluno escolher.
-  return "light";
+  // Padrão = "system": segue o tema do aparelho do aluno (claro/escuro). Só fixa em
+  // claro ou escuro se o aluno escolher manualmente no menu.
+  return "system";
 }
 
 type ThemeContextValue = {
