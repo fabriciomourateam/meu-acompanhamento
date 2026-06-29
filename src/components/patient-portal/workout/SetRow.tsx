@@ -136,7 +136,28 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
         )}
       </div>
 
-      {/* Peso */}
+      {/* Reps (à esquerda — pedido do dono) */}
+      <div className="flex items-center gap-1 min-w-0">
+        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => patch({ reps: Math.max(0, reps - 1) })}>
+          <Minus className="w-3 h-3" />
+        </Button>
+        <Input
+          inputMode="numeric"
+          value={value.reps ?? ''}
+          placeholder={defaultRepsLabel ?? 'reps'}
+          onChange={(e) => {
+            const n = e.target.value.replace(/[^0-9]/g, '');
+            patch({ reps: n === '' ? null : Number(n) });
+          }}
+          className={baseInput}
+          aria-label={`Reps série ${index + 1}`}
+        />
+        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => patch({ reps: reps + 1 })}>
+          <Plus className="w-3 h-3" />
+        </Button>
+      </div>
+
+      {/* Peso (à direita) */}
       <div className="flex items-center gap-1 min-w-0">
         <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => setWeightFromButton(Math.max(0, +(weight - 2.5).toFixed(2)))}>
           <Minus className="w-3 h-3" />
@@ -159,27 +180,6 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           aria-label={`Peso série ${index + 1}`}
         />
         <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => setWeightFromButton(+(weight + 2.5).toFixed(2))}>
-          <Plus className="w-3 h-3" />
-        </Button>
-      </div>
-
-      {/* Reps */}
-      <div className="flex items-center gap-1 min-w-0">
-        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => patch({ reps: Math.max(0, reps - 1) })}>
-          <Minus className="w-3 h-3" />
-        </Button>
-        <Input
-          inputMode="numeric"
-          value={value.reps ?? ''}
-          placeholder={defaultRepsLabel ?? 'reps'}
-          onChange={(e) => {
-            const n = e.target.value.replace(/[^0-9]/g, '');
-            patch({ reps: n === '' ? null : Number(n) });
-          }}
-          className={baseInput}
-          aria-label={`Reps série ${index + 1}`}
-        />
-        <Button type="button" variant="outline" size="sm" className={stepBtn} onClick={() => patch({ reps: reps + 1 })}>
           <Plus className="w-3 h-3" />
         </Button>
       </div>
