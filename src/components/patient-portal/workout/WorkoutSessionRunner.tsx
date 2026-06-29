@@ -98,7 +98,16 @@ export function WorkoutSessionRunner({ token, plan, session, patientId, onFinish
   const initial = useMemo(() => loadDraft(session.id), [session.id]);
   const [sessionLogId, setSessionLogId] = useState<string | null>(initial?.sessionLogId ?? null);
   const [starting, setStarting] = useState(false);
-  const [sets, setSets] = useState<SetMap>(initial?.sets ?? {});
+  const [sets, setSets] = useState<SetMap>(() => {
+    // Poda o rascunho restaurado: descarta séries de exercícios que saíram do
+    // plano (o nutri editou no meio da sessão) — senão contam errado em
+    // "X/Y séries" e no volume. O servidor já recalcula certo dos workout_set_logs.
+    const src = initial?.sets ?? {};
+    const valid = new Set(session.exercises.map((e) => e.id));
+    const out: SetMap = {};
+    for (const k of Object.keys(src)) if (valid.has(k)) out[k] = src[k];
+    return out;
+  });
   const [warmup, setWarmup] = useState<SetMap>(initial?.warmup ?? {});
   const [subs, setSubs] = useState<SubMap>(initial?.subs ?? {});
   const [startedAt, setStartedAt] = useState<number | null>(initial?.startedAt ?? null);
