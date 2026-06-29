@@ -70,6 +70,9 @@ export function useDietData(patientId: string) {
     substitutions: any[];
   } | null>(null);
   const [releasedPlans, setReleasedPlans] = useState<any[]>([]);
+  // Guidelines unificadas de TODOS os planos liberados — garante que suplementos
+  // e orientações apareçam independente de qual plano está selecionado no momento.
+  const [allGuidelines, setAllGuidelines] = useState<any[]>([]);
 
   useEffect(() => {
     loadDietData();
@@ -208,6 +211,17 @@ export function useDietData(patientId: string) {
       // Filtrar apenas planos liberados (is_released = true)
       const released = plans.filter((p: any) => p.is_released === true);
       setReleasedPlans(released);
+
+      // Agrega guidelines de TODOS os planos liberados (evita duplicatas por id).
+      const seenGuidelineIds = new Set<string>();
+      const merged = released
+        .flatMap((p: any) => p.diet_guidelines || [])
+        .filter((g: any) => {
+          if (seenGuidelineIds.has(g.id)) return false;
+          seenGuidelineIds.add(g.id);
+          return true;
+        });
+      setAllGuidelines(merged);
 
       // Preferência: a última dieta que o aluno deixou aberta (por aparelho).
       const savedId = localStorage.getItem(`diet-last-plan-${patientId}`);
@@ -462,6 +476,7 @@ export function useDietData(patientId: string) {
     selectedFoodSubstitutions,
     setSelectedFoodSubstitutions,
     releasedPlans,
+    allGuidelines,
     handleChangePlan,
     handleToggleMealConsumed,
     handleToggleFoodConsumed,
