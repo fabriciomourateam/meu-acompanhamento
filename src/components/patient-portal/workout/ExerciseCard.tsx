@@ -194,7 +194,7 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               )}>
                 {displayLabel ?? (exercise.exercise_order ?? 0) + 1}
               </span>
-              <h3 className="font-semibold text-slate-800 dark:text-slate-200 truncate">{substitutedName || exercise.exercise_name}</h3>
+              <h3 className="font-semibold text-slate-800 dark:text-slate-200 leading-snug break-words">{substitutedName || exercise.exercise_name}</h3>
               {substitutedName && (
                 <span className="shrink-0 rounded-full bg-amber-100 dark:bg-amber-950/50 px-1.5 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-300">
                   trocado
@@ -301,8 +301,8 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
                 {/* Cabeçalho de colunas (mesmo das séries de trabalho) */}
                 <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-amber-700/70 dark:text-amber-300/80">
                   <span className="text-center">Série</span>
-                  <span className="text-center">Peso (kg)</span>
                   <span className="text-center">Reps</span>
+                  <span className="text-center">Peso (kg)</span>
                   <span className="text-center">RPE</span>
                   <span />
                 </div>
@@ -388,8 +388,8 @@ export function ExerciseCard({ exercise, token, values, onChange, onCommit, onRe
               {!sidesMode && (
                 <div className="grid grid-cols-[46px_1fr_1fr_72px_44px] sm:grid-cols-[52px_1fr_1fr_88px_56px] gap-1.5 sm:gap-2 px-1 text-[10px] font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">
                   <span className="text-center">Série</span>
-                  <span className="text-center">Peso (kg)</span>
                   <span className="text-center">Reps</span>
+                  <span className="text-center">Peso (kg)</span>
                   <button
                     type="button"
                     onClick={() => setShowRpeHelp(true)}
