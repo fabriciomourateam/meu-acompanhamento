@@ -142,6 +142,7 @@ export function DietTab({
     setSubstitutionsModalOpen,
     selectedFoodSubstitutions,
     setSelectedFoodSubstitutions,
+    allGuidelines,
     handleToggleMealConsumed,
     handleToggleFoodConsumed,
   } = diet;
@@ -318,9 +319,9 @@ export function DietTab({
     return out;
   })();
 
-  // Extrair lógica de categorias das guidelines para fora do JSX
-  // Ordena igual ao MyShape: por priority (asc) e, em empate, por created_at (asc)
-  const guidelines = [...(planDetails?.diet_guidelines || [])].sort((a: any, b: any) => {
+  // Guidelines de TODOS os planos liberados (não só o selecionado) — garante que
+  // orientações e suplementos apareçam mesmo quando o aluno tem 2+ dietas ativas.
+  const guidelines = [...allGuidelines].sort((a: any, b: any) => {
     const pa = a.priority ?? 0;
     const pb = b.priority ?? 0;
     if (pa !== pb) return pa - pb;
@@ -984,7 +985,7 @@ export function DietTab({
               )}
 
               {/* Orientações Nutricionais */}
-              {hasActivePlan && planDetails?.diet_guidelines && planDetails.diet_guidelines.length > 0 && (
+              {hasActivePlan && allGuidelines.length > 0 && (
                 <div className="space-y-6 mt-8">
                   <div className="space-y-4">
                     {renderCategory(
