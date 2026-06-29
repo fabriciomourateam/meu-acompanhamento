@@ -24,8 +24,8 @@
         var dark = t === 'dark' || (t === 'system' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
         // Claro é o PADRÃO. PREVIEW: aplica theme-light (variáveis claras de verdade),
         // promovendo o "dark pintado de branco" a um branco real. Validar visualmente.
-        if (dark) { r.classList.add('dark'); r.style.colorScheme = 'dark'; }
-        else { r.classList.add('theme-light'); r.style.colorScheme = 'only light'; }
+        if (dark) { r.classList.add('dark'); r.style.colorScheme = 'dark'; r.style.backgroundColor = '#0f172a'; }
+        else { r.classList.add('theme-light'); r.style.colorScheme = 'only light'; r.style.backgroundColor = '#ffffff'; }
       } catch (e) {}
     })();
   </script>
@@ -54,7 +54,7 @@
         description: 'Acompanhe seu progresso, dieta e evolução',
         start_url: startUrl,
         display: 'standalone',
-        background_color: '#0f172a',
+        background_color: '#ffffff',
         theme_color: '#10b981',
         orientation: 'portrait-primary',
         scope: '/',
