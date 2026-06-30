@@ -112,6 +112,32 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
   const isRedundantNote = (notes: string | null | undefined): boolean =>
     !!notes && /^\s*\d+\s*séries?\s+de\s+.+\s+repetiç(ão|ões)\s*\.?\s*$/i.test(notes);
 
+  // Explicação PADRÃO por tipo de fase — mostrada quando a fase não tem uma nota
+  // própria (ou só tem o resumo auto-gerado de séries/reps). O nutri sobrescreve
+  // escrevendo uma nota real no back-office. Adaptativa é detectada pelo label
+  // (no banco ela usa o preset 'base'); Choque entra como 'forca'.
+  const phaseDefaultExplanation = (preset: string | null, label: string | null): string | null => {
+    if ((label ?? '').toLowerCase().includes('adapt')) {
+      return 'Carga moderada e sem chegar até a falha, visando se adaptar ao treino e às cargas.';
+    }
+    switch ((preset ?? '').toLowerCase()) {
+      case 'forca':
+      case 'força':
+        return 'Carga máxima, falha total em todas as séries.';
+      case 'regenerativo':
+      case 'deload':
+        return 'Carga leve a moderada, sem chegar à falha.';
+      default:
+        return null; // Base e demais: sem explicação padrão
+    }
+  };
+
+  // Nota a exibir: a do nutri (se for explicação de verdade) ou a padrão do tipo.
+  const phaseExplanation =
+    currentPhase.notes && !isRedundantNote(currentPhase.notes)
+      ? currentPhase.notes
+      : phaseDefaultExplanation(currentPhase.preset, currentPhase.label);
+
   const phaseDuration = (ph: PeriodizationPhase) =>
     ph.duration_weeks
       ? `${ph.duration_weeks} ${ph.duration_weeks === 1 ? 'semana' : 'semanas'}`
@@ -219,9 +245,9 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
         </div>
         {/* Explicação da fase escrita pelo nutri (campo notes). O deload tem o
             aviso dedicado abaixo, então aqui evita duplicar. */}
-        {!isDeload && currentPhase.notes && !isRedundantNote(currentPhase.notes) ? (
+        {!isDeload && phaseExplanation ? (
           <div className="mt-2 rounded-md bg-white/60 dark:bg-slate-950/60 px-2.5 py-1.5 text-xs font-medium">
-            {currentPhase.notes}
+            {phaseExplanation}
           </div>
         ) : null}
         {isDeload && (
