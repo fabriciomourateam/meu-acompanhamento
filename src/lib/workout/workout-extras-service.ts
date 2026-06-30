@@ -46,6 +46,7 @@ export interface PeriodizationPhase {
   reps_override: string | null;
   load_pct_change: number | null;
   rpe_per_set_override: string | null;
+  notes: string | null;
   color: string | null;
 }
 
