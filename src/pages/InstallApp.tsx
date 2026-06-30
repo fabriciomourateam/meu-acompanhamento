@@ -1,35 +1,29 @@
-// Página pública de download/instalação do app (APK Android).
+// Página pública de instalação do app My Shape.
 // Acessível em /instalar (e /baixar). Sem login.
-// O APK é servido como arquivo estático em /my-shape.apk (pasta public/).
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Download, Globe, ShieldCheck, Smartphone, Apple, PlayCircle, X } from 'lucide-react';
+import { ArrowLeft, Download, Globe, Smartphone, Apple } from 'lucide-react';
 
 interface BeforeInstallPromptEvent extends Event {
   prompt: () => Promise<void>;
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
-const APK_URL = '/my-shape.apk';
-// Vídeos de instalação (Vimeo embeda sem bloqueio, ao contrário do Drive).
-const VIDEO_ANDROID = 'https://player.vimeo.com/video/1202658029';
-const VIDEO_IPHONE = 'https://player.vimeo.com/video/1202657308';
+const APP_URL = 'https://meu-acompanhamento.vercel.app/';
+const APP_STORE_URL = 'https://apps.apple.com/app/my-shape-fmteam/id6785075637';
 
 function Step({ n, children }: { n: number; children: React.ReactNode }) {
   return (
     <li className="flex gap-3">
-      <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700">
+      <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-emerald-100 dark:bg-emerald-900/40 text-xs font-bold text-emerald-700 dark:text-emerald-400">
         {n}
       </span>
-      <span className="text-sm leading-relaxed text-slate-600">{children}</span>
+      <span className="text-sm leading-relaxed text-slate-600 dark:text-slate-400">{children}</span>
     </li>
   );
 }
 
 export default function InstallApp() {
-  const [videoUrl, setVideoUrl] = useState<string | null>(null);
-  // Plano B do Android: instalar o PWA direto pelo navegador (sem .apk), pra
-  // quem trava na instalação por "fonte desconhecida" ou bloqueio do celular.
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [pwaInstalled, setPwaInstalled] = useState(false);
   const navigate = useNavigate();
@@ -59,20 +53,18 @@ export default function InstallApp() {
     if (outcome === 'accepted') setPwaInstalled(true);
   };
 
-  // Volta pra tela de onde o aluno veio (Dieta, chat, banner). Se a página foi
-  // aberta direto por link externo (sem histórico), cai na home.
   const goBack = () => {
     if (window.history.length > 1) navigate(-1);
     else navigate('/');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 px-4 py-8">
-      <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 px-4 py-8">
+      <div className="mx-auto max-w-2xl rounded-2xl border border-slate-200 dark:border-slate-700/60 bg-white dark:bg-slate-900 p-6 shadow-sm sm:p-8">
         <button
           type="button"
           onClick={goBack}
-          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 hover:text-emerald-700"
+          className="inline-flex items-center gap-1 text-sm font-medium text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300"
         >
           <ArrowLeft className="h-4 w-4" /> Voltar
         </button>
@@ -80,154 +72,95 @@ export default function InstallApp() {
         <div className="mt-4 flex items-center gap-4">
           <img src="/app-icon-512.png" alt="My Shape" className="h-16 w-16 rounded-2xl shadow-sm" />
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Instalar o app My Shape</h1>
-            <p className="mt-1 text-sm text-slate-500">Seu acompanhamento na tela inicial do celular.</p>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Instalar o app My Shape</h1>
+            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">Seu acompanhamento na tela inicial do celular.</p>
           </div>
         </div>
 
-        {/* Android */}
+        {/* ===== Android ===== */}
         <section className="mt-8">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-            <Smartphone className="h-5 w-5 text-emerald-600" /> Android
+          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800 dark:text-slate-200">
+            <Smartphone className="h-5 w-5 text-emerald-600 dark:text-emerald-400" /> Android
           </h2>
 
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
             <a
-              href={APK_URL}
-              download
+              href={APP_URL}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
             >
-              <Download className="h-5 w-5" /> Baixar App
+              <Globe className="h-5 w-5" /> Acessar App
             </a>
-            <button
-              type="button"
-              onClick={() => setVideoUrl(VIDEO_ANDROID)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-5 py-3.5 text-base font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
-            >
-              <PlayCircle className="h-5 w-5" /> Ver vídeo de instalação
-            </button>
-          </div>
 
-          <ol className="mt-5 space-y-3">
-            <Step n={1}>Toque em <strong>Baixar o app</strong> acima e aguarde o download terminar.</Step>
-            <Step n={2}>
-              Abra o arquivo baixado. O Android pode avisar que o app vem de uma{' '}
-              <strong>fonte desconhecida</strong> — isso é normal por não vir da Play Store.
-            </Step>
-            <Step n={3}>
-              Toque em <strong>Configurações</strong> e ative <strong>Permitir desta fonte</strong>
-              {' '}(ou "Instalar apps desconhecidos"). Depois volte e confirme a instalação.
-            </Step>
-            <Step n={4}>Pronto! O ícone do <strong>My Shape</strong> aparece na tela inicial.</Step>
-          </ol>
+            {/* Botão extra: o Chrome oferece instalar direto se suportar PWA install prompt */}
+            {!pwaInstalled && deferredPrompt && (
+              <button
+                type="button"
+                onClick={installPwa}
+                className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white dark:bg-slate-800 px-5 py-3.5 text-base font-semibold text-emerald-700 dark:text-emerald-400 shadow-sm transition hover:bg-emerald-50 dark:hover:bg-slate-700"
+              >
+                <Download className="h-5 w-5" /> Instalar App
+              </button>
+            )}
 
-          <div className="mt-4 flex items-start gap-2 rounded-lg bg-emerald-50 p-3 text-xs leading-relaxed text-emerald-800">
-            <ShieldCheck className="h-4 w-4 flex-none" />
-            <span>
-              O app é seguro e oficial do seu acompanhamento. As atualizações de conteúdo chegam
-              automaticamente — você não precisa baixar de novo.
-            </span>
-          </div>
-
-          {/* Plano B: instalar pelo navegador (PWA), sem baixar o .apk. */}
-          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-            <p className="flex items-center gap-2 text-sm font-semibold text-slate-700">
-              <Globe className="h-4 w-4 text-emerald-600" /> Não conseguiu instalar o arquivo?
-            </p>
-            {pwaInstalled ? (
-              <p className="mt-1 text-sm text-emerald-700">
-                App instalado! Procure o ícone do <strong>My Shape</strong> na tela inicial.
-              </p>
-            ) : (
-              <>
-                <p className="mt-1 text-sm leading-relaxed text-slate-500">
-                  Dá pra instalar direto pelo navegador, sem baixar arquivo nenhum.
-                </p>
-                {deferredPrompt ? (
-                  <button
-                    type="button"
-                    onClick={installPwa}
-                    className="mt-3 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-                  >
-                    <Download className="h-5 w-5" /> Instalar pelo navegador
-                  </button>
-                ) : (
-                  <p className="mt-2 text-sm leading-relaxed text-slate-500">
-                    No <strong>Chrome</strong>: toque nos três pontinhos (⋮) no canto superior e
-                    escolha <strong>Instalar app</strong> (ou "Adicionar à tela inicial").
-                  </p>
-                )}
-              </>
+            {pwaInstalled && (
+              <span className="inline-flex items-center gap-2 rounded-xl bg-emerald-50 dark:bg-emerald-900/20 px-5 py-3.5 text-base font-semibold text-emerald-700 dark:text-emerald-300">
+                ✓ App instalado na tela inicial
+              </span>
             )}
           </div>
-        </section>
-
-        {/* iPhone */}
-        <section className="mt-8 border-t border-slate-100 pt-6">
-          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
-            <Apple className="h-5 w-5 text-slate-700" /> iPhone (iOS)
-          </h2>
-
-          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
-            <a
-              href="/portal"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 py-3.5 text-base font-semibold text-white shadow-sm transition hover:bg-emerald-700"
-            >
-              <Smartphone className="h-5 w-5" /> Acessar o App
-            </a>
-            <button
-              type="button"
-              onClick={() => setVideoUrl(VIDEO_IPHONE)}
-              className="inline-flex items-center justify-center gap-2 rounded-xl border border-emerald-600 bg-white px-5 py-3.5 text-base font-semibold text-emerald-700 shadow-sm transition hover:bg-emerald-50"
-            >
-              <PlayCircle className="h-5 w-5" /> Ver vídeo de instalação
-            </button>
-          </div>
 
           <ol className="mt-5 space-y-3">
-            <Step n={1}>Abra o portal no <strong>Safari</strong>.</Step>
-            <Step n={2}>Toque no botão <strong>Compartilhar</strong> (quadrado com seta para cima).</Step>
-            <Step n={3}>Escolha <strong>Adicionar à Tela de Início</strong> e confirme.</Step>
-            <Step n={4}>O app aparece na tela inicial, igual a um app normal.</Step>
+            <Step n={1}>
+              Toque em <strong>Acessar App</strong> acima — o portal abre no navegador.
+            </Step>
+            <Step n={2}>
+              No <strong>Chrome</strong>, toque no menu <strong>⋮</strong> (canto superior direito)
+              e escolha <strong>"Adicionar à tela inicial"</strong> ou <strong>"Instalar app"</strong>.
+            </Step>
+            <Step n={3}>
+              Confirme a instalação. O ícone do <strong>My Shape</strong> aparece na tela
+              inicial — abre igual a um app normal, sem o navegador aparecendo.
+            </Step>
+            <Step n={4}>Nas próximas vezes, abra direto pelo ícone. Sem precisar do link.</Step>
           </ol>
+
+          <div className="mt-4 flex items-start gap-2 rounded-lg border border-slate-100 dark:border-slate-700/40 bg-slate-50 dark:bg-slate-800/50 p-3 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+            <Globe className="mt-0.5 h-4 w-4 flex-none text-emerald-500" />
+            <span>
+              O app roda direto pelo navegador — sem baixar arquivo. Atualizações chegam
+              automaticamente. <strong>Versão nativa na Play Store em breve.</strong>
+            </span>
+          </div>
         </section>
 
-        <p className="mt-8 border-t border-slate-100 pt-4 text-xs text-slate-400">
+        {/* ===== iPhone ===== */}
+        <section className="mt-8 border-t border-slate-100 dark:border-slate-700/40 pt-6">
+          <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800 dark:text-slate-200">
+            <Apple className="h-5 w-5 text-slate-700 dark:text-slate-300" /> iPhone (iOS)
+          </h2>
+
+          <div className="mt-4">
+            <a
+              href={APP_STORE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 dark:bg-slate-100 px-5 py-3.5 text-base font-semibold text-white dark:text-slate-900 shadow-sm transition hover:bg-slate-700 dark:hover:bg-slate-200"
+            >
+              <Apple className="h-5 w-5" /> Baixar App
+            </a>
+          </div>
+
+          <p className="mt-3 text-sm text-slate-500 dark:text-slate-400">
+            Disponível na App Store. Baixe, instale e faça login com seus dados.
+          </p>
+        </section>
+
+        <p className="mt-8 border-t border-slate-100 dark:border-slate-700/40 pt-4 text-xs text-slate-400 dark:text-slate-500">
           Problemas para instalar? Fale com o suporte pelo próprio portal.
         </p>
       </div>
-
-      {/* Modal do vídeo de instalação */}
-      {videoUrl && (
-        <div
-          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/70 p-4"
-          onClick={() => setVideoUrl(null)}
-        >
-          <div
-            className="relative max-h-[90vh] w-auto overflow-hidden rounded-2xl bg-black shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setVideoUrl(null)}
-              aria-label="Fechar vídeo"
-              className="absolute right-3 top-3 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-black/60 text-white transition hover:bg-black/80"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            {/* Vídeo vertical (gravação de tela do celular, 9:16) */}
-            <div className="aspect-[9/16] h-[90vh] max-h-[90vh] max-w-[92vw]">
-              <iframe
-                src={videoUrl}
-                title="Vídeo de instalação"
-                className="h-full w-full"
-                allow="autoplay; fullscreen; picture-in-picture; encrypted-media"
-                allowFullScreen
-              />
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
