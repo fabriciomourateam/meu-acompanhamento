@@ -105,6 +105,13 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
       .filter(Boolean)
       .join(' · ');
 
+  // Algumas fases antigas têm o `notes` auto-preenchido só com um RESUMO de
+  // séries/reps (ex.: "4 séries de 15/12/12/10 repetições.") — isso já aparece
+  // na linha de parâmetros logo acima, então não mostramos pra não duplicar.
+  // Explicação de verdade ("Carga máxima, falha total…") não casa o padrão.
+  const isRedundantNote = (notes: string | null | undefined): boolean =>
+    !!notes && /^\s*\d+\s*séries?\s+de\s+.+\s+repetiç(ão|ões)\s*\.?\s*$/i.test(notes);
+
   const phaseDuration = (ph: PeriodizationPhase) =>
     ph.duration_weeks
       ? `${ph.duration_weeks} ${ph.duration_weeks === 1 ? 'semana' : 'semanas'}`
@@ -212,7 +219,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
         </div>
         {/* Explicação da fase escrita pelo nutri (campo notes). O deload tem o
             aviso dedicado abaixo, então aqui evita duplicar. */}
-        {!isDeload && currentPhase.notes ? (
+        {!isDeload && currentPhase.notes && !isRedundantNote(currentPhase.notes) ? (
           <div className="mt-2 rounded-md bg-white/60 dark:bg-slate-950/60 px-2.5 py-1.5 text-xs font-medium">
             {currentPhase.notes}
           </div>
