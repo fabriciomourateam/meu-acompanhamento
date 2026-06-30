@@ -1,19 +1,19 @@
 import { useState, useEffect, useCallback, ReactNode } from "react";
 import { AlertTriangle, RefreshCw, Wifi } from "lucide-react";
-
-const SUPABASE_URL =
-  import.meta.env.VITE_SUPABASE_URL || "https://qhzifnyjyxdushxorzrk.supabase.co";
+import { supabase } from "@/integrations/supabase/client";
 
 async function pingSupabase(): Promise<boolean> {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 5000);
+  const timeoutId = setTimeout(() => controller.abort(), 4000);
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/`, {
-      method: "HEAD",
-      signal: controller.signal,
-    });
-    // 200 ou 401 (sem chave) = servidor no ar
-    return res.status < 500;
+    // Query real ao banco — só retorna sem lançar se o Postgres responder.
+    // RLS bloqueando (401/403) ainda conta como "banco no ar".
+    // 522/timeout lança exceção → banco fora.
+    await supabase
+      .from("patients")
+      .select("id", { count: "exact", head: true })
+      .abortSignal(controller.signal);
+    return true;
   } catch {
     return false;
   } finally {
