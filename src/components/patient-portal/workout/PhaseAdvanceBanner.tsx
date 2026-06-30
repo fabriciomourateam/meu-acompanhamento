@@ -95,12 +95,12 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
     (currentPhase.preset ?? '').toLowerCase() === 'regenerativo' ||
     (currentPhase.load_pct_change ?? 0) < 0;
 
-  // Resumo curto dos parâmetros de uma fase (séries/reps/RPE — a carga vai num pill à parte).
+  // Resumo curto dos parâmetros de uma fase (séries/reps — a carga vai num pill
+  // à parte). O RPE NÃO aparece aqui: fica só nos exercícios (pedido do dono).
   const phaseSummary = (ph: PeriodizationPhase) =>
     [
       ph.sets_override ? `${ph.sets_override} séries` : null,
       ph.reps_override ? `${ph.reps_override} reps` : null,
-      ph.rpe_per_set_override ? `RPE ${ph.rpe_per_set_override}` : null,
     ]
       .filter(Boolean)
       .join(' · ');
@@ -182,7 +182,7 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
                 </div>
                 <div className="px-3.5 py-3 text-xs leading-relaxed">
                   <p>
-                    Seu treino <strong className="font-semibold text-slate-900 dark:text-slate-100">evolui em fases</strong>. A cada algumas semanas, séries, cargas e RPE mudam
+                    Seu treino <strong className="font-semibold text-slate-900 dark:text-slate-100">evolui em fases</strong>. A cada algumas semanas, séries e cargas mudam
                     automaticamente pra você continuar progredindo sem estagnar.
                   </p>
                   <div className="mt-2.5 flex items-center justify-between gap-2 pt-2 border-t border-slate-100 dark:border-slate-800">
@@ -209,8 +209,14 @@ export function PhaseAdvanceBanner({ token, planId, planCreatedAt, onPhaseChange
           {currentPhase.sets_override ? `${currentPhase.sets_override} séries` : ''}
           {currentPhase.reps_override ? ` × ${currentPhase.reps_override} reps` : ''}
           {currentPhase.load_pct_change ? ` · cargas ${currentPhase.load_pct_change > 0 ? '+' : ''}${currentPhase.load_pct_change}%` : ''}
-          {currentPhase.rpe_per_set_override ? ` · RPE alvo ${currentPhase.rpe_per_set_override}` : ''}
         </div>
+        {/* Explicação da fase escrita pelo nutri (campo notes). O deload tem o
+            aviso dedicado abaixo, então aqui evita duplicar. */}
+        {!isDeload && currentPhase.notes ? (
+          <div className="mt-2 rounded-md bg-white/60 dark:bg-slate-950/60 px-2.5 py-1.5 text-xs font-medium">
+            {currentPhase.notes}
+          </div>
+        ) : null}
         {isDeload && (
           <div className="mt-2 rounded-md bg-white/70 dark:bg-slate-950/70 px-2.5 py-1.5 text-xs font-medium text-sky-900 dark:text-sky-200">
             🧘 Semana leve (deload): a carga reduz de propósito. Foque em <strong>técnica</strong> e <strong>recuperação</strong> — não force.
