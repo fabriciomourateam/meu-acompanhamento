@@ -37,13 +37,13 @@ interface TechColors {
   banner: string;
 }
 const COLOR_MAP: Record<string, TechColors> = {
-  rose: { badge: 'bg-rose-100 text-rose-700 border-rose-200', banner: 'border-rose-300 bg-rose-50 text-rose-900' },
-  amber: { badge: 'bg-amber-100 text-amber-700 border-amber-200', banner: 'border-amber-300 bg-amber-50 text-amber-900' },
-  emerald: { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', banner: 'border-emerald-300 bg-emerald-50 text-emerald-900' },
-  sky: { badge: 'bg-sky-100 text-sky-700 border-sky-200', banner: 'border-sky-300 bg-sky-50 text-sky-900' },
-  violet: { badge: 'bg-violet-100 text-violet-700 border-violet-200', banner: 'border-violet-300 bg-violet-50 text-violet-900' },
-  indigo: { badge: 'bg-indigo-100 text-indigo-700 border-indigo-200', banner: 'border-indigo-300 bg-indigo-50 text-indigo-900' },
-  slate: { badge: 'bg-slate-100 text-slate-700 border-slate-200', banner: 'border-slate-300 bg-slate-50 text-slate-900' },
+  rose: { badge: 'bg-rose-100 text-rose-700 border-rose-200', banner: 'border-rose-300 bg-rose-50 text-rose-900 dark:border-rose-800/60 dark:bg-rose-950/30 dark:text-rose-200' },
+  amber: { badge: 'bg-amber-100 text-amber-700 border-amber-200', banner: 'border-amber-300 bg-amber-50 text-amber-900 dark:border-amber-800/60 dark:bg-amber-950/30 dark:text-amber-200' },
+  emerald: { badge: 'bg-emerald-100 text-emerald-700 border-emerald-200', banner: 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:border-emerald-800/60 dark:bg-emerald-950/30 dark:text-emerald-200' },
+  sky: { badge: 'bg-sky-100 text-sky-700 border-sky-200', banner: 'border-sky-300 bg-sky-50 text-sky-900 dark:border-sky-800/60 dark:bg-sky-950/30 dark:text-sky-200' },
+  violet: { badge: 'bg-violet-100 text-violet-700 border-violet-200', banner: 'border-violet-300 bg-violet-50 text-violet-900 dark:border-violet-800/60 dark:bg-violet-950/30 dark:text-violet-200' },
+  indigo: { badge: 'bg-indigo-100 text-indigo-700 border-indigo-200', banner: 'border-indigo-300 bg-indigo-50 text-indigo-900 dark:border-indigo-800/60 dark:bg-indigo-950/30 dark:text-indigo-200' },
+  slate: { badge: 'bg-slate-100 text-slate-700 border-slate-200', banner: 'border-slate-300 bg-slate-50 text-slate-900 dark:border-slate-700 dark:bg-slate-800/50 dark:text-slate-300' },
 };
 
 export function techniqueColors(color: string | null): TechColors {
