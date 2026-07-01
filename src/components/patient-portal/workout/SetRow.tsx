@@ -53,10 +53,12 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
   // pra número — senão o React re-renderiza "20" e trava a digitação do decimal
   // (meio quilo: 20,5 / 0,5). Fora de edição (null) o campo reflete value.weightKg.
   const [weightText, setWeightText] = useState<string | null>(null);
+  const [repsText, setRepsText] = useState<string | null>(null);
   const weight = value.weightKg ?? defaultWeight ?? 0;
   const reps = value.reps ?? defaultReps ?? 0;
 
   const weightInputValue = weightText ?? (value.weightKg != null ? String(value.weightKg) : '');
+  const repsInputValue = repsText ?? (value.reps != null ? String(value.reps) : '');
 
   const patch = (p: Partial<SetRowValue>) => onChange({ ...value, ...p });
 
@@ -142,16 +144,25 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           <Minus className="w-3 h-3" />
         </Button>
         <Input
-          inputMode="numeric"
-          value={value.reps ?? ''}
+          inputMode="text"
+          value={repsInputValue}
           placeholder={defaultRepsLabel ?? 'reps'}
           onChange={(e) => {
             const raw = e.target.value;
-            // Rejeita qualquer caractere não-numérico em vez de strip silencioso
-            // (ex: "20-30" ficaria "2030" sem esta guarda).
-            if (/[^0-9]/.test(raw)) return;
-            patch({ reps: raw === '' ? null : Number(raw) });
+            // Aceita número simples ("12") ou faixa ("20-30" = feito entre 20 e 30 reps).
+            // Faixa incompleta em digitação (ex.: "20-") também é permitida pra não travar.
+            if (!/^[0-9]*(-[0-9]*)?$/.test(raw)) return;
+            setRepsText(raw);
+            const range = raw.match(/^(\d+)-(\d+)$/);
+            if (range) {
+              patch({ reps: Math.round((Number(range[1]) + Number(range[2])) / 2) });
+            } else if (/^\d+$/.test(raw)) {
+              patch({ reps: Number(raw) });
+            } else {
+              patch({ reps: null });
+            }
           }}
+          onBlur={() => setRepsText(null)}
           className={baseInput}
           aria-label={`Reps série ${index + 1}`}
         />

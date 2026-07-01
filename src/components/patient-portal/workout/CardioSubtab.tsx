@@ -414,6 +414,8 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
   // Cronômetro do cardio: o aluno pode medir o tempo direto no app.
   const [swSec, setSwSec] = useState(0);
   const [swRunning, setSwRunning] = useState(false);
+  // Flag: aluno editou a duração manualmente → cronômetro não sobrescreve.
+  const [manualDuration, setManualDuration] = useState(false);
   useEffect(() => {
     if (!swRunning) return;
     const t = setInterval(() => setSwSec((s) => s + 1), 1000);
@@ -421,11 +423,11 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
   }, [swRunning]);
   const swLabel = `${String(Math.floor(swSec / 60)).padStart(2, '0')}:${String(swSec % 60).padStart(2, '0')}`;
   const swMinutes = Math.max(1, Math.round(swSec / 60));
-  // Enquanto o cronômetro roda, a duração acompanha o tempo medido (evita salvar
-  // o valor padrão de 30min sem querer). Depois de parar, o último valor fica.
+  // Enquanto o cronômetro roda E o aluno não editou manualmente, a duração
+  // acompanha o tempo medido. Se editou, o cronômetro fica só no display.
   useEffect(() => {
-    if (swRunning) setDuration(String(swMinutes));
-  }, [swSec, swRunning, swMinutes]);
+    if (swRunning && !manualDuration) setDuration(String(swMinutes));
+  }, [swSec, swRunning, swMinutes, manualDuration]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -465,7 +467,7 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
                 <Button type="button" size="sm" variant="outline" onClick={() => setSwRunning((r) => !r)} className="border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900">
                   {swRunning ? <><Pause className="mr-1 h-4 w-4" /> Pausar</> : <><Play className="mr-1 h-4 w-4" /> Iniciar</>}
                 </Button>
-                <Button type="button" size="sm" variant="ghost" onClick={() => { setSwRunning(false); setSwSec(0); }} aria-label="Zerar cronômetro">
+                <Button type="button" size="sm" variant="ghost" onClick={() => { setSwRunning(false); setSwSec(0); setManualDuration(false); }} aria-label="Zerar cronômetro">
                   <RotateCcw className="h-4 w-4" />
                 </Button>
               </div>
@@ -479,7 +481,7 @@ function CardioLogDialog({ token, onClose, onSaved }: { token: string; onClose: 
 
           <div>
             <Label>Duração (min) *</Label>
-            <Input type="number" min={1} value={duration} onChange={(e) => setDuration(e.target.value)} className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
+            <Input type="text" inputMode="numeric" value={duration} onChange={(e) => { setManualDuration(true); setDuration(e.target.value); }} className="mt-1 bg-white dark:bg-slate-900 border-slate-300 dark:border-slate-700" />
           </div>
           <div>
             <Label>Modalidade</Label>
