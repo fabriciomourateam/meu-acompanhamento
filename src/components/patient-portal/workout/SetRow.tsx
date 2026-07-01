@@ -146,8 +146,11 @@ export function SetRow({ index, value, defaultReps, defaultWeight, defaultRpe, o
           value={value.reps ?? ''}
           placeholder={defaultRepsLabel ?? 'reps'}
           onChange={(e) => {
-            const n = e.target.value.replace(/[^0-9]/g, '');
-            patch({ reps: n === '' ? null : Number(n) });
+            const raw = e.target.value;
+            // Rejeita qualquer caractere não-numérico em vez de strip silencioso
+            // (ex: "20-30" ficaria "2030" sem esta guarda).
+            if (/[^0-9]/.test(raw)) return;
+            patch({ reps: raw === '' ? null : Number(raw) });
           }}
           className={baseInput}
           aria-label={`Reps série ${index + 1}`}
