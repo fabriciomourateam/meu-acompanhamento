@@ -258,7 +258,7 @@ export class DietPDFGenerator {
       + guidelineSection('Suplementação', '💊', allGuidelines.filter((g: any) => isSupplement(g)));
 
 
-    const htmlContent = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Inter','Segoe UI','Arial',sans-serif;color:#f1f5f9;background:#0f172a;padding:32px;line-height:1.5;}</style></head><body>
+    const htmlContent = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Inter','Segoe UI','Arial',sans-serif;color:#f1f5f9;background:#0f172a;padding:32px;line-height:1.5;overflow-x:hidden;}img,table{max-width:100%;}table{table-layout:fixed;}p,div,span,li,td{overflow-wrap:break-word;word-break:break-word;}</style></head><body>
       <!-- VERSÃO PREMIUM V2.0 - DEZEMBRO 2024 -->
       <div style="background:rgba(30,41,59,0.8);border:1px solid rgba(71,85,105,0.5);border-radius:16px;padding:24px;margin-bottom:24px;">
         <div style="display:flex;align-items:center;gap:20px;">
@@ -325,6 +325,7 @@ export class DietPDFGenerator {
     tempDiv.style.width = '900px';
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
+    tempDiv.style.overflowX = 'hidden';
     document.body.appendChild(tempDiv);
 
     try {

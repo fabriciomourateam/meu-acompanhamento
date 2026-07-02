@@ -255,7 +255,7 @@ export class DietPremiumPDFGenerator {
       guidelineSection('Orientações Nutricionais', '📚', allGuidelines.filter((g: any) => !isSupplement(g)))
       + guidelineSection('Suplementação', '💊', allGuidelines.filter((g: any) => isSupplement(g)));
 
-    const htmlContent = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Inter','Segoe UI','Arial',sans-serif;color:#0f172a;background:#f8fafc;padding:48px 64px;line-height:1.5;}</style></head><body>
+    const htmlContent = `<!DOCTYPE html><html lang="pt-BR"><head><meta charset="UTF-8"><style>*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Inter','Segoe UI','Arial',sans-serif;color:#0f172a;background:#f8fafc;padding:48px 64px;line-height:1.5;overflow-x:hidden;}img,table{max-width:100%;}table{table-layout:fixed;}p,div,span,li,td{overflow-wrap:break-word;word-break:break-word;}</style></head><body>
       <!-- NOVO GERADOR PREMIUM V3.0 - DEZEMBRO 2024 -->
       <div style="background:#ffffff;border:1px solid #e2e8f0;border-radius:16px;padding:24px;margin-bottom:32px;">
         <div style="display:flex;align-items:center;gap:20px;">
@@ -320,6 +320,7 @@ export class DietPremiumPDFGenerator {
     tempDiv.style.width = '900px';
     tempDiv.style.position = 'absolute';
     tempDiv.style.left = '-9999px';
+    tempDiv.style.overflowX = 'hidden';
     document.body.appendChild(tempDiv);
 
     try {
